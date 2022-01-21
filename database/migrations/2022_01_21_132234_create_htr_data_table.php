@@ -21,9 +21,10 @@ class CreateHtrDataTable extends Migration
             $table->integer('ProcessId')->unique()->nullable(false);
             $table->integer('HtrId')->nullable();
             $table->string('Status', 64)->nullable();
-            $table->dateTime('LastUpdated')->useCurrent()->nullable(false);
             $table->mediumtext('Data')->nullable();
             $table->string('DataType', 16)->nullable();
+            $table->dateTime('updated_at')->useCurrent()->nullable(false);
+            $table->dateTime('created_at')->useCurrent()->nullable(false);
 
             $table->foreign('ItemId')->references('ItemId')->on('Item');
         });
