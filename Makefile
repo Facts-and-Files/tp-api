@@ -1,10 +1,12 @@
 .PHONY: docker_start docker_stop
 
+pwd := $(shell pwd)
+
 docker_start:
 	@echo "Starting database container..."
-	sudo docker-compose -f ../tp-mysql/docker-compose.yml up -d
+	cd ../tp-mysql && sudo docker-compose up -d
 	@echo "Starting PHP/Apache container..."
-	sudo docker-compose up -d
+	cd $(pwd) && sudo docker-compose up -d
 	@echo "----"
 	@echo "Webserver running on https://localhost/"
 	@echo "Mailhog running on http://localhost:8025"
@@ -12,4 +14,5 @@ docker_start:
 
 docker_stop:
 	@echo "Stopping all containers..."
-	sudo docker-compose -f ./docker-compose.yml -f ../tp-mysql/docker-compose.yml down
+	cd ../tp-mysql && sudo docker-compose down
+	cd $(pwd) && sudo docker-compose down
