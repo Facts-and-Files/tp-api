@@ -14,28 +14,4 @@ class HtrData extends Model
      * @var string
      */
     protected $table = 'htr_data';
-
-    /**
-     * The primary key associated with the table.
-     *
-     * Config over convention here to respect exsting column names.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'ItemId';
-
-    /**
-     * Indicates if the model's ID is auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
-     * The storage format of the model's date columns.
-     *
-     * @var string
-     */
-    protected $dateFormat = 'Y-m-d H:i:s';
-
 }
