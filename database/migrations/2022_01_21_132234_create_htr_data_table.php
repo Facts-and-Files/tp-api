@@ -17,16 +17,16 @@ class CreateHtrDataTable extends Migration
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->integer('ItemId')->primary()->nullable(false);
-            $table->integer('ProcessId')->unique()->nullable(false);
-            $table->integer('HtrId')->nullable();
-            $table->string('Status', 64)->nullable();
-            $table->mediumtext('Data')->nullable();
-            $table->string('DataType', 16)->nullable();
-            $table->dateTime('updated_at')->useCurrent()->nullable(false);
-            $table->dateTime('created_at')->useCurrent()->nullable(false);
+            $table->id();
+            $table->integer('item_id')->unique()->nullable(false);
+            $table->integer('process_id')->unique()->nullable(false);
+            $table->integer('htr_id')->nullable();
+            $table->string('status', 64)->nullable();
+            $table->mediumtext('data')->nullable();
+            $table->string('data_type', 16)->nullable();
+            $table->timestamps();
 
-            $table->foreign('ItemId')->references('ItemId')->on('Item');
+            $table->foreign('item_id')->references('ItemId')->on('Item');
         });
     }
 
