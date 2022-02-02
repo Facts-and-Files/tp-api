@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo docker exec --user www-data tp-api_php_apache_1 php artisan "$@"
+sudo docker exec --user www-data tp_api_v2 php artisan "$@"

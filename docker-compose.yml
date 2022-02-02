@@ -3,6 +3,7 @@ version: '3.7'
 services:
   php_apache:
     image: scto-php:7.4
+    container_name: tp_api_v2
     volumes:
       - ./:/var/www/html/
     ports:
