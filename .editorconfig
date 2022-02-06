@@ -13,7 +13,7 @@ trim_trailing_whitespace = true
 trim_trailing_whitespace = false
 
 
-; depsite the the preferred tab indentention of the laraval coding style
+; depsite the the preferred tab indentention of the laravel coding style
 ; (PSR-01 and PSR-1) the generated files from artisan templates are all
 ; indented with 4 spaces, so we follow this here to not mix this up
 [*.php]
