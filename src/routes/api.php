@@ -14,4 +14,4 @@ use App\Http\Controllers\HtrDataController;
 |
 */
 
-Route::resource('/htrdata', HtrDataController::class);
+Route::apiResource('htrdata', HtrDataController::class);
