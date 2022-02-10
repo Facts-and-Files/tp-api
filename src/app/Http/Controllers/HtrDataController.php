@@ -6,13 +6,6 @@ use App\Http\Controllers\ResponseController;
 use App\Models\HtrData;
 use App\Http\Resources\HtrDataResource;
 
-/**
- * @OA\Get(
- *     path="/api/htrdata",
- *     description="get all HTR data entries",
- *     @OA\Response(response="200", description="JSON response with all entries")
- * )
- */
 class HtrDataController extends ResponseController
 {
     /**
