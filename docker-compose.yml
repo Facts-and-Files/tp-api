@@ -2,12 +2,17 @@ version: '3.7'
 
 services:
   php_apache:
-    image: scto-php:7.4
+    image: scto-php:8.0
+    container_name: tp_api_v2
     volumes:
-      - ./:/var/www/html/
+      - ./src/:/var/www/html/
+      - ./apache/default.conf:/etc/apache2/sites-enabled/000-default.conf
+      - ./apache/default-ssl.conf:/etc/apache2/sites-enabled/default-ssl.conf
     ports:
       - 443:443
       - 80:80
+    env_file:
+      - ./src/.env
     networks:
       - tp_backend
 
