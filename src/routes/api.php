@@ -15,3 +15,5 @@ use App\Http\Controllers\HtrDataController;
 */
 
 Route::apiResource('htrdata', HtrDataController::class);
+Route::get('/htrdata/byitemid/{item_id}', [HtrDataController::class, 'showByItemId']);
+Route::get('/htrdata/byprocessid/{process_id}', [HtrDataController::class, 'showByProcessId']);
