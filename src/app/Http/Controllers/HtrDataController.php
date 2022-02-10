@@ -10,7 +10,7 @@ use App\Http\Resources\HtrDataResource;
  * @OA\Get(
  *     path="/api/htrdata",
  *     description="get all HTR data entries",
- *     @OA\Response(response="", description="JSON response with all entries")
+ *     @OA\Response(response="200", description="JSON response with all entries")
  * )
  */
 class HtrDataController extends ResponseController
@@ -24,6 +24,9 @@ class HtrDataController extends ResponseController
     {
         $allHtrData = HtrData::all();
         return $this->sendResponse(HtrDataResource::collection($allHtrData), 'HtrData fetched.');
+        /* return $this->sendResponse(HtrDataResource::collection(HtrData::paginate(1000)), 'HtrData fetched.'); */
+        /* return $this->sendResponse(HtrData::paginate(2), 'HtrData fetched.'); */
+        /* return $this->sendResponse(HtrData::all(), 'HtrData fetched.'); */
     }
 
     /**
@@ -40,12 +43,37 @@ class HtrDataController extends ResponseController
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\HtrData  $htrData
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(HtrData $htrData)
+    public function show($id)
     {
-        //
+        $htrData = HtrData::findOrfail($id);
+        return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
+    }
+
+    /**
+     * Display the specified resource by item_id
+     *
+     * @param  int  $item_id
+     * @return \Illuminate\Http\Response
+     */
+    public function showByItemId($item_id)
+    {
+        $htrData = HtrData::where('item_id', $item_id)->firstOrFail();
+        return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
+    }
+
+    /**
+     * Display the specified resource by process_id
+     *
+     * @param  int  $process_id
+     * @return \Illuminate\Http\Response
+     */
+    public function showByProcessId($process_id)
+    {
+        $htrData = HtrData::where('process_id', $process_id)->firstOrFail();
+        return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
     }
 
     /**
