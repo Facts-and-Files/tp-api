@@ -14,4 +14,11 @@ class HtrData extends Model
      * @var string
      */
     protected $table = 'htr_data';
+
+    /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'item_id';
 }

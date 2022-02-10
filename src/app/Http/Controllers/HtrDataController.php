@@ -46,18 +46,6 @@ class HtrDataController extends ResponseController
     }
 
     /**
-     * Display the specified resource by item_id
-     *
-     * @param  int  $item_id
-     * @return \Illuminate\Http\Response
-     */
-    public function showByItemId($item_id)
-    {
-        $htrData = HtrData::where('item_id', $item_id)->firstOrFail();
-        return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
-    }
-
-    /**
      * Display the specified resource by process_id
      *
      * @param  int  $process_id
