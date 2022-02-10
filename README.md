@@ -21,6 +21,12 @@ A Makefile is included for managing some of the processes as starting/stoping th
 
 ### artisan
 
-To get direct access to the docker internal Laravel artisan console (and not the one from the host) you can use the provided d_artisan.sh script.
+To get direct access to the docker internal Laravel artisan console (and not the one from the host) you can use the provided d_artisan.sh wrapper script:
 
     $ ./d_artisan.sh list
+
+### Composer
+
+Also the you can make use of the docker container internal compose with the provided wrapper:
+
+    $ ./d_composer.sh --version
