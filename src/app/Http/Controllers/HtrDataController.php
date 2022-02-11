@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\ResponseController;
 use App\Models\HtrData;
 use App\Http\Resources\HtrDataResource;
+use Illuminate\Http\Request;
 
 class HtrDataController extends ResponseController
 {
@@ -30,7 +31,17 @@ class HtrDataController extends ResponseController
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $htrData = new HtrData();
+            $htrData->fill($request->all());
+            $htrData->item_id = $request->item_id;
+            $htrData->process_id = $request->process_id;
+            $htrData->save();
+
+            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData inserted.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage());
+        }
     }
 
     /**
