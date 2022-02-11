@@ -18,9 +18,6 @@ class HtrDataController extends ResponseController
     {
         $allHtrData = HtrData::all();
         return $this->sendResponse(HtrDataResource::collection($allHtrData), 'HtrData fetched.');
-        /* return $this->sendResponse(HtrDataResource::collection(HtrData::paginate(1000)), 'HtrData fetched.'); */
-        /* return $this->sendResponse(HtrData::paginate(2), 'HtrData fetched.'); */
-        /* return $this->sendResponse(HtrData::all(), 'HtrData fetched.'); */
     }
 
     /**
