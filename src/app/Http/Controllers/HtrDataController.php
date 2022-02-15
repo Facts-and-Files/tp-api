@@ -37,20 +37,25 @@ class HtrDataController extends ResponseController
 
             return $this->sendResponse(new HtrDataResource($htrData), 'HtrData inserted.');
         } catch (\Exception $exception) {
-            return $this->sendError('Invalid data', $exception->getMessage());
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  int  $item_id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($item_id)
     {
-        $htrData = HtrData::findOrfail($id);
-        return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
+        try {
+            $htrData = HtrData::findOrfail($item_id);
+
+            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage());
+        }
     }
 
     /**
@@ -61,31 +66,51 @@ class HtrDataController extends ResponseController
      */
     public function showByProcessId($process_id)
     {
-        $htrData = HtrData::where('process_id', $process_id)->firstOrFail();
-        return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
+        try {
+            $htrData = HtrData::where('process_id', $process_id)->firstOrFail();
+
+            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage());
+        }
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\HtrData  $htrData
+     * @param  int  $item_id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, HtrData $htrData)
+    public function update(Request $request, $item_id)
     {
-        //
+        try {
+            $htrData = HtrData::findOrfail($item_id);
+            $htrData->fill($request->all());
+            $htrData->save();
+
+            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData updated.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\HtrData  $htrData
+     * @param  int  $item_id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(HtrData $htrData)
+    public function destroy($item_id)
     {
-        //
+        try {
+            $htrData = HtrData::findOrfail($item_id);
+            $htrData->delete();
+
+            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData deleted.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
     }
 
 }
