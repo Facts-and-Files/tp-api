@@ -31,10 +31,10 @@ Also the you can make use of the docker container internal compose with the prov
 
     $ ./d_composer.sh --version
 
-### API-Tokens
+### API-Token
 
 To access the API a valid token is required. The token can be generated via
 
     $ ./d_artisan.sh make:token
 
-It will be stored in the `api_clients` table as hash.
+It will be stored in the `api_clients` table as hash. Currently the token can be applied by the client as query parameter: https://localhost/api/htrdata?api_token=<api_token>
