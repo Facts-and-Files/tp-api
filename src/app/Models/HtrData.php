@@ -14,4 +14,18 @@ class HtrData extends Model
      * @var string
      */
     protected $table = 'htr_data';
+
+    /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'item_id';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var string
+     */
+    protected $guarded = ['item_id', 'process_id'];
 }

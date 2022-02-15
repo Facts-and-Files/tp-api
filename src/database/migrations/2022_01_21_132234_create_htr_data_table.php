@@ -17,8 +17,7 @@ class CreateHtrDataTable extends Migration
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->id();
-            $table->integer('item_id')->unique()->nullable(false);
+            $table->integer('item_id')->primary();
             $table->integer('process_id')->unique()->nullable(false);
             $table->integer('htr_id')->nullable();
             $table->string('status', 64)->nullable();

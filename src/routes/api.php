@@ -14,4 +14,5 @@ use App\Http\Controllers\HtrDataController;
 |
 */
 
-Route::resource('/htrdata', HtrDataController::class);
+Route::apiResource('htrdata', HtrDataController::class);
+Route::get('/htrdata/byprocessid/{process_id}', [HtrDataController::class, 'showByProcessId']);

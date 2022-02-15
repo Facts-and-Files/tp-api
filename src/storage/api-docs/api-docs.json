@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Transcribathon Platform API",
-        "description": "",
+        "description": "Refactored API for the Transcribathon Platform",
         "contact": {
             "email": "schmucker@factsandfiles.com"
         },
@@ -10,21 +10,6 @@
             "name": "European Union Public License 1.2",
             "url": "https://joinup.ec.europa.eu/sites/default/files/custom-page/attachment/2020-03/EUPL-1.2%20EN.txt"
         },
-        "version": "0.1.0"
-    },
-    "paths": {
-        "/": {
-            "get": {
-                "description": "Home page",
-                "responses": {
-                    "default": {
-                        "description": "Welcome page"
-                    }
-                }
-            }
-        }
-    },
-    "security": [
-        []
-    ]
+        "version": "2.0.0-beta"
+    }
 }
