@@ -73,7 +73,7 @@ return [
 
         'api_client' => [
             'driver' => 'database',
-            'table' => 'api_client'
+            'table' => 'api_clients'
         ],
     ],
 
