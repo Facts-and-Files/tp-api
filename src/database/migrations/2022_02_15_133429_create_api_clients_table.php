@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('api_clients', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('api_token')->unique();
         });
     }
 
