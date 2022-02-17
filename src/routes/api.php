@@ -14,5 +14,7 @@ use App\Http\Controllers\HtrDataController;
 |
 */
 
-Route::apiResource('htrdata', HtrDataController::class);
-Route::get('/htrdata/byprocessid/{process_id}', [HtrDataController::class, 'showByProcessId']);
+Route::middleware(['auth:api'])->group(function() {
+    Route::apiResource('htrdata', HtrDataController::class);
+    Route::get('/htrdata/byprocessid/{process_id}', [HtrDataController::class, 'showByProcessId']);
+});
