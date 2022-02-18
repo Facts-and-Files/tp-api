@@ -1,7 +1,10 @@
-.PHONY: docker_start docker_stop
+# include .env
+# export $(shell sed 's/=.*//' .env)
 
+today := $(shell date +%s)
 this_container := $(shell pwd)
 api_db_container := ../tp-mysql
+
 
 docker_start:
 	@echo "Starting database container..."
@@ -24,3 +27,8 @@ docker_stop:
 	@echo
 	@echo "...mischief managed."
 	@echo
+
+deploy_local:
+	@echo "deploying to local..."
+	@bash deploy.sh local
+	@echo "...deploying done"
