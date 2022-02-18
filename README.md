@@ -2,7 +2,7 @@
 
 Version 2 of the Transcribathon platform API (tp-api) as PHP Laravel stack.
 
-## Requirements
+## Requirements for development
 
 There are two docker containers/images required.
 
@@ -42,4 +42,6 @@ It will be stored in the `api_clients` table as hash. Currently the token can be
 ## Development
 
 For deployment see Makefile and the deploy.sh script.
-Head to https://laravel.com/docs/9.x/deployment#main-content for server requirements. Probably the PHP DOM extension is missing ba default. (`sudo apt upate && sudo apt install php8.0-xml`).
+Head to https://laravel.com/docs/9.x/deployment#main-content for server requirements. Probably the PHP DOM extension is missing by default.
+
+    $ sudo apt upate && sudo apt install php8.0-xml
