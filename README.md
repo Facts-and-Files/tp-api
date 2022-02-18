@@ -33,11 +33,11 @@ Also the you can make use of the docker container internal compose with the prov
 
 ### API-Token
 
-To access the API a valid token is required. The token can be generated via
+To access the API routes a valid token is required. The token can be generated via
 
     $ ./d_artisan.sh make:token
 
-It will be stored in the `api_clients` table as hash. Currently the token can be applied by the client as as bearer token in the header `Authorization: Bearer <api_token>`
+It will be stored in the `api_clients` table as hash. The token can be applied by the client as as bearer token in the header `Authorization: Bearer <api_token>`
 
 ## Development
 
@@ -46,8 +46,57 @@ Head to https://laravel.com/docs/9.x/deployment#main-content for server requirem
 
     $ sudo apt upate && sudo apt install php8.0-xml
 
-The deploy script should do most of the tasks autmagically. If needed run the
+The deploy script should do most of the tasks automagically. Just run
+
+    $ make deploy_local
+
+to deploy the the version on the server (.local here for instance)
+
+If needed (on initial install) connect to the deploy server and run the
 
     $ php artisan migrate
 
-manually in production.
+manually to alter the database.
+
+## API routes
+
+Access to all routes require a bearer token, the following routes are available by now:
+
+* GET /api/htrdata \
+List all items from htrdata
+* POST /api/htrdata \
+Stores a new item, body payload is in JSON format. Example: \
+```
+{
+	"item_id": 421717, // required, related item form Items table 
+	"process_id": 56845, // required, process id given by Transcribus API response
+	"htr_id": 2222, // used handwriting recognition model as id, see Transcribus API
+	"status": "CREATED", // current status of the Transcribus HTR process, given by Transcribus API response
+	"data": "{'some':'json'}", // the data from Transcribus API response, if one as string (will be probably a XML string)
+	"data_type": "json" // type of the data, probably 'xml'
+}
+```
+* GET /api/htrdata/{id} \
+Get the entry of an item
+* GET /api/htrdata/byprocessid/{process_id} \
+Get the entry of an item by its process id
+* PUT /api/htrdata/{id} \
+Update an item. Payload as JSON. Example:
+```
+{
+	"htr_id": 421717, // id of handwriting model id, see above
+	"status": "SUCCESS", // status of the HTR process
+	"data": "<xml />", // data of the HTR
+	"data_type": "xml" // type of the HTR data
+}
+```
+* DELETE /api/htrdata/{id} \
+Delete an item by its id.
+
+### Example calls
+
+    $ http --verify=no https://localhost/api/htrdata 'Authorization: Bearer <api_token>'
+
+    $ http --verify=no https://localhost/api/htrdata/byprocessid/56845 'Authorization: Bearer <api_token>'
+
+    $ http POST --verify=no https://localhost/api/htrdata 'Authorization: Bearer <api_token>' @post.json
