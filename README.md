@@ -2,14 +2,14 @@
 
 Version 2 of the Transcribathon platform API (tp-api) as PHP Laravel stack.
 
-## Requirements
+## Requirements for development
 
 There are two docker containers/images required.
 
 * [TP-MySQL](https://github.com/Facts-and-Files/tp-mysql)
 The MySQL docker container which will provide the database (the dump will be provided on demand).
 * [trenc-php](https://github.com/trenc/trenc-php)
-An custom PHP image. When bulding the image use the name and tag as it is referenced in the docker-compose.yml here (scto-php:7.4).
+An custom PHP image. When bulding the image use the name and tag as it is referenced in the docker-compose.yml here (scto-php:8.0).
 
 ## Development/Helpers
 
@@ -38,3 +38,16 @@ To access the API a valid token is required. The token can be generated via
     $ ./d_artisan.sh make:token
 
 It will be stored in the `api_clients` table as hash. Currently the token can be applied by the client as as bearer token in the header `Authorization: Bearer <api_token>`
+
+## Development
+
+For deployment see Makefile and the deploy.sh script.
+Head to https://laravel.com/docs/9.x/deployment#main-content for server requirements. Probably the PHP DOM extension is missing by default.
+
+    $ sudo apt upate && sudo apt install php8.0-xml
+
+The deploy script should do most of the tasks autmagically. If needed run the
+
+    $ php artisan migrate
+
+manually in production.
