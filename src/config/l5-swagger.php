@@ -5,7 +5,7 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'Transcribathon API (v2) documentation)',
+                'title' => 'Transcribathon API (v2) documentation',
             ],
 
             'routes' => [
