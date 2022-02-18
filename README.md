@@ -45,3 +45,9 @@ For deployment see Makefile and the deploy.sh script.
 Head to https://laravel.com/docs/9.x/deployment#main-content for server requirements. Probably the PHP DOM extension is missing by default.
 
     $ sudo apt upate && sudo apt install php8.0-xml
+
+The deploy script should do most of the tasks autmagically. If needed run the
+
+    $ php artisan migrate
+
+manually in production.
