@@ -1,11 +1,60 @@
 openapi: 3.0.3
 
 info:
-  title: Transcribathon Platform API v2
   version: 0.1.0
+  title: Transcribathon Platform API v2
+  description: This is the documentation of the Transcribathon API v2.
+                For authorization you can use the the bearer token you are provided with.
+  contact:
+    email: schmucker@factsandfiles.com
+  license:
+    name: European Union Public License 1.2
+    url: https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+
+externalDocs:
+  url: https://transcribathon.eu
+  description: More about Transcribathon
 
 servers:
-  - url: /api
+  - url: https://api.transcribathon.eu.local/api
+    description: local dockerized development server
+  - url: https://api.transcribathon.local/api
+    description: development server within the VPN
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: htrdata
+    description: Operations for htrdata
+
+paths:
+  /htrdata:
+    get:
+      tags:
+        - htrdata
+      summary: Get all htrdata entries of items
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/responses/BasicSuccessResponse'
+                  - properties:
+                      data:
+                        type: array
+                        description: HtrData entry objects as array
+                        items:
+                          $ref: '#/components/schemas/HtrDataResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/BasicErrorResponse'
+
 
 components:
   securitySchemes:
@@ -13,22 +62,69 @@ components:
       type: http
       scheme: bearer
 
-security:
-  - bearerAuth: []
+  responses:
+    BasicSuccessResponse:
+      type: object
+      description: The success response
+      properties:
+        data:
+          type: {}
+          description: The requested data, type depending on subschema
+        message:
+          type: string
+          description: An informational message about the response
+          example: Data fetched
+        success:
+          type: boolean
+          description: The outcome of the response
+          example: true
 
-paths:
-  '/htrdata':
-    get:
-      responses:
-        '200':
-          description: Ok
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                    - foo
-                properties:
-                  foo:
-                    type: string
-                    example: bar
+    BasicErrorResponse:
+      type: object
+      description: The error response
+      properties:
+        data:
+          type: string
+          description: An optional information about the error
+          example: "No query results for model [App\\Models\\HtrData] 421771"
+        message:
+          type: string
+          description: An error message
+          example: Not found
+        success:
+          type: boolean
+          description: The outcome of the response
+          example: false
+
+  schemas:
+    HtrDataResponse:
+      type: object
+      description: The data object of a single entry
+      properties:
+        created_at:
+          type: string
+          description: Time of creation
+        updated_at:
+          type: string
+          description: Time of last update
+        data:
+          type: string
+          description: Requested data
+        data_type:
+          type: string
+          description: Current type/format of the data (json|xml)
+        htr_id:
+          type: integer
+          description: ID of the used HTR model for this data
+        item_id:
+          type: integer
+          description: ID of the referenced item
+        process_id:
+          type: integer
+          description: ID of the process from the Transcribus API
+        status:
+          type: string
+          description: Current status of the data
+
+
+
