@@ -65,6 +65,32 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/HtrDataResponse'
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/responses/BasicSuccessResponse'
+                  - properties:
+                      data:
+                        type: array
+                        description: HTR data entry objects as array
+                        items:
+                          $ref: '#/components/schemas/HtrDataResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/401ErrorResponse'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/400ErrorResponse'
 
 
 components:
@@ -105,6 +131,15 @@ components:
           description: The outcome of the response
           example: false
 
+    400ErrorResponse:
+      allOf:
+        - $ref: '#/components/responses/BasicErrorResponse'
+        - properties:
+            data:
+              example: Some detailled error
+            message:
+              example: Invalid data
+
     401ErrorResponse:
       allOf:
         - $ref: '#/components/responses/BasicErrorResponse'
@@ -115,19 +150,20 @@ components:
             message:
               example: Unauthenticated
 
+    404ErrorResponse:
+      allOf:
+        - $ref: '#/components/responses/BasicErrorResponse'
+        - properties:
+            data:
+              example: Some detailled error
+            message:
+              example: Not found
+
   schemas:
-    HtrDataResponse:
+    HtrDataPostRequest:
       type: object
-      description: The data object of a single entry
+      description: The data object of a single POST request body
       properties:
-        created_at:
-          type: string
-          description: Time of creation
-          example: '2022-02-23T09:57:03.000000Z'
-        updated_at:
-          type: string
-          description: Time of last update
-          example: '2022-02-23T09:57:03.000000Z'
         data:
           type: string
           description: Requested data
@@ -140,10 +176,6 @@ components:
           type: integer
           description: ID of the used HTR model for this data
           example: 35909
-        item_id:
-          type: integer
-          description: ID of the referenced item
-          example: 421717
         process_id:
           type: integer
           description: ID of the process from the Transcribus API
@@ -153,5 +185,21 @@ components:
           description: Current status of the data
           example: CREATED
 
-
+    HtrDataResponse:
+      allOf:
+        - $ref: '#/components/schemas/HtrDataPostRequest'
+        - description: The data object of a single response entry
+          properties:
+            created_at:
+              type: string
+              description: Time of creation
+              example: '2022-02-23T09:57:03.000000Z'
+            updated_at:
+              type: string
+              description: Time of last update
+              example: '2022-02-23T09:57:03.000000Z'
+            item_id:
+              type: integer
+              description: ID of the referenced item
+              example: 421717
 
