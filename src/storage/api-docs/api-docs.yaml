@@ -26,14 +26,14 @@ security:
 
 tags:
   - name: htrdata
-    description: Operations for htrdata
+    description: Operations for HTR data
 
 paths:
   /htrdata:
     get:
       tags:
         - htrdata
-      summary: Get all htrdata entries of items
+      summary: Get all stored HTR data entries
       responses:
         200:
           description: Ok
@@ -45,7 +45,7 @@ paths:
                   - properties:
                       data:
                         type: array
-                        description: HtrData entry objects as array
+                        description: HTR data entry objects as array
                         items:
                           $ref: '#/components/schemas/HtrDataResponse'
         401:
@@ -53,7 +53,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/responses/BasicErrorResponse'
+                $ref: '#/components/responses/401ErrorResponse'
+    post:
+      tags:
+        - htrdata
+      summary: Store a new HTR data entry
+      requestBody:
+        description: Data to be stored
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HtrDataResponse'
 
 
 components:
@@ -68,7 +79,7 @@ components:
       description: The success response
       properties:
         data:
-          type: {}
+          type: ['null', string, object]
           description: The requested data, type depending on subschema
         message:
           type: string
@@ -86,15 +97,23 @@ components:
         data:
           type: string
           description: An optional information about the error
-          example: "No query results for model [App\\Models\\HtrData] 421771"
         message:
           type: string
           description: An error message
-          example: Not found
         success:
           type: boolean
           description: The outcome of the response
           example: false
+
+    401ErrorResponse:
+      allOf:
+        - $ref: '#/components/responses/BasicErrorResponse'
+        - properties:
+            data:
+              nullable: true
+              example: null
+            message:
+              example: Unauthenticated
 
   schemas:
     HtrDataResponse:
@@ -104,27 +123,35 @@ components:
         created_at:
           type: string
           description: Time of creation
+          example: '2022-02-23T09:57:03.000000Z'
         updated_at:
           type: string
           description: Time of last update
+          example: '2022-02-23T09:57:03.000000Z'
         data:
           type: string
           description: Requested data
+          example: '<?xml version="1.0" encoding="UTF-8"?>'
         data_type:
           type: string
           description: Current type/format of the data (json|xml)
+          example: xml
         htr_id:
           type: integer
           description: ID of the used HTR model for this data
+          example: 35909
         item_id:
           type: integer
           description: ID of the referenced item
+          example: 421717
         process_id:
           type: integer
           description: ID of the process from the Transcribus API
+          example: 56845
         status:
           type: string
           description: Current status of the data
+          example: CREATED
 
 
 
