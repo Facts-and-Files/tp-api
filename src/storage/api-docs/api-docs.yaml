@@ -30,68 +30,9 @@ tags:
 
 paths:
   /htrdata:
-    get:
-      tags:
-        - htrdata
-      summary: Get all stored HTR data entries
-      responses:
-        200:
-          description: Ok
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/responses/BasicSuccessResponse'
-                  - properties:
-                      data:
-                        type: array
-                        description: HTR data entry objects as array
-                        items:
-                          $ref: '#/components/schemas/HtrDataResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/401ErrorResponse'
-    post:
-      tags:
-        - htrdata
-      summary: Store a new HTR data entry
-      requestBody:
-        description: Data to be stored
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/HtrDataResponse'
-      responses:
-        200:
-          description: Ok
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/responses/BasicSuccessResponse'
-                  - properties:
-                      data:
-                        type: array
-                        description: HTR data entry objects as array
-                        items:
-                          $ref: '#/components/schemas/HtrDataResponse'
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/401ErrorResponse'
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/responses/400ErrorResponse'
-
+    $ref: 'htrdata-path.yaml'
+  /htrdata/{item_id}:
+    $ref: 'htrdata-item_id-path.yaml'
 
 components:
   securitySchemes:
@@ -100,106 +41,13 @@ components:
       scheme: bearer
 
   responses:
-    BasicSuccessResponse:
-      type: object
-      description: The success response
-      properties:
-        data:
-          type: ['null', string, object]
-          description: The requested data, type depending on subschema
-        message:
-          type: string
-          description: An informational message about the response
-          example: Data fetched
-        success:
-          type: boolean
-          description: The outcome of the response
-          example: true
-
-    BasicErrorResponse:
-      type: object
-      description: The error response
-      properties:
-        data:
-          type: string
-          description: An optional information about the error
-        message:
-          type: string
-          description: An error message
-        success:
-          type: boolean
-          description: The outcome of the response
-          example: false
-
-    400ErrorResponse:
-      allOf:
-        - $ref: '#/components/responses/BasicErrorResponse'
-        - properties:
-            data:
-              example: Some detailled error
-            message:
-              example: Invalid data
-
-    401ErrorResponse:
-      allOf:
-        - $ref: '#/components/responses/BasicErrorResponse'
-        - properties:
-            data:
-              nullable: true
-              example: null
-            message:
-              example: Unauthenticated
-
-    404ErrorResponse:
-      allOf:
-        - $ref: '#/components/responses/BasicErrorResponse'
-        - properties:
-            data:
-              example: Some detailled error
-            message:
-              example: Not found
+    $ref: 'responses.yaml'
 
   schemas:
-    HtrDataPostRequest:
-      type: object
-      description: The data object of a single POST request body
-      properties:
-        data:
-          type: string
-          description: Requested data
-          example: '<?xml version="1.0" encoding="UTF-8"?>'
-        data_type:
-          type: string
-          description: Current type/format of the data (json|xml)
-          example: xml
-        htr_id:
-          type: integer
-          description: ID of the used HTR model for this data
-          example: 35909
-        process_id:
-          type: integer
-          description: ID of the process from the Transcribus API
-          example: 56845
-        status:
-          type: string
-          description: Current status of the data
-          example: CREATED
-
-    HtrDataResponse:
-      allOf:
-        - $ref: '#/components/schemas/HtrDataPostRequest'
-        - description: The data object of a single response entry
-          properties:
-            created_at:
-              type: string
-              description: Time of creation
-              example: '2022-02-23T09:57:03.000000Z'
-            updated_at:
-              type: string
-              description: Time of last update
-              example: '2022-02-23T09:57:03.000000Z'
-            item_id:
-              type: integer
-              description: ID of the referenced item
-              example: 421717
+    HtrDataPostRequestSchema:
+      $ref: 'htrdata-schema.yaml#/HtrDataPostRequestSchema'
+    HtrDataPutRequestSchema:
+      $ref: 'htrdata-schema.yaml#/HtrDataPutRequestSchema'
+    HtrDataGetResponseSchema:
+      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
 

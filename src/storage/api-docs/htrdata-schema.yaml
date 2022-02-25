@@ -1,0 +1,52 @@
+HtrDataPostRequestSchema:
+  type: object
+  description: The data object of a single POST request body
+  properties:
+    data:
+      type: string
+      description: Requested data
+      example: '<?xml version="1.0" encoding="UTF-8"?>'
+    data_type:
+      type: string
+      description: Current type/format of the data (json|xml)
+      example: xml
+    htr_id:
+      type: integer
+      description: ID of the used HTR model for this data
+      example: 35909
+    process_id:
+      type: integer
+      description: ID of the process from the Transcribus API
+      example: 56845
+    status:
+      type: string
+      description: Current status of the data
+      example: CREATED
+
+HtrDataGetResponseSchema:
+  allOf:
+    - $ref: '#/HtrDataPostRequestSchema'
+    - description: The data object of a single response entry
+      properties:
+        created_at:
+          type: string
+          description: Time of creation
+          example: '2022-02-23T09:57:03.000000Z'
+        updated_at:
+          type: string
+          description: Time of last update
+          example: '2022-02-23T09:57:03.000000Z'
+        item_id:
+          type: integer
+          description: ID of the referenced item
+          example: 421717
+
+HtrDataPutRequestSchema:
+  allOf:
+    - $ref: '#/HtrDataPostRequestSchema'
+    - description: The data object of a single response entry
+      properties:
+        item_id:
+          type: integer
+          description: ID of the referenced item
+          example: 421717

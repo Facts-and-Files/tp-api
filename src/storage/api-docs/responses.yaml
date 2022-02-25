@@ -1,0 +1,70 @@
+BasicSuccessResponse:
+  type: object
+  description: The success response
+  properties:
+    data:
+      type: ['null', string, object]
+      description: The requested data, type depending on subschema
+    message:
+      type: string
+      description: An informational message about the response
+      example: Data fetched
+    success:
+      type: boolean
+      description: The outcome of the response
+      example: true
+
+BasicErrorResponse:
+  type: object
+  description: The error response
+  properties:
+    data:
+      type: string
+      description: An optional information about the error
+    message:
+      type: string
+      description: An error message
+    success:
+      type: boolean
+      description: The outcome of the response
+      example: false
+
+400ErrorResponse:
+  description: Bad Request
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '#/BasicErrorResponse'
+          - properties:
+              data:
+                example: Some detailled error
+              message:
+                example: Invalid data
+
+401ErrorResponse:
+  description: Unauthorized
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '#/BasicErrorResponse'
+          - properties:
+              data:
+                nullable: true
+                example: null
+              message:
+                example: Unauthenticated
+
+404ErrorResponse:
+  description: Not Found
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '#/BasicErrorResponse'
+          - properties:
+              data:
+                example: Some detailled error
+              message:
+                example: Not found
