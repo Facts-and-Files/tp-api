@@ -33,6 +33,8 @@ paths:
     $ref: 'htrdata-path.yaml'
   /htrdata/{item_id}:
     $ref: 'htrdata-item_id-path.yaml'
+  /htrdata/byprocessid/{process_id}:
+    $ref: 'htrdata-byprocessid-process_id-path.yaml'
 
 components:
   securitySchemes:
