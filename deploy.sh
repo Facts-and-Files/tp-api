@@ -23,11 +23,11 @@ if [ $OUT = 0 ]; then
     cd "$UPLOAD_PATH"
     mv ".env.$STAGE" .env
     composer install --optimize-autoloader --no-dev
-    php artisan config:cache
-    php artisan route:cache
+    php artisan optimize:clear
     mkdir -p $INSTALL_PATH
     mv $INSTALL_PATH "$INSTALL_PATH.$NOW"
     cd .. && mv "$UPLOAD_PATH" "$INSTALL_PATH"
+    echo "$SSH_PASS"| sudo -S chown -R www-data:www-data "$INSTALL_PATH"
 EOF
   fi
   echo 'Deploy successful'
