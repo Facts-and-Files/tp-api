@@ -16,9 +16,9 @@ externalDocs:
   description: More about Transcribathon
 
 servers:
-  - url: https://api.transcribathon.eu.local/api
+  - url: https://api.transcribathon.eu.local/v2
     description: local dockerized development server
-  - url: https://api.transcribathon.local/api
+  - url: https://api.transcribathon.local/v2
     description: development server within the VPN
 
 security:

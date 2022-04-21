@@ -60,6 +60,11 @@ manually to alter the database.
 
 ## API routes
 
+There is an OpenAPI console available. It can be accessed via:
+
+* local docker container: https://api.transcribathon.eu.local/v2/documentation
+* VPN server: https://api.transcribathon.local/v2/documentation
+
 Access to all routes require a bearer token, the following routes are available by now:
 
 * GET /api/htrdata \
