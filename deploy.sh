@@ -48,8 +48,8 @@ if [ $STAGE = 'dev' ]; then
   ssh -i $SSH_KEY -t $SSH_USER@$SSH_HOST -p $SSH_PORT << EOF
   cd "$UPLOAD_PATH"
   mv ".env.$STAGE" .env
-  composer install --optimize-autoloader --no-dev
-  php artisan optimize:clear
+  php81 composer.phar install --optimize-autoloader --no-dev
+  php81 artisan optimize:clear
   mkdir -p $INSTALL_PATH
   mv $INSTALL_PATH "$INSTALL_PATH.$NOW"
   cd .. && mv "$UPLOAD_PATH" "$INSTALL_PATH"
