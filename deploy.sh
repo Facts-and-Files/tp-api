@@ -36,7 +36,7 @@ if [ $STAGE = 'local' ]; then
   mv ".env.$STAGE" .env
   composer install --optimize-autoloader --no-dev
   php artisan optimize:clear
-  php artisan migrate --force --no-interactive
+  php artisan migrate --force --no-interaction
   mkdir -p $INSTALL_PATH
   mv $INSTALL_PATH "$INSTALL_PATH.$NOW"
   cd .. && mv "$UPLOAD_PATH" "$INSTALL_PATH"
@@ -51,7 +51,7 @@ if [ $STAGE = 'dev' ]; then
   mv ".env.$STAGE" .env
   php81 composer.phar install --optimize-autoloader --no-dev
   php81 artisan optimize:clear
-  php81 artisan migrate --force --no-interactive
+  php81 artisan migrate --force --no-interaction
   mkdir -p $INSTALL_PATH
   mv $INSTALL_PATH "$INSTALL_PATH.$NOW"
   cd .. && mv "$UPLOAD_PATH" "$INSTALL_PATH"
