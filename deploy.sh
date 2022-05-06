@@ -13,7 +13,7 @@ date
 echo
 
 if [ $STAGE = 'local' ]; then
-  lftp -c "mirror --exclude vendor --exclude .env --include .env.$STAGE -R src $UPLOAD_PATH; bye" --user $SSH_USER --password $SSH_PASS sftp://$SSH_HOST
+  lftp -e "mirror --exclude vendor --exclude .env --include .env.$STAGE -R src $UPLOAD_PATH; bye" --user $SSH_USER --password $SSH_PASS sftp://$SSH_HOST
 fi
 
 if [ $STAGE = 'dev' ]; then
@@ -36,7 +36,7 @@ if [ $STAGE = 'local' ]; then
   mv ".env.$STAGE" .env
   composer install --optimize-autoloader --no-dev
   php artisan optimize:clear
-  php artisan migrate
+  php artisan migrate --force --no-interactive
   mkdir -p $INSTALL_PATH
   mv $INSTALL_PATH "$INSTALL_PATH.$NOW"
   cd .. && mv "$UPLOAD_PATH" "$INSTALL_PATH"
@@ -51,7 +51,7 @@ if [ $STAGE = 'dev' ]; then
   mv ".env.$STAGE" .env
   php81 composer.phar install --optimize-autoloader --no-dev
   php81 artisan optimize:clear
-  php81 artisan migrate
+  php81 artisan migrate --force --no-interactive
   mkdir -p $INSTALL_PATH
   mv $INSTALL_PATH "$INSTALL_PATH.$NOW"
   cd .. && mv "$UPLOAD_PATH" "$INSTALL_PATH"
