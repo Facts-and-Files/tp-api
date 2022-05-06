@@ -5,7 +5,6 @@ today := $(shell date +%s)
 this_container := $(shell pwd)
 api_db_container := ../tp-mysql
 
-
 docker_start:
 	@echo "Starting database container..."
 	@cd $(api_db_container) && sudo docker-compose up -d
@@ -31,4 +30,9 @@ docker_stop:
 deploy_local:
 	@echo "deploying to local..."
 	@bash deploy.sh local
+	@echo "...deploying done"
+
+deploy_dev:
+	@echo "deploying to DEV..."
+	@bash deploy.sh dev
 	@echo "...deploying done"
