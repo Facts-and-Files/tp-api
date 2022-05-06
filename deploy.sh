@@ -17,7 +17,8 @@ if [ $STAGE = 'local' ]; then
 fi
 
 if [ $STAGE = 'dev' ]; then
-  lftp -e "set sftp:connect-program \"ssh -a -x -i $SSH_KEY\"; connect sftp://$SSH_USER@$SSH_HOST:$SSH_PORT; mirror --exclude vendor --exclude .env --include .env.$STAGE -R src $UPLOAD_PATH; bye"
+  exit 1
+  # lftp -e "set sftp:connect-program \"ssh -a -x -i $SSH_KEY\"; connect sftp://$SSH_USER@$SSH_HOST:$SSH_PORT; mirror --exclude vendor --exclude .env --include .env.$STAGE -R src $UPLOAD_PATH; bye"
 fi
 
 OUT=$?
