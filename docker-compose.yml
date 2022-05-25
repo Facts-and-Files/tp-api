@@ -9,8 +9,8 @@ services:
       - ./apache/default.conf:/etc/apache2/sites-enabled/000-default.conf
       - ./apache/default-ssl.conf:/etc/apache2/sites-enabled/default-ssl.conf
     ports:
-      - 443:443
-      - 80:80
+      - 4443:443
+      - 1080:80
     env_file:
       - ./src/.env
     networks:
