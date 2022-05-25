@@ -62,7 +62,7 @@ manually to alter the database.
 
 There is an OpenAPI console available. It can be accessed via:
 
-* local docker container: https://api.transcribathon.eu.local:4434/v2/documentation
+* local docker container: https://api.transcribathon.eu.local:4443/v2/documentation
 * VPN server: https://api.transcribathon.local/v2/documentation
 * DEV server: https://api.fresenia-dev.man.poznan.pl/v2/documentation
 
