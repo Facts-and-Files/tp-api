@@ -20,7 +20,7 @@ servers:
     description: public development server
   - url: https://api.transcribathon.local/v2
     description: development server within the VPN
-  - url: https://api.transcribathon.eu.local/v2
+  - url: https://api.transcribathon.eu.local:4443/v2
     description: local dockerized development server
 
 security:
