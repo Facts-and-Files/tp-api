@@ -62,46 +62,8 @@ manually to alter the database.
 
 There is an OpenAPI console available. It can be accessed via:
 
-* local docker container: https://api.transcribathon.eu.local/v2/documentation
+* local docker container: https://api.transcribathon.eu.local:4443/v2/documentation
 * VPN server: https://api.transcribathon.local/v2/documentation
+* DEV server: https://api.fresenia-dev.man.poznan.pl/v2/documentation
 
-Access to all routes require a bearer token, the following routes are available by now:
-
-* GET /api/htrdata \
-List all items from htrdata
-* POST /api/htrdata \
-Stores a new item, body payload is in JSON format. Example: \
-```
-{
-	"item_id": 421717, // required, related item form Items table 
-	"process_id": 56845, // required, process id given by Transcribus API response
-	"htr_id": 2222, // used handwriting recognition model as id, see Transcribus API
-	"status": "CREATED", // current status of the Transcribus HTR process, given by Transcribus API response
-	"data": "{'some':'json'}", // the data from Transcribus API response, if one as string (will be probably a XML string)
-	"data_type": "json" // type of the data, probably 'xml'
-}
-```
-* GET /api/htrdata/{id} \
-Get the entry of an item
-* GET /api/htrdata/byprocessid/{process_id} \
-Get the entry of an item by its process id
-* PUT /api/htrdata/{id} \
-Update an item. Payload as JSON. Example:
-```
-{
-	"htr_id": 421717, // id of handwriting model id, see above
-	"status": "SUCCESS", // status of the HTR process
-	"data": "<xml />", // data of the HTR
-	"data_type": "xml" // type of the HTR data
-}
-```
-* DELETE /api/htrdata/{id} \
-Delete an item by its id.
-
-### Example calls
-
-    $ http --verify=no https://localhost/api/htrdata 'Authorization: Bearer <api_token>'
-
-    $ http --verify=no https://localhost/api/htrdata/byprocessid/56845 'Authorization: Bearer <api_token>'
-
-    $ http POST --verify=no https://localhost/api/htrdata 'Authorization: Bearer <api_token>' @post.json
+Access to all routes require a bearer token.
