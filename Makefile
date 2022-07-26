@@ -1,7 +1,6 @@
 # include .env
 # export $(shell sed 's/=.*//' .env)
 
-today := $(shell date +%s)
 this_container := $(shell pwd)
 api_db_container := ../tp-mysql
 
@@ -12,8 +11,7 @@ docker_start:
 	@cd $(this_container) && sudo docker-compose up -d
 	@echo
 	@echo "API database running on tp_mysql:3306"
-	@echo "Webserver running on https://localhost/"
-	@echo "Mailhog running on http://localhost:8025"
+	@echo "Webserver running on https://api.transcribathon.eu.local:4443/v2/"
 	@echo
 	@echo "I'm up to no good..."
 	@echo
