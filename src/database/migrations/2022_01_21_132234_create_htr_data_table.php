@@ -19,12 +19,11 @@ class CreateHtrDataTable extends Migration
 
             $table->id();
             $table->integer('item_id');
-            $table->integer('user_id');
+            $table->integer('user_id')->nullable();
             $table->integer('process_id')->unique()->nullable();
             $table->integer('htr_id')->nullable();
             $table->string('htr_status', 64)->nullable();
             $table->mediumtext('data')->nullable();
-            $table->boolean('current_version')->default(0);
             $table->bigInteger('europeana_annotation_id')->nullable();
             $table->timestamps();
 
