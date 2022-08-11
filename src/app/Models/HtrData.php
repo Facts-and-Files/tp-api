@@ -16,9 +16,9 @@ class HtrData extends Model
     protected $table = 'htr_data';
 
     /**
-     * The attributes that are mass assignable.
+     * The attributes that are not mass assignable.
      *
      * @var string
      */
-    protected $guarded = ['item_id', 'process_id', 'user_id'];
+    protected $guarded = ['id', 'item_id', 'process_id', 'user_id'];
 }
