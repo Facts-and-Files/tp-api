@@ -29,15 +29,16 @@ class CreateHtrDataTable extends Migration
 
             $table->index('item_id');
             $table->index('user_id');
+            $table->index('process_id');
 
             $table->foreign('item_id')
-                  ->references('UserId')
-                  ->on('User')
+                  ->references('ItemId')
+                  ->on('Item')
                   ->cascadeOnDelete()
                   ->cascadeOnUpdate();
             $table->foreign('user_id')
-                  ->references('ItemId')
-                  ->on('Item')
+                  ->references('UserId')
+                  ->on('User')
                   ->restrictOnDelete()
                   ->restrictOnUpdate();
         });
