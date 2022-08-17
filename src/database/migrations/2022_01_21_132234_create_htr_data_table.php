@@ -23,7 +23,7 @@ class CreateHtrDataTable extends Migration
             $table->integer('process_id')->unique()->nullable();
             $table->integer('htr_id')->nullable();
             $table->string('htr_status', 64)->nullable();
-            $table->mediumtext('data')->nullable();
+            $table->mediumtext('transcription_data')->nullable();
             $table->bigInteger('europeana_annotation_id')->nullable();
             $table->timestamps();
 
