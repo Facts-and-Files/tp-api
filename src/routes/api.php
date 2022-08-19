@@ -17,8 +17,10 @@ use App\Http\Controllers\HtrDataController;
 Route::middleware(['auth:api'])->group(function() {
     Route::get('/htrdata', [HtrDataController::class, 'index']);
     Route::post('/htrdata', [HtrDataController::class, 'store']);
-    Route::get('/htrdata/{item_id}', [HtrDataController::class, 'show']);
-    Route::put('/htrdata/{item_id}', [HtrDataController::class, 'update']);
-    Route::delete('/htrdata/{item_id}', [HtrDataController::class, 'destroy']);
-    Route::get('/htrdata/byprocessid/{process_id}', [HtrDataController::class, 'showByProcessId']);
+    Route::get('/htrdata/{id}', [HtrDataController::class, 'show']);
+    /* Route::put('/htrdata/{item_id}', [HtrDataController::class, 'update']); */
+    /* Route::delete('/htrdata/{item_id}', [HtrDataController::class, 'destroy']); */
+
+    Route::get('/items/{itemId}/htrdata', [HtrDataController::class, 'showByItemId']);
+    Route::get('/users/{userId}/htrdata', [HtrDataController::class, 'showByUserId']);
 });
