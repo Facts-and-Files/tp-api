@@ -6,7 +6,6 @@ use App\Http\Controllers\ResponseController;
 use App\Models\HtrData;
 use App\Http\Resources\HtrDataResource;
 use Illuminate\Http\Request;
-use phpDocumentor\Reflection\Types\Array_;
 
 class HtrDataController extends ResponseController
 {
@@ -81,7 +80,7 @@ class HtrDataController extends ResponseController
     {
         try {
             $data = HtrData::where('item_id', $itemId);
-            $data = $this->filterDataByRequest($data, $request);
+            $data = $this->filterDataByQueries($data, $request);
             $resource = new HtrDataResource($data);
 
             return $this->sendResponse($resource, 'HtrData fetched.');
@@ -101,7 +100,7 @@ class HtrDataController extends ResponseController
     {
         try {
             $data = HtrData::where('user_id', $userId);
-            $data = $this->filterDataByRequest($data, $request);
+            $data = $this->filterDataByQueries($data, $request);
             $resource = new HtrDataResource($data);
 
             return $this->sendResponse($resource, 'HtrData fetched.');
