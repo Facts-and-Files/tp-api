@@ -38,6 +38,7 @@ HtrDataPostRequestSchema:
 
 HtrDataGetResponseSchema:
   allOf:
+    - type: object
     - description: The data object of a single response entry
       properties:
         id:

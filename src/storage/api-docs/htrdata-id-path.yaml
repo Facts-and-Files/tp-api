@@ -21,7 +21,8 @@ get:
                   data:
                     type: object
                     description: HTR data entry as object
-                    $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+                    properties:
+                      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
@@ -57,7 +58,8 @@ put:
                   data:
                     type: object
                     description: HTR data entry as object
-                    $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+                    properties:
+                      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
                   message:
                     example: HtrData updated.
     400:
@@ -88,7 +90,8 @@ delete:
                   data:
                     type: object
                     description: HTR data entry as object
-                    $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+                    properties:
+                      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
                   message:
                     example: HtrData deleted.
     400:

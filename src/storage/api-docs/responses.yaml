@@ -3,7 +3,10 @@ BasicSuccessResponse:
   description: The success response
   properties:
     data:
-      type: ['null', string, object]
+      type:
+        anyOf:
+          - array
+          - object
       description: The requested data, type depending on subschema
     message:
       type: string
