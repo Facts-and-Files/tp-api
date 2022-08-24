@@ -8,26 +8,22 @@ get:
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
-    - name: processId
-      in: query
+    - in: query
+      name: processId
       description: Show entries associated with this processId
-      schema:
-        type: integer
-    - name: userId
-      in: query
+      type: integer
+    - in: query
+      name: userId
       description: Show entries associated with this userId
-      schema:
-        type: integer
-    - name: itemId
-      in: query
+      type: integer
+    - in: query
+      name: itemId
       description: Show entries associated with this itemId
-      schema:
-        type: integer
-    - name: htrId
-      in: query
+      type: integer
+    - in: query
+      name: htrId
       description: Show entries associated with this htrId
-      schema:
-        type: integer
+      type: integer
   responses:
     200:
       description: Ok
