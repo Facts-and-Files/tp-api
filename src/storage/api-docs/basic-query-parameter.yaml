@@ -1,30 +1,32 @@
 PaginationParameters:
-  parameters:
-    - name: limit
-      in: query
-      description: The numbers of items to return
-      default: 1000
-      schema:
-        type: integer
-    - name: page
-      in: query
-      default: 1
-      description: The page within the limit
-      schema:
-        type: integer
+  limit:
+    name: limit
+    in: query
+    description: The numbers of items to return
+    default: 1000
+    schema:
+      type: integer
+  page:
+    name: page
+    in: query
+    default: 1
+    description: The page within the limit
+    schema:
+      type: integer
 
 SortParameters:
-  parameters:
-    - name: orderBy
-      in: query
-      default: id
-      description: Table column to order the return
-      schema:
-        type: string
-    - name: orderDir
-      in: query
-      default: asc
-      description: Direction of the order
-      schema:
-        type: string
-        enum: [asc, desc]
+  orderBy:
+    name: orderBy
+    in: query
+    default: id
+    description: Table column to order the return
+    schema:
+      type: string
+  orderDir:
+    name: orderDir
+    in: query
+    default: asc
+    description: Direction of the order
+    schema:
+      type: string
+      enum: [asc, desc]
