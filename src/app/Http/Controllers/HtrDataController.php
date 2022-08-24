@@ -79,8 +79,9 @@ class HtrDataController extends ResponseController
     public function showByItemId($itemId, Request $request)
     {
         try {
+            $queries = $request->query();
             $data = HtrData::where('item_id', $itemId);
-            $data = $this->filterDataByQueries($data, $request);
+            $data = $this->filterDataByQueries($data, $queries);
             $resource = new HtrDataResource($data);
 
             return $this->sendResponse($resource, 'HtrData fetched.');
@@ -99,8 +100,9 @@ class HtrDataController extends ResponseController
     public function showByUserId($userId, Request $request)
     {
         try {
+            $queries = $request->query();
             $data = HtrData::where('user_id', $userId);
-            $data = $this->filterDataByQueries($data, $request);
+            $data = $this->filterDataByQueries($data, $queries);
             $resource = new HtrDataResource($data);
 
             return $this->sendResponse($resource, 'HtrData fetched.');
