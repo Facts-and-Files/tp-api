@@ -28,7 +28,11 @@ security:
 
 tags:
   - name: htrdata
-    description: Operations for HTR data
+    description: Operations related to HTR data
+  - name: users
+    description: Operations related to users data
+  - name: items
+    description: Operations related to items data
 
 paths:
   /htrdata:
@@ -38,7 +42,7 @@ paths:
   /items/{itemId}/htrdata:
     $ref: 'items-itemId-htrdata-path.yaml'
   /users/{userId}/htrdata:
-    $ref: 'user-userId-htrdata-path.yaml'
+    $ref: 'users-userId-htrdata-path.yaml'
 
 components:
   securitySchemes:
