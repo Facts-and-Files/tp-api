@@ -3,49 +3,27 @@ get:
     - htrdata
   summary: Get all stored HTR data entries
   description: The index endpoint can be used to get all entries. The output is limited to 1000 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique \(as processId\).
+  allOf:
+    - $ref: 'basic-query-parameter.yaml#/SortParameters'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters'
   parameters:
-    - in: query
-      name: limit
-      description: The numbers of items to return
-      default: 1000
-      schema:
-        type: integer
-    - in: query
-      name: page
-      default: 1
-      description: The page within the limit
-      schema:
-        type: integer
-    - in: query
-      name: orderBy
-      default: id
-      description: table column to order the return
-      schema:
-        type: string
-    - in: query
-      name: orderDir
-      default: asc
-      description: Sort order
-      schema:
-        type: string
-        enum: [asc, desc]
-    - in: query
-      name: processId
+    - name: processId
+      in: query
       description: Show entries associatated with this processId
       schema:
         type: integer
-    - in: query
-      name: userId
+    - name: userId
+      in: query
       description: Show entries associatated with this userId
       schema:
         type: integer
-    - in: query
-      name: itemId
+    - name: itemId
+      in: query
       description: Show entries associatated with this itemId
       schema:
         type: integer
-    - in: query
-      name: htrId
+    - name: htrId
+      in: query
       description: Show entries associatated with this htrId
       schema:
         type: integer
