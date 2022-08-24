@@ -1,14 +1,14 @@
 PaginationParameters:
   limit:
-    name: limit
     in: query
+    name: limit
     description: The numbers of items to return
     default: 1000
     schema:
       type: integer
   page:
-    name: page
     in: query
+    name: page
     default: 1
     description: The page within the limit
     schema:
@@ -16,15 +16,15 @@ PaginationParameters:
 
 SortParameters:
   orderBy:
-    name: orderBy
     in: query
+    name: orderBy
     default: id
     description: Table column to order the return
     schema:
       type: string
   orderDir:
-    name: orderDir
     in: query
+    name: orderDir
     default: asc
     description: Direction of the order
     schema:
