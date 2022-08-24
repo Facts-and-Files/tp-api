@@ -57,11 +57,4 @@ HtrDataGetResponseSchema:
 HtrDataPutRequestSchema:
   allOf:
     - description: The data object of a PUT request body
-      required:
-        - id
-      properties:
-        id:
-          type: integer
-          description: ID of the entry
-          example: 2
     - $ref: '#/HtrDataMinimalReferenceSchema'
