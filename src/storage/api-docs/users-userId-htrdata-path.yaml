@@ -1,6 +1,7 @@
 get:
   tags:
     - htrdata
+    - users
   summary: Get stored HTR data of an user
   parameters:
     - in: path
