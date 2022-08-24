@@ -2,6 +2,7 @@ get:
   tags:
     - htrdata
   summary: Get all stored HTR data entries
+  description: The index endpoint can be used to get all entries. The output is limited to 1000 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique \(as processId\).
   parameters:
     - in: query
       name: limit
