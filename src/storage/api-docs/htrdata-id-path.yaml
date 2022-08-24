@@ -7,9 +7,8 @@ get:
     - in: path
       name: id
       description: Numeric ID of the entry
-      schema:
-        type: integer
-        required: true
+      type: integer
+      required: true
   responses:
     200:
       description: Ok
@@ -37,9 +36,8 @@ put:
     - in: path
       name: id
       description: Numeric ID of the entry
-      schema:
-        type: integer
-        required: true
+      type: integer
+      required: true
   requestBody:
     description: Data to be stored
     required: true
@@ -76,9 +74,8 @@ delete:
     - in: path
       name: id
       description: Numeric ID of the entry
-      schema:
-        type: integer
-        required: true
+      type: integer
+      required: true
   responses:
     200:
       description: Ok
