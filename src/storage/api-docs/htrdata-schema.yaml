@@ -1,33 +1,50 @@
-HtrDataPostRequestSchema:
-  type: object
-  description: The data object of a single POST request body
+HtrDataMinimalReferenceSchema:
   properties:
-    data:
-      type: string
-      description: Requested data
-      example: '<?xml version="1.0" encoding="UTF-8"?>'
-    data_type:
-      type: string
-      description: Current type/format of the data (json|xml)
-      example: xml
+    item_id:
+      type: integer
+      description: ID of item/image within Transcribathon
+      example: 421717
+    user_id:
+      type: integer
+      description: ID of the user within Transcribathon, who provided the transcribathon
+      example: 5736
     htr_id:
       type: integer
       description: ID of the used HTR model for this data
       example: 35909
     process_id:
       type: integer
-      description: ID of the process from the Transcribus API
+      description: ID of the process from the Transkribus API
       example: 56845
-    status:
+    htr_status:
       type: string
-      description: Current status of the data
+      description: Current status of the data as received by Transkribus
       example: CREATED
+    transcription_data:
+      type: string
+      description: Requested data as XML string
+      example: '<?xml version="1.0" encoding="UTF-8"? />'
+    europeana_annotation_id:
+      type: integer
+      description: Europeana annotation ID
+      example: 57016
+
+HtrDataPostRequestSchema:
+  allOf:
+    - $ref: '#/HtrDataMinimalReferenceSchema'
+  description: The data object of a single POST request body
+  required:
+    - item_id
 
 HtrDataGetResponseSchema:
   allOf:
-    - $ref: '#/HtrDataPostRequestSchema'
+    - type: object
     - description: The data object of a single response entry
       properties:
+        id:
+          type: integer
+          description: ID of the entry
+          example: 2
         created_at:
           type: string
           description: Time of creation
@@ -36,17 +53,9 @@ HtrDataGetResponseSchema:
           type: string
           description: Time of last update
           example: '2022-02-23T09:57:03.000000Z'
-        item_id:
-          type: integer
-          description: ID of the referenced item
-          example: 421717
+    - $ref: '#/HtrDataMinimalReferenceSchema'
 
 HtrDataPutRequestSchema:
   allOf:
-    - $ref: '#/HtrDataPostRequestSchema'
-    - description: The data object of a single response entry
-      properties:
-        item_id:
-          type: integer
-          description: ID of the referenced item
-          example: 421717
+    - description: The data object of a PUT request body
+    - $ref: '#/HtrDataMinimalReferenceSchema'

@@ -10,14 +10,21 @@ use Illuminate\Http\Request;
 class HtrDataController extends ResponseController
 {
     /**
-     * Display a listing of the resource.
+     * Display a paginated listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $allHtrData = HtrData::all();
-        return $this->sendResponse(HtrDataResource::collection($allHtrData), 'HtrData fetched.');
+        $data = $this->getDataByRequest($request);
+
+        if (!$data) {
+            return $this->sendError('Invalid data', $request . ' not valid', 400);
+        }
+
+        $collection = HtrDataResource::collection($data);
+
+        return $this->sendResponse($collection, 'HtrData fetched.');
     }
 
     /**
@@ -29,13 +36,16 @@ class HtrDataController extends ResponseController
     public function store(Request $request)
     {
         try {
-            $htrData = new HtrData();
-            $htrData->fill($request->all());
-            $htrData->item_id = $request->item_id;
-            $htrData->process_id = $request->process_id;
-            $htrData->save();
+            $data = new HtrData();
+            $data->fill($request->all());
+            $data->item_id = $request->item_id;
+            $data->process_id = $request->process_id;
+            $data->user_id = $request->user_id;
+            $data->save();
 
-            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData inserted.');
+            $resource = new HtrDataResource($data);
+
+            return $this->sendResponse($resource, 'HtrData inserted.');
         } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
@@ -44,32 +54,58 @@ class HtrDataController extends ResponseController
     /**
      * Display the specified resource.
      *
-     * @param  int  $item_id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($item_id)
+    public function show($id)
     {
         try {
-            $htrData = HtrData::findOrfail($item_id);
+            $data = HtrData::findOrFail($id);
+            $resource = new HtrDataResource($data);
 
-            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
+            return $this->sendResponse($resource, 'HtrData fetched.');
         } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage());
         }
     }
 
     /**
-     * Display the specified resource by process_id
+     * Display the specified resource.
      *
-     * @param  int  $process_id
+     * @param  int                       $userId
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function showByProcessId($process_id)
+    public function showByItemId($itemId, Request $request)
     {
         try {
-            $htrData = HtrData::where('process_id', $process_id)->firstOrFail();
+            $queries = $request->query();
+            $data = HtrData::where('item_id', $itemId);
+            $data = $this->filterDataByQueries($data, $queries);
+            $resource = new HtrDataResource($data);
 
-            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData fetched.');
+            return $this->sendResponse($resource, 'HtrData fetched.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage());
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int                       $userId
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function showByUserId($userId, Request $request)
+    {
+        try {
+            $queries = $request->query();
+            $data = HtrData::where('user_id', $userId);
+            $data = $this->filterDataByQueries($data, $queries);
+            $resource = new HtrDataResource($data);
+
+            return $this->sendResponse($resource, 'HtrData fetched.');
         } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage());
         }
@@ -79,13 +115,13 @@ class HtrDataController extends ResponseController
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $item_id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $item_id)
+    public function update(Request $request, $id)
     {
         try {
-            $htrData = HtrData::findOrfail($item_id);
+            $htrData = HtrData::findOrfail($id);
             $htrData->fill($request->all());
             $htrData->save();
 
@@ -98,13 +134,13 @@ class HtrDataController extends ResponseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $item_id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($item_id)
+    public function destroy($id)
     {
         try {
-            $htrData = HtrData::findOrfail($item_id);
+            $htrData = HtrData::findOrfail($id);
             $htrData->delete();
 
             return $this->sendResponse(new HtrDataResource($htrData), 'HtrData deleted.');
@@ -113,4 +149,59 @@ class HtrDataController extends ResponseController
         }
     }
 
+    /**
+     * Get data defined by request
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array \Illuminate\Database\Eloquent\Collection $data
+     */
+    protected function getDataByRequest(Request $request)
+    {
+        $queries = $request->query();
+
+        $queryColumns = array(
+            'processId' => 'process_id',
+            'userId'    => 'user_id',
+            'itemId'    => 'item_id',
+            'htrId'     => 'htr_id'
+        );
+
+        foreach ($queries as $queryName => $queryValue) {
+            if (array_key_exists($queryName, $queryColumns)) {
+                $data = HtrData::where($queryColumns[$queryName], $queryValue);
+                $data = $this->filterDataByQueries($data, $queries);
+
+                return $data;
+            }
+        }
+
+        $data = HtrData::whereRaw('1 = 1');
+        $data = $this->filterDataByQueries($data, $queries);
+
+        return $data;
+    }
+
+    /**
+     * Filter data by requested queries
+     *
+     * @param  \Illuminate\Http\Resources $data
+     * @param  array                      $queries
+     * @return array \Illuminate\Database\Eloquent\Collection $data
+     */
+    protected function filterDataByQueries($data, $queries)
+    {
+        $limit = $queries['limit'] ?? 1000;
+        $page = $queries['page'] ?? 1;
+        $orderBy = $queries['orderBy'] ?? 'id';
+        $orderDir = $queries['orderDir'] ?? 'asc';
+        $offset = $limit * ($page - 1);
+
+        $filtered = $data
+            ->limit($limit)
+            ->offset($offset)
+            ->orderBy($orderBy, $orderDir)
+            ->get();
+
+        return $filtered;
+    }
 }

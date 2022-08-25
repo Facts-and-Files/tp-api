@@ -2,6 +2,28 @@ get:
   tags:
     - htrdata
   summary: Get all stored HTR data entries
+  description: The index endpoint can be used to get all entries. The output is limited to 1000 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique \(as processId\).
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: processId
+      description: Show entries associated with this processId
+      type: integer
+    - in: query
+      name: userId
+      description: Show entries associated with this userId
+      type: integer
+    - in: query
+      name: itemId
+      description: Show entries associated with this itemId
+      type: integer
+    - in: query
+      name: htrId
+      description: Show entries associated with this htrId
+      type: integer
   responses:
     200:
       description: Ok
@@ -23,12 +45,12 @@ post:
     - htrdata
   summary: Store a new HTR data entry
   requestBody:
-    description: Data to be stored
+    description: There a two different use cases to store data. One by the Transkribus API middelware and one directly by an user doing transcriptions. Depending in the case just omit the properties that are not used.
     required: true
     content:
       application/json:
         schema:
-          $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+          $ref: 'htrdata-schema.yaml#/HtrDataPostRequestSchema'
   responses:
     200:
       description: Ok
@@ -39,10 +61,7 @@ post:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    type: array
-                    description: HTR data entry objects as array
-                    items:
-                      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+                    $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
     401:
       $ref: 'responses.yaml#/401ErrorResponse'
     400:

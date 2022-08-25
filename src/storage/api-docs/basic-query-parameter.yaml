@@ -1,0 +1,32 @@
+PaginationParameters:
+  limit:
+    in: query
+    name: limit
+    description: The numbers of items to return
+    default: 1000
+    schema:
+      type: integer
+  page:
+    in: query
+    name: page
+    default: 1
+    description: The page within the limit
+    schema:
+      type: integer
+
+SortParameters:
+  orderBy:
+    in: query
+    name: orderBy
+    default: id
+    description: Table column to order the return
+    schema:
+      type: string
+  orderDir:
+    in: query
+    name: orderDir
+    default: asc
+    description: Direction of the order
+    schema:
+      type: string
+      enum: [asc, desc]

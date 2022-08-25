@@ -17,15 +17,30 @@ class CreateHtrDataTable extends Migration
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->integer('item_id')->primary();
-            $table->integer('process_id')->unique()->nullable(false);
+            $table->id();
+            $table->integer('item_id');
+            $table->integer('user_id')->nullable();
+            $table->integer('process_id')->unique()->nullable();
             $table->integer('htr_id')->nullable();
-            $table->string('status', 64)->nullable();
-            $table->mediumtext('data')->nullable();
-            $table->string('data_type', 16)->nullable();
+            $table->string('htr_status', 64)->nullable();
+            $table->mediumtext('transcription_data')->nullable();
+            $table->bigInteger('europeana_annotation_id')->nullable();
             $table->timestamps();
 
-            $table->foreign('item_id')->references('ItemId')->on('Item');
+            $table->index('item_id');
+            $table->index('user_id');
+            $table->index('process_id');
+
+            $table->foreign('item_id')
+                  ->references('ItemId')
+                  ->on('Item')
+                  ->cascadeOnDelete()
+                  ->cascadeOnUpdate();
+            $table->foreign('user_id')
+                  ->references('UserId')
+                  ->on('User')
+                  ->restrictOnDelete()
+                  ->restrictOnUpdate();
         });
     }
 
