@@ -61,10 +61,7 @@ post:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    type: object
-                    description: HTR data entry object
-                    properties:
-                        $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+                    $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
     401:
       $ref: 'responses.yaml#/401ErrorResponse'
     400:

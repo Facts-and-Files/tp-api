@@ -23,9 +23,10 @@ get:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    type: object
-                    description: HTR data entry as object
-                    $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+                    type: array
+                    description: HTR data entry as array
+                    items:
+                      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:

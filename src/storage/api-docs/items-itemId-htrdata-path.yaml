@@ -6,7 +6,7 @@ get:
   parameters:
     - in: path
       name: itemId
-      description: Numeric ID of the item
+      description: Numeric ID of the item within transcribathon
       type: integer
       required: true
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
@@ -23,9 +23,10 @@ get:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    type: object
-                    description: HTR data entry as object
-                    $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+                    type: array
+                    description: HTR data entries as array
+                    items:
+                      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
