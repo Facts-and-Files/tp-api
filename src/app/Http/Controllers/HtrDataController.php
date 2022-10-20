@@ -166,16 +166,16 @@ class HtrDataController extends ResponseController
             'htrId'     => 'htr_id'
         );
 
+        $htrData = new HtrData();
+
+        $data = $htrData->whereRaw('1 = 1');
+
         foreach ($queries as $queryName => $queryValue) {
             if (array_key_exists($queryName, $queryColumns)) {
-                $data = HtrData::where($queryColumns[$queryName], $queryValue);
-                $data = $this->filterDataByQueries($data, $queries);
-
-                return $data;
+                $data->where($queryColumns[$queryName], $queryValue);
             }
         }
 
-        $data = HtrData::whereRaw('1 = 1');
         $data = $this->filterDataByQueries($data, $queries);
 
         return $data;
