@@ -190,7 +190,7 @@ class HtrDataController extends ResponseController
      */
     protected function filterDataByQueries($data, $queries)
     {
-        $limit = $queries['limit'] ?? 1000;
+        $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
         $orderBy = $queries['orderBy'] ?? 'id';
         $orderDir = $queries['orderDir'] ?? 'asc';
