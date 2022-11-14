@@ -37,7 +37,7 @@ tags:
 paths:
   /htrdata:
     $ref: 'htrdata-path.yaml'
-  /htrdata/{id}:
+  /htrdata/{htrdataId}:
     $ref: 'htrdata-id-path.yaml'
   /items/{itemId}/htrdata:
     $ref: 'items-itemId-htrdata-path.yaml'
