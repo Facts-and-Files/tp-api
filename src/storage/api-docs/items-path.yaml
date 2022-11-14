@@ -1,0 +1,52 @@
+get:
+  tags:
+    - items
+  summary: Get all stored items entries (NOT ALL INLCUDED YET)
+  description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier \(as processId\).
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    type: array
+                    description: items entry objects as array
+                    items:
+                      $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+# post:
+#   tags:
+#     - htrdata
+#   summary: Store a new HTR data entry
+#   requestBody:
+#     description: There a two different use cases to store data. One by the Transkribus API middelware and one directly by an user doing transcriptions. Depending in the case just omit the properties that are not used.
+#     required: true
+#     content:
+#       application/json:
+#         schema:
+#           $ref: 'htrdata-schema.yaml#/HtrDataPostRequestSchema'
+#   responses:
+#     200:
+#       description: Ok
+#       content:
+#         application/json:
+#           schema:
+#             allOf:
+#               - $ref: 'responses.yaml#/BasicSuccessResponse'
+#               - properties:
+#                   data:
+#                     $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+#     401:
+#       $ref: 'responses.yaml#/401ErrorResponse'
+#     400:
+#       $ref: 'responses.yaml#/400ErrorResponse'

@@ -1,0 +1,37 @@
+ItemsMinimalReferenceSchema:
+  properties:
+    transcription_source:
+      type: string
+      description: source of the transcription
+      example: 'manual'
+
+# HtrDataPostRequestSchema:
+#   allOf:
+#     - $ref: '#/HtrDataMinimalReferenceSchema'
+#   description: The data object of a single POST request body
+#   required:
+#     - item_id
+
+ItemsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        id:
+          type: integer
+          description: ID of the entry
+          example: 2
+        created_at:
+          type: string
+          description: Time of creation
+          example: '2022-02-23 09:57:03'
+        updated_at:
+          type: string
+          description: Time of last update
+          example: '2022-02-23 09:57:03'
+    - $ref: '#/ItemsMinimalReferenceSchema'
+
+# HtrDataPutRequestSchema:
+#   allOf:
+#     - description: The data object of a PUT request body
+#     - $ref: '#/HtrDataMinimalReferenceSchema'

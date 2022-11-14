@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  version: 0.1.4
+  version: 0.2.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2.
                 For authorization you can use the the bearer token you are provided with.
@@ -39,8 +39,14 @@ paths:
     $ref: 'htrdata-path.yaml'
   /htrdata/{htrdataId}:
     $ref: 'htrdata-id-path.yaml'
+
+  /items:
+    $ref: 'items-path.yaml'
+  /items/{itemId}:
+    $ref: 'items-id-path.yaml'
   /items/{itemId}/htrdata:
     $ref: 'items-itemId-htrdata-path.yaml'
+
   /users/{userId}/htrdata:
     $ref: 'users-userId-htrdata-path.yaml'
 
@@ -60,4 +66,6 @@ components:
       $ref: 'htrdata-schema.yaml#/HtrDataPutRequestSchema'
     HtrDataGetResponseSchema:
       $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+    ItemsGetResponseSchema:
+      $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
 
