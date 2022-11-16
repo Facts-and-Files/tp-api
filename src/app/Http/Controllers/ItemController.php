@@ -190,6 +190,7 @@ class ItemController extends ResponseController
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
         $orderBy = $queries['orderBy'] ?? 'ItemId';
+        $orderBy = $orderBy === 'Id' ? 'ItemId' : $orderBy;
         $orderDir = $queries['orderDir'] ?? 'asc';
         $offset = $limit * ($page - 1);
 
