@@ -22,9 +22,9 @@ class HtrDataSeeder extends Seeder
             $htrData->item_id = 39348894 - $i;
             $htrData->process_id = random_int(10000, 99999);
             $htrData->htr_id = 11111;
-            $htrData->status = 'CREATED';
-            $htrData->data = '<xml />';
-            $htrData->data_type = 'xml';
+            $htrData->htr_status = 'CREATED';
+            $htrData->transcription_data = '<xml />';
+            $htrData->europeana_annotation_id = null;
             $htrData->save();
         }
     }
