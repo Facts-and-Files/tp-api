@@ -28,30 +28,6 @@ class ItemController extends ResponseController
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    /* public function store(Request $request) */
-    /* { */
-    /*     try { */
-    /*         $data = new HtrData(); */
-    /*         $data->fill($request->all()); */
-    /*         $data->item_id = $request->item_id; */
-    /*         $data->process_id = $request->process_id; */
-    /*         $data->user_id = $request->user_id; */
-    /*         $data->save(); */
-
-    /*         $resource = new HtrDataResource($data); */
-
-    /*         return $this->sendResponse($resource, 'HtrData inserted.'); */
-    /*     } catch (\Exception $exception) { */
-    /*         return $this->sendError('Invalid data', $exception->getMessage(), 400); */
-    /*     } */
-    /* } */
-
-    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -70,84 +46,24 @@ class ItemController extends ResponseController
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int                       $userId
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    /* public function showByItemId($itemId, Request $request) */
-    /* { */
-    /*     try { */
-    /*         $queries = $request->query(); */
-    /*         $data = HtrData::where('item_id', $itemId); */
-    /*         $data = $this->filterDataByQueries($data, $queries); */
-    /*         $resource = new HtrDataResource($data); */
-
-    /*         return $this->sendResponse($resource, 'HtrData fetched.'); */
-    /*     } catch (\Exception $exception) { */
-    /*         return $this->sendError('Not found', $exception->getMessage()); */
-    /*     } */
-    /* } */
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int                       $userId
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    /* public function showByUserId($userId, Request $request) */
-    /* { */
-    /*     try { */
-    /*         $queries = $request->query(); */
-    /*         $data = HtrData::where('user_id', $userId); */
-    /*         $data = $this->filterDataByQueries($data, $queries); */
-    /*         $resource = new HtrDataResource($data); */
-
-    /*         return $this->sendResponse($resource, 'HtrData fetched.'); */
-    /*     } catch (\Exception $exception) { */
-    /*         return $this->sendError('Not found', $exception->getMessage()); */
-    /*     } */
-    /* } */
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    /* public function update(Request $request, $id) */
-    /* { */
-    /*     try { */
-    /*         $htrData = HtrData::findOrfail($id); */
-    /*         $htrData->fill($request->all()); */
-    /*         $htrData->save(); */
+    public function update(Request $request, $id)
+    {
+        try {
+            $item = Item::findOrfail($id);
+            $item->fill($request->all());
+            $item->save();
 
-    /*         return $this->sendResponse(new HtrDataResource($htrData), 'HtrData updated.'); */
-    /*     } catch(\Exception $exception) { */
-    /*         return $this->sendError('Invalid data', $exception->getMessage(), 400); */
-    /*     } */
-    /* } */
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    /* public function destroy($id) */
-    /* { */
-    /*     try { */
-    /*         $htrData = HtrData::findOrfail($id); */
-    /*         $htrData->delete(); */
-
-    /*         return $this->sendResponse(new HtrDataResource($htrData), 'HtrData deleted.'); */
-    /*     } catch(\Exception $exception) { */
-    /*         return $this->sendError('Invalid data', $exception->getMessage(), 400); */
-    /*     } */
-    /* } */
+            return $this->sendResponse(new ItemResource($item), 'Item updated.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
 
     /**
      * Get data defined by request
@@ -159,13 +75,11 @@ class ItemController extends ResponseController
     {
         $queries = $request->query();
 
-        $queryColumns = array(
-            'itemId'    => 'item_id'
-        );
+        $queryColumns = [];
 
-        $htrData = new Item();
+        $item = new Item();
 
-        $data = $htrData->whereRaw('1 = 1');
+        $data = $item->whereRaw('1 = 1');
 
         foreach ($queries as $queryName => $queryValue) {
             if (array_key_exists($queryName, $queryColumns)) {
@@ -190,7 +104,7 @@ class ItemController extends ResponseController
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
         $orderBy = $queries['orderBy'] ?? 'ItemId';
-        $orderBy = $orderBy === 'Id' ? 'ItemId' : $orderBy;
+        $orderBy = $orderBy === 'id' ? 'ItemId' : $orderBy;
         $orderDir = $queries['orderDir'] ?? 'asc';
         $offset = $limit * ($page - 1);
 
