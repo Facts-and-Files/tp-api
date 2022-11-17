@@ -1,0 +1,31 @@
+ItemsMinimalReferenceSchema:
+  properties:
+    transcription_source:
+      type: string
+      enum: ['htr', 'manual']
+      description: source of the transcription
+      example: 'manual'
+
+ItemsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        id:
+          type: integer
+          description: ID of the entry
+          example: 2
+        created_at:
+          type: string
+          description: Time of creation
+          example: '2022-02-23 09:57:03'
+        updated_at:
+          type: string
+          description: Time of last update
+          example: '2022-02-23 09:57:03'
+    - $ref: '#/ItemsMinimalReferenceSchema'
+
+ItemsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/ItemsMinimalReferenceSchema'

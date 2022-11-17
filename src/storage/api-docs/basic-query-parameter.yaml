@@ -3,7 +3,7 @@ PaginationParameters:
     in: query
     name: limit
     description: The numbers of items to return
-    default: 1000
+    default: 100
     schema:
       type: integer
   page:

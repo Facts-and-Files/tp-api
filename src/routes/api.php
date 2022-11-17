@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HtrDataController;
+use App\Http\Controllers\ItemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,11 @@ Route::middleware(['auth:api'])->group(function() {
     Route::put('/htrdata/{id}', [HtrDataController::class, 'update']);
     Route::delete('/htrdata/{id}', [HtrDataController::class, 'destroy']);
 
-    Route::get('/items/{itemId}/htrdata', [HtrDataController::class, 'showByItemId']);
-    Route::get('/users/{userId}/htrdata', [HtrDataController::class, 'showByUserId']);
+
+    Route::get('/items', [ItemController::class, 'index']);
+    Route::get('/items/{id}', [ItemController::class, 'show']);
+    Route::put('/items/{id}', [ItemController::class, 'update']);
+    Route::get('/items/{id}/htrdata', [HtrDataController::class, 'showByItemId']);
+
+    Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);
 });
