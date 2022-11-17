@@ -2,15 +2,9 @@ ItemsMinimalReferenceSchema:
   properties:
     transcription_source:
       type: string
+      enum: ['htr', 'manual']
       description: source of the transcription
       example: 'manual'
-
-# HtrDataPostRequestSchema:
-#   allOf:
-#     - $ref: '#/HtrDataMinimalReferenceSchema'
-#   description: The data object of a single POST request body
-#   required:
-#     - item_id
 
 ItemsGetResponseSchema:
   allOf:
@@ -31,7 +25,7 @@ ItemsGetResponseSchema:
           example: '2022-02-23 09:57:03'
     - $ref: '#/ItemsMinimalReferenceSchema'
 
-# HtrDataPutRequestSchema:
-#   allOf:
-#     - description: The data object of a PUT request body
-#     - $ref: '#/HtrDataMinimalReferenceSchema'
+ItemsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/ItemsMinimalReferenceSchema'

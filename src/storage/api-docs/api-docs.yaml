@@ -4,7 +4,7 @@ info:
   version: 0.2.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2.
-                For authorization you can use the the bearer token you are provided with.
+               For authorization you can use the the bearer token you are provided with.
   contact:
     email: schmucker@factsandfiles.com
   license:
@@ -32,18 +32,18 @@ tags:
   - name: users
     description: Operations related to users data
   - name: items
-    description: Operations related to items data
+    description: Operations related to items data (NOT ALL DATA INCLUDED YET)
 
 paths:
   /htrdata:
     $ref: 'htrdata-path.yaml'
-  /htrdata/{htrdataId}:
+  /htrdata/{id}:
     $ref: 'htrdata-id-path.yaml'
 
   /items:
     $ref: 'items-path.yaml'
-  /items/{itemId}:
-    $ref: 'items-id-path.yaml'
+  /items/{ItemId}:
+    $ref: 'items-itemId-path.yaml'
   /items/{itemId}/htrdata:
     $ref: 'items-itemId-htrdata-path.yaml'
 
@@ -68,4 +68,6 @@ components:
       $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
     ItemsGetResponseSchema:
       $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
+    ItemsPutResponseSchema:
+      $ref: 'items-schema.yaml#/ItemsPutRequestSchema'
 
