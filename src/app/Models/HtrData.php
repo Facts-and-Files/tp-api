@@ -13,12 +13,25 @@ class HtrData extends Model
      *
      * @var string
      */
-    protected $table = 'htr_data';
+    protected $table = 'HtrData';
+
+    /**
+     * Use user defined exisiting timestamp columns
+     */
+    const CREATED_AT = 'Timestamp';
+    const UPDATED_AT = 'LastUpdated';
+
+    /**
+     * The primary key associated with the table.
+     *
+     * @var string
+     */
+    protected $primaryKey = 'HtrDataId';
 
     /**
      * The attributes that are not mass assignable.
      *
      * @var string
      */
-    protected $guarded = ['id', 'item_id', 'process_id', 'user_id'];
+    protected $guarded = ['HtrDataId', 'ItemId', 'ProcessId', 'UserId'];
 }

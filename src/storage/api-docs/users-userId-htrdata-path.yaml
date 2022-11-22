@@ -5,7 +5,7 @@ get:
   summary: Get stored HTR data of an user
   parameters:
     - in: path
-      name: userId
+      name: UserId
       description: Numeric ID of the user within transcribathon
       type: integer
       required: true

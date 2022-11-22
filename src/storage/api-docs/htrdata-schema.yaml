@@ -1,55 +1,51 @@
 HtrDataMinimalReferenceSchema:
   properties:
-    item_id:
+    ItemId:
       type: integer
       description: ID of item/image within Transcribathon
       example: 421717
-    user_id:
+    UserId:
       type: integer
       description: ID of the user within Transcribathon, who provided the transcribathon
       example: 5736
-    htr_id:
+    HtrId:
       type: integer
       description: ID of the used HTR model for this data
       example: 35909
-    process_id:
+    ProcessId:
       type: integer
       description: ID of the process from the Transkribus API
       example: 56845
-    htr_status:
+    HtrStatus:
       type: string
       description: Current status of the data as received by Transkribus
       example: CREATED
-    transcription_data:
+    TranscriptionData:
       type: string
       description: Requested data as XML string
       example: '<?xml version="1.0" encoding="UTF-8"? />'
-    europeana_annotation_id:
-      type: integer
-      description: Europeana annotation ID
-      example: 57016
 
 HtrDataPostRequestSchema:
   allOf:
     - $ref: '#/HtrDataMinimalReferenceSchema'
   description: The data object of a single POST request body
   required:
-    - item_id
+    - ItemId
 
 HtrDataGetResponseSchema:
   allOf:
     - type: object
     - description: The data object of a single response entry
       properties:
-        id:
+        HtrDataId:
           type: integer
           description: ID of the entry
           example: 2
-        created_at:
+        Timestamp:
           type: string
           description: Time of creation
           example: '2022-02-23T09:57:03.000000Z'
-        updated_at:
+        LastUpdated:
           type: string
           description: Time of last update
           example: '2022-02-23T09:57:03.000000Z'

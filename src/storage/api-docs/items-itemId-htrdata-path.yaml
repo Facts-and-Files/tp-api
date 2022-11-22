@@ -5,7 +5,7 @@ get:
   summary: Get stored HTR data of an item
   parameters:
     - in: path
-      name: itemId
+      name: ItemId
       description: Numeric ID of the item within transcribathon
       type: integer
       required: true
