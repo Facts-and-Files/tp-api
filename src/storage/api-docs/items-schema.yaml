@@ -1,6 +1,6 @@
 ItemsMinimalReferenceSchema:
   properties:
-    transcription_source:
+    TranscriptionSource:
       type: string
       enum: ['htr', 'manual']
       description: source of the transcription
@@ -11,15 +11,15 @@ ItemsGetResponseSchema:
     - type: object
     - description: The data object of a single response entry
       properties:
-        id:
+        ItemId:
           type: integer
           description: ID of the entry
           example: 2
-        created_at:
+        Timestamp:
           type: string
           description: Time of creation
           example: '2022-02-23 09:57:03'
-        updated_at:
+        LastUpdated:
           type: string
           description: Time of last update
           example: '2022-02-23 09:57:03'

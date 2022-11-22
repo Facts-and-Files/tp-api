@@ -5,7 +5,7 @@ get:
   description: The returned data is single object
   parameters:
     - in: path
-      name: id
+      name: HtrDataId
       description: Numeric ID of the entry
       type: integer
       required: true
@@ -32,7 +32,7 @@ put:
   summary: Updates data of a HTR entry
   parameters:
     - in: path
-      name: id
+      name: HtrDataId
       description: Numeric ID of the entry
       type: integer
       required: true
@@ -68,7 +68,7 @@ delete:
   summary: delete HTR data entry
   parameters:
     - in: path
-      name: id
+      name: HtrDataId
       description: Numeric ID of the entry
       type: integer
       required: true

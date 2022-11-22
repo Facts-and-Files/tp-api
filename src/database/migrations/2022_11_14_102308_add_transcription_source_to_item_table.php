@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('Item', function (Blueprint $table) {
-            $table->enum('transcription_source', ['manual', 'htr'])->nullable();
+            $table->enum('TranscriptionSource', ['manual', 'htr'])->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ return new class extends Migration
     public function down()
     {
         Schema::table('Item', function (Blueprint $table) {
-            $table->dropColumn('transcription_source');
+            $table->dropColumn('TranscriptionSource');
         });
     }
 };

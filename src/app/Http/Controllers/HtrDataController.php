@@ -38,9 +38,9 @@ class HtrDataController extends ResponseController
         try {
             $data = new HtrData();
             $data->fill($request->all());
-            $data->item_id = $request->item_id;
-            $data->process_id = $request->process_id;
-            $data->user_id = $request->user_id;
+            $data->ItemId = $request->ItemId;
+            $data->ProcessId = $request->ProcessId;
+            $data->UserId = $request->UserId;
             $data->save();
 
             $resource = new HtrDataResource($data);
@@ -80,7 +80,7 @@ class HtrDataController extends ResponseController
     {
         try {
             $queries = $request->query();
-            $data = HtrData::where('item_id', $itemId);
+            $data = HtrData::where('ItemId', $itemId);
             $data = $this->filterDataByQueries($data, $queries);
             $resource = new HtrDataResource($data);
 
@@ -101,7 +101,7 @@ class HtrDataController extends ResponseController
     {
         try {
             $queries = $request->query();
-            $data = HtrData::where('user_id', $userId);
+            $data = HtrData::where('UserId', $userId);
             $data = $this->filterDataByQueries($data, $queries);
             $resource = new HtrDataResource($data);
 
@@ -160,10 +160,10 @@ class HtrDataController extends ResponseController
         $queries = $request->query();
 
         $queryColumns = array(
-            'processId' => 'process_id',
-            'userId'    => 'user_id',
-            'itemId'    => 'item_id',
-            'htrId'     => 'htr_id'
+            'ProcessId' => 'ProcessId',
+            'UserId'    => 'UserId',
+            'ItemId'    => 'ItemId',
+            'HtrId'     => 'HtrId'
         );
 
         $htrData = new HtrData();
@@ -192,7 +192,7 @@ class HtrDataController extends ResponseController
     {
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
-        $orderBy = $queries['orderBy'] ?? 'id';
+        $orderBy = $queries['orderBy'] ?? 'LastUpdated';
         $orderDir = $queries['orderDir'] ?? 'asc';
         $offset = $limit * ($page - 1);
 

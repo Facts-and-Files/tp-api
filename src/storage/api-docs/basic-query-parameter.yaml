@@ -18,7 +18,7 @@ SortParameters:
   orderBy:
     in: query
     name: orderBy
-    default: id
+    default: LastUpdated
     description: Table column to order the return
     schema:
       type: string

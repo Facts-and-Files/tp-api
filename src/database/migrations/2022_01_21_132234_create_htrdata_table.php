@@ -13,30 +13,30 @@ class CreateHtrDataTable extends Migration
      */
     public function up()
     {
-        Schema::create('htr_data', function (Blueprint $table) {
+        Schema::create('HtrData', function (Blueprint $table) {
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->id();
-            $table->integer('item_id');
-            $table->integer('user_id')->nullable();
-            $table->integer('process_id')->unique()->nullable();
-            $table->integer('htr_id')->nullable();
-            $table->string('htr_status', 64)->nullable();
-            $table->mediumtext('transcription_data')->nullable();
-            $table->bigInteger('europeana_annotation_id')->nullable();
-            $table->timestamps();
+            $table->bigIncrements('HtrDataId');
+            $table->integer('ItemId');
+            $table->integer('UserId')->nullable();
+            $table->integer('ProcessId')->unique()->nullable();
+            $table->integer('HtrId')->nullable();
+            $table->string('HtrStatus', 64)->nullable();
+            $table->mediumtext('TranscriptionData')->nullable();
+            $table->dateTime('Timestamp');
+            $table->dateTime('LastUpdated');
 
-            $table->index('item_id');
-            $table->index('user_id');
-            $table->index('process_id');
+            $table->index('ItemId');
+            $table->index('UserId');
+            $table->index('ProcessId');
 
-            $table->foreign('item_id')
+            $table->foreign('ItemId')
                   ->references('ItemId')
                   ->on('Item')
                   ->cascadeOnDelete()
                   ->cascadeOnUpdate();
-            $table->foreign('user_id')
+            $table->foreign('UserId')
                   ->references('UserId')
                   ->on('User')
                   ->restrictOnDelete()
@@ -51,6 +51,6 @@ class CreateHtrDataTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('htr_data');
+        Schema::dropIfExists('HtrData');
     }
 }
