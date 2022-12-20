@@ -16,7 +16,7 @@ externalDocs:
   description: More about Transcribathon
 
 servers:
-  - url: https://api.fresenia.man.poznan.pl/v2
+  - url: https://api.transcribathon.eu/v2
     description: live server
   - url: https://api.fresenia-dev.man.poznan.pl/v2
     description: public development server
