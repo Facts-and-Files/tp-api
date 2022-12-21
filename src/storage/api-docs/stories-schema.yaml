@@ -1,0 +1,28 @@
+StoriesMinimalReferenceSchema:
+  # properties:
+    # TranscriptionSource:
+    #   type: string
+    #   enum: ['htr', 'manual']
+    #   description: source of the transcription
+    #   example: 'manual'
+
+StoriesGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        StoryId:
+          type: integer
+          description: ID of the entry
+          example: 2
+        ItemIds:
+          type: array
+          items:
+            type: integer
+          description: Array of ItemIds that belong to this story
+          example: [39169822, 39169823, 39169824]
+        LastUpdated:
+          type: string
+          description: Time of last update
+          example: '2022-02-23 09:57:03'
+    - $ref: '#/StoriesMinimalReferenceSchema'
