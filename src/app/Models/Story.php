@@ -84,7 +84,6 @@ class Story extends Model
         'dc:language',
         'edm:language',
         'CompletionStatusId',
-        'RecordId',
         'PreviewImage',
         'DatasetId',
         'dcterms:provenance',
