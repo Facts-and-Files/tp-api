@@ -67,9 +67,9 @@ jobs:
             php artisan optimize:clear
             php artisan migrate --force --no-interaction
             cd ${{ env.remote_path }}
-            rm ${{ env.deployfile }}
             unlink ${{ env.remote_folder }}
             ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
+            rm ${{ env.deployfile }}
             exit
           EOF"
 
