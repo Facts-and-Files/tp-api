@@ -48,23 +48,30 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/local_key
           chmod 600 ~/.ssh/local_key
           echo "deployfile=deploy.${{ env.now }}.tar.gz" >> $GITHUB_ENV
+          echo "${{ secrets.LOCAL_ENV }}" > ${{ env.local_path }}/.env
+          mv "${{ env.local_path }}" "${{ env.remote_folder }}.${{ env.now }}"
 
       - name: Upload files
         run: |
-          tar -czf "${{ env.deployfile }}" --transform s/${{ env.local_path }}/${{ env.remote_folder}}/ "${{ env.local_path }}"
+          tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}.${{ env.now }}"
           scp -i ~/.ssh/local_key -o StrictHostKeyChecking=no -P "$PORT" "${{ env.deployfile }}" "$SSH_USER@$HOST:${{ env.remote_path}}"
 
-      # - name: Move and extract files
-      #   run: |
-      #     ssh -tt -i ~/.ssh/local_key -o StrictHostKeyChecking=no -p "$PORT" "$SSH_USER@$HOST" "sudo -i <<EOF
-      #       cd ${{ env.remote_path }}
-      #       tar -czf ${{ env.remote_folder }}.${{ env.now }}.tar.gz ${{ env.remote_folder }}
-      #       rm -R ${{ env.remote_folder }}
-      #       tar -xf ${{ env.deployfile }}
-      #       chown -R www-data:www-data ${{ env.remote_folder }}
-      #       rm ${{ env.deployfile }}
-      #       exit
-      #     EOF"
+      - name: Move and extract files
+        run: |
+          ssh -tt -i ~/.ssh/local_key -o StrictHostKeyChecking=no -p "$PORT" "$SSH_USER@$HOST" "sudo -i <<EOF
+            cd ${{ env.remote_path }}
+            tar -xf ${{ env.deployfile }}
+            chown -R www-data:www-data ${{ env.remote_folder }}.${{ env.now }}
+            cd ${{ env.remote_folder}}.${{ env.now }}
+            composer install --optimize-autoloader --no-dev
+            php artisan optimize:clear
+            php artisan migrate --force --no-interaction
+            cd ${{ env.remote_path }}
+            unlink ${{ env.remote_folder }}
+            ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
+            rm ${{ env.deployfile }}
+            exit
+          EOF"
 
       - name: Kill VPN connection
         if: always()
