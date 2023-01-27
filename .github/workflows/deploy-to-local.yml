@@ -48,7 +48,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/local_key
           chmod 600 ~/.ssh/local_key
           echo "deployfile=deploy.${{ env.now }}.tar.gz" >> $GITHUB_ENV
-          echo "${{ secrets.LOCAL_ENV }}" >> ${{ env.remote_folder }}/.env
+          echo "${{ secrets.LOCAL_ENV }}" > ${{ env.remote_folder }}/.env
           mv ${{ env.local_path }} ${{ env.remote_folder }}
           tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}"
 
