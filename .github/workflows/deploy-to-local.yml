@@ -3,10 +3,10 @@ run-name: ${{ github.actor }} is deploying to LOCAL...
 on:
   workflow_dispatch:
 env:
-  HOST: 192.168.7.125
-  PORT: 22
-  REMOTE_PATH: /var/www
-  REMOTE_FOLDER: api.transcribathon.local
+  HOST: ${{ vars.LCL_HOST }}
+  PORT: ${{ vars.LCL_PORT }}
+  REMOTE_PATH: ${{ vars.LCL_REMOTE_PATH }}
+  REMOTE_FOLDER: ${{ vars.LCL_REMOTE_FOLDER }}
   LOCAL_PATH: src
   SSH_USER: ${{secrets.LOCAL_SSH_USER}}
   SSH_PRIVATE_KEY: ${{secrets.LOCAL_SSH_PRIVATE_KEY}}
