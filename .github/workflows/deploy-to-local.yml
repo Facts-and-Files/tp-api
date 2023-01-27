@@ -50,10 +50,10 @@ jobs:
           echo "deployfile=deploy.${{ env.now }}.tar.gz" >> $GITHUB_ENV
           mv ${{ env.local_path }} ${{ env.remote_folder }}
           echo "${{ secrets.LOCAL_ENV }}" > ${{ env.remote_folder }}/.env
-          tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}"
 
       - name: Upload files
         run: |
+          tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}"
           scp -i ~/.ssh/local_key -o StrictHostKeyChecking=no -P "$PORT" "${{ env.deployfile }}" "$SSH_USER@$HOST:${{ env.remote_path}}"
 
       # - name: Move and extract files
