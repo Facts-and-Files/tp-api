@@ -1,10 +1,21 @@
 StoriesMinimalReferenceSchema:
-  # properties:
-    # TranscriptionSource:
-    #   type: string
-    #   enum: ['htr', 'manual']
-    #   description: source of the transcription
-    #   example: 'manual'
+  properties:
+    RecordId:
+      type: string
+      description: external ID (Europeana RecordId)
+      example: '/135/_nnVvTts'
+    PreviewImage:
+      type: string
+      description: IIIF JSON string with full image link
+      example: '{"@id":"rhus-148.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//135/_nnVvTts/ND-0001.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3934,"height":5390,"service":{"@id":"rhus-148.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//135/_nnVvTts/ND-0001.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}'
+    DcTitle:
+      type: string
+      description: dc:title of the entry
+      example: 'Neues Deutschland - Ausgaben zwischen dem 27.10. und 30.11.1989'
+    DcDescription:
+      type: string
+      description: dc:description of the entry
+      example: 'Europeana 1989 - Berlin, 12-13.09.2014'
 
 StoriesGetResponseSchema:
   allOf:
@@ -25,4 +36,8 @@ StoriesGetResponseSchema:
           type: string
           description: Time of last update
           example: '2022-02-23 09:57:03'
+        ExternalRecordId:
+          type: string
+          description: external ID (Europeana resource location)
+          example: 'https://www.europeana.eu/en/item/135/_nnVvTts'
     - $ref: '#/StoriesMinimalReferenceSchema'
