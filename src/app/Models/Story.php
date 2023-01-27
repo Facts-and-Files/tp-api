@@ -44,7 +44,6 @@ class Story extends Model
         'dc:title',
         'dc:description',
         'edm:landingPage',
-        'ExternalRecordId',
         'PlaceName',
         'PlaceLatitude',
         'PlaceLongitude',
@@ -84,7 +83,6 @@ class Story extends Model
         'dc:language',
         'edm:language',
         'CompletionStatusId',
-        'PreviewImage',
         'DatasetId',
         'dcterms:provenance',
         'dc:identifier',
@@ -100,7 +98,9 @@ class Story extends Model
      * @var array
      */
     protected $appends = [
-        'ItemIds'
+        'ItemIds',
+        'DcTitle',
+        'DcDescription',
     ];
 
     /**
@@ -110,4 +110,21 @@ class Story extends Model
     {
         return $this->hasMany(Item::class, 'StoryId')->pluck('ItemId');
     }
+
+    /**
+     * Get the DcTitle for the story.
+     */
+    public function getDcTitleAttribute()
+    {
+        return $this->attributes['dc:title'];
+    }
+
+    /**
+     * Get the DcDescription for the story.
+     */
+    public function getDcDescriptionAttribute()
+    {
+        return $this->attributes['dc:description'];
+    }
+
 }
