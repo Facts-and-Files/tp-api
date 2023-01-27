@@ -53,7 +53,7 @@ jobs:
 
       - name: Upload files
         run: |
-          tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}.${{ env.now }}""
+          tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}.${{ env.now }}"
           scp -i ~/.ssh/local_key -o StrictHostKeyChecking=no -P "$PORT" "${{ env.deployfile }}" "$SSH_USER@$HOST:${{ env.remote_path}}"
 
       - name: Move and extract files
