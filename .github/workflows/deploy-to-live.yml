@@ -1,15 +1,15 @@
-name: Deploy to LOCAL
-run-name: ${{ github.actor }} is deploying to LOCAL...
+name: Deploy to LIVE
+run-name: ${{ github.actor }} is deploying to LIVE...
 on:
   workflow_dispatch:
 env:
-  HOST: ${{ vars.LCL_HOST }}
-  PORT: ${{ vars.LCL_PORT }}
-  REMOTE_PATH: ${{ vars.LCL_REMOTE_PATH }}
-  REMOTE_FOLDER: ${{ vars.LCL_REMOTE_FOLDER }}
+  HOST: ${{ vars.LIVE_HOST }}
+  PORT: ${{ vars.LIVE_PORT }}
+  REMOTE_PATH: ${{ vars.LIVE_REMOTE_PATH }}
+  REMOTE_FOLDER: ${{ vars.LIVE_REMOTE_FOLDER }}
   LOCAL_PATH: src
-  SSH_USER: ${{secrets.LOCAL_SSH_USER}}
-  SSH_PRIVATE_KEY: ${{secrets.LOCAL_SSH_PRIVATE_KEY}}
+  SSH_KEY_PASS: ${{ secrets.LIVE_SSH_KEY_PASS }}
+  SSH_PRIVATE_KEY: ${{ secrets.LIVE_SSH_PRIVATE_KEY }}
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -43,38 +43,45 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Prepare files
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          SSH_KEY_PASS: ${{ secrets.LIVE_SSH_KEY_PASS }}
+          SSH_PRIVATE_KEY: ${{ secrets.LIVE_SSH_PRIVATE_KEY }}
         run: |
-          mkdir ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/local_key
-          chmod 600 ~/.ssh/local_key
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          echo 'echo $SSH_KEY_PASS' > ~/.ssh_askpass && chmod +x ~/.ssh_askpass
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - > /dev/null
           echo "deployfile=deploy.${{ env.now }}.tar.gz" >> $GITHUB_ENV
-          echo "${{ secrets.LOCAL_ENV }}" > ${{ env.local_path }}/.env
+          echo "${{ secrets.LIVE_ENV }}" > ${{ env.local_path }}/.env
           mv "${{ env.local_path }}" "${{ env.remote_folder }}.${{ env.now }}"
 
       - name: Upload files
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}.${{ env.now }}"
-          scp -i ~/.ssh/local_key -o StrictHostKeyChecking=no -P "$PORT" "${{ env.deployfile }}" "$SSH_USER@$HOST:${{ env.remote_path}}"
+          scp -o StrictHostKeyChecking=no -P "$PORT" "${{ env.deployfile }}" "${{ secrets.LIVE_SSH_USER }}@$HOST:${{ env.remote_path}}"
 
       - name: Move and extract files
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
-          ssh -tt -i ~/.ssh/local_key -o StrictHostKeyChecking=no -p "$PORT" "$SSH_USER@$HOST" "sudo -i <<EOF
+          ssh -tt -o StrictHostKeyChecking=no -p "$PORT" "${{ secrets.LIVE_SSH_USER }}@$HOST" <<EOF
             cd ${{ env.remote_path }}
             tar -xf ${{ env.deployfile }}
-            chown -R www-data:www-data ${{ env.remote_folder }}.${{ env.now }}
             cd ${{ env.remote_folder}}.${{ env.now }}
-            php composer.phar install --optimize-autoloader --no-dev
-            php artisan optimize:clear
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan migrate --force --no-interaction
+            php81 composer.phar install --optimize-autoloader --no-dev
+            php81 artisan optimize:clear
+            php81 artisan config:cache
+            php81 artisan route:cache
+            php81 artisan view:cache
+            php81 artisan migrate --force --no-interaction
             cd ${{ env.remote_path }}
             unlink ${{ env.remote_folder }}
             ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
             rm ${{ env.deployfile }}
             exit
-          EOF"
+          EOF
 
       - name: Kill VPN connection
         if: always()

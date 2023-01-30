@@ -2,6 +2,9 @@ name: Deploy to DEV
 run-name: ${{ github.actor }} is deploying to DEV...
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 env:
   HOST: ${{ vars.DEV_HOST }}
   PORT: ${{ vars.DEV_PORT }}
@@ -62,23 +65,26 @@ jobs:
           tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}.${{ env.now }}"
           scp -o StrictHostKeyChecking=no -P "$PORT" "${{ env.deployfile }}" "${{ secrets.DEV_SSH_USER }}@$HOST:${{ env.remote_path}}"
 
-      # - name: Move and extract files
-      #   env:
-      #     SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      #   run: |
-      #     ssh -tt -o StrictHostKeyChecking=no -p "$PORT" "${{ secrets.DEV_SSH_USER }}@$HOST" <<EOF
-      #       cd ${{ env.remote_path }}
-      #       tar -xf ${{ env.deployfile }}
-      #       cd ${{ env.remote_folder}}.${{ env.now }}
-      #       php81 composer install --optimize-autoloader --no-dev
-      #       php81 artisan optimize:clear
-      #       php81 artisan migrate --force --no-interaction
-      #       cd ${{ env.remote_path }}
-      #       unlink ${{ env.remote_folder }}
-      #       ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
-      #       rm ${{ env.deployfile }}
-      #       exit
-      #     EOF
+      - name: Move and extract files
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          ssh -tt -o StrictHostKeyChecking=no -p "$PORT" "${{ secrets.DEV_SSH_USER }}@$HOST" <<EOF
+            cd ${{ env.remote_path }}
+            tar -xf ${{ env.deployfile }}
+            cd ${{ env.remote_folder}}.${{ env.now }}
+            php81 composer.phar install --optimize-autoloader --no-dev
+            php81 artisan optimize:clear
+            php81 artisan config:cache
+            php81 artisan route:cache
+            php81 artisan view:cache
+            php81 artisan migrate --force --no-interaction
+            cd ${{ env.remote_path }}
+            unlink ${{ env.remote_folder }}
+            ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
+            rm ${{ env.deployfile }}
+            exit
+          EOF
 
       - name: Kill VPN connection
         if: always()
