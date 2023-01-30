@@ -2,6 +2,9 @@ name: Deploy to DEV
 run-name: ${{ github.actor }} is deploying to DEV...
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 env:
   HOST: ${{ vars.DEV_HOST }}
   PORT: ${{ vars.DEV_PORT }}
