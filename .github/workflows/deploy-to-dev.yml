@@ -70,7 +70,7 @@ jobs:
             cd ${{ env.remote_path }}
             tar -xf ${{ env.deployfile }}
             cd ${{ env.remote_folder}}.${{ env.now }}
-            php81 composer install --optimize-autoloader --no-dev
+            php81 composer.phar install --optimize-autoloader --no-dev
             php81 artisan optimize:clear
             php81 artisan migrate --force --no-interaction
             cd ${{ env.remote_path }}
