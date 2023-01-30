@@ -1,0 +1,86 @@
+name: Deploy to DEV
+run-name: ${{ github.actor }} is deploying to DEV...
+on:
+  workflow_dispatch:
+env:
+  HOST: ${{ vars.DEV_HOST }}
+  PORT: ${{ vars.DEV_PORT }}
+  REMOTE_PATH: ${{ vars.DEV_REMOTE_PATH }}
+  REMOTE_FOLDER: ${{ vars.DEV_REMOTE_FOLDER }}
+  LOCAL_PATH: src
+  SSH_KEY_PASS: ${{ secrets.DEV_SSH_KEY_PASS }}
+  SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup environment vars
+        run: |
+          echo "now=$(date +%s)" >> $GITHUB_ENV
+          echo "remote_folder=$REMOTE_FOLDER" >> $GITHUB_ENV
+          echo "remote_path=$REMOTE_PATH" >> $GITHUB_ENV
+          echo "local_path=$LOCAL_PATH" >> $GITHUB_ENV
+
+      - name: Install OpenVPN
+        run: |
+          sudo apt-get update
+          sudo apt-get --assume-yes --no-install-recommends install openvpn
+
+      - name: Setup VPN config
+        run: |
+          echo "${{ secrets.CLIENT_OVPN }}" > client.ovpn
+          echo "${{ secrets.CLIENT_P12 }}" | base64 --decode > client.p12
+          echo "${{ secrets.CLIENT_PASS }}" > client.pass
+
+      - name: Connect VPN
+        run: sudo openvpn --config "client.ovpn" --log "vpn.log" --daemon
+
+      - name: Wait for a VPN connection
+        timeout-minutes: 1
+        run: until ping -c1 "$HOST"; do sleep 2; done
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Prepare files
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+          SSH_KEY_PASS: ${{ secrets.DEV_SSH_KEY_PASS }}
+          SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+        run: |
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          echo 'echo $SSH_KEY_PASS' > ~/.ssh_askpass && chmod +x ~/.ssh_askpass
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | DISPLAY=None SSH_ASKPASS=~/.ssh_askpass ssh-add - > /dev/null
+          echo "deployfile=deploy.${{ env.now }}.tar.gz" >> $GITHUB_ENV
+          echo "${{ secrets.DEV_ENV }}" > ${{ env.local_path }}/.env
+          mv "${{ env.local_path }}" "${{ env.remote_folder }}.${{ env.now }}"
+
+      - name: Upload files
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          tar -czf "${{ env.deployfile }}" "${{ env.remote_folder }}.${{ env.now }}"
+          scp -o StrictHostKeyChecking=no -P "$PORT" "${{ env.deployfile }}" "${{ secrets.DEV_SSH_USER }}@$HOST:${{ env.remote_path}}"
+
+      # - name: Move and extract files
+      #   env:
+      #     SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      #   run: |
+      #     ssh -tt -o StrictHostKeyChecking=no -p "$PORT" "${{ secrets.DEV_SSH_USER }}@$HOST" <<EOF
+      #       cd ${{ env.remote_path }}
+      #       tar -xf ${{ env.deployfile }}
+      #       cd ${{ env.remote_folder}}.${{ env.now }}
+      #       php81 composer install --optimize-autoloader --no-dev
+      #       php81 artisan optimize:clear
+      #       php81 artisan migrate --force --no-interaction
+      #       cd ${{ env.remote_path }}
+      #       unlink ${{ env.remote_folder }}
+      #       ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
+      #       rm ${{ env.deployfile }}
+      #       exit
+      #     EOF
+
+      - name: Kill VPN connection
+        if: always()
+        run: |
+          sudo killall openvpn
