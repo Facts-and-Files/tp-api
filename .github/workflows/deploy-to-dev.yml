@@ -72,6 +72,9 @@ jobs:
             cd ${{ env.remote_folder}}.${{ env.now }}
             php81 composer.phar install --optimize-autoloader --no-dev
             php81 artisan optimize:clear
+            php81 artisan config:cache
+            php81 artisan route:cache
+            php81 artisan view:cache
             php81 artisan migrate --force --no-interaction
             cd ${{ env.remote_path }}
             unlink ${{ env.remote_folder }}
