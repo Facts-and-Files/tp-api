@@ -1,7 +1,8 @@
 name: Deploy to LIVE
 run-name: ${{ github.actor }} is deploying to LIVE...
 on:
-  workflow_dispatch:
+  release:
+    types: [published]
 env:
   HOST: ${{ vars.LIVE_HOST }}
   PORT: ${{ vars.LIVE_PORT }}
