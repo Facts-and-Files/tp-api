@@ -101,6 +101,19 @@ class Story extends Model
         'ItemIds',
         'DcTitle',
         'DcDescription',
+        'DcCreator',
+        'DcSource',
+        'DcContributor',
+        'DcPublisher',
+        'DcCoverage',
+        'DcDate',
+        'DcType',
+        'DcRelation',
+        'DcRights',
+        'DcLanguage',
+        'DcIdentifier',
+        'DctermsMedium',
+        'DctermsCreated',
     ];
 
     /**
@@ -127,4 +140,107 @@ class Story extends Model
         return $this->attributes['dc:description'];
     }
 
+    /**
+     * Get the DcCreator for the story.
+     */
+    public function getDcCreatorAttribute()
+    {
+        return $this->attributes['dc:creator'];
+    }
+
+    /**
+     * Get the DcSource for the story.
+     */
+    public function getDcSourceAttribute()
+    {
+        return $this->attributes['dc:source'];
+    }
+
+    /**
+     * Get the DcContributor for the story.
+     */
+    public function getDcContributorAttribute()
+    {
+        return $this->attributes['dc:contributor'];
+    }
+
+    /**
+     * Get the DcPublisher for the story.
+     */
+    public function getDcPublisherAttribute()
+    {
+        return $this->attributes['dc:publisher'];
+    }
+
+    /**
+     * Get the DcCoverage for the story.
+     */
+    public function getDcCoverageAttribute()
+    {
+        return $this->attributes['dc:coverage'];
+    }
+
+    /**
+     * Get the dc:date for the story.
+     */
+    public function getDcDateAttribute()
+    {
+        return $this->attributes['dc:date'];
+    }
+
+    /**
+     * Get the dc:type for the story.
+     */
+    public function getDcTypeAttribute()
+    {
+        return $this->attributes['dc:type'];
+    }
+
+    /**
+     * Get the dc:relation for the story.
+     */
+    public function getDcRelationAttribute()
+    {
+        return $this->attributes['dc:relation'];
+    }
+
+    /**
+     * Get the dc:rights for the story.
+     */
+    public function getDcRightsAttribute()
+    {
+        return $this->attributes['dc:rights'];
+    }
+
+    /**
+     * Get the dc:language for the story.
+     */
+    public function getDcLanguageAttribute()
+    {
+        return $this->attributes['dc:language'];
+    }
+
+    /**
+     * Get the dc:identifier for the story.
+     */
+    public function getDcIdentifierAttribute()
+    {
+        return $this->attributes['dc:identifier'];
+    }
+
+    /**
+     * Get the dcterms:medium for the story.
+     */
+    public function getDctermsMediumAttribute()
+    {
+        return $this->attributes['dcterms:medium'];
+    }
+
+    /**
+     * Get the dcterms:created for the story.
+     */
+    public function getDctermsCreatedAttribute()
+    {
+        return $this->attributes['dcterms:created'];
+    }
 }
