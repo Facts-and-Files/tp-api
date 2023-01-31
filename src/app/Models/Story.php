@@ -114,6 +114,7 @@ class Story extends Model
         'DcIdentifier',
         'DctermsMedium',
         'DctermsCreated',
+        'DctermsProvenance',
     ];
 
     /**
@@ -242,5 +243,13 @@ class Story extends Model
     public function getDctermsCreatedAttribute()
     {
         return $this->attributes['dcterms:created'];
+    }
+
+    /**
+     * Get the dcterms:provenance for the story.
+     */
+    public function getDctermsProvenanceAttribute()
+    {
+        return $this->attributes['dcterms:provenance'];
     }
 }

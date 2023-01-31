@@ -92,4 +92,8 @@ StoriesGetResponseSchema:
           type: string:
           description: dcterms:medium of the entry
           example: 2014-11-10T12:05:42.172Z || 2019-07-17T01:48:57.503Z
+        DctermsProvenance:
+          type: string:
+          description: dcterms:provenance of the entry
+          example: CHA01
     - $ref: '#/StoriesMinimalReferenceSchema'
