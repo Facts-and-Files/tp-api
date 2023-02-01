@@ -1,0 +1,76 @@
+get:
+  tags:
+    - autoenrichments
+  summary: Get all stored Automatically generated enrichments data entries
+  description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier \(as AutoEnrichmentId\).
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: Name
+      description: Show entries associated with this Name
+      type: string
+    - in: query
+      name: Type
+      description: Show entries associated with this Type
+      type: string
+    - in: query
+      name: ItemId
+      description: Show entries associated with this ItemId
+      type: integer
+    - in: query
+      name: StoryId
+      description: Show entries associated with this StoryId
+      type: integer
+    - in: query
+      name: WikiData
+      description: Show entries associated with this WikiData
+      type: string
+    - in: query
+      name: AutoEnrichmentId
+      description: Show entry associated with this AutoEnrichmentId
+      type: integer
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    type: array
+                    description: AutoEnrichments data entry objects as array
+                    items:
+                      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+post:
+  tags:
+    - autoenrichments
+  summary: Store a new AutoEnrichment data entry
+  requestBody:
+    description: Used to save verified Automatically generated enrichments.
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPostRequestSchema'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'

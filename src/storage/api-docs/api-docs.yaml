@@ -37,6 +37,8 @@ tags:
     description: Operations related to items data (NOT ALL DATA INCLUDED YET)
   - name: stories
     description: Operations related to stories data (NOT ALL DATA INCLUDED YET)
+  - name: autoenrichments
+    description: Operations related to automatically generated enrichments (Test phase)
 
 paths:
   /htrdata:
@@ -58,6 +60,12 @@ paths:
     $ref: 'stories-path.yaml'
   /stories/{StoryId}:
     $ref: 'stories-storyId-path.yaml'
+
+  /autoenrichments:
+    $ref: 'autoenrichments-path.yaml'
+  /autoenrichments/{AutoEnrichmentId}:
+    $ref: 'autoenrichments-autoenrichmentId-path.yaml'
+  
 
 components:
   securitySchemes:
@@ -81,4 +89,10 @@ components:
       $ref: 'items-schema.yaml#/ItemsPutRequestSchema'
     StoriesGetResponseSchema:
       $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
+    AutoEnrichmentsGetResponseSchema:
+      $ref: 'autoenrichments-schema.yaml#AutoEnrichmentsGetResponseSchema'
+    AutoEnrichmentsPostRequestSchema:
+      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPostRequestSchema'
+    AutoEnrichmentsPutRequestSchema:
+      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPutRequestSchema'
 
