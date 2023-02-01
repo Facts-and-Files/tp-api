@@ -38,62 +38,77 @@ StoriesGetResponseSchema:
           example: 'https://www.europeana.eu/en/item/135/_nnVvTts'
         DcDescription:
           type: string
+          nullable: true
           description: dc:description of the entry
           example: 'Europeana 1989 - Berlin, 12-13.09.2014'
         DcCreator:
           type: string
+          nullable: true
           description: dc:creator of the entry
-          example: Jack Bates
+          example: 'Jack Bates'
         DcSource:
           type: string
+          nullable: true
           description: dc:source of the entry
-          example: Universitätsbibliothek Heidelberg
+          example: 'Universitätsbibliothek Heidelberg'
         DcContributor:
           type: string
+          nullable: true
           description: dc:contributor of the entry
-          example: Wide Streets Commission || Dublin City Library and Archive
+          example: 'Wide Streets Commission || Dublin City Library and Archive'
         DcPublisher:
           type: string
+          nullable: true
           description: dc:publisher of the entry
-          example: Dublin City Library and Archive
+          example: 'Dublin City Library and Archive'
         DcCoverage:
           type: string
+          nullable: true
           description: dc:coverage of the entry
-          example: 1901-1902
+          example: '1901-1902'
         DcDate:
           type: string
+          nullable: true
           description: dc:date of the entry
-          example: around 1900
+          example: 'around 1900'
         DcType:
           type: string
+          nullable: true
           description: dc:type of the entry
-          example: Fragment
+          example: 'Fragment'
         DcRelation:
           type: string
+          nullable: true
           description: dc:relation of the entry
-          example: Leuchtendes Mittelalter |  Neue Folge III
+          example: 'Leuchtendes Mittelalter |  Neue Folge III'
         DcRights:
           type: string
+          nullable: true
           description: dc:rights of the entry
-          example: Public Domain
+          example: 'Public Domain'
         DcLanguage:
           type: string
+          nullable: true
           description: dc:language of the entry
-          example: Latin
+          example: 'Latin'
         DcIdentifier:
           type: string
+          nullable: true
           description: dc:identifier of the entry
-          example: MI0285_LLET007066
+          example: 'MI0285_LLET007066'
         DctermsMedium:
           type: string
+          nullable: true
           description: dcterms:medium of the entry
-          example: Parchment
+          example: 'Parchment'
         DctermsCreated:
-          type: string:
+          type: string
+          nullable: true
           description: dcterms:medium of the entry
-          example: 2014-11-10T12:05:42.172Z || 2019-07-17T01:48:57.503Z
+          example: '2014-11-10T12:05:42.172Z || 2019-07-17T01:48:57.503Z'
         DctermsProvenance:
-          type: string:
+          type: string
+          nullable: true
           description: dcterms:provenance of the entry
-          example: CHA01
+          example: 'CHA01'
     - $ref: '#/StoriesMinimalReferenceSchema'
