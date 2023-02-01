@@ -49,6 +49,16 @@ HtrDataGetResponseSchema:
           type: string
           description: Time of last update
           example: '2022-02-23T09:57:03.000000Z'
+        UserId:
+          nullable: true
+        HtrId:
+          nullable: true
+        ProcessId:
+          nullable: true
+        HtrStatus:
+          nullable: true
+        TranscriptionData:
+          nullable: true
     - $ref: '#/HtrDataMinimalReferenceSchema'
 
 HtrDataPutRequestSchema:
