@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('WikiData', 64);
             $table->integer('ItemId')->nullable();
             $table->integer('StoryId')->nullable();
-            $table->string('ExternalId', 64);
+            $table->string('ExternalId', 256);
         });
     }
 
