@@ -76,6 +76,54 @@ StoriesMinimalReferenceSchema:
       type: string
       description: dcterms:provenance of the entry
       example: 'CHA01'
+    EdmLandingPage:
+      type: string
+      description: edm:landingPage of the entry
+      example: 'https://www.europeana.eu/portal/record/135/_nnVvTts.html'
+    EdmCountry:
+      type: string
+      description: edm:country of the entry
+      example: 'Germany'
+    EdmDataProvider:
+      type: string
+      description: edm:dataProvider of the entry
+      example: 'Universitätsbibliothek Heidelberg'
+    EdmProvider:
+      type: string
+      description: edm:provider of the entry
+      example: 'Universitätsbibliothek Heidelberg'
+    EdmRights:
+      type: string
+      description: edm:rights of the entry
+      example: 'http://creativecommons.org/licenses/by-sa/3.0/de'
+    EdmYear:
+      type: string
+      description: edm:year of the entry
+      example: '1916'
+    EdmDatasetName:
+      type: string
+      description: edm:datasetName of the entry
+      example: '07931_L_DE_UniLibHeidelberg_druckschriften_IIIF'
+    EdmBegin:
+      type: string
+      description: edm:begin of the entry
+      example: 'Thu Jan 01 00:19:32 CET 1903'
+    EdmEnd:
+      type: string
+      description: edm:end of the entry
+      example: 'Thu Dec 31 00:19:32 CET 1903'
+    EdmIsShownAt:
+      type: string
+      description: edm:isShownAt of the entry
+      example: '	http://digi.ub.uni-heidelberg.de/diglit/matrikelregister2'
+    EdmLanguage:
+      type: string
+      description: edm:language of the entry
+      example: '	de'
+    EdmAgent:
+      type: string
+      description: edm:agent of the entry
+      example: 'Zvonimir Stipanović'
 
 StoriesGetResponseSchema:
   allOf:
@@ -125,5 +173,29 @@ StoriesGetResponseSchema:
         DctermsCreated:
           nullable: true
         DctermsProvenance:
+          nullable: true
+        EdmLandingPage:
+          nullable: true
+        EdmCountry:
+          nullable: true
+        EdmDataProvider:
+          nullable: true
+        EdmProvider:
+          nullable: true
+        EdmRights:
+          nullable: true
+        EdmYear:
+          nullable: true
+        EdmDatasetName:
+          nullable: true
+        EdmBegin:
+          nullable: true
+        EdmEnd:
+          nullable: true
+        EdmIsShownAt:
+          nullable: true
+        EdmLanguage:
+          nullable: true
+        EdmAgent:
           nullable: true
     - $ref: '#/StoriesMinimalReferenceSchema'
