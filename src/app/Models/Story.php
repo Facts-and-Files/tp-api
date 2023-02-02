@@ -115,6 +115,18 @@ class Story extends Model
         'DctermsMedium',
         'DctermsCreated',
         'DctermsProvenance',
+        'EdmLandingPage',
+        'EdmCountry',
+        'EdmDataProvider',
+        'EdmProvider',
+        'EdmRights',
+        'EdmYear',
+        'EdmDatasetName',
+        'EdmBegin',
+        'EdmEnd',
+        'EdmIsShownAt',
+        'EdmLanguage',
+        'EdmAgent'
     ];
 
     /**
@@ -251,5 +263,101 @@ class Story extends Model
     public function getDctermsProvenanceAttribute()
     {
         return $this->attributes['dcterms:provenance'];
+    }
+
+    /**
+     * Get the edm:landingPage for the story.
+     */
+    public function getEdmLandingPageAttribute()
+    {
+        return $this->attributes['edm:landingPage'];
+    }
+
+    /**
+     * Get the edm:country for the story.
+     */
+    public function getEdmCountryAttribute()
+    {
+        return $this->attributes['edm:country'];
+    }
+
+    /**
+     * Get the edm:dataProvider for the story.
+     */
+    public function getEdmDataProviderAttribute()
+    {
+        return $this->attributes['edm:dataProvider'];
+    }
+
+    /**
+     * Get the edm:provider for the story.
+     */
+    public function getEdmProviderAttribute()
+    {
+        return $this->attributes['edm:provider'];
+    }
+
+    /**
+     * Get the edm:rights for the story.
+     */
+    public function getEdmRightsAttribute()
+    {
+        return $this->attributes['edm:rights'];
+    }
+
+    /**
+     * Get the edm:year for the story.
+     */
+    public function getEdmYearAttribute()
+    {
+        return $this->attributes['edm:year'];
+    }
+
+    /**
+     * Get the edm:datasetName for the story.
+     */
+    public function getEdmDatasetNameAttribute()
+    {
+        return $this->attributes['edm:datasetName'];
+    }
+
+    /**
+     * Get the edm:begin for the story.
+     */
+    public function getEdmBeginAttribute()
+    {
+        return $this->attributes['edm:begin'];
+    }
+
+    /**
+     * Get the edm:end for the story.
+     */
+    public function getEdmEndAttribute()
+    {
+        return $this->attributes['edm:end'];
+    }
+
+    /**
+     * Get the edm:isShownAt for the story.
+     */
+    public function getEdmIsShownAtAttribute()
+    {
+        return $this->attributes['edm:isShownAt'];
+    }
+
+    /**
+     * Get the edm:language for the story.
+     */
+    public function getEdmLanguageAttribute()
+    {
+        return $this->attributes['edm:language'];
+    }
+
+    /**
+     * Get the edm:agent for the story.
+     */
+    public function getEdmAgentAttribute()
+    {
+        return $this->attributes['edm:agent'];
     }
 }
