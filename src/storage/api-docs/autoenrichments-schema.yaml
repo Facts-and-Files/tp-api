@@ -27,7 +27,7 @@ AutoEnrichmentsMinimalReferenceSchema:
 
 AutoEnrichmentsPostRequestSchema:
   allOf:
-    - $ref: '#/AutoEnrichmentsReferenceSchema'
+    - $ref: '#/AutoEnrichmentsMinimalReferenceSchema'
   description: The data object of a single POST request body
   required:
     - ItemId
