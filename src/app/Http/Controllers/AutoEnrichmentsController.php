@@ -46,7 +46,7 @@ class AutoEnrichmentsController extends ResponseController
     public function store(Request $request)
     {
         try {
-            $data = new AutoEnrichmentsData();
+            $data = new AutoEnrichments();
             $data->fill($request->all());
             $data->Name = $request->Name;
             $data->Type = $request->Type;
@@ -73,7 +73,7 @@ class AutoEnrichmentsController extends ResponseController
     public function show($id) 
     {
         try {
-            $data = AutoEnrichmentsData::findOrFail($id);
+            $data = AutoEnrichments::findOrFail($id);
             $resource = new AutoEnrichmentsResource($data);
 
             return $this->sendResponse($resource, 'Auto Enrichments fetched.');
@@ -93,7 +93,7 @@ class AutoEnrichmentsController extends ResponseController
     {
         try {
             $queries = $request->query();
-            $data = AutoEnrichmentsData::where('ItemId', $itemId);
+            $data = AutoEnrichments::where('ItemId', $itemId);
             $data = $this->filterDataByQueries($data, $queries);
             $resource = new AutoEnrichmentsResource($data);
 
@@ -114,7 +114,7 @@ class AutoEnrichmentsController extends ResponseController
     {
         try {
             $queries = $request->query();
-            $data = AutoEnrichmentsData::where('StoryId', $storyId);
+            $data = AutoEnrichments::where('StoryId', $storyId);
             $data = $this->filterDataByQueries($data, $queries);
             $resource = new AutoEnrichmentsResource($data);
 
@@ -145,7 +145,7 @@ class AutoEnrichmentsController extends ResponseController
     public function update(Request $request, $id)
     {
         try {
-            $autoEnrichmentsData = AutoEnrichmentsData::findOrFail($id);
+            $autoEnrichmentsData = AutoEnrichments::findOrFail($id);
             $autoEnrichmentsData->fill($request->all());
             $autoEnrichmentsData->save();
 
@@ -164,7 +164,7 @@ class AutoEnrichmentsController extends ResponseController
     public function destroy($id)
     {
         try {
-            $autoEnrichmentsData = AutoEnrichmentsData::findOrFail($id);
+            $autoEnrichmentsData = AutoEnrichments::findOrFail($id);
             $autoEnrichmentsData->delete();
 
             return $this->sendResponse(new AutoEnrichmentsResource($autoEnrichmentsData), 'Auto Enrichment deleted.');
@@ -193,7 +193,7 @@ class AutoEnrichmentsController extends ResponseController
             'CompletionStatus' => 'CompletionStatus'
         );
 
-        $autoEnrichmentsData = new AutoEnrichmentsData();
+        $autoEnrichmentsData = new AutoEnrichments();
 
         $data = $autoEnrichmentsData->whereRaw('1 = 1');
 
@@ -219,7 +219,7 @@ class AutoEnrichmentsController extends ResponseController
     {
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
-        $orderBy = $queries['orderBy'] ?? 'LastUpdated';
+        $orderBy = $queries['orderBy'] ?? 'AutoEnrichmentId';
         $orderDir = $queries['orderDir'] ?? 'asc';
         $offset = $limit * ($page - 1);
 
