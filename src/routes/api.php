@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HtrDataController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\AutoEnrichmentsController;
 
 /*
 |--------------------------------------------------------------------------
