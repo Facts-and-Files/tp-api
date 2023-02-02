@@ -1,0 +1,49 @@
+AutoEnrichmentsMinimalReferenceSchema:
+  properties:
+    ItemId:
+      type: integer
+      description: ID of item/image within Transcribathon
+      example: 421717
+    Name:
+      type: string
+      description: Name of the enrcihment within Transcribathon database
+      example: Berlin
+    Type:
+      type: string
+      description: Type of the enrichment for this data
+      example: Place
+    WikiData:
+      type: string
+      description: Link to the WikiData page with correspondig enrichment
+      example: http://www.wikidata.org/entity/Q64
+    StoryId:
+      type: integer
+      description: ID of story within Transcribathon
+      example: 151742
+    Externalid:
+      type: string
+      description: Enrichment Id coming form AIT
+      example: http://dsi-demo.ait.ac.at/enrichment-web/enrichment/annotation/14051/441013/Q31487
+
+AutoEnrichmentsPostRequestSchema:
+  allOf:
+    - $ref: '#/AutoEnrichmentsReferenceSchema'
+  description: The data object of a single POST request body
+  required:
+    - ItemId
+
+AutoEnrichmentsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        AutoEnrichmentsId:
+          type: integer
+          description: ID of the entry
+          example: 2
+    - $ref: '#/AutoEnrichmentsMinimalReferenceSchema'
+
+AutoEnrichmentsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/AutoEnrichmentsMinimalReferenceSchema'

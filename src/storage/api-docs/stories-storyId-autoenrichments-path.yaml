@@ -1,0 +1,35 @@
+get:
+  tags:
+    - autoenrichments
+    - items
+  summary: Get stored Automatically generated enrichments data of an item
+  parameters:
+    - in: path
+      name: ItemId
+      description: Numeric ID of the item within transcribathon
+      type: integer
+      required: true
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    type: array
+                    description: Autoatically generated enrichments data entries as array
+                    items:
+                      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'

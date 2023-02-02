@@ -187,9 +187,10 @@ class AutoEnrichmentsController extends ResponseController
             'Name' => 'Name',
             'Type' => 'Type',
             'WikiData' => 'WikiData',
-            'StoryId'    => 'StoryId',
-            'ItemId'    => 'ItemId',
-            'AutoEnrichmentId'     => 'AutoEnrichmentId'
+            'StoryId' => 'StoryId',
+            'ItemId' => 'ItemId',
+            'AutoEnrichmentId' => 'AutoEnrichmentId',
+            'CompletionStatus' => 'CompletionStatus'
         );
 
         $autoEnrichmentsData = new AutoEnrichmentsData();
