@@ -1,3 +1,130 @@
+DctermsReferenceSchema:
+  type: object
+  description: Object with DCMI properties from the /terms/ namespace
+  properties:
+    Medium:
+      type: string
+      description: dcterms:medium of the entry
+      example: 'Parchment'
+    Created:
+      type: string
+      description: dcterms:medium of the entry
+      example: '2014-11-10T12:05:42.172Z || 2019-07-17T01:48:57.503Z'
+    Provenance:
+      type: string
+      description: dcterms:provenance of the entry
+      example: 'CHA01'
+
+DcElementsReferenceSchema:
+  type: object
+  description: Object with DCMI properties from the /elements/ namespace
+  properties:
+    Title:
+      type: string
+      description: dc:title of the entry
+      example: 'Neues Deutschland - Ausgaben zwischen dem 27.10. und 30.11.1989'
+    Description:
+      type: string
+      description: dc:description of the entry
+      example: 'Europeana 1989 - Berlin, 12-13.09.2014'
+    Creator:
+      type: string
+      description: dc:creator of the entry
+      example: 'Jack Bates'
+    Source:
+      type: string
+      description: dc:source of the entry
+      example: 'Universitätsbibliothek Heidelberg'
+    Contributor:
+      type: string
+      description: dc:contributor of the entry
+      example: 'Wide Streets Commission || Dublin City Library and Archive'
+    Publisher:
+      type: string
+      description: dc:publisher of the entry
+      example: 'Dublin City Library and Archive'
+    Coverage:
+      type: string
+      description: dc:coverage of the entry
+      example: '1901-1902'
+    Date:
+      type: string
+      description: dc:date of the entry
+      example: 'around 1900'
+    Type:
+      type: string
+      description: dc:type of the entry
+      example: 'Fragment'
+    Relation:
+      type: string
+      description: dc:relation of the entry
+      example: 'Leuchtendes Mittelalter |  Neue Folge III'
+    Rights:
+      type: string
+      description: dc:rights of the entry
+      example: 'Public Domain'
+    Language:
+      type: string
+      description: dc:language of the entry
+      example: 'Latin'
+    Identifier:
+      type: string
+      description: dc:identifier of the entry
+      example: 'MI0285_LLET007066'
+
+EdmReferenceSchema:
+  type: object
+  description: Object with edm properties (Europeana Data Model)
+  properties:
+    LandingPage:
+      type: string
+      description: edm:landingPage of the entry
+      example: 'https://www.europeana.eu/portal/record/135/_nnVvTts.html'
+    Country:
+      type: string
+      description: edm:country of the entry
+      example: 'Germany'
+    DataProvider:
+      type: string
+      description: edm:dataProvider of the entry
+      example: 'Universitätsbibliothek Heidelberg'
+    Provider:
+      type: string
+      description: edm:provider of the entry
+      example: 'Universitätsbibliothek Heidelberg'
+    Rights:
+      type: string
+      description: edm:rights of the entry
+      example: 'http://creativecommons.org/licenses/by-sa/3.0/de'
+    Year:
+      type: string
+      description: edm:year of the entry
+      example: '1916'
+    DatasetName:
+      type: string
+      description: edm:datasetName of the entry
+      example: '07931_L_DE_UniLibHeidelberg_druckschriften_IIIF'
+    Begin:
+      type: string
+      description: edm:begin of the entry
+      example: 'Thu Jan 01 00:19:32 CET 1903'
+    End:
+      type: string
+      description: edm:end of the entry
+      example: 'Thu Dec 31 00:19:32 CET 1903'
+    IsShownAt:
+      type: string
+      description: edm:isShownAt of the entry
+      example: '	http://digi.ub.uni-heidelberg.de/diglit/matrikelregister2'
+    Language:
+      type: string
+      description: edm:language of the entry
+      example: 'de'
+    Agent:
+      type: string
+      description: edm:agent of the entry
+      example: 'Zvonimir Stipanović'
+
 StoriesMinimalReferenceSchema:
   properties:
     RecordId:
@@ -8,194 +135,81 @@ StoriesMinimalReferenceSchema:
       type: string
       description: IIIF JSON string with full image link
       example: '{"@id":"rhus-148.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//135/_nnVvTts/ND-0001.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3934,"height":5390,"service":{"@id":"rhus-148.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//135/_nnVvTts/ND-0001.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}'
-    DcTitle:
-      type: string
-      description: dc:title of the entry
-      example: 'Neues Deutschland - Ausgaben zwischen dem 27.10. und 30.11.1989'
     ExternalRecordId:
       type: string
       description: external ID (Europeana resource location)
       example: 'https://www.europeana.eu/en/item/135/_nnVvTts'
-    DcDescription:
-      type: string
-      description: dc:description of the entry
-      example: 'Europeana 1989 - Berlin, 12-13.09.2014'
-    DcCreator:
-      type: string
-      description: dc:creator of the entry
-      example: 'Jack Bates'
-    DcSource:
-      type: string
-      description: dc:source of the entry
-      example: 'Universitätsbibliothek Heidelberg'
-    DcContributor:
-      type: string
-      description: dc:contributor of the entry
-      example: 'Wide Streets Commission || Dublin City Library and Archive'
-    DcPublisher:
-      type: string
-      description: dc:publisher of the entry
-      example: 'Dublin City Library and Archive'
-    DcCoverage:
-      type: string
-      description: dc:coverage of the entry
-      example: '1901-1902'
-    DcDate:
-      type: string
-      description: dc:date of the entry
-      example: 'around 1900'
-    DcType:
-      type: string
-      description: dc:type of the entry
-      example: 'Fragment'
-    DcRelation:
-      type: string
-      description: dc:relation of the entry
-      example: 'Leuchtendes Mittelalter |  Neue Folge III'
-    DcRights:
-      type: string
-      description: dc:rights of the entry
-      example: 'Public Domain'
-    DcLanguage:
-      type: string
-      description: dc:language of the entry
-      example: 'Latin'
-    DcIdentifier:
-      type: string
-      description: dc:identifier of the entry
-      example: 'MI0285_LLET007066'
-    DctermsMedium:
-      type: string
-      description: dcterms:medium of the entry
-      example: 'Parchment'
-    DctermsCreated:
-      type: string
-      description: dcterms:medium of the entry
-      example: '2014-11-10T12:05:42.172Z || 2019-07-17T01:48:57.503Z'
-    DctermsProvenance:
-      type: string
-      description: dcterms:provenance of the entry
-      example: 'CHA01'
-    EdmLandingPage:
-      type: string
-      description: edm:landingPage of the entry
-      example: 'https://www.europeana.eu/portal/record/135/_nnVvTts.html'
-    EdmCountry:
-      type: string
-      description: edm:country of the entry
-      example: 'Germany'
-    EdmDataProvider:
-      type: string
-      description: edm:dataProvider of the entry
-      example: 'Universitätsbibliothek Heidelberg'
-    EdmProvider:
-      type: string
-      description: edm:provider of the entry
-      example: 'Universitätsbibliothek Heidelberg'
-    EdmRights:
-      type: string
-      description: edm:rights of the entry
-      example: 'http://creativecommons.org/licenses/by-sa/3.0/de'
-    EdmYear:
-      type: string
-      description: edm:year of the entry
-      example: '1916'
-    EdmDatasetName:
-      type: string
-      description: edm:datasetName of the entry
-      example: '07931_L_DE_UniLibHeidelberg_druckschriften_IIIF'
-    EdmBegin:
-      type: string
-      description: edm:begin of the entry
-      example: 'Thu Jan 01 00:19:32 CET 1903'
-    EdmEnd:
-      type: string
-      description: edm:end of the entry
-      example: 'Thu Dec 31 00:19:32 CET 1903'
-    EdmIsShownAt:
-      type: string
-      description: edm:isShownAt of the entry
-      example: '	http://digi.ub.uni-heidelberg.de/diglit/matrikelregister2'
-    EdmLanguage:
-      type: string
-      description: edm:language of the entry
-      example: '	de'
-    EdmAgent:
-      type: string
-      description: edm:agent of the entry
-      example: 'Zvonimir Stipanović'
 
 StoriesGetResponseSchema:
-  allOf:
-    - type: object
-    - description: The data object of a single response entry
-      properties:
-        StoryId:
-          type: integer
-          description: ID of the entry
-          example: 2
-        ItemIds:
-          type: array
-          items:
-            type: integer
-          description: Array of ItemIds that belong to this story
-          example: [39169822, 39169823, 39169824]
-        LastUpdated:
-          type: string
-          description: Time of last update
-          example: '2022-02-23 09:57:03'
-        DcDescription:
-          nullable: true
-        DcCreator:
-          nullable: true
-        DcSource:
-          nullable: true
-        DcContributor:
-          nullable: true
-        DcPublisher:
-          nullable: true
-        DcCoverage:
-          nullable: true
-        DcDate:
-          nullable: true
-        DcType:
-          nullable: true
-        DcRelation:
-          nullable: true
-        DcRights:
-          nullable: true
-        DcLanguage:
-          nullable: true
-        DcIdentifier:
-          nullable: true
-        DctermsMedium:
-          nullable: true
-        DctermsCreated:
-          nullable: true
-        DctermsProvenance:
-          nullable: true
-        EdmLandingPage:
-          nullable: true
-        EdmCountry:
-          nullable: true
-        EdmDataProvider:
-          nullable: true
-        EdmProvider:
-          nullable: true
-        EdmRights:
-          nullable: true
-        EdmYear:
-          nullable: true
-        EdmDatasetName:
-          nullable: true
-        EdmBegin:
-          nullable: true
-        EdmEnd:
-          nullable: true
-        EdmIsShownAt:
-          nullable: true
-        EdmLanguage:
-          nullable: true
-        EdmAgent:
-          nullable: true
-    - $ref: '#/StoriesMinimalReferenceSchema'
+  type: object
+  description: The data object of a single response entry
+  $ref: '#/StoriesMinimalReferenceSchema'
+  properties:
+    Dcterms:
+      $ref: '#/DctermsReferenceSchema'
+    Dc:
+      $ref: '#/DcElementsReferenceSchema'
+    Edm:
+      $ref: '#/EdmReferenceSchema'
+    StoryId:
+      type: integer
+      description: ID of the entry
+      example: 2
+    ItemIds:
+      type: array
+      items:
+        type: integer
+        description: Array of ItemIds that belong to this story
+        example: [39169822, 39169823, 39169824]
+    LastUpdated:
+      type: string
+      description: Time of last update
+      example: '2022-02-23 09:57:03'
+  #       DcDescription:
+  #         nullable: true
+  #       DcCreator:
+  #         nullable: true
+  #       DcSource:
+  #         nullable: true
+  #       DcContributor:
+  #         nullable: true
+  #       DcPublisher:
+  #         nullable: true
+  #       DcCoverage:
+  #         nullable: true
+  #       DcDate:
+  #         nullable: true
+  #       DcType:
+  #         nullable: true
+  #       DcRelation:
+  #         nullable: true
+  #       DcRights:
+  #         nullable: true
+  #       DcLanguage:
+  #         nullable: true
+  #       DcIdentifier:
+  #         nullable: true
+  #       EdmLandingPage:
+  #         nullable: true
+  #       EdmCountry:
+  #         nullable: true
+  #       EdmDataProvider:
+  #         nullable: true
+  #       EdmProvider:
+  #         nullable: true
+  #       EdmRights:
+  #         nullable: true
+  #       EdmYear:
+  #         nullable: true
+  #       EdmDatasetName:
+  #         nullable: true
+  #       EdmBegin:
+  #         nullable: true
+  #       EdmEnd:
+  #         nullable: true
+  #       EdmIsShownAt:
+  #         nullable: true
+  #       EdmLanguage:
+  #         nullable: true
+  #       EdmAgent:
+  #         nullable: true
