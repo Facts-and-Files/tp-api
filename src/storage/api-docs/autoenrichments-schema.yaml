@@ -37,7 +37,7 @@ AutoEnrichmentsGetResponseSchema:
     - type: object
     - description: The data object of a single response entry
       properties:
-        AutoEnrichmentsId:
+        AutoEnrichmentId:
           type: integer
           description: ID of the entry
           example: 2

@@ -5,7 +5,7 @@ get:
   description: The returned data is single object
   parameters:
     - in: path
-      name: AutoEnrichmentsId
+      name: AutoEnrichmentId
       description: Numeric ID of the entry
       type: integer
       required: true
@@ -32,7 +32,7 @@ put:
   summary: Updates data of a Automatically generated enrichment entry
   parameters:
     - in: path
-      name: AutoEnrichmentsId
+      name: AutoEnrichmentId
       description: Numeric ID of the entry
       type: integer
       required: true
@@ -68,7 +68,7 @@ delete:
   summary: delete Automatically generated enrichment data entry
   parameters:
     - in: path
-      name: AutoEnrichmentsId
+      name: AutoEnrichmentId
       description: Numeric ID of the entry
       type: integer
       required: true

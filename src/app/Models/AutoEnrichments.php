@@ -16,6 +16,12 @@ class AutoEnrichments extends Model
     protected $table = 'AutoEnrichments';
 
     /**
+     * Use user defined exisiting timestamp columns
+     */
+    const CREATED_AT = 'Timestamp';
+    const UPDATED_AT = 'LastUpdated';
+
+    /**
      * The primary key associated with the table.
      *
      * @var string

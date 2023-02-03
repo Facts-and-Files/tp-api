@@ -190,7 +190,7 @@ class AutoEnrichmentsController extends ResponseController
             'StoryId' => 'StoryId',
             'ItemId' => 'ItemId',
             'AutoEnrichmentId' => 'AutoEnrichmentId',
-            'CompletionStatus' => 'CompletionStatus'
+            'LastUpdated' => 'LastUpdated'
         );
 
         $autoEnrichmentsData = new AutoEnrichments();
