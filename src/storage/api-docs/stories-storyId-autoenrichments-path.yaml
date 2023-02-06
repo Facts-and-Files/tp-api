@@ -5,8 +5,8 @@ get:
   summary: Get stored Automatically generated enrichments data of an item
   parameters:
     - in: path
-      name: ItemId
-      description: Numeric ID of the item within transcribathon
+      name: StoryId
+      description: Numeric ID of the story within transcribathon
       type: integer
       required: true
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
