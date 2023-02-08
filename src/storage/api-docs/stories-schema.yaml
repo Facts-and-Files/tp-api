@@ -43,7 +43,6 @@ PlaceReferenceSchema:
       description: Default zoom for displaying in a map
       example: 10
 
-
 DcElementsReferenceSchema:
   type: object
   description: Object with DCMI properties from the /elements/ namespace
@@ -179,6 +178,27 @@ EdmReferenceSchema:
       description: edm:agent of the entry
       example: 'Zvonimir Stipanović'
 
+CompletionStatusReferenceSchema:
+  type: object
+  description: Object with data related to the story's completion status display
+  properties:
+    StatusId:
+      type: integer
+      description: Id of the completion status
+      example: 1
+    Name:
+      type: string
+      description: Name of the completion status
+      example: 'Not Started'
+    ColorCode:
+      type: string
+      description: Hexadecimal color code representation for the completion status
+      example: '#eeeeee'
+    ColorCodeGradient:
+      type: string
+      description: Hexadecimal color code gradient representation for the completion status
+      example: '#eeeeee'
+
 StoriesMinimalReferenceSchema:
   properties:
     RecordId:
@@ -206,11 +226,15 @@ StoriesAdditionalDataReferenceSchema:
         type: integer
         description: Array of ItemIds that belong to this story
         example: [39169822, 39169823, 39169824]
+    StoryLanguage:
+      type: string
+      nullable: true
+      description: Language of the story
+      example: 'Polski'
     LastUpdated:
       type: string
       description: Time of last update
       example: '2022-02-23 09:57:03'
-
 
 StoriesGetResponseSchema:
   allOf:
@@ -227,3 +251,5 @@ StoriesGetResponseSchema:
           $ref: '#/EdmReferenceSchema'
         Place:
           $ref: '#/PlaceReferenceSchema'
+        CompletionStatus:
+          $ref: '#/CompletionStatusReferenceSchema'
