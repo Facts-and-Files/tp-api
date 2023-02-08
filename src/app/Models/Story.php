@@ -88,8 +88,7 @@ class Story extends Model
         'dc:identifier',
         'OldStoryId',
         'edm:agent',
-        'dcterms:created',
-        'StoryLanguage'
+        'dcterms:created'
     ];
 
     /**
@@ -102,9 +101,12 @@ class Story extends Model
         'Dcterms',
         'Dc',
         'Edm',
-        'Place'
+        'Place',
+        'CompletionStaus'
     ];
 
+// to harmonize the API regarding the existent database schema
+// we make use some custom accessors and mutators
 
     /**
      * Get the ItemIds for the story.
@@ -117,7 +119,8 @@ class Story extends Model
     /**
      * Get the dcterm object
      */
-    public function getDctermsAttribute() {
+    public function getDctermsAttribute()
+    {
         return [
             'Medium'     => $this->attributes['dcterms:medium'],
             'Created'    => $this->attributes['dcterms:created'],
@@ -128,7 +131,8 @@ class Story extends Model
     /**
      * Get the dc object
      */
-    public function getDcAttribute() {
+    public function getDcAttribute()
+    {
         return [
             'Title'       => $this->attributes['dc:title'],
             'Description' => $this->attributes['dc:description'],
@@ -149,7 +153,8 @@ class Story extends Model
     /**
      * Get the edm object for the story.
      */
-    public function getEdmAttribute() {
+    public function getEdmAttribute()
+    {
         return [
             'LandingPage'  => $this->attributes['edm:landingPage'],
             'Country'      => $this->attributes['edm:country'],
@@ -165,16 +170,29 @@ class Story extends Model
             'Agent'        => $this->attributes['edm:agent']
         ];
     }
-    /**
 
+    /**
      * Get the place object of the story
      */
-    public function getPlaceAttribute() {
+    public function getPlaceAttribute()
+    {
         return [
             'Name'      => $this->attributes['PlaceName'],
             'Latitude'  => $this->attributes['PlaceLatitude'],
             'Longitude' => $this->attributes['PlaceLongitude'],
             'Zoom'      => $this->attributes['placeZoom']
         ];
+    }
+
+    /**
+     * Get the completion object of the story
+     */
+    public function getCompletionStatusAttribute()
+    {
+        $plucked = $this
+            ->belongsTo(CompletionStatus::class, 'CompletionStatusId')
+            ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
+
+        return $plucked;
     }
 }
