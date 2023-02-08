@@ -44,7 +44,6 @@ class Story extends Model
         'dc:title',
         'dc:description',
         'edm:landingPage',
-        'ExternalRecordId',
         'PlaceName',
         'PlaceLatitude',
         'PlaceLongitude',
@@ -84,15 +83,12 @@ class Story extends Model
         'dc:language',
         'edm:language',
         'CompletionStatusId',
-        'RecordId',
-        'PreviewImage',
         'DatasetId',
         'dcterms:provenance',
         'dc:identifier',
         'OldStoryId',
         'edm:agent',
-        'dcterms:created',
-        'StoryLanguage'
+        'dcterms:created'
     ];
 
     /**
@@ -101,8 +97,16 @@ class Story extends Model
      * @var array
      */
     protected $appends = [
-        'ItemIds'
+        'ItemIds',
+        'Dcterms',
+        'Dc',
+        'Edm',
+        'Place',
+        'CompletionStaus'
     ];
+
+// to harmonize the API regarding the existent database schema
+// we make use some custom accessors and mutators
 
     /**
      * Get the ItemIds for the story.
@@ -110,5 +114,85 @@ class Story extends Model
     public function getItemIdsAttribute()
     {
         return $this->hasMany(Item::class, 'StoryId')->pluck('ItemId');
+    }
+
+    /**
+     * Get the dcterm object
+     */
+    public function getDctermsAttribute()
+    {
+        return [
+            'Medium'     => $this->attributes['dcterms:medium'],
+            'Created'    => $this->attributes['dcterms:created'],
+            'Provenance' => $this->attributes['dcterms:provenance'],
+        ];
+    }
+
+    /**
+     * Get the dc object
+     */
+    public function getDcAttribute()
+    {
+        return [
+            'Title'       => $this->attributes['dc:title'],
+            'Description' => $this->attributes['dc:description'],
+            'Creator'     => $this->attributes['dc:creator'],
+            'Source'      => $this->attributes['dc:source'],
+            'Contributor' => $this->attributes['dc:contributor'],
+            'Publisher'   => $this->attributes['dc:publisher'],
+            'Coverage'    => $this->attributes['dc:coverage'],
+            'Date'        => $this->attributes['dc:date'],
+            'Type'        => $this->attributes['dc:type'],
+            'Relation'    => $this->attributes['dc:relation'],
+            'Rights'      => $this->attributes['dc:rights'],
+            'Language'    => $this->attributes['dc:language'],
+            'Identifier'  => $this->attributes['dc:identifier']
+        ];
+    }
+
+    /**
+     * Get the edm object for the story.
+     */
+    public function getEdmAttribute()
+    {
+        return [
+            'LandingPage'  => $this->attributes['edm:landingPage'],
+            'Country'      => $this->attributes['edm:country'],
+            'DataProvider' => $this->attributes['edm:dataProvider'],
+            'Provider'     => $this->attributes['edm:provider'],
+            'Rights'       => $this->attributes['edm:rights'],
+            'Year'         => $this->attributes['edm:year'],
+            'DatasetName'  => $this->attributes['edm:datasetName'],
+            'Begin'        => $this->attributes['edm:begin'],
+            'End'          => $this->attributes['edm:end'],
+            'IsShownAt'    => $this->attributes['edm:isShownAt'],
+            'Language'     => $this->attributes['edm:language'],
+            'Agent'        => $this->attributes['edm:agent']
+        ];
+    }
+
+    /**
+     * Get the place object of the story
+     */
+    public function getPlaceAttribute()
+    {
+        return [
+            'Name'      => $this->attributes['PlaceName'],
+            'Latitude'  => $this->attributes['PlaceLatitude'],
+            'Longitude' => $this->attributes['PlaceLongitude'],
+            'Zoom'      => $this->attributes['placeZoom']
+        ];
+    }
+
+    /**
+     * Get the completion object of the story
+     */
+    public function getCompletionStatusAttribute()
+    {
+        $plucked = $this
+            ->belongsTo(CompletionStatus::class, 'CompletionStatusId')
+            ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
+
+        return $plucked;
     }
 }

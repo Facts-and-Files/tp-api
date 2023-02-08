@@ -15,11 +15,11 @@ get:
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: 'responses.yaml#/BasicSuccessResponse'
-              - properties:
-                  data:
-                    $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
+            $ref: 'responses.yaml#/BasicSuccessResponse'
+            properties:
+              data:
+                type: object
+                $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
