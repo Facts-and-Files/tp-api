@@ -39,8 +39,6 @@ class HtrDataController extends ResponseController
             $data = new HtrData();
             $data->fill($request->all());
             $data->ItemId = $request->ItemId;
-            $data->ProcessId = $request->ProcessId;
-            $data->UserId = $request->UserId;
             $data->save();
 
             $resource = new HtrDataResource($data);
@@ -123,6 +121,7 @@ class HtrDataController extends ResponseController
         try {
             $htrData = HtrData::findOrfail($id);
             $htrData->fill($request->all());
+            /* $htrData->ItemId = $request->ItemId; */
             $htrData->save();
 
             return $this->sendResponse(new HtrDataResource($htrData), 'HtrData updated.');
