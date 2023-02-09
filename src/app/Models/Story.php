@@ -102,7 +102,7 @@ class Story extends Model
         'Dc',
         'Edm',
         'Place',
-        'CompletionStaus'
+        'CompletionStatus'
     ];
 
 // to harmonize the API regarding the existent database schema
