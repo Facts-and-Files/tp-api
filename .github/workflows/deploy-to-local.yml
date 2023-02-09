@@ -73,6 +73,8 @@ jobs:
             unlink ${{ env.remote_folder }}
             ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
             rm ${{ env.deployfile }}
+            service php8.0-fpm restart
+            service apache2 graceful
             exit
           EOF"
 
