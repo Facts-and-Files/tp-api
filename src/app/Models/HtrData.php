@@ -33,5 +33,5 @@ class HtrData extends Model
      *
      * @var string
      */
-    protected $guarded = ['HtrDataId', 'ItemId', 'ProcessId', 'UserId'];
+    protected $guarded = ['HtrDataId', 'ItemId'];
 }
