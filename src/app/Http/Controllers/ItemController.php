@@ -75,7 +75,7 @@ class ItemController extends ResponseController
     {
         $queries = $request->query();
 
-        $queryColumns = [];
+        $queryColumns = ['StoryId'];
 
         $item = new Item();
 

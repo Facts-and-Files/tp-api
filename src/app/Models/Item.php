@@ -33,7 +33,7 @@ class Item extends Model
      *
      * @var array
      */
-    protected $fillable = ['TranscriptionSource'];
+    protected $guarded = ['StoryId', 'ItemId'];
 
     /**
      * hide old field names
@@ -41,15 +41,11 @@ class Item extends Model
      * @var array
      */
     protected $hidden = [
-        'Title',
         'CompletionStatusId',
-        'StoryId',
         'ProjectItemId',
-        'Description',
         'DateStart',
         'DateEnd',
         'DatasetId',
-        'ImageLink',
         'OrderIndex',
         'TranscriptionStatusId',
         'DescriptionStatusId',
@@ -67,4 +63,28 @@ class Item extends Model
         'edm:WebResource',
         'EuropeanaAttachment',
     ];
+
+    /**
+     * append new/renamed fields
+     *
+     * @var array
+     */
+    protected $appends = [
+        'CompletionStatus'
+    ];
+
+// to harmonize the API regarding the existent database schema
+// we make use some custom accessors and mutators
+
+    /**
+     * Get the completion object of the story
+     */
+    public function getCompletionStatusAttribute()
+    {
+        $plucked = $this
+            ->belongsTo(CompletionStatus::class, 'CompletionStatusId')
+            ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
+
+        return $plucked;
+    }
 }
