@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\ResponseController;
-use App\Models\AutoEnrichments;
-use App\Http\Resources\AutoEnrichmentsResource;
+use App\Models\AutoEnrichment;
+use App\Http\Resources\AutoEnrichmentResource;
 use Illuminate\Http\Request;
 
-class AutoEnrichmentsController extends ResponseController
+class AutoEnrichmentController extends ResponseController
 {
     /**
      * Display a listing of the resource.
@@ -22,9 +22,9 @@ class AutoEnrichmentsController extends ResponseController
             return $this->sendError('Invalid data', $request, ' not valid', 400);
         }
 
-        $collection = AutoEnrichmentsResource::collection($data);
+        $collection = AutoEnrichmentResource::collection($data);
 
-        return $this->sendResponse($collection, 'Auto Enrichments fetched.');
+        return $this->sendResponse($collection, 'AutoEnrichments fetched.');
     }
 
     /**
@@ -48,7 +48,7 @@ class AutoEnrichmentsController extends ResponseController
         try {
             foreach($request->input('enrichments') as $enrichment) {
 
-                $data = new AutoEnrichments();
+                $data = new AutoEnrichment();
                 $data->Name = $enrichment['Name'];
                 $data->Type = $enrichment['Type'];
                 $data->WikiData = $enrichment['WikiData'];
@@ -57,7 +57,7 @@ class AutoEnrichmentsController extends ResponseController
                 $data->ExternalId = $enrichment['ExternalId'];
                 $data->save();
             }
-            // $data = new AutoEnrichments();
+            // $data = new AutoEnrichment();
             // $data->fill($request->all());
             // $data->Name = $request->Name;
             // $data->Type = $request->Type;
@@ -67,7 +67,7 @@ class AutoEnrichmentsController extends ResponseController
             // $data->ExternalId = $request->ExternalId;
             // $data->save();
 
-             $resource = new AutoEnrichmentsResource($data);
+             $resource = new AutoEnrichmentResource($data);
 
             return $this->sendResponse($resource, 'Auto Enrichment inserted.');
         } catch (\Exception $exception) {
@@ -81,13 +81,13 @@ class AutoEnrichmentsController extends ResponseController
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id) 
+    public function show($id)
     {
         try {
-            $data = AutoEnrichments::findOrFail($id);
-            $resource = new AutoEnrichmentsResource($data);
+            $data = AutoEnrichment::findOrFail($id);
+            $resource = new AutoEnrichmentResource($data);
 
-            return $this->sendResponse($resource, 'Auto Enrichments fetched.');
+            return $this->sendResponse($resource, 'Auto Enrichment fetched.');
         } catch (\Eception $exception) {
             return $this->sendError('Not found', $exception);
         }
@@ -104,9 +104,9 @@ class AutoEnrichmentsController extends ResponseController
     {
         try {
             $queries = $request->query();
-            $data = AutoEnrichments::where('ItemId', $itemId);
+            $data = AutoEnrichment::where('ItemId', $itemId);
             $data = $this->filterDataByQueries($data, $queries);
-            $resource = new AutoEnrichmentsResource($data);
+            $resource = new AutoEnrichmentResource($data);
 
             return $this->sendResponse($resource, 'Auto Enrichment fetched.');
         } catch (\Exception $exception) {
@@ -125,9 +125,9 @@ class AutoEnrichmentsController extends ResponseController
     {
         try {
             $queries = $request->query();
-            $data = AutoEnrichments::where('StoryId', $storyId);
+            $data = AutoEnrichment::where('StoryId', $storyId);
             $data = $this->filterDataByQueries($data, $queries);
-            $resource = new AutoEnrichmentsResource($data);
+            $resource = new AutoEnrichmentResource($data);
 
             return $this->sendResponse($resource, 'Auto Enrichment fetched.');
         } catch (\Exception $exception) {
@@ -138,10 +138,10 @@ class AutoEnrichmentsController extends ResponseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\AutoEnrichments  $autoEnrichments
+     * @param  \App\Models\AutoEnrichment  $autoEnrichment
      * @return \Illuminate\Http\Response
      */
-    public function edit(AutoEnrichments $autoEnrichments)
+    public function edit(AutoEnrichment $autoEnrichment)
     {
         //
     }
@@ -156,11 +156,11 @@ class AutoEnrichmentsController extends ResponseController
     public function update(Request $request, $id)
     {
         try {
-            $autoEnrichmentsData = AutoEnrichments::findOrFail($id);
-            $autoEnrichmentsData->fill($request->all());
-            $autoEnrichmentsData->save();
+            $autoEnrichmentData = AutoEnrichment::findOrFail($id);
+            $autoEnrichmentData->fill($request->all());
+            $autoEnrichmentData->save();
 
-            return $this->sendResponse(new AutoEnrichmentsResource($autoEnrichmentsData), 'Auto Enrichment updated.');
+            return $this->sendResponse(new AutoEnrichmentResource($autoEnrichmentData), 'Auto Enrichment updated.');
         } catch(\Exeption $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
@@ -175,10 +175,10 @@ class AutoEnrichmentsController extends ResponseController
     public function destroy($id)
     {
         try {
-            $autoEnrichmentsData = AutoEnrichments::findOrFail($id);
-            $autoEnrichmentsData->delete();
+            $autoEnrichmentData = AutoEnrichment::findOrFail($id);
+            $autoEnrichmentData->delete();
 
-            return $this->sendResponse(new AutoEnrichmentsResource($autoEnrichmentsData), 'Auto Enrichment deleted.');
+            return $this->sendResponse(new AutoEnrichmentResource($autoEnrichmentData), 'Auto Enrichment deleted.');
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
@@ -204,9 +204,9 @@ class AutoEnrichmentsController extends ResponseController
             'LastUpdated' => 'LastUpdated'
         );
 
-        $autoEnrichmentsData = new AutoEnrichments();
+        $autoEnrichmentData = new AutoEnrichment();
 
-        $data = $autoEnrichmentsData->whereRaw('1 = 1');
+        $data = $autoEnrichmentData->whereRaw('1 = 1');
 
         foreach ($queries as $queryName => $queryValue) {
             if (array_key_exists($queryName, $queryColumns)) {
