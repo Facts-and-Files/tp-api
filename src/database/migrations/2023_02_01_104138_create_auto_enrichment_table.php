@@ -30,6 +30,17 @@ return new class extends Migration
             $table->index('Name');
             $table->index('ItemId');
             $table->index('StoryId');
+
+            $table->foreign('ItemId')
+                  ->references('ItemId')
+                  ->on('Item')
+                  ->cascadeOnDelete()
+                  ->cascadeOnUpdate();
+            $table->foreign('StoryId')
+                  ->references('StoryId')
+                  ->on('StoryId')
+                  ->cascadeOnDelete()
+                  ->cascadeOnUpdate();
         });
     }
 
