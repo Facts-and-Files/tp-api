@@ -26,6 +26,10 @@ return new class extends Migration
             $table->string('ExternalId', 256);
             $table->dateTime('Timestamp');
             $table->dateTime('LastUpdated');
+
+            $table->index('Name');
+            $table->index('ItemId');
+            $table->index('StoryId');
         });
     }
 
