@@ -1,7 +1,7 @@
 get:
   tags:
     - autoenrichments
-  summary: Get stored Auto Enrichment data of an entry
+  summary: Get stored AutoEnrichment data of an entry
   description: The returned data is single object
   parameters:
     - in: path
@@ -29,7 +29,7 @@ get:
 put:
   tags:
     - autoenrichments
-  summary: Updates data of a Automatically generated enrichment entry
+  summary: Updates data of a automatically generated enrichment entry
   parameters:
     - in: path
       name: AutoEnrichmentId
@@ -65,7 +65,7 @@ put:
 delete:
   tags:
     - autoenrichments
-  summary: delete Automatically generated enrichment data entry
+  summary: Delete an automatically generated enrichment data entry
   parameters:
     - in: path
       name: AutoEnrichmentId
