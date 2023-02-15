@@ -23,6 +23,8 @@ ItemsGetResponseSchema:
           type: string
           description: Time of last update
           example: '2022-02-23 09:57:03'
+        TranscriptionSource:
+          nullable: true
     - $ref: '#/ItemsMinimalReferenceSchema'
 
 ItemsPutRequestSchema:

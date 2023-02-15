@@ -1,10 +1,10 @@
 openapi: 3.0.3
 
 info:
-  version: 0.5.0
+  version: 0.5.1
   title: Transcribathon Platform API v2
-  description: This is the documentation of the Transcribathon API v2.
-               For authorization you can use the the bearer token you are provided with.
+  description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
+         For authorization you can use the the bearer token you are provided with.
   contact:
     email: schmucker@factsandfiles.com
   license:
@@ -12,18 +12,11 @@ info:
     url: https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 externalDocs:
-  url: https://transcribathon.eu
-  description: More about Transcribathon
+  url: https://github.com/Facts-and-Files/tp-api/releases
+  description: Changelog and releases
 
 servers:
-  - url: https://api.transcribathon.eu/v2
-    description: live server
-  - url: https://api.fresenia-dev.man.poznan.pl/v2
-    description: public development server
-  - url: https://api.transcribathon.local/v2
-    description: development server within the VPN
-  - url: https://api.transcribathon.eu.local:4443/v2
-    description: local dockerized development server
+  - url: /v2
 
 security:
   - bearerAuth: []
@@ -69,7 +62,7 @@ paths:
     $ref: 'autoenrichments-path.yaml'
   /autoenrichments/{AutoEnrichmentId}:
     $ref: 'autoenrichments-autoEnrichmentId-path.yaml'
-  
+
 
 components:
   securitySchemes:

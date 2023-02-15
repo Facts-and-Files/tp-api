@@ -55,7 +55,9 @@ class StoryController extends ResponseController
     {
         $queries = $request->query();
 
-        $queryColumns = [];
+        $queryColumns = [
+            'RecordId' => 'RecordId'
+        ];
 
         $story = new Story();
 

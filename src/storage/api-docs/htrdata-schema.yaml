@@ -1,29 +1,35 @@
 HtrDataMinimalReferenceSchema:
   properties:
-    ItemId:
-      type: integer
-      description: ID of item/image within Transcribathon
-      example: 421717
     UserId:
       type: integer
+      nullable: true
       description: ID of the user within Transcribathon, who provided the transcribathon
       example: 5736
     HtrId:
       type: integer
+      nullable: true
       description: ID of the used HTR model for this data
       example: 35909
     ProcessId:
       type: integer
+      nullable: true
       description: ID of the process from the Transkribus API
       example: 56845
     HtrStatus:
       type: string
+      nullable: true
       description: Current status of the data as received by Transkribus
       example: CREATED
     TranscriptionData:
       type: string
+      nullable: true
       description: Requested data as XML string
       example: '<?xml version="1.0" encoding="UTF-8"? />'
+    TranscriptionText:
+      type: string
+      nullable: true
+      description: Plain text representation oft the transcription data
+      example: 'Transcribed text.'
 
 HtrDataPostRequestSchema:
   allOf:
@@ -31,12 +37,21 @@ HtrDataPostRequestSchema:
   description: The data object of a single POST request body
   required:
     - ItemId
+  properties:
+    ItemId:
+      type: integer
+      description: ID of item/image within Transcribathon
+      example: 421717
 
 HtrDataGetResponseSchema:
   allOf:
     - type: object
     - description: The data object of a single response entry
       properties:
+        ItemId:
+          type: integer
+          description: ID of item/image within Transcribathon
+          example: 421717
         HtrDataId:
           type: integer
           description: ID of the entry
