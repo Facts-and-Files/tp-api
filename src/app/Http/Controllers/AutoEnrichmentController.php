@@ -121,17 +121,6 @@ class AutoEnrichmentController extends ResponseController
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\AutoEnrichment  $autoEnrichment
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(AutoEnrichment $autoEnrichment)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
