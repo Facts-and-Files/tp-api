@@ -143,6 +143,8 @@ class AutoEnrichmentController extends ResponseController
         try {
             $autoEnrichmentData = AutoEnrichment::findOrFail($id);
             $autoEnrichmentData->fill($request->all());
+            $autoEnrichmentData->StoryId = $request['StoryId'];
+            $autoEnrichmentData->ItemId = $request['ItemId'];
             $autoEnrichmentData->save();
 
             return $this->sendResponse(new AutoEnrichmentResource($autoEnrichmentData), 'Auto Enrichment updated.');
