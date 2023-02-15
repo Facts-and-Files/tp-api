@@ -46,28 +46,13 @@ class AutoEnrichmentController extends ResponseController
     public function store(Request $request)
     {
         try {
-            foreach($request->input('enrichments') as $enrichment) {
+            $data = new AutoEnrichment();
+            $data->fill($request->all());
+            $data->StoryId = $request['StoryId'];
+            $data->ItemId = $request['ItemId'];
+            $data->save();
 
-                $data = new AutoEnrichment();
-                $data->Name = $enrichment['Name'];
-                $data->Type = $enrichment['Type'];
-                $data->WikiData = $enrichment['WikiData'];
-                $data->StoryId = $enrichment['StoryId'];
-                $data->ItemId = $enrichment['ItemId'];
-                $data->ExternalId = $enrichment['ExternalId'];
-                $data->save();
-            }
-            // $data = new AutoEnrichment();
-            // $data->fill($request->all());
-            // $data->Name = $request->Name;
-            // $data->Type = $request->Type;
-            // $data->WikiData = $request->WikiData;
-            // $data->StoryId = $request->StoryId;
-            // $data->ItemId = $request->ItemId;
-            // $data->ExternalId = $request->ExternalId;
-            // $data->save();
-
-             $resource = new AutoEnrichmentResource($data);
+            $resource = new AutoEnrichmentResource($data);
 
             return $this->sendResponse($resource, 'Auto Enrichment inserted.');
         } catch (\Exception $exception) {
