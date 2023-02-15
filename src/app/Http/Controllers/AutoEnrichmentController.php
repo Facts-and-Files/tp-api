@@ -179,15 +179,12 @@ class AutoEnrichmentController extends ResponseController
     {
         $queries = $request->query();
 
-        $queryColumns = array(
+        $queryColumns = [
             'Name' => 'Name',
             'Type' => 'Type',
-            'WikiData' => 'WikiData',
             'StoryId' => 'StoryId',
-            'ItemId' => 'ItemId',
-            'AutoEnrichmentId' => 'AutoEnrichmentId',
-            'LastUpdated' => 'LastUpdated'
-        );
+            'ItemId' => 'ItemId'
+        ];
 
         $autoEnrichmentData = new AutoEnrichment();
 
