@@ -73,7 +73,7 @@ class AutoEnrichmentController extends ResponseController
             $resource = new AutoEnrichmentResource($data);
 
             return $this->sendResponse($resource, 'Auto Enrichment fetched.');
-        } catch (\Eception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception);
         }
     }
