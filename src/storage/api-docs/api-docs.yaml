@@ -39,6 +39,11 @@ paths:
   /htrdata/{HtrDataId}:
     $ref: 'htrdata-htrdataId-path.yaml'
 
+  /autoenrichments:
+    $ref: 'autoenrichments-path.yaml'
+  /autoenrichments/{AutoEnrichmentId}:
+    $ref: 'autoenrichments-autoEnrichmentId-path.yaml'
+
   /items:
     $ref: 'items-path.yaml'
   /items/{ItemId}:
@@ -57,11 +62,6 @@ paths:
     $ref: 'stories-storyId-path.yaml'
   /stories/{StoryId}/autoenrichments:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
-
-  /autoenrichments:
-    $ref: 'autoenrichments-path.yaml'
-  /autoenrichments/{AutoEnrichmentId}:
-    $ref: 'autoenrichments-autoEnrichmentId-path.yaml'
 
 
 components:
