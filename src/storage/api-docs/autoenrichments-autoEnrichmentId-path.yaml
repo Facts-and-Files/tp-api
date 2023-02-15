@@ -1,7 +1,7 @@
 get:
   tags:
     - autoenrichments
-  summary: Get stored AutoEnrichment data of an entry
+  summary: Get an entry of an automatically generated enrichment
   description: The returned data is single object
   parameters:
     - in: path
@@ -29,7 +29,7 @@ get:
 put:
   tags:
     - autoenrichments
-  summary: Updates data of a automatically generated enrichment entry
+  summary: Updates data of an automatically generated enrichment entry
   parameters:
     - in: path
       name: AutoEnrichmentId
@@ -55,7 +55,7 @@ put:
                   data:
                     $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
                   message:
-                    example: AutoEnrichments updated.
+                    example: AutoEnrichment updated.
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
