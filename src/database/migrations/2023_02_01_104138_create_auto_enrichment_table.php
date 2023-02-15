@@ -18,9 +18,9 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
 
             $table->bigIncrements('AutoEnrichmentId');
-            $table->string('Name', 64);
+            $table->string('Name', 255);
             $table->string('Type', 64);
-            $table->string('WikiData', 64);
+            $table->string('WikiData', 255);
             $table->integer('ItemId')->nullable();
             $table->integer('StoryId')->nullable();
             $table->string('ExternalId', 256);
