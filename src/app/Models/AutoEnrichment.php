@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AutoEnrichments extends Model
+class AutoEnrichment extends Model
 {
     /**
      * The table associated with the model.
@@ -13,7 +13,7 @@ class AutoEnrichments extends Model
      *
      * @var string
      */
-    protected $table = 'AutoEnrichments';
+    protected $table = 'AutoEnrichment';
 
     /**
      * Use user defined exisiting timestamp columns
