@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('WikiData', 255);
             $table->integer('ItemId')->nullable();
             $table->integer('StoryId')->nullable();
-            $table->string('ExternalId', 256);
+            $table->string('ExternalAnnotationId', 256);
             $table->dateTime('Timestamp');
             $table->dateTime('LastUpdated');
 
