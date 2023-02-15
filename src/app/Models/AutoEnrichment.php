@@ -33,5 +33,5 @@ class AutoEnrichment extends Model
      *
      * @var string
      */
-    protected $guarded = ['AutoEnrichmentId'];
+    protected $guarded = ['AutoEnrichmentId', 'ItemId', 'StoryId'];
 }
