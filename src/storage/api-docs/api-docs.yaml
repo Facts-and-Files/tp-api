@@ -29,7 +29,7 @@ tags:
   - name: items
     description: Operations related to items data (NOT ALL DATA INCLUDED YET)
   - name: stories
-    description: Operations related to stories data (NOT ALL DATA INCLUDED YET)
+    description: Operations related to stories data
   - name: autoenrichments
     description: Operations related to automatically generated enrichments (Test phase)
 
