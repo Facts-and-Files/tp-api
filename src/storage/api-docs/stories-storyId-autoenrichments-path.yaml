@@ -1,7 +1,7 @@
 get:
   tags:
     - autoenrichments
-    - items
+    - stories
   summary: Get stored Automatically generated enrichments data of an item
   parameters:
     - in: path
