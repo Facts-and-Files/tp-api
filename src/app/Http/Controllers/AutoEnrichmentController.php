@@ -146,7 +146,7 @@ class AutoEnrichmentController extends ResponseController
             $autoEnrichmentData->save();
 
             return $this->sendResponse(new AutoEnrichmentResource($autoEnrichmentData), 'Auto Enrichment updated.');
-        } catch(\Exeption $exception) {
+        } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
