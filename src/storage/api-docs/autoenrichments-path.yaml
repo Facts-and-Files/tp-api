@@ -1,7 +1,7 @@
 get:
   tags:
     - autoenrichments
-  summary: Get all stored Automatically generated enrichments data entries
+  summary: Get all stored automatically generated enrichments data entries
   description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier \(as AutoEnrichmentId\).
   parameters:
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
@@ -45,7 +45,7 @@ post:
     - autoenrichments
   summary: Store a new AutoEnrichment data entry
   requestBody:
-    description: Used to save verified Automatically generated enrichments.
+    description: Used to save verified automatically generated enrichments.
     required: true
     content:
       application/json:
