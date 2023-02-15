@@ -24,14 +24,6 @@ get:
       name: StoryId
       description: Show entries associated with this StoryId
       type: integer
-    - in: query
-      name: WikiData
-      description: Show entries associated with this WikiData
-      type: string
-    - in: query
-      name: AutoEnrichmentId
-      description: Show entry associated with this AutoEnrichmentId
-      type: integer
   responses:
     200:
       description: Ok
