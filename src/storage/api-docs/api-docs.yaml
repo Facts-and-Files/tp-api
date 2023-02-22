@@ -41,6 +41,8 @@ paths:
 
   /autoenrichments:
     $ref: 'autoenrichments-path.yaml'
+  /autoenrichments/bulkimports:
+    $ref: 'autoenrichments-bulkimports-path.yaml'
   /autoenrichments/{AutoEnrichmentId}:
     $ref: 'autoenrichments-autoEnrichmentId-path.yaml'
 

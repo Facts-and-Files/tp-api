@@ -17,6 +17,29 @@ BasicSuccessResponse:
       description: The outcome of the response
       example: true
 
+PartlySuccessResponse:
+  type: object
+  description: The partly success response
+  properties:
+    data:
+      type: array
+      description: The requested data, type depending on subschema
+    error:
+      type: array
+      description: The errors occured during the operations
+      items:
+        type: string
+        description: An error that occured during a bulkimport operation
+        example: Some detailled error
+    message:
+      type: string
+      description: An informational message about the response
+      example: Data fetched
+    success:
+      type: boolean
+      description: The outcome of the response
+      example: true
+
 BasicErrorResponse:
   type: object
   description: The error response

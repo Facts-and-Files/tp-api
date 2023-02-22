@@ -38,8 +38,8 @@ Route::middleware(['auth:api'])->group(function() {
 
     Route::get('/autoenrichments', [AutoEnrichmentController::class, 'index']);
     Route::post('/autoenrichments', [AutoEnrichmentController::class, 'store']);
+    Route::post('/autoenrichments/bulkimports', [AutoEnrichmentController::class, 'storeBulk']);
     Route::get('/autoenrichments/{id}', [AutoEnrichmentController::class, 'show']);
     Route::put('/autoenrichments/{id}', [AutoEnrichmentController::class, 'update']);
     Route::delete('/autoenrichments/{id}', [AutoEnrichmentController::class, 'destroy']);
-
 });
