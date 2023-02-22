@@ -19,7 +19,7 @@ BasicSuccessResponse:
 
 PartlySuccessResponse:
   type: object
-  description: The success response
+  description: The partly success response
   properties:
     data:
       type: array
@@ -31,7 +31,6 @@ PartlySuccessResponse:
         type: string
         description: An error that occured during a bulkimport operation
         example: Some detailled error
-
     message:
       type: string
       description: An informational message about the response

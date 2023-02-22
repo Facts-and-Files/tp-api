@@ -23,7 +23,7 @@ post:
                   data:
                     $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
     207:
-      description: Ok
+      description: Partly successful, mixed
       content:
         application/json:
           schema:
