@@ -51,6 +51,53 @@ class AutoEnrichmentController extends ResponseController
     }
 
     /**
+     * Store a newly created resource (bulk) in storage,
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function storeBulk(Request $request)
+    {
+        $data = $request->all();
+
+        $inserted = [];
+        $errors = [];
+
+        foreach ($data as $item) {
+            $autoEnrichment = new AutoEnrichment();
+            $autoEnrichment->fill($item);
+
+            $autoEnrichment->StoryId = $item['StoryId'] ?? null;
+            $autoEnrichment->ItemId = $item['ItemId'] ?? null;
+
+            try {
+                $autoEnrichment->save();
+                $inserted[] = $autoEnrichment;
+            } catch (\Exception $exception) {
+                $errors[] = $exception->getMessage();
+            }
+        }
+
+        $instertedResource = new AutoEnrichmentResource($inserted);
+        $errorResource = new AutoEnrichmentResource($errors);
+
+        $insertedCount = count($inserted);
+        $errorsCount = count($errors);
+
+        if ($insertedCount === 0 && $errorsCount > 0) {
+            return $this->sendError('Invalid data', $errors, 400);
+        }
+
+        if ($insertedCount > 0 && $errorsCount === 0) {
+            return $this->sendResponse($instertedResource, 'All Auto Enrichments inserted.');
+        }
+
+        if ($insertedCount > 0 && $errorsCount > 0) {
+            return $this->sendPartlyResponse($instertedResource, $errorResource, 'Some Auto Enrichments inserted.');
+        }
+    }
+
+    /**
      * Display the specified resource.
      *
      * @param  int $id
