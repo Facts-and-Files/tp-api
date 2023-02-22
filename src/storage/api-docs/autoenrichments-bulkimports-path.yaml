@@ -1,0 +1,40 @@
+post:
+  tags:
+    - autoenrichments
+  summary: Store multiple AutoEnrichments data entry
+  requestBody:
+    description: Used to save verified automatically generated enrichments.
+    required: true
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPostRequestSchema'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
+    207:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/PartlySuccessResponse'
+              - properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
