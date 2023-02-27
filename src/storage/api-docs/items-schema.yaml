@@ -2,30 +2,73 @@ ItemsMinimalReferenceSchema:
   properties:
     TranscriptionSource:
       type: string
+      nullable: true
       enum: ['htr', 'manual']
       description: source of the transcription
       example: 'manual'
+    Title:
+      type: string
+      description: title of the item
+      example: 'Wide Streets Commission Minutes Volume 46 Item 1'
+    Description:
+      type: string
+      description: description of the item
+      example: 'Text title on inside of cover book.'
+      nullable: true
+
+ItemsAdditionalDataReferenceSchema:
+  properties:
+    ItemId:
+      type: integer
+      description: ID of the entry
+      example: 2
+    StoryId:
+      type: integer
+      description: associated parent story ID
+      example: 14698
+    ImageLink:
+      type: string
+      description: IIIF JSON string with full image link
+      example: '{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif/full/full/0/default.jpg\",\"@type\":\"dctypes:Image\",\"width\":1531,\"height\":2121,\"service\":{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif\",\"@context\":\"http://iiif.io/api/image/2/context.json\",\"profile\":\"http://iiif.io/api/image/2/level1.json\"}}'
+    Timestamp:
+      type: string
+      description: Time of creation
+      example: '2022-02-23 09:57:03'
+    LastUpdated:
+      type: string
+      description: Time of last update
+      example: '2022-02-23 09:57:03'
+
+CompletionStatusReferenceSchema:
+  type: object
+  description: Object with data related to the story's completion status display
+  properties:
+    StatusId:
+      type: integer
+      description: Id of the completion status
+      example: 1
+    Name:
+      type: string
+      description: Name of the completion status
+      example: 'Not Started'
+    ColorCode:
+      type: string
+      description: Hexadecimal color code representation for the completion status
+      example: '#eeeeee'
+    ColorCodeGradient:
+      type: string
+      description: Hexadecimal color code gradient representation for the completion status
+      example: '#eeeeee'
 
 ItemsGetResponseSchema:
   allOf:
     - type: object
     - description: The data object of a single response entry
-      properties:
-        ItemId:
-          type: integer
-          description: ID of the entry
-          example: 2
-        Timestamp:
-          type: string
-          description: Time of creation
-          example: '2022-02-23 09:57:03'
-        LastUpdated:
-          type: string
-          description: Time of last update
-          example: '2022-02-23 09:57:03'
-        TranscriptionSource:
-          nullable: true
     - $ref: '#/ItemsMinimalReferenceSchema'
+    - $ref: '#/ItemsAdditionalDataReferenceSchema'
+      properties:
+        CompletionStatus:
+          $ref: '#/CompletionStatusReferenceSchema'
 
 ItemsPutRequestSchema:
   allOf:
