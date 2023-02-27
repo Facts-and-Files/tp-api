@@ -34,4 +34,16 @@ class HtrData extends Model
      * @var string
      */
     protected $guarded = ['HtrDataId', 'ItemId'];
+
+    protected $appends = ['Languages'];
+
+    /**
+     * define n:n relationship
+     */
+    public function getLanguagesAttribute()
+    {
+        return $this
+            ->belongsToMany(Language::class, 'HtrDataLanguage', 'HtrDataId', 'LanguageId')
+            ->get(['Name', 'NameEnglish', 'ShortName', 'Code', 'Code3']);
+    }
 }
