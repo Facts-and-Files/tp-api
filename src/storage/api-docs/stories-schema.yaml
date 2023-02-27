@@ -178,27 +178,6 @@ EdmReferenceSchema:
       description: edm:agent of the entry
       example: 'Zvonimir Stipanović'
 
-CompletionStatusReferenceSchema:
-  type: object
-  description: Object with data related to the story's completion status display
-  properties:
-    StatusId:
-      type: integer
-      description: Id of the completion status
-      example: 1
-    Name:
-      type: string
-      description: Name of the completion status
-      example: 'Not Started'
-    ColorCode:
-      type: string
-      description: Hexadecimal color code representation for the completion status
-      example: '#eeeeee'
-    ColorCodeGradient:
-      type: string
-      description: Hexadecimal color code gradient representation for the completion status
-      example: '#eeeeee'
-
 StoriesMinimalReferenceSchema:
   properties:
     RecordId:
@@ -252,4 +231,4 @@ StoriesGetResponseSchema:
         Place:
           $ref: '#/PlaceReferenceSchema'
         CompletionStatus:
-          $ref: '#/CompletionStatusReferenceSchema'
+          $ref: 'completionStatus-reference-schema.yaml#/CompletionStatusReferenceSchema'
