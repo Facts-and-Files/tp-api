@@ -2,12 +2,16 @@ get:
   tags:
     - items
   summary: Get all stored items entries
-  description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier \(as processId\).
+  description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
   parameters:
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: StoryId
+      description: Show entries associated with this StoryId
+      type: integer
   responses:
     200:
       description: Ok
