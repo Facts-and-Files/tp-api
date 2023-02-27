@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  version: 0.6.0-beta
+  version: 0.6.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -30,6 +30,11 @@ tags:
     description: Operations related to items data (NOT ALL DATA INCLUDED YET)
   - name: stories
     description: Operations related to stories data
+<<<<<<< HEAD
+=======
+  - name: autoenrichments
+    description: Operations related to automatically generated enrichments (Test phase)
+>>>>>>> main
 
 paths:
   /htrdata:
@@ -37,12 +42,21 @@ paths:
   /htrdata/{HtrDataId}:
     $ref: 'htrdata-htrdataId-path.yaml'
 
+  /autoenrichments:
+    $ref: 'autoenrichments-path.yaml'
+  /autoenrichments/bulkimports:
+    $ref: 'autoenrichments-bulkimports-path.yaml'
+  /autoenrichments/{AutoEnrichmentId}:
+    $ref: 'autoenrichments-autoEnrichmentId-path.yaml'
+
   /items:
     $ref: 'items-path.yaml'
   /items/{ItemId}:
     $ref: 'items-itemId-path.yaml'
   /items/{ItemId}/htrdata:
     $ref: 'items-itemId-htrdata-path.yaml'
+  /items/{ItemId}/autoenrichments:
+    $ref: 'items-itemId-autoenrichments-path.yaml'
 
   /users/{UserId}/htrdata:
     $ref: 'users-userId-htrdata-path.yaml'
@@ -51,6 +65,9 @@ paths:
     $ref: 'stories-path.yaml'
   /stories/{StoryId}:
     $ref: 'stories-storyId-path.yaml'
+  /stories/{StoryId}/autoenrichments:
+    $ref: 'stories-storyId-autoenrichments-path.yaml'
+
 
 components:
   securitySchemes:
@@ -74,4 +91,10 @@ components:
       $ref: 'items-schema.yaml#/ItemsPutRequestSchema'
     StoriesGetResponseSchema:
       $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
+    AutoEnrichmentsGetResponseSchema:
+      $ref: 'autoenrichments-schema.yaml#AutoEnrichmentsGetResponseSchema'
+    AutoEnrichmentsPostRequestSchema:
+      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPostRequestSchema'
+    AutoEnrichmentsPutRequestSchema:
+      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPutRequestSchema'
 

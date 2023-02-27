@@ -1,0 +1,58 @@
+AutoEnrichmentsMinimalReferenceSchema:
+  properties:
+    Name:
+      type: string
+      description: Name of the enrichment within Transcribathon database
+      example: Berlin
+    Type:
+      type: string
+      description: Type of the enrichment for this data
+      example: Place
+    WikiData:
+      type: string
+      description: Link to the WikiData page with correspondig enrichment
+      example: http://www.wikidata.org/entity/Q64
+    ItemId:
+      type: integer
+      nullable: true
+      description: ID of item/image within Transcribathon
+      example: 421717
+    StoryId:
+      nullable: true
+      type: integer
+      description: ID of story within Transcribathon
+      example: 151742
+    ExternalAnnotationId:
+      type: string
+      description: Enrichment Annotation ID coming form AIT
+      example: http://dsi-demo.ait.ac.at/enrichment-web/enrichment/annotation/14051/441013/Q31487
+
+AutoEnrichmentsPostRequestSchema:
+  allOf:
+    - $ref: '#/AutoEnrichmentsMinimalReferenceSchema'
+    - description: The data object of a single POST request body (one of ItemId or StoryId should be specified)
+    - required: ['WikiData', 'ExternalAnnotationId', 'Name', 'Type']
+
+AutoEnrichmentsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        AutoEnrichmentId:
+          type: integer
+          description: ID of the entry
+          example: 2
+        Timestamp:
+          type: string
+          description: Time of creation
+          example: '2022-02-23T09:57:03.000000Z'
+        LastUpdated:
+          type: string
+          description: Time of last update
+          example: '2022-02-23T09:57:03.000000Z'
+    - $ref: '#/AutoEnrichmentsMinimalReferenceSchema'
+
+AutoEnrichmentsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/AutoEnrichmentsMinimalReferenceSchema'

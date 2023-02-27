@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HtrDataController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\StoryController;
+use App\Http\Controllers\AutoEnrichmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,9 +28,18 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/items/{id}', [ItemController::class, 'show']);
     Route::put('/items/{id}', [ItemController::class, 'update']);
     Route::get('/items/{id}/htrdata', [HtrDataController::class, 'showByItemId']);
+    Route::get('/items/{id}/autoenrichments', [AutoEnrichmentController::class, 'showByItemId']);
 
     Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);
 
     Route::get('/stories', [StoryController::class, 'index']);
     Route::get('/stories/{id}', [StoryController::class, 'show']);
+    Route::get('/stories/{id}/autoenrichments', [AutoEnrichmentController::class, 'showByStoryId']);
+
+    Route::get('/autoenrichments', [AutoEnrichmentController::class, 'index']);
+    Route::post('/autoenrichments', [AutoEnrichmentController::class, 'store']);
+    Route::post('/autoenrichments/bulkimports', [AutoEnrichmentController::class, 'storeBulk']);
+    Route::get('/autoenrichments/{id}', [AutoEnrichmentController::class, 'show']);
+    Route::put('/autoenrichments/{id}', [AutoEnrichmentController::class, 'update']);
+    Route::delete('/autoenrichments/{id}', [AutoEnrichmentController::class, 'destroy']);
 });
