@@ -64,6 +64,7 @@ HtrDataGetResponseSchema:
           type: string
           description: Time of last update
           example: '2022-02-23T09:57:03.000000Z'
+    - $ref: 'language-reference-schema.yaml#/LanguageReferenceSchema'
     - $ref: '#/HtrDataMinimalReferenceSchema'
 
 HtrDataPutRequestSchema:
