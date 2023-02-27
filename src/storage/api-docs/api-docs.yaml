@@ -30,11 +30,8 @@ tags:
     description: Operations related to items data (NOT ALL DATA INCLUDED YET)
   - name: stories
     description: Operations related to stories data
-<<<<<<< HEAD
-=======
   - name: autoenrichments
     description: Operations related to automatically generated enrichments (Test phase)
->>>>>>> main
 
 paths:
   /htrdata:
