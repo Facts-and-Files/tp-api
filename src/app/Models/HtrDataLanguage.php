@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Language extends Model
+class HtrDataLanguage extends Model
 {
     /**
      * Use user defined exisiting timestamp columns
@@ -19,19 +19,12 @@ class Language extends Model
      *
      * @var string
      */
-    protected $table = 'Language';
+    protected $table = 'HtrDataLanguage';
 
     /**
      * The primary key associated with the table.
      *
      * @var string
      */
-    protected $primaryKey = 'LanguageId';
-
-    /**
-     * hide fields
-     *
-     * @var array
-     */
-    protected $hidden = ['pivot'];
+    protected $primaryKey = 'HtrDataLanguageId';
 }
