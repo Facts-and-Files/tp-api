@@ -1,0 +1,29 @@
+LanguageReferenceSchema:
+  type: object
+  description: Object with data related to the language table
+  properties:
+    LanguageId:
+      type: integer
+      description: Id of the language
+      example: 1
+    Name:
+      type: string
+      description: Localized name of the language
+      example: 'Hrvatski'
+    NameEnglish:
+      type: string
+      description: English name of the language
+      example: 'Croatian'
+    ShortName:
+      type: string
+      description: ISO 639-1 code of the language in uppercase
+      example: 'HR'
+    Code:
+      type: string
+      description: ISO 639-1 code of the language
+      example: 'hr'
+    Code3:
+      type: string
+      description: ISO 639-3 code of the language
+      example: 'hrv'
+
