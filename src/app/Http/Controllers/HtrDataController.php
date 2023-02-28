@@ -41,6 +41,10 @@ class HtrDataController extends ResponseController
             $data->ItemId = $request->ItemId;
             $data->save();
 
+            if (is_array($request['Language'])) {
+                $data->language()->sync($request['Language']);
+            }
+
             $resource = new HtrDataResource($data);
 
             return $this->sendResponse($resource, 'HtrData inserted.');
@@ -121,8 +125,11 @@ class HtrDataController extends ResponseController
         try {
             $htrData = HtrData::findOrfail($id);
             $htrData->fill($request->all());
-            /* $htrData->ItemId = $request->ItemId; */
             $htrData->save();
+
+            if (is_array($request['Language'])) {
+                $htrData->language()->sync($request['Language']);
+            }
 
             return $this->sendResponse(new HtrDataResource($htrData), 'HtrData updated.');
         } catch(\Exception $exception) {

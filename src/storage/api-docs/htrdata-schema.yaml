@@ -42,6 +42,13 @@ HtrDataPostRequestSchema:
       type: integer
       description: ID of item/image within Transcribathon
       example: 421717
+    Language:
+      type: array
+      example: [1, 3, 4]
+      items:
+        type: integer
+        description: Array of LanguageId associated with this data
+        example: 4
 
 HtrDataGetResponseSchema:
   allOf:
@@ -64,9 +71,21 @@ HtrDataGetResponseSchema:
           type: string
           description: Time of last update
           example: '2022-02-23T09:57:03.000000Z'
+        Language:
+          type: array
+          items:
+            $ref: 'language-reference-schema.yaml#/LanguageReferenceSchema'
     - $ref: '#/HtrDataMinimalReferenceSchema'
 
 HtrDataPutRequestSchema:
   allOf:
     - description: The data object of a PUT request body
+      properties:
+        Language:
+          type: array
+          example: [1, 3, 4]
+          items:
+            type: integer
+            description: Array of LanguageId associated with this data
+            example: 4
     - $ref: '#/HtrDataMinimalReferenceSchema'
