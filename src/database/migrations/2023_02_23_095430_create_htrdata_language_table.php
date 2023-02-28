@@ -17,10 +17,10 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->bigIncrements('HtrDataLanguageId');
             $table->unsignedBigInteger('HtrDataId');
             $table->smallInteger('LanguageId');
 
+            $table->primary(['HtrDataId', 'LanguageId']);
             $table->index('HtrDataId');
             $table->index('LanguageId');
 
