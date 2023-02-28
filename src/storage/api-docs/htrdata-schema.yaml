@@ -44,10 +44,11 @@ HtrDataPostRequestSchema:
       example: 421717
     Language:
       type: array
+      example: [1, 3, 4]
       items:
         type: integer
         description: Array of LanguageId associated with this data
-        example: [1, 3, 4]
+        example: 4
 
 HtrDataGetResponseSchema:
   allOf:
@@ -82,8 +83,9 @@ HtrDataPutRequestSchema:
       properties:
         Language:
           type: array
+          example: [1, 3, 4]
           items:
             type: integer
             description: Array of LanguageId associated with this data
-            example: [1, 3, 4]
+            example: 4
     - $ref: '#/HtrDataMinimalReferenceSchema'
