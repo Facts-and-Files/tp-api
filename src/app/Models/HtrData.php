@@ -44,6 +44,6 @@ class HtrData extends Model
     {
         return $this
             ->belongsToMany(Language::class, 'HtrDataLanguage', 'HtrDataId', 'LanguageId')
-            ->get(['Name', 'NameEnglish', 'ShortName', 'Code', 'Code3']);
+            ->get();
     }
 }
