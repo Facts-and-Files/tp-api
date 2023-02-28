@@ -31,19 +31,32 @@ class HtrData extends Model
     /**
      * The attributes that are not mass assignable.
      *
-     * @var string
+     * @var array
      */
-    protected $guarded = ['HtrDataId', 'ItemId'];
-
-    protected $appends = ['Languages'];
+    protected $guarded = ['HtrDataId', 'ItemId', 'Language'];
 
     /**
-     * define n:n relationship
+     * append properties
+     *
+     * @var array
      */
-    public function getLanguagesAttribute()
+    protected $appends = ['Language'];
+
+    /**
+     * define n:n relationship to languages with a pivot table
+     */
+    public function language()
     {
-        return $this
-            ->belongsToMany(Language::class, 'HtrDataLanguage', 'HtrDataId', 'LanguageId')
-            ->get();
+        return $this->belongsToMany(Language::class, 'HtrDataLanguage', 'HtrDataId', 'LanguageId');
+    }
+
+// we make usage of some custom accessors and mutators
+
+    /**
+     * create Language property/attribute getter
+     */
+    public function getLanguageAttribute()
+    {
+        return $this->language()->get();
     }
 }
