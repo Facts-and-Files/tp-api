@@ -22,6 +22,11 @@ AutoEnrichmentsMinimalReferenceSchema:
       type: integer
       description: ID of story within Transcribathon
       example: 151742
+    Comment:
+      nullable: true
+      type: string
+      description: Comment for this AutoEnrichment entry
+      example: This is a comment
     ExternalAnnotationId:
       type: string
       description: Enrichment Annotation ID coming form AIT
