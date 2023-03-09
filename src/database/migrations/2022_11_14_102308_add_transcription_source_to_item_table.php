@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('Item', function (Blueprint $table) {
-            $table->enum('TranscriptionSource', ['manual', 'htr'])->nullable();
+            $table->enum('TranscriptionSource', ['manual', 'htr'])->default('manual');
         });
     }
 
