@@ -2,7 +2,6 @@ ItemsMinimalReferenceSchema:
   properties:
     TranscriptionSource:
       type: string
-      nullable: true
       enum: ['htr', 'manual']
       description: source of the transcription
       example: 'manual'
