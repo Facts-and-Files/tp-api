@@ -5,6 +5,7 @@ use App\Http\Controllers\HtrDataController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\AutoEnrichmentController;
+use App\Http\Controllers\LanguageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,4 +43,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/autoenrichments/{id}', [AutoEnrichmentController::class, 'show']);
     Route::put('/autoenrichments/{id}', [AutoEnrichmentController::class, 'update']);
     Route::delete('/autoenrichments/{id}', [AutoEnrichmentController::class, 'destroy']);
+
+    Route::get('/languages', [LanguageController::class, 'index']);
+    Route::get('/languages/{id}', [LanguageController::class, 'show']);
 });
