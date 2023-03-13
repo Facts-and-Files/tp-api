@@ -9,7 +9,7 @@ get:
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
     - in: query
-      name: ProcessId
+      name: HtrProcessId
       description: Show entries associated with this processId
       type: integer
     - in: query
@@ -21,7 +21,7 @@ get:
       description: Show entries associated with this itemId
       type: integer
     - in: query
-      name: HtrId
+      name: HtrModelId
       description: Show entries associated with this htrId
       type: integer
   responses:
