@@ -24,6 +24,10 @@ get:
       name: HtrStatus
       description: Show entries associated with this HtrStatus
       type: integer
+    - in: query
+      name: EuropeanaAnnotationId
+      description: Show entries associated with this EuropeanaAnnotationId
+      type: integer
   responses:
     200:
       description: Ok
