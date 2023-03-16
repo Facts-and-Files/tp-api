@@ -163,7 +163,8 @@ class HtrDataController extends ResponseController
             'HtrProcessId' => 'HtrProcessId',
             'ItemId' => 'ItemId',
             'HtrModelId' => 'HtrModelId',
-            'HtrStatus' => 'HtrStatus'
+            'HtrStatus' => 'HtrStatus',
+            'EuropeanaAnnotationId' => 'EuropeanaAnnotationId'
         );
 
         $data = HtrData::whereRaw('1 = 1');
