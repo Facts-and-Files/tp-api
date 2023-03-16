@@ -10,19 +10,19 @@ get:
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
     - in: query
       name: HtrProcessId
-      description: Show entries associated with this processId
-      type: integer
-    - in: query
-      name: UserId
-      description: Show entries associated with this userId
+      description: Show entries associated with this HtrProcessId
       type: integer
     - in: query
       name: ItemId
-      description: Show entries associated with this itemId
+      description: Show entries associated with this ItemId
       type: integer
     - in: query
       name: HtrModelId
-      description: Show entries associated with this htrId
+      description: Show entries associated with this HtrModelId
+      type: integer
+    - in: query
+      name: HtrStatus
+      description: Show entries associated with this HtrStatus
       type: integer
   responses:
     200:

@@ -3,7 +3,7 @@ HtrDataMinimalReferenceSchema:
     UserId:
       type: integer
       nullable: true
-      description: ID of the user within Transcribathon, who provided the transcribathon
+      description: ID of the user within Transcribathon, who provided the last/current transcription
       example: 5736
     HtrModelId:
       type: integer
