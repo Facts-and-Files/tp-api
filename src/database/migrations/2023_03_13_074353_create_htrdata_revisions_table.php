@@ -22,7 +22,6 @@ return new class extends Migration
             $table->integer('UserId')->nullable();
             $table->mediumtext('TranscriptionData')->nullable();
             $table->mediumText('TranscriptionText')->nullable();
-            $table->unsignedBigInteger('EuropeanaAnnotationId')->nullable();
             $table->dateTime('Timestamp');
             $table->dateTime('LastUpdated');
 
