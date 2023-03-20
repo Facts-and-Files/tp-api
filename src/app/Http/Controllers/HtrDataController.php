@@ -116,6 +116,10 @@ class HtrDataController extends ResponseController
             $htrData->fill($request->all());
             $htrData->save();
 
+            if (is_array($request['Language'])) {
+                $htrData->language()->sync($request['Language']);
+            }
+
             $htrDataRevision = new HtrDataRevision();
             $htrDataRevision->fill($request->all());
             $htrDataRevision->HtrDataId = $htrData->HtrDataId;
