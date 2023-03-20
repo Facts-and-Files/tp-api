@@ -120,10 +120,13 @@ class HtrDataController extends ResponseController
                 $htrData->language()->sync($request['Language']);
             }
 
-            $htrDataRevision = new HtrDataRevision();
-            $htrDataRevision->fill($request->all());
-            $htrDataRevision->HtrDataId = $htrData->HtrDataId;
-            $htrDataRevision->save();
+            // we need at least the XML TranscriptionData for creation of a new revision
+            if (!empty($request['TranscriptionData'])) {
+                $htrDataRevision = new HtrDataRevision();
+                $htrDataRevision->fill($request->all());
+                $htrDataRevision->HtrDataId = $htrData->HtrDataId;
+                $htrDataRevision->save();
+            }
 
             $resource = new HtrDataResource($htrData);
 
