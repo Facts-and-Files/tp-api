@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use SimpleXMLElement;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\Collection;
@@ -53,6 +54,11 @@ class HtrDataController extends ResponseController
             $htrDataRevision = new HtrDataRevision();
             $htrDataRevision->fill($request->all());
             $htrDataRevision->HtrDataId = $htrData->HtrDataId;
+            $htrDataRevision->TranscriptionText = $request['TranscriptionText']
+                ? $request['TranscriptionText']
+                : ($request['TranscriptionData']
+                    ? $this->getTextFromPageXml($request['TranscriptionData'], "\n")
+                    : '');
             $htrDataRevision->save();
 
             $resource = new HtrDataResource($htrData);
@@ -125,6 +131,11 @@ class HtrDataController extends ResponseController
                 $htrDataRevision = new HtrDataRevision();
                 $htrDataRevision->fill($request->all());
                 $htrDataRevision->HtrDataId = $htrData->HtrDataId;
+                $htrDataRevision->TranscriptionText = $request['TranscriptionText']
+                    ? $request['TranscriptionText']
+                    : ($request['TranscriptionData']
+                        ? $this->getTextFromPageXml($request['TranscriptionData'], "\n")
+                        : '');
                 $htrDataRevision->save();
             }
 
@@ -209,5 +220,26 @@ class HtrDataController extends ResponseController
             ->get();
 
         return $filtered;
+    }
+
+    public function getTextFromPageXml(String $xmlString, String $break = ''): String
+    {
+        $text = '';
+        $xmlString = str_replace('xmlns=', 'ns=', $xmlString);
+
+        if (!empty($xmlString)) {
+            $xml = new SimpleXMLElement($xmlString);
+            $textRegions = $xml->xpath('//Page/TextRegion');
+
+            foreach ($textRegions as $textRegion) {
+                $textLines = $textRegion->xpath('TextLine');
+                foreach ($textLines as $textLine) {
+                    $textElement = $textLine->xpath(('TextEquiv/Unicode'));
+                    $text .= $textElement[0] . $break;
+                }
+                $text .= $break;
+            }
+        }
+        return $text;
     }
 }

@@ -41,7 +41,7 @@ class HtrDataRevision extends Model
      *
      * @var array
      */
-    protected $guarded = ['HtrDataRevisionId', 'HtrDataId'];
+    protected $guarded = ['HtrDataRevisionId', 'HtrDataId', 'TranscriptionText'];
 
     /**
      * append properties
