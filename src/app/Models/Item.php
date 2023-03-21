@@ -46,18 +46,18 @@ class Item extends Model
         'DateStart',
         'DateEnd',
         'DatasetId',
-        'OrderIndex',
-        'TranscriptionStatusId',
-        'DescriptionStatusId',
-        'LocationStatusId',
-        'TaggingStatusId',
+        // 'OrderIndex',
+        // 'TranscriptionStatusId',
+        // 'DescriptionStatusId',
+        // 'LocationStatusId',
+        // 'TaggingStatusId',
         'AutomaticEnrichmentStatusId',
         'Manifest',
-        'DescriptionLanguage',
-        'LockedTime',
-        'LockedUser',
-        'DateStartDisplay',
-        'DateEndDisplay',
+        // 'DescriptionLanguage',
+        // 'LockedTime',
+        // 'LockedUser',
+        // 'DateStartDisplay',
+        // 'DateEndDisplay',
         'Exported',
         'OldItemId',
         'edm:WebResource',
@@ -70,7 +70,9 @@ class Item extends Model
      * @var array
      */
     protected $appends = [
-        'CompletionStatus'
+        'CompletionStatus',
+        'Transcription',
+        'Property'
     ];
 
 // to harmonize the API regarding the existent database schema
@@ -84,6 +86,36 @@ class Item extends Model
         $plucked = $this
             ->belongsTo(CompletionStatus::class, 'CompletionStatusId')
             ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
+
+        return $plucked;
+    }
+
+    /**
+     * Get the current version of Item Transcription
+     */
+    public function getTranscriptionAttribute()
+    {
+        $plucked = $this
+            ->hasMany(Transcription::class, 'ItemId')
+            ->firstWhere('CurrentVersion', 1);
+
+        return $plucked;
+    }
+
+    /**
+     * Get the Item properties
+     */
+    public function getPropertyAttribute()
+    {
+        $plucked = $this
+            ->hasManyThrough (
+                Property::class,
+                ItemProperty::class,
+                'ItemId',
+                'PropertyId',
+                'ItemId',
+                'PropertyId'
+            )->get();
 
         return $plucked;
     }
