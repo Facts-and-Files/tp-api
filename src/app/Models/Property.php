@@ -27,4 +27,9 @@ class Property extends Model
      * @var string
      */
     protected $primaryKey = 'PropertyId';
+
+    /**
+     * hide the following attributes
+     */
+    protected $hidden = ['laravel_through_key'];
 }
