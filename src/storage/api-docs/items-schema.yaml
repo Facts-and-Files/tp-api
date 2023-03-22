@@ -14,6 +14,55 @@ ItemsMinimalReferenceSchema:
       description: description of the item
       example: 'Text title on inside of cover book.'
       nullable: true
+    TranscriptionStatusId:
+      type: integer
+      description: ID of the completion status of the transcription
+      example: 1
+    DescriptionStatusId:
+      type: integer
+      description: ID of the completion status of the description
+      example: 1
+    LocationStatusId:
+      type: integer
+      description: ID of the completion status of the location/place
+      example: 1
+    TaggingStatusId:
+      type: integer
+      description: ID of the completion status of the tags
+      example: 1
+    LockedTime:
+      type: string
+      format: date-time
+      nullable: true
+      description: time of locking the user
+      example: '2022-02-23 09:57:03'
+    LockedUser:
+      type: integer
+      nullable: true
+      description: ID of the locked user
+      example: '2022-02-23 09:57:03'
+    DateStart:
+      type: string
+      format: date
+      nullable: true
+      description: date of document start
+      example: 1989-11-09
+    DateEnd:
+      type: string
+      format: date
+      nullable: true
+      description: date of document end
+      example: 1989-11-10
+    DateStartDisplay:
+      type: string
+      nullable: true
+      description: date of document start to be displayed
+      example: 9/11/1989
+    DateEndDisplay:
+      type: string
+      nullable: true
+      description: date of document end to be displayed
+      example: 10/11/1989
 
 ItemsAdditionalDataReferenceSchema:
   properties:
@@ -29,35 +78,34 @@ ItemsAdditionalDataReferenceSchema:
       type: string
       description: IIIF JSON string with full image link
       example: '{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif/full/full/0/default.jpg\",\"@type\":\"dctypes:Image\",\"width\":1531,\"height\":2121,\"service\":{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif\",\"@context\":\"http://iiif.io/api/image/2/context.json\",\"profile\":\"http://iiif.io/api/image/2/level1.json\"}}'
+    OrderIndex:
+      type: integer
+      description: determine the order or the image within a story/record
+      example: 3
     Timestamp:
       type: string
+      format: date-time
       description: Time of creation
       example: '2022-02-23 09:57:03'
     LastUpdated:
       type: string
+      format: date-time
       description: Time of last update
       example: '2022-02-23 09:57:03'
 
-CompletionStatusReferenceSchema:
-  type: object
-  description: Object with data related to the story's completion status display
+ItemsAdditionalGetReferenceSchema:
   properties:
-    StatusId:
-      type: integer
-      description: Id of the completion status
-      example: 1
-    Name:
+    TranscriptionText:
       type: string
-      description: Name of the completion status
-      example: 'Not Started'
-    ColorCode:
-      type: string
-      description: Hexadecimal color code representation for the completion status
-      example: '#eeeeee'
-    ColorCodeGradient:
-      type: string
-      description: Hexadecimal color code gradient representation for the completion status
-      example: '#eeeeee'
+      nullable: true
+      description: plain text of the current selected transcription (of source manual or HTR)
+      example: Plain text representation oft the transcription data
+
+PropertiesReference:
+  type: array
+  description: Array with data related to the properties of that item
+  items:
+    $ref: 'property-reference-schema.yaml#PropertyReferenceSchema'
 
 ItemsGetResponseSchema:
   allOf:
@@ -65,9 +113,14 @@ ItemsGetResponseSchema:
     - description: The data object of a single response entry
     - $ref: '#/ItemsMinimalReferenceSchema'
     - $ref: '#/ItemsAdditionalDataReferenceSchema'
+    - $ref: '#/ItemsAdditionalGetReferenceSchema'
       properties:
         CompletionStatus:
-          $ref: '#/CompletionStatusReferenceSchema'
+          $ref: 'completionStatus-reference-schema.yaml#/CompletionStatusReferenceSchema'
+        DescriptionLang:
+          $ref:  'language-reference-schema.yaml#LanguageReferenceSchema'
+        Properties:
+          $ref: '#PropertiesReference'
 
 ItemsPutRequestSchema:
   allOf:
