@@ -43,25 +43,14 @@ class Item extends Model
     protected $hidden = [
         'CompletionStatusId',
         'ProjectItemId',
-        'DateStart',
-        'DateEnd',
         'DatasetId',
-        // 'OrderIndex',
-        // 'TranscriptionStatusId',
-        // 'DescriptionStatusId',
-        // 'LocationStatusId',
-        // 'TaggingStatusId',
         'AutomaticEnrichmentStatusId',
         'Manifest',
-        // 'DescriptionLanguage',
-        // 'LockedTime',
-        // 'LockedUser',
-        // 'DateStartDisplay',
-        // 'DateEndDisplay',
+        'DescriptionLanguage',
         'Exported',
         'OldItemId',
         'edm:WebResource',
-        'EuropeanaAttachment',
+        'EuropeanaAttachment'
     ];
 
     /**
@@ -70,13 +59,26 @@ class Item extends Model
      * @var array
      */
     protected $appends = [
+        'DescriptionLang',
         'CompletionStatus',
-        'Transcription',
-        'Property'
+        'TranscriptionText',
+        'Properties'
     ];
 
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
+
+    /**
+     * Get the description language
+     */
+    public function getDescriptionLangAttribute()
+    {
+        $plucked = $this
+            ->belongsTo(Language::class, 'DescriptionLanguage')
+            ->first();
+
+        return $plucked;
+    }
 
     /**
      * Get the completion object of the story
@@ -93,29 +95,42 @@ class Item extends Model
     /**
      * Get the current version of Item Transcription
      */
-    public function getTranscriptionAttribute()
+    public function getTranscriptionTextAttribute()
     {
-        $plucked = $this
-            ->hasMany(Transcription::class, 'ItemId')
-            ->firstWhere('CurrentVersion', 1);
+        if ($this->TranscriptionSource === 'manual') {
+            $manualTranscription = $this
+                ->hasMany(Transcription::class, 'ItemId')
+                ->firstWhere('CurrentVersion', 1);
 
-        return $plucked;
+            $manualTranscriptionText = $manualTranscription ? $manualTranscription->TextNoTags : '';
+
+            return $manualTranscriptionText;
+        }
+
+        // if ($this->TranscriptionSource === 'htr') {
+        //     return $this->TranscriptionSource;
+        //     // $plucked = $this
+        //     //     ->hasMany(HtrData::class, 'ItemId')
+        //     //     ->latest()->TranscriptionText;
+        // }
+        //
+        return '';
     }
 
     /**
      * Get the Item properties
      */
-    public function getPropertyAttribute()
+    public function getPropertiesAttribute()
     {
         $plucked = $this
-            ->hasManyThrough (
+            ->hasManyThrough(
                 Property::class,
                 ItemProperty::class,
                 'ItemId',
                 'PropertyId',
                 'ItemId',
-                'PropertyId'
-            )->get();
+                'PropertyId')
+            ->get(['Value', 'Description', 'PropertyTypeId']);
 
         return $plucked;
     }
