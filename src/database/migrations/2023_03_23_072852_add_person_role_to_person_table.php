@@ -14,7 +14,6 @@ return new class extends Migration
     public function up()
     {
         Schema::table('Person', function (Blueprint $table) {
-            $table->enum('TranscriptionSource', ['manual', 'htr'])->default('manual');
             $table
                 ->enum('PersonRole', ['DocumentCreator', 'AddressedPerson', 'PersonMentioned'])
                 ->after('Description')
