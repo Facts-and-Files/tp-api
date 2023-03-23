@@ -63,6 +63,11 @@ ItemsMinimalReferenceSchema:
       nullable: true
       description: date of document end to be displayed
       example: 10/11/1989
+    DateRole:
+      type: string
+      enum: ['CreationDate', 'Other']
+      description: role of the date start end date end
+      example: CreationDate
 
 ItemsAdditionalDataReferenceSchema:
   properties:
