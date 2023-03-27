@@ -2,19 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use SimpleXMLElement;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\ResponseController;
 use App\Models\HtrData;
+use App\Models\HtrDataRevision;
 use App\Http\Resources\HtrDataResource;
-use Illuminate\Http\Request;
 
 class HtrDataController extends ResponseController
 {
     /**
      * Display a paginated listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $data = $this->getDataByRequest($request);
 
@@ -30,22 +36,32 @@ class HtrDataController extends ResponseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         try {
-            $data = new HtrData();
-            $data->fill($request->all());
-            $data->ItemId = $request->ItemId;
-            $data->save();
+            $htrData = new HtrData();
+            $htrData->fill($request->all());
+            $htrData->ItemId = $request->ItemId;
+            $htrData->save();
 
             if (is_array($request['Language'])) {
-                $data->language()->sync($request['Language']);
+                $htrData->language()->sync($request['Language']);
             }
 
-            $resource = new HtrDataResource($data);
+            $htrDataRevision = new HtrDataRevision();
+            $htrDataRevision->fill($request->all());
+            $htrDataRevision->HtrDataId = $htrData->HtrDataId;
+            $htrDataRevision->TranscriptionText = $request['TranscriptionText']
+                ? $request['TranscriptionText']
+                : ($request['TranscriptionData']
+                    ? $this->getTextFromPageXml($request['TranscriptionData'], "\n")
+                    : '');
+            $htrDataRevision->save();
+
+            $resource = new HtrDataResource($htrData);
 
             return $this->sendResponse($resource, 'HtrData inserted.');
         } catch (\Exception $exception) {
@@ -57,9 +73,9 @@ class HtrDataController extends ResponseController
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show($id): JsonResponse
     {
         try {
             $data = HtrData::findOrFail($id);
@@ -74,11 +90,11 @@ class HtrDataController extends ResponseController
     /**
      * Display the specified resource.
      *
-     * @param  int                       $userId
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param  int      $userId
+     * @param  Request  $request
+     * @return JsonResponse
      */
-    public function showByItemId($itemId, Request $request)
+    public function showByItemId(int $itemId, Request $request): JsonResponse
     {
         try {
             $queries = $request->query();
@@ -93,34 +109,13 @@ class HtrDataController extends ResponseController
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int                       $userId
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function showByUserId($userId, Request $request)
-    {
-        try {
-            $queries = $request->query();
-            $data = HtrData::where('UserId', $userId);
-            $data = $this->filterDataByQueries($data, $queries);
-            $resource = new HtrDataResource($data);
-
-            return $this->sendResponse($resource, 'HtrData fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
-    }
-
-    /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  Request  $request
+     * @param  int      $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         try {
             $htrData = HtrData::findOrfail($id);
@@ -130,6 +125,21 @@ class HtrDataController extends ResponseController
             if (is_array($request['Language'])) {
                 $htrData->language()->sync($request['Language']);
             }
+
+            // we need at least the XML TranscriptionData for creation of a new revision
+            if (!empty($request['TranscriptionData'])) {
+                $htrDataRevision = new HtrDataRevision();
+                $htrDataRevision->fill($request->all());
+                $htrDataRevision->HtrDataId = $htrData->HtrDataId;
+                $htrDataRevision->TranscriptionText = $request['TranscriptionText']
+                    ? $request['TranscriptionText']
+                    : ($request['TranscriptionData']
+                        ? $this->getTextFromPageXml($request['TranscriptionData'], "\n")
+                        : '');
+                $htrDataRevision->save();
+            }
+
+            $resource = new HtrDataResource($htrData);
 
             return $this->sendResponse(new HtrDataResource($htrData), 'HtrData updated.');
         } catch(\Exception $exception) {
@@ -141,15 +151,17 @@ class HtrDataController extends ResponseController
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         try {
             $htrData = HtrData::findOrfail($id);
+            $resource = $htrData->toArray();
+            $resource = new HtrDataResource($resource);
             $htrData->delete();
 
-            return $this->sendResponse(new HtrDataResource($htrData), 'HtrData deleted.');
+            return $this->sendResponse($resource, 'HtrData deleted.');
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
@@ -158,23 +170,22 @@ class HtrDataController extends ResponseController
     /**
      * Get data defined by request
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array \Illuminate\Database\Eloquent\Collection $data
+     * @param  Request  $request
+     * @return Collection
      */
-    protected function getDataByRequest(Request $request)
+    protected function getDataByRequest(Request $request): Collection
     {
         $queries = $request->query();
 
         $queryColumns = array(
-            'ProcessId' => 'ProcessId',
-            'UserId'    => 'UserId',
-            'ItemId'    => 'ItemId',
-            'HtrId'     => 'HtrId'
+            'HtrProcessId' => 'HtrProcessId',
+            'ItemId' => 'ItemId',
+            'HtrModelId' => 'HtrModelId',
+            'HtrStatus' => 'HtrStatus',
+            'EuropeanaAnnotationId' => 'EuropeanaAnnotationId'
         );
 
-        $htrData = new HtrData();
-
-        $data = $htrData->whereRaw('1 = 1');
+        $data = HtrData::whereRaw('1 = 1');
 
         foreach ($queries as $queryName => $queryValue) {
             if (array_key_exists($queryName, $queryColumns)) {
@@ -190,11 +201,11 @@ class HtrDataController extends ResponseController
     /**
      * Filter data by requested queries
      *
-     * @param  \Illuminate\Http\Resources $data
-     * @param  array                      $queries
-     * @return array \Illuminate\Database\Eloquent\Collection $data
+     * @param  Builder $data
+     * @param  array   $queries
+     * @return Collection
      */
-    protected function filterDataByQueries($data, $queries)
+    protected function filterDataByQueries(Builder $data, Array $queries): Collection
     {
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
@@ -209,5 +220,26 @@ class HtrDataController extends ResponseController
             ->get();
 
         return $filtered;
+    }
+
+    public function getTextFromPageXml(String $xmlString, String $break = ''): String
+    {
+        $text = '';
+        $xmlString = str_replace('xmlns=', 'ns=', $xmlString);
+
+        if (!empty($xmlString)) {
+            $xml = new SimpleXMLElement($xmlString);
+            $textRegions = $xml->xpath('//Page/TextRegion');
+
+            foreach ($textRegions as $textRegion) {
+                $textLines = $textRegion->xpath('TextLine');
+                foreach ($textLines as $textLine) {
+                    $textElement = $textLine->xpath(('TextEquiv/Unicode'));
+                    $text .= $textElement[0] . $break;
+                }
+                $text .= $break;
+            }
+        }
+        return $text;
     }
 }

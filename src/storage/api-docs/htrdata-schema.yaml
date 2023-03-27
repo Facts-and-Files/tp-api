@@ -3,14 +3,14 @@ HtrDataMinimalReferenceSchema:
     UserId:
       type: integer
       nullable: true
-      description: ID of the user within Transcribathon, who provided the transcribathon
+      description: ID of the user within Transcribathon, who provided the last/current transcription
       example: 5736
-    HtrId:
+    HtrModelId:
       type: integer
       nullable: true
       description: ID of the used HTR model for this data
       example: 35909
-    ProcessId:
+    HtrProcessId:
       type: integer
       nullable: true
       description: ID of the process from the Transkribus API
@@ -30,6 +30,11 @@ HtrDataMinimalReferenceSchema:
       nullable: true
       description: Plain text representation oft the transcription data
       example: 'Transcribed text.'
+    EuropeanaAnnotationId:
+      type: integer
+      nullable: true
+      description: ID of the external identifier (provided by Europeana)
+      example: 56845
 
 HtrDataPostRequestSchema:
   allOf:

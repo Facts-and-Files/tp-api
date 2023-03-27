@@ -2,7 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\HtrDataRevision;
 
 class HtrData extends Model
 {
@@ -33,19 +37,44 @@ class HtrData extends Model
      *
      * @var array
      */
-    protected $guarded = ['HtrDataId', 'ItemId', 'Language'];
+    protected $guarded = [
+        'HtrDataId',
+        'ItemId',
+        'Language'
+    ];
 
     /**
      * append properties
      *
      * @var array
      */
-    protected $appends = ['Language'];
+    protected $appends = [
+        'UserId',
+        'TranscriptionData',
+        'TranscriptionText',
+        'Language'
+    ];
+
+    /**
+     * Get the last revision of the 1:n transcription relationship
+     *
+     * @return HasOne
+     */
+    public function latestRevision(): HasOne
+    {
+        $latest = $this
+            ->hasOne(HtrDataRevision::class, 'HtrDataId')
+            ->latestOfMany('LastUpdated');
+
+        return $latest;
+    }
 
     /**
      * define n:n relationship to languages with a pivot table
+     *
+     * @return BelongsToMany
      */
-    public function language()
+    public function language(): BelongsToMany
     {
         return $this->belongsToMany(Language::class, 'HtrDataLanguage', 'HtrDataId', 'LanguageId');
     }
@@ -54,9 +83,47 @@ class HtrData extends Model
 
     /**
      * create Language property/attribute getter
+     *
+     * @return Collection
      */
-    public function getLanguageAttribute()
+    public function getLanguageAttribute(): Collection
     {
         return $this->language()->get();
+    }
+
+    /**
+     * create TranscriptionData property/attribute getter
+     *
+     * @return string|null
+     */
+    public function getTranscriptionDataAttribute(): string|null
+    {
+        $latestRevision = $this->latestRevision()->first();
+
+        return $latestRevision['TranscriptionData'];
+    }
+
+    /**
+     * create TranscriptionText property/attribute getter
+     *
+     * @return string|null
+     */
+    public function getTranscriptionTextAttribute(): string|null
+    {
+        $latestRevision = $this->latestRevision()->first();
+
+        return $latestRevision['TranscriptionText'];
+    }
+
+    /**
+     * create UserId property/attribute getter
+     *
+     * @return int|null
+     */
+    public function getUserIdAttribute(): int|null
+    {
+        $latestRevision = $this->latestRevision()->first();
+
+        return $latestRevision['UserId'];
     }
 }

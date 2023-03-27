@@ -187,9 +187,11 @@ class AutoEnrichmentController extends ResponseController
     {
         try {
             $autoEnrichmentData = AutoEnrichment::findOrFail($id);
+            $resource = $autoEnrichmentData->toArray();
+            $resource = new HtrDataResource($resource);
             $autoEnrichmentData->delete();
 
-            return $this->sendResponse(new AutoEnrichmentResource($autoEnrichmentData), 'Auto Enrichment deleted.');
+            return $this->sendResponse($resource, 'Auto Enrichment deleted.');
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }

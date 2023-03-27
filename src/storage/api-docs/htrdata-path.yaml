@@ -9,20 +9,24 @@ get:
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
     - in: query
-      name: ProcessId
-      description: Show entries associated with this processId
-      type: integer
-    - in: query
-      name: UserId
-      description: Show entries associated with this userId
+      name: HtrProcessId
+      description: Show entries associated with this HtrProcessId
       type: integer
     - in: query
       name: ItemId
-      description: Show entries associated with this itemId
+      description: Show entries associated with this ItemId
       type: integer
     - in: query
-      name: HtrId
-      description: Show entries associated with this htrId
+      name: HtrModelId
+      description: Show entries associated with this HtrModelId
+      type: integer
+    - in: query
+      name: HtrStatus
+      description: Show entries associated with this HtrStatus
+      type: integer
+    - in: query
+      name: EuropeanaAnnotationId
+      description: Show entries associated with this EuropeanaAnnotationId
       type: integer
   responses:
     200:
