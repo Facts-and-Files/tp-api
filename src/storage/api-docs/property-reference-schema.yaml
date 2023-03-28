@@ -2,6 +2,10 @@ PropertyReferenceSchema:
   type: object
   description: Object with data related to the property object
   properties:
+    PropertyId:
+      type: integer
+      description: the Id of the property
+      example: 2
     Value:
       type: string
       description: the value of the property (type)
