@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\hasOneThrough;
 
 class Item extends Model
 {
@@ -65,6 +66,11 @@ class Item extends Model
         'Properties'
     ];
 
+    public function htrData()
+    {
+        return $this->hasMany(HtrData::class, 'ItemId');
+    }
+
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
@@ -107,13 +113,21 @@ class Item extends Model
             return $manualTranscriptionText;
         }
 
-        // if ($this->TranscriptionSource === 'htr') {
-        //     return $this->TranscriptionSource;
-        //     // $plucked = $this
-        //     //     ->hasMany(HtrData::class, 'ItemId')
-        //     //     ->latest()->TranscriptionText;
-        // }
-        //
+        if ($this->TranscriptionSource === 'htr') {
+            $htrTranscription = $this
+                ->htrData()
+                ->with(['htrDataRevision' => function ($query) {
+                    $query->latest();
+                }])
+                ->latest()
+                ->first()
+                ->htrDataRevision
+                ->pluck('TranscriptionText')
+                ->first();
+
+            return $htrTranscription;
+        }
+
         return '';
     }
 
@@ -130,7 +144,7 @@ class Item extends Model
                 'PropertyId',
                 'ItemId',
                 'PropertyId')
-            ->get(['Value', 'Description', 'PropertyTypeId']);
+            ->get(['Property.PropertyId', 'Value', 'Description', 'PropertyTypeId']);
 
         return $plucked;
     }

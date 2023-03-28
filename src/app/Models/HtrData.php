@@ -5,7 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\HtrDataRevision;
 
 class HtrData extends Model
@@ -54,6 +56,16 @@ class HtrData extends Model
         'TranscriptionText',
         'Language'
     ];
+
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(Item::class, 'ItemId');
+    }
+
+    public function htrDataRevision(): HasMany
+    {
+        return $this->hasMany(HtrDataRevision::class, 'HtrDataId');
+    }
 
     /**
      * Get the last revision of the 1:n transcription relationship
