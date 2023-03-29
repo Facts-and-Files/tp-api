@@ -56,6 +56,12 @@ class ItemController extends ResponseController
     {
         try {
             $item = Item::findOrfail($id);
+
+            // TranscriptionStatus to review when changing from manual to htr
+            if ($item->TranscriptionSource === 'manual' && $request['TranscriptionSource'] === 'htr') {
+                $item->TranscriptionStatusId = 3;
+            }
+
             $item->fill($request->all());
             $item->save();
 
