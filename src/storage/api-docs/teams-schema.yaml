@@ -1,0 +1,50 @@
+TeamsMinimalReferenceSchema:
+  properties:
+    Name:
+      type: string
+      description: Name of the team
+      example: A-Team
+    ShortName:
+      type: string
+      description: Short name of the tam
+      example: AT
+    Description:
+      type: integer
+      description: Description of the team
+      example: Team that resolves transcriptions of 4th century
+      nullable: true
+    EventUser:
+      type: bool
+      description: The team is an event user
+      example: 1
+    UserIds:
+      type: array
+      items:
+        type: integer
+        description: Array of transcribathon user ID in this team
+        example: [4456, 1258, 954]
+
+TeamsAdditionalDataReferenceSchema:
+  properties:
+    TeamId:
+      type: integer
+      description: ID of the entry
+      example: 2
+
+TeamsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/TeamsMinimalReferenceSchema'
+    - $ref: '#/TeamsAdditionalDataReferenceSchema'
+
+TeamsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/TeamsMinimalReferenceSchema'
+      properties:
+        Code:
+          type: string
+          description: Access code for the team
+          example: 1337P455W0r7
+          nullable: true

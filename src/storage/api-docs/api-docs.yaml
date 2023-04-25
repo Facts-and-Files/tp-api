@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  version: 1.1.1
+  version: 1.2.0-beta
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -31,7 +31,8 @@ tags:
   - name: autoenrichments
     description: Operations related to automatically generated enrichments (Test phase)
   - name: languages
-    description: Operations related to languages
+  - name: teams
+    description: Operations related to teams
 
 paths:
   /htrdata:
@@ -67,6 +68,10 @@ paths:
   /stories/{StoryId}/autoenrichments:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
 
+  /teams:
+    $ref: 'teams-path.yaml'
+  /teams/{TeamId}:
+    $ref: 'teams-teamId-path.yaml'
 
 components:
   securitySchemes:
@@ -98,3 +103,5 @@ components:
       $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPutRequestSchema'
     LanguagesGetResponseSchema:
       $ref: 'languages-schema.yaml#/LanguagesGetResponseSchema'
+    TeamsGetResponseSchema:
+      $ref: 'teams-schema.yaml#/TeamsGetResponseSchema'
