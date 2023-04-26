@@ -61,17 +61,17 @@ paths:
   /languages/{LanguageId}:
     $ref: 'languages-languageId-path.yaml'
 
+  /teams:
+    $ref: 'teams-path.yaml'
+  /teams/{TeamId}:
+    $ref: 'teams-teamId-path.yaml'
+
   /stories:
     $ref: 'stories-path.yaml'
   /stories/{StoryId}:
     $ref: 'stories-storyId-path.yaml'
   /stories/{StoryId}/autoenrichments:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
-
-  /teams:
-    $ref: 'teams-path.yaml'
-  /teams/{TeamId}:
-    $ref: 'teams-teamId-path.yaml'
 
 components:
   securitySchemes:
@@ -105,3 +105,7 @@ components:
       $ref: 'languages-schema.yaml#/LanguagesGetResponseSchema'
     TeamsGetResponseSchema:
       $ref: 'teams-schema.yaml#/TeamsGetResponseSchema'
+    TeamsPutRequestSchema:
+      $ref: 'teams-schema.yaml#/TeamsPutRequestSchema'
+    TeamsPostRequestSchema:
+      $ref: 'teams-schema.yaml#/TeamsPostRequestSchema'

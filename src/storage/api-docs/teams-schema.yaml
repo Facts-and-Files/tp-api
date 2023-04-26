@@ -16,7 +16,7 @@ TeamsMinimalReferenceSchema:
     EventUser:
       type: bool
       description: The team is an event user
-      example: 1
+      example: 0
 
 TeamsAdditionalDataReferenceSchema:
   properties:
@@ -34,7 +34,7 @@ TeamsGetResponseSchema:
     - properties:
         Users:
           type: array
-          description: Array of transcribathon users associated in this team
+          description: Array of transcribathon users associated with this team
           items:
             type: object
             description: transcribathon users with UserId and WP_UserId
@@ -48,13 +48,39 @@ TeamsGetResponseSchema:
                 description: ID of the user within Wordpress
                 example: 35
 
-TeamsPutRequestSchema:
+TeamsPostRequestSchema:
   allOf:
-    - description: The data object of a PUT request body
+    - required: ['Name', 'ShortName']
+    - description: The data object of a POST request body
     - $ref: '#/TeamsMinimalReferenceSchema'
-      properties:
+    - properties:
         Code:
           type: string
           description: Access code for the team
           example: 1337P455W0r7
           nullable: true
+        UserIds:
+          type: array
+          example: [4448, 365, 9724]
+          items:
+            type: integer
+            description: Array of UserId associated with this team
+            example: 4448
+
+TeamsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/TeamsMinimalReferenceSchema'
+    - properties:
+        Code:
+          type: string
+          description: Access code for the team
+          example: 1337P455W0r7
+          nullable: true
+        UserIds:
+          type: array
+          example: [4448, 365, 9724]
+          items:
+            type: integer
+            description: Array of UserId associated with this team
+            example: 4448
