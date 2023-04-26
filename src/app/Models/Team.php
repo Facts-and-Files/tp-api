@@ -17,7 +17,10 @@ class Team extends Model
     protected $primaryKey = 'TeamId';
 
     protected $hidden = ['Code'];
+
     protected $appends = ['Users'];
+
+    protected $guarded = ['TeamId'];
 
     public function user(): BelongsToMany
     {
