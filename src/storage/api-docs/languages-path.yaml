@@ -41,7 +41,7 @@ get:
               - properties:
                   data:
                     type: array
-                    description: story entry objects as array
+                    description: a language entry objects as array
                     items:
                       $ref: 'languages-schema.yaml#/LanguagesGetResponseSchema'
     401:
