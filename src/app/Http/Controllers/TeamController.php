@@ -12,12 +12,6 @@ use App\Http\Resources\TeamResource;
 
 class TeamController extends ResponseController
 {
-    /**
-     * Display a paginated listing of the resource.
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $data = $this->getDataByRequest($request);
@@ -31,12 +25,6 @@ class TeamController extends ResponseController
         return $this->sendResponse($collection, 'Teams fetched.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return JsonResponse
-     */
     public function show(int $id): JsonResponse
     {
         try {
@@ -49,12 +37,58 @@ class TeamController extends ResponseController
         }
     }
 
-    /**
-     * Get data defined by request
-     *
-     * @param  Request $request
-     * @return array Collection
-     */
+    public function store(Request $request): JsonResponse
+    {
+        try {
+            $team = new Team();
+            $team->fill($request->all());
+            $team->save();
+
+            if (is_array($request['UserIds'])) {
+                $team->user()->sync($request['UserIds']);
+            }
+
+            $resource = new TeamResource($team);
+
+            return $this->sendResponse($resource, 'Team inserted.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        try {
+            $team = Team::findOrfail($id);
+            $team->fill($request->all());
+            $team->save();
+
+            if (is_array($request['UserIds'])) {
+                $team->user()->sync($request['UserIds']);
+            }
+
+            $resource = new TeamResource($team);
+
+            return $this->sendResponse(new TeamResource($team), 'Team updated.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $team = Team::findOrfail($id);
+            $resource = $team->toArray();
+            $resource = new TeamResource($resource);
+            $team->delete();
+
+            return $this->sendResponse($resource, 'Team deleted.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
     protected function getDataByRequest(Request $request): Collection
     {
         $queries = $request->query();
@@ -79,13 +113,6 @@ class TeamController extends ResponseController
         return $data;
     }
 
-    /**
-     * Filter data by requested queries
-     *
-     * @param  array Builder $data
-     * @param  array         $queries
-     * @return array Collection
-     */
     protected function filterDataByQueries(Builder $data, array $queries): Collection
     {
         $limit = $queries['limit'] ?? 100;
