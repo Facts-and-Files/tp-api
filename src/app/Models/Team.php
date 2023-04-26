@@ -17,16 +17,21 @@ class Team extends Model
     protected $primaryKey = 'TeamId';
 
     protected $hidden = ['Code'];
-    protected $appends = ['UserIds'];
+    protected $appends = ['Users'];
 
     public function user(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'TeamUser', 'TeamId', 'UserId');
     }
 
-    public function getUserIdsAttribute(): Collection
+    public function getUsersAttribute(): Collection
     {
-        return $this->user()->get()->pluck('UserId');
+        return $this->user()->get()->map(function ($user) {
+            return [
+                'UserId' => $user->UserId,
+                'WP_UserId' => $user->WP_UserId
+            ];
+        });
     }
 
 }
