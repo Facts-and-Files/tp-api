@@ -6,6 +6,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\AutoEnrichmentController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\TeamController;
 
 /*
@@ -47,6 +48,9 @@ Route::middleware(['auth:api'])->group(function() {
 
     Route::get('/languages', [LanguageController::class, 'index']);
     Route::get('/languages/{id}', [LanguageController::class, 'show']);
+
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
 
     Route::get('/teams', [TeamController::class, 'index']);
     Route::post('/teams', [TeamController::class, 'store']);

@@ -17,7 +17,6 @@ class User extends Model
 
     protected $hidden = [
         'Token',
-        'EventUser',
         'pivot'
     ];
 
