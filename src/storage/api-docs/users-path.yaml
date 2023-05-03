@@ -1,0 +1,44 @@
+get:
+  tags:
+    - users
+  summary: Get all stored user entries
+  description: The index endpoint can be used to get all users. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier \(as WP_UserId\).
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    # - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
+    - in: query
+      name: orderBy
+      default: UserId
+      description: Table column to order the return
+      schema:
+        type: string
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: WP_UserId
+      description: Show entries associated with this WP_UserId
+      type: string
+    - in: query
+      name: RoleId
+      description: Show entries associated with this RoleId
+      type: string
+    - in: query
+      name: WP_Role
+      description: Show entries associated with this  WP_Role
+      type: string
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    type: array
+                    description: a user entry objects as array
+                    items:
+                      $ref: 'users-schema.yaml#/UsersGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
