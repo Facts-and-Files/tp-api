@@ -1,0 +1,28 @@
+get:
+  tags:
+    - users
+  summary: Get stored user data of an entry
+  description: The returned data is single object
+  parameters:
+    - in: path
+      name: UserId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'user-reference-schema.yaml#/UserReferenceSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'

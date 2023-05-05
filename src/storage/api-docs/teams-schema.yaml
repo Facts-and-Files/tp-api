@@ -1,0 +1,86 @@
+TeamsMinimalReferenceSchema:
+  properties:
+    Name:
+      type: string
+      description: Name of the team
+      example: A-Team
+    ShortName:
+      type: string
+      description: Short name of the tam
+      example: AT
+    Description:
+      type: integer
+      description: Description of the team
+      example: Team that resolves transcriptions of 4th century
+      nullable: true
+    EventUser:
+      type: bool
+      description: The team is an event user
+      example: 0
+
+TeamsAdditionalDataReferenceSchema:
+  properties:
+    TeamId:
+      type: integer
+      description: ID of the entry
+      example: 2
+
+TeamsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/TeamsMinimalReferenceSchema'
+    - $ref: '#/TeamsAdditionalDataReferenceSchema'
+    - properties:
+        Users:
+          type: array
+          description: Array of transcribathon users associated with this team
+          items:
+            type: object
+            description: transcribathon users with UserId and WP_UserId
+            properties:
+              UserId:
+                type: integer
+                description: ID of user within Transcribathon
+                example: 4468
+              WP_UserId:
+                type: integer
+                description: ID of the user within Wordpress
+                example: 35
+
+TeamsPostRequestSchema:
+  allOf:
+    - required: ['Name', 'ShortName']
+    - description: The data object of a POST request body
+    - $ref: '#/TeamsMinimalReferenceSchema'
+    - properties:
+        Code:
+          type: string
+          description: Access code for the team
+          example: 1337P455W0r7
+          nullable: true
+        UserIds:
+          type: array
+          example: [4448, 365, 9724]
+          items:
+            type: integer
+            description: Array of UserId associated with this team
+            example: 4448
+
+TeamsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/TeamsMinimalReferenceSchema'
+    - properties:
+        Code:
+          type: string
+          description: Access code for the team
+          example: 1337P455W0r7
+          nullable: true
+        UserIds:
+          type: array
+          example: [4448, 365, 9724]
+          items:
+            type: integer
+            description: Array of UserId associated with this team
+            example: 4448

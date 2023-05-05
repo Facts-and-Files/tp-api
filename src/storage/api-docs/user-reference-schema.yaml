@@ -1,0 +1,29 @@
+UserReferenceSchema:
+  type: object
+  description: Object with data related to the user
+  properties:
+    UserId:
+      type: integer
+      description: Id of the user
+      example: 1
+    WP_UserId:
+      type: integer
+      description: ID of the user within Wordpress
+      example: 1
+    RoleId:
+      type: integer
+      description: ID of the role in Transcribathon
+      example: 2
+    WP_Role:
+      type: string
+      description: The role of the user within Wordpress
+      example: 'Subscriber'
+    Timestamp:
+      type: string
+      description: The users creation time
+      example: '2019-01-07 11:47:56'
+    EventUser:
+      type: integer
+      description: Determines if the user is assigned to an event, can be 0 or 1
+      example: 0
+

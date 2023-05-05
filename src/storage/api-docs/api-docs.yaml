@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  version: 1.1.1
+  version: 1.2.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -31,7 +31,11 @@ tags:
   - name: autoenrichments
     description: Operations related to automatically generated enrichments (Test phase)
   - name: languages
-    description: Operations related to languages
+    description: Operations related to languaes
+  - name: teams
+    description: Operations related to teams
+  - name: users
+    description: Operations related to users
 
 paths:
   /htrdata:
@@ -60,13 +64,22 @@ paths:
   /languages/{LanguageId}:
     $ref: 'languages-languageId-path.yaml'
 
+  /users:
+    $ref: 'users-path.yaml'
+  /users/{UserId}:
+    $ref: 'users-userId-path.yaml'
+
+  /teams:
+    $ref: 'teams-path.yaml'
+  /teams/{TeamId}:
+    $ref: 'teams-teamId-path.yaml'
+
   /stories:
     $ref: 'stories-path.yaml'
   /stories/{StoryId}:
     $ref: 'stories-storyId-path.yaml'
   /stories/{StoryId}/autoenrichments:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
-
 
 components:
   securitySchemes:
@@ -98,3 +111,11 @@ components:
       $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPutRequestSchema'
     LanguagesGetResponseSchema:
       $ref: 'languages-schema.yaml#/LanguagesGetResponseSchema'
+    UsersGetResponseSchema:
+      $ref: 'users-schema.yaml#/UsersGetResponseSchema'
+    TeamsGetResponseSchema:
+      $ref: 'teams-schema.yaml#/TeamsGetResponseSchema'
+    TeamsPutRequestSchema:
+      $ref: 'teams-schema.yaml#/TeamsPutRequestSchema'
+    TeamsPostRequestSchema:
+      $ref: 'teams-schema.yaml#/TeamsPostRequestSchema'

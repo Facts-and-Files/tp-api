@@ -1,34 +1,30 @@
 get:
   tags:
-    - languages
-  summary: Get all stored language entries
-  description: The index endpoint can be used to get all languages. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier \(as Code3\).
+    - users
+  summary: Get all stored user entries
+  description: The index endpoint can be used to get all users. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier \(as WP_UserId\).
   parameters:
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
     # - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
     - in: query
       name: orderBy
-      default: LanguageId
+      default: UserId
       description: Table column to order the return
       schema:
         type: string
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
     - in: query
-      name: Name
-      description: Show entries associated with this Name
+      name: WP_UserId
+      description: Show entries associated with this WP_UserId
       type: string
     - in: query
-      name: NameEnglish
-      description: Show entries associated with this NameEnglish
+      name: RoleId
+      description: Show entries associated with this RoleId
       type: string
     - in: query
-      name: Code
-      description: Show entries associated with this  Code
-      type: string
-    - in: query
-      name: Code3
-      description: Show entries associated with this Code3
+      name: WP_Role
+      description: Show entries associated with this  WP_Role
       type: string
   responses:
     200:
@@ -41,8 +37,8 @@ get:
               - properties:
                   data:
                     type: array
-                    description: a language entry objects as array
+                    description: a user entry objects as array
                     items:
-                      $ref: 'languages-schema.yaml#/LanguagesGetResponseSchema'
+                      $ref: 'users-schema.yaml#/UsersGetResponseSchema'
     401:
       $ref: 'responses.yaml#/401ErrorResponse'
