@@ -47,6 +47,21 @@ TeamsGetResponseSchema:
                 type: integer
                 description: ID of the user within Wordpress
                 example: 35
+        Campaigns:
+          type: array
+          description: Array of transcribathon campaigns associated with this team
+          items:
+            type: object
+            description: Transcribathon campaign
+            properties:
+              CampaignId:
+                type: integer
+                description: Id of the campaign
+                example: 4
+              Name:
+                type: string
+                description: Name of the campaign
+                example: Sachsen at Work 2021
 
 TeamsPostRequestSchema:
   allOf:
