@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Campaign;
 use App\Models\User;
 
 class Team extends Model
@@ -18,9 +19,14 @@ class Team extends Model
 
     protected $hidden = ['Code'];
 
-    protected $appends = ['Users'];
+    protected $appends = ['Users', 'Campaigns'];
 
     protected $guarded = ['TeamId'];
+
+    public function campaign(): BelongsToMany
+    {
+        return $this->belongsToMany(Campaign::class, 'TeamCampaign', 'TeamId', 'CampaignId');
+    }
 
     public function user(): BelongsToMany
     {
@@ -33,6 +39,16 @@ class Team extends Model
             return [
                 'UserId' => $user->UserId,
                 'WP_UserId' => $user->WP_UserId
+            ];
+        });
+    }
+
+    public function getCampaignsAttribute(): Collection
+    {
+        return $this->campaign()->get()->map(function ($campaign) {
+            return [
+                'CampaignId' => $campaign->CampaignId,
+                'Name' => $campaign->Name
             ];
         });
     }
