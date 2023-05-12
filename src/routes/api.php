@@ -8,6 +8,7 @@ use App\Http\Controllers\AutoEnrichmentController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\CampaignController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,4 +58,10 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/teams/{id}', [TeamController::class, 'show']);
     Route::put('/teams/{id}', [TeamController::class, 'update']);
     Route::delete('/teams/{id}', [TeamController::class, 'destroy']);
+
+    Route::get('/campaigns', [CampaignController::class, 'index']);
+    Route::post('/campaigns', [CampaignController::class, 'store']);
+    Route::get('/campaigns/{id}', [CampaignController::class, 'show']);
+    Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
+    Route::delete('/campaigns/{id}', [CampaignController::class, 'destroy']);
 });

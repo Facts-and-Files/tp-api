@@ -1,0 +1,93 @@
+get:
+  tags:
+    - campaigns
+  summary: Get stored campaign data of an entry
+  description: The returned data is single object
+  parameters:
+    - in: path
+      name: CampaignId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'campaigns-schema.yaml#/CampaignsGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
+put:
+  tags:
+    - campaigns
+  summary: Updates data of a campaign
+  parameters:
+    - in: path
+      name: CampaignId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+  requestBody:
+    description: Data to be stored
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'campaigns-schema.yaml#/CampaignsPutRequestSchema'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'campaigns-schema.yaml#/CampaignsGetResponseSchema'
+                  message:
+                    example: 'Campaign updated.'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
+delete:
+  tags:
+    - campaigns
+  summary: delete a campaign data entry
+  parameters:
+    - in: path
+      name: CampaignId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'campaigns-schema.yaml#/CampaignsGetResponseSchema'
+                  message:
+                    example: 'Campaign deleted.'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'

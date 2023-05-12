@@ -1,0 +1,82 @@
+CampaignsMinimalReferenceSchema:
+  properties:
+    Name:
+      type: string
+      description: Name of the campaign
+      example: 1989 Online Run
+    Start:
+      type: string
+      description: Start datetime of the campaign
+      example: '2019-09-24 14:45:00'
+      nullable: true
+    End:
+      type: string
+      description: End datetime of the campaign
+      example: '2019-09-24 17:00:00'
+      nullable: true
+    Public:
+      type: bool
+      description: Is it a public campaign
+      example: 1
+    DatasetId:
+      type: integer
+      description: ID fo the associated dataset
+      example: 6
+      nullable: true
+
+CampaignsAdditionalDataReferenceSchema:
+  properties:
+    CampaignId:
+      type: integer
+      description: ID of the entry
+      example: 2
+
+CampaignsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/CampaignsMinimalReferenceSchema'
+    - $ref: '#/CampaignsAdditionalDataReferenceSchema'
+    - properties:
+        Teams:
+          type: array
+          description: Array of transcribathon users associated with this team
+          items:
+            type: object
+            description: Transcribathon teams participating in this event
+            properties:
+              TeamId:
+                type: integer
+                description: ID of user participating team
+                example: 14
+              Name:
+                type: string
+                description: Name of the participating team
+                example: 'Team 2'
+
+CampaignsPostRequestSchema:
+  allOf:
+    - required: ['Name', 'Public']
+    - description: The data object of a POST request body
+    - $ref: '#/CampaignsMinimalReferenceSchema'
+    - properties:
+        TeamIds:
+          type: array
+          example: [44, 3, 9]
+          items:
+            type: integer
+            description: Array of TeamIds participating in this campaign
+            example: 44
+
+CampaignsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/CampaignsMinimalReferenceSchema'
+    - properties:
+        TeamIds:
+          type: array
+          example: [44, 3, 9]
+          items:
+            type: integer
+            description: Array of TeamIds participating in this campaign
+            example: 44
