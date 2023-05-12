@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Team;
 
 class Campaign extends Model
 {
@@ -19,4 +22,20 @@ class Campaign extends Model
         'pivot'
     ];
 
+    protected $appends = ['Teams'];
+
+    public function team(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'TeamCampaign', 'CampaignId', 'TeamId');
+    }
+
+    public function getTeamsAttribute(): Collection
+    {
+        return $this->team()->get()->map(function ($team) {
+            return [
+                'TeamId' => $team->TeamId,
+                'Name' => $team->Name
+            ];
+        });
+    }
 }
