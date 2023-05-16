@@ -1,0 +1,25 @@
+DatasetsMinimalReferenceSchema:
+  properties:
+    Name:
+      type: string
+      description: Name of the campaign
+      example: 1989 Online Run
+    ProjectId:
+      type: integer
+      description: ID fo the associated project
+      example: 6
+      nullable: true
+
+DatasetsAdditionalDataReferenceSchema:
+  properties:
+    DatasetId:
+      type: integer
+      description: ID of the entry
+      example: 2
+
+DatasetsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/DatasetsMinimalReferenceSchema'
+    - $ref: '#/DatasetsAdditionalDataReferenceSchema'
