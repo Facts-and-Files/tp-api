@@ -9,6 +9,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\DatasetController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,4 +65,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/campaigns/{id}', [CampaignController::class, 'show']);
     Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
     Route::delete('/campaigns/{id}', [CampaignController::class, 'destroy']);
+
+    Route::get('/datasets', [DatasetController::class, 'index']);
+    Route::get('/datasets/{id}', [DatasetController::class, 'show']);
 });
