@@ -18,6 +18,10 @@ class Campaign extends Model
 
     protected $guarded = ['CampaignId'];
 
+    protected $casts = [
+        'Public' => 'boolean'
+    ];
+
     protected $hidden = [
         'pivot'
     ];
