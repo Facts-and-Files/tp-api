@@ -17,7 +17,7 @@ CampaignsMinimalReferenceSchema:
     Public:
       type: bool
       description: Is it a public campaign
-      example: 1
+      example: true
     DatasetId:
       type: integer
       description: ID fo the associated dataset
