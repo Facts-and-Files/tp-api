@@ -15,7 +15,7 @@ class Story extends Model
 
     protected $primaryKey = 'StoryId';
 
-    protected $fillable = [];
+    protected $fillable = ['DatasetId'];
 
     protected $hidden = [
         'dc:title',
