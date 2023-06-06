@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
 use App\Models\AutoEnrichment;
 use App\Http\Resources\AutoEnrichmentResource;
-use Illuminate\Http\Request;
 
 class AutoEnrichmentController extends ResponseController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $data = $this->getDataByRequest($request);
 
@@ -27,13 +25,7 @@ class AutoEnrichmentController extends ResponseController
         return $this->sendResponse($collection, 'AutoEnrichments fetched.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         try {
             $data = new AutoEnrichment();
@@ -50,13 +42,7 @@ class AutoEnrichmentController extends ResponseController
         }
     }
 
-    /**
-     * Store a newly created resource (bulk) in storage,
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function storeBulk(Request $request)
+    public function storeBulk(Request $request): JsonResponse
     {
         $data = $request->all();
 
@@ -97,13 +83,7 @@ class AutoEnrichmentController extends ResponseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
         try {
             $data = AutoEnrichment::findOrFail($id);
@@ -115,14 +95,7 @@ class AutoEnrichmentController extends ResponseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int                       $itemId
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function showByItemId($itemId, Request $request)
+    public function showByItemId(int $itemId, Request $request): JsonResponse
     {
         try {
             $queries = $request->query();
@@ -136,14 +109,7 @@ class AutoEnrichmentController extends ResponseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int                       $itemId
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function showByStoryId($storyId, Request $request)
+    public function showByStoryId(int $storyId, Request $request): JsonResponse
     {
         try {
             $queries = $request->query();
@@ -157,14 +123,7 @@ class AutoEnrichmentController extends ResponseController
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         try {
             $autoEnrichmentData = AutoEnrichment::findOrFail($id);
@@ -177,18 +136,12 @@ class AutoEnrichmentController extends ResponseController
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         try {
             $autoEnrichmentData = AutoEnrichment::findOrFail($id);
             $resource = $autoEnrichmentData->toArray();
-            $resource = new HtrDataResource($resource);
+            $resource = new AutoEnrichmentResource($resource);
             $autoEnrichmentData->delete();
 
             return $this->sendResponse($resource, 'Auto Enrichment deleted.');
@@ -197,13 +150,7 @@ class AutoEnrichmentController extends ResponseController
         }
     }
 
-    /**
-     * Get data defined by request
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array \Illuminate\Database\Eloquent\Collection $data
-     */
-    protected function getDataByRequest(Request $request)
+    protected function getDataByRequest(Request $request): Collection
     {
         $queries = $request->query();
 
@@ -229,14 +176,7 @@ class AutoEnrichmentController extends ResponseController
         return $data;
     }
 
-    /**
-     * Filter data by requested queries
-     *
-     * @param  \Illuminate\Http\Resources $data
-     * @param  array                      $queries
-     * @return array \Illuminate\Database\Eloquent\Collection $data
-     */
-    protected function filterDataByQueries($data, $queries)
+    protected function filterDataByQueries(Builder $data, array $queries): Collection
     {
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;

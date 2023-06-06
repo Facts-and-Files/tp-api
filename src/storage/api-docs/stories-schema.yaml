@@ -192,6 +192,11 @@ StoriesMinimalReferenceSchema:
       type: string
       description: external ID (Europeana resource location)
       example: 'https://www.europeana.eu/en/item/135/_nnVvTts'
+    DatasetId:
+      type: integer
+      nullable: true
+      description: Id of the associated dataset
+      example: 6
 
 StoriesAdditionalDataReferenceSchema:
   properties:
@@ -232,3 +237,13 @@ StoriesGetResponseSchema:
           $ref: '#/PlaceReferenceSchema'
         CompletionStatus:
           $ref: 'completionStatus-reference-schema.yaml#/CompletionStatusReferenceSchema'
+
+StoriesPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - properties:
+        DatasetId:
+          type: integer
+          nullable: true
+          description: ID of the associated dataset
+          example: 6

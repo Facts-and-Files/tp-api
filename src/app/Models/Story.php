@@ -3,43 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
+use App\Models\CompletionStatus;
 
 class Story extends Model
 {
-    /**
-     * Use user defined exisiting timestamp columns
-     */
     const CREATED_AT = null; // no Timestamp column available, maybe include later
     const UPDATED_AT = 'LastUpdated';
 
-    /**
-     * The table associated with the model.
-     *
-     * Config over convention here to respect exsting table names.
-     *
-     * @var string
-     */
     protected $table = 'Story';
 
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
     protected $primaryKey = 'StoryId';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [];
+    protected $fillable = ['DatasetId'];
 
-    /**
-     * hide old field names
-     *
-     * @var array
-     */
     protected $hidden = [
         'dc:title',
         'dc:description',
@@ -83,7 +60,6 @@ class Story extends Model
         'dc:language',
         'edm:language',
         'CompletionStatusId',
-        'DatasetId',
         'dcterms:provenance',
         'dc:identifier',
         'OldStoryId',
@@ -91,11 +67,6 @@ class Story extends Model
         'dcterms:created'
     ];
 
-    /**
-     * append new/renamed fields
-     *
-     * @var array
-     */
     protected $appends = [
         'ItemIds',
         'Dcterms',
@@ -108,18 +79,12 @@ class Story extends Model
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
-    /**
-     * Get the ItemIds for the story.
-     */
-    public function getItemIdsAttribute()
+    public function getItemIdsAttribute(): Collection
     {
         return $this->hasMany(Item::class, 'StoryId')->pluck('ItemId');
     }
 
-    /**
-     * Get the dcterm object
-     */
-    public function getDctermsAttribute()
+    public function getDctermsAttribute(): Array
     {
         return [
             'Medium'     => $this->attributes['dcterms:medium'],
@@ -128,10 +93,7 @@ class Story extends Model
         ];
     }
 
-    /**
-     * Get the dc object
-     */
-    public function getDcAttribute()
+    public function getDcAttribute(): Array
     {
         return [
             'Title'       => $this->attributes['dc:title'],
@@ -150,10 +112,7 @@ class Story extends Model
         ];
     }
 
-    /**
-     * Get the edm object for the story.
-     */
-    public function getEdmAttribute()
+    public function getEdmAttribute(): Array
     {
         return [
             'LandingPage'  => $this->attributes['edm:landingPage'],
@@ -171,10 +130,7 @@ class Story extends Model
         ];
     }
 
-    /**
-     * Get the place object of the story
-     */
-    public function getPlaceAttribute()
+    public function getPlaceAttribute(): Array
     {
         return [
             'Name'      => $this->attributes['PlaceName'],
@@ -184,10 +140,7 @@ class Story extends Model
         ];
     }
 
-    /**
-     * Get the completion object of the story
-     */
-    public function getCompletionStatusAttribute()
+    public function getCompletionStatusAttribute(): CompletionStatus
     {
         $plucked = $this
             ->belongsTo(CompletionStatus::class, 'CompletionStatusId')
