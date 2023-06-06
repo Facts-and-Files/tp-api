@@ -117,6 +117,8 @@ components:
       $ref: 'items-schema.yaml#/ItemsPutRequestSchema'
     StoriesGetResponseSchema:
       $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
+    StoriesPutResponseSchema:
+      $ref: 'stories-schema.yaml#/StoriesPutRequestSchema'
     AutoEnrichmentsGetResponseSchema:
       $ref: 'autoenrichments-schema.yaml#AutoEnrichmentsGetResponseSchema'
     AutoEnrichmentsPostRequestSchema:

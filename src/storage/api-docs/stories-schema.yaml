@@ -237,3 +237,13 @@ StoriesGetResponseSchema:
           $ref: '#/PlaceReferenceSchema'
         CompletionStatus:
           $ref: 'completionStatus-reference-schema.yaml#/CompletionStatusReferenceSchema'
+
+StoriesPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - properties:
+        DatasetId:
+          type: integer
+          nullable: true
+          description: ID of the associated dataset
+          example: 6
