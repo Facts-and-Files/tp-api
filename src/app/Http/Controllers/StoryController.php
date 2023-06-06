@@ -2,19 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
 use App\Models\Story;
 use App\Http\Resources\StoryResource;
-use Illuminate\Http\Request;
 
 class StoryController extends ResponseController
 {
-    /**
-     * Display a paginated listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $data = $this->getDataByRequest($request);
 
@@ -27,13 +25,7 @@ class StoryController extends ResponseController
         return $this->sendResponse($collection, 'Stories fetched.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
         try {
             $data = Story::findOrFail($id);
@@ -45,13 +37,7 @@ class StoryController extends ResponseController
         }
     }
 
-    /**
-     * Get data defined by request
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array \Illuminate\Database\Eloquent\Collection $data
-     */
-    protected function getDataByRequest(Request $request)
+    protected function getDataByRequest(Request $request): Collection
     {
         $queries = $request->query();
 
@@ -74,14 +60,7 @@ class StoryController extends ResponseController
         return $data;
     }
 
-    /**
-     * Filter data by requested queries
-     *
-     * @param  \Illuminate\Http\Resources $data
-     * @param  array                      $queries
-     * @return array \Illuminate\Database\Eloquent\Collection $data
-     */
-    protected function filterDataByQueries($data, $queries)
+    protected function filterDataByQueries(Builder $data, array $queries): Collection
     {
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
