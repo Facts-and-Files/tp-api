@@ -24,7 +24,7 @@ get:
               - properties:
                   data:
                     type: array
-                    description: Autoatically generated enrichments data entries as array
+                    description: Automatically generated enrichments data entries as array
                     items:
                       $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
     400:
