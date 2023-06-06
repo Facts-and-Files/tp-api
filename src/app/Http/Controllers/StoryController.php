@@ -37,6 +37,21 @@ class StoryController extends ResponseController
         }
     }
 
+    public function update(Request $request, int $id): JsonResponse
+    {
+        try {
+            $story = Story::findOrfail($id);
+            $story->fill($request->all());
+            $story->save();
+
+            $resource = new StoryResource($story);
+
+            return $this->sendResponse(new StoryResource($story), 'Story updated.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
     protected function getDataByRequest(Request $request): Collection
     {
         $queries = $request->query();
