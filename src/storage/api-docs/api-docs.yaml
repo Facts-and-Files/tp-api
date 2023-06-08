@@ -113,11 +113,11 @@ components:
       $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
     ItemsGetResponseSchema:
       $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
-    ItemsPutResponseSchema:
+    ItemsPutRequestSchema:
       $ref: 'items-schema.yaml#/ItemsPutRequestSchema'
     StoriesGetResponseSchema:
       $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
-    StoriesPutResponseSchema:
+    StoriesPutRequestSchema:
       $ref: 'stories-schema.yaml#/StoriesPutRequestSchema'
     AutoEnrichmentsGetResponseSchema:
       $ref: 'autoenrichments-schema.yaml#AutoEnrichmentsGetResponseSchema'
