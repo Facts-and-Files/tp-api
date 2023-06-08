@@ -30,6 +30,10 @@ ItemsMinimalReferenceSchema:
       type: integer
       description: ID of the completion status of the tags
       example: 1
+    AutomaticEnrichmentStatusId:
+      type: integer
+      description: ID of the completion status of the automatic enrichments
+      example: 1
     LockedTime:
       type: string
       format: date-time
