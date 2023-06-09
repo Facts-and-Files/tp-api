@@ -1,0 +1,39 @@
+get:
+  tags:
+    - campaigns
+    - stories
+  summary: Get associated campaigns of a story
+  parameters:
+    - in: path
+      name: StoryId
+      description: Numeric ID of the story within transcribathon
+      type: integer
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    type: array
+                    description: Campaigns entries as array
+                    items:
+                      properties:
+                        CampaignId:
+                          type: integer
+                          description: ID of the entry
+                          example: 2
+                        Name:
+                          type: string
+                          description: Name of the campaign
+                          example: 1989 Online Run
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
