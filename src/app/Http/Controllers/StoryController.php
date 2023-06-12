@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
 use App\Models\Story;
 use App\Http\Resources\StoryResource;
+use App\Http\Resources\CampaignResource;
 
 class StoryController extends ResponseController
 {
@@ -49,6 +50,50 @@ class StoryController extends ResponseController
             return $this->sendResponse(new StoryResource($story), 'Story updated.');
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
+    public function showCampaigns(int $storyId): JsonResponse
+    {
+        try {
+            $story = Story::findOrFail($storyId);
+            $campaigns = $story->campaigns;
+            $data = $campaigns->map(function ($campaign) {
+                return [
+                    'CampaignId' => $campaign->CampaignId,
+                    'Name' => $campaign->Name
+                ];
+            });
+
+            $resource = new CampaignResource($data);
+
+            return $this->sendResponse($resource, 'Campaigns fetched.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage());
+        }
+    }
+
+    public function updateCampaigns(Request $request, int $storyId): JsonResponse
+    {
+        try {
+            $story = Story::findOrFail($storyId);
+
+            if (is_array($request['Campaigns'])) {
+                $story->campaigns()->sync($request['Campaigns']);
+            }
+
+            $campaigns = $story->campaigns;
+            $data = $campaigns->map(function ($campaign) {
+                return [
+                    'CampaignId' => $campaign->CampaignId,
+                    'Name' => $campaign->Name
+                ];
+            });
+            $resource = new CampaignResource($data);
+
+            return $this->sendResponse($resource, 'Campaigns updated.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage());
         }
     }
 
