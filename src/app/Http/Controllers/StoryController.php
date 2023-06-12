@@ -73,6 +73,29 @@ class StoryController extends ResponseController
         }
     }
 
+    public function updateCampaigns(Request $request, int $storyId): JsonResponse
+    {
+        try {
+            $story = Story::findOrFail($storyId);
+
+            if (is_array($request['Campaigns'])) {
+                $story->campaigns()->sync($request['Campaigns']);
+            }
+
+            $campaigns = $story->campaigns;
+            $data = $campaigns->map(function ($campaign) {
+                return [
+                    'CampaignId' => $campaign->CampaignId,
+                    'Name' => $campaign->Name
+                ];
+            });
+            $resource = new CampaignResource($data);
+
+            return $this->sendResponse($resource, 'Campaigns updated.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage());
+        }
+    }
 
     protected function getDataByRequest(Request $request): Collection
     {
