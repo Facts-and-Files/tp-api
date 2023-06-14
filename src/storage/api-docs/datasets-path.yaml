@@ -56,6 +56,8 @@ post:
             allOf:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
+                  message:
+                    example: Dataset inserted.
                   data:
                     $ref: 'datasets-schema.yaml#/DatasetsGetResponseSchema'
     401:
