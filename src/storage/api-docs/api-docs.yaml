@@ -145,3 +145,7 @@ components:
       $ref: 'campaigns-schema.yaml#/CampaignsPostRequestSchema'
     DatasetsGetResponseSchema:
       $ref: 'datasets-schema.yaml#/DatasetsGetResponseSchema'
+    DatasetsPostRequestSchema:
+      $ref: 'datasets-schema.yaml#/DatasetsPostRequestSchema'
+    DatasetsPutRequestSchema:
+      $ref: 'datasets-schema.yaml#/DatasetsPutRequestSchema'

@@ -23,3 +23,14 @@ DatasetsGetResponseSchema:
     - description: The data object of a single response entry
     - $ref: '#/DatasetsMinimalReferenceSchema'
     - $ref: '#/DatasetsAdditionalDataReferenceSchema'
+
+DatasetsPostRequestSchema:
+  allOf:
+    - required: ['Name', 'ProjectId']
+    - description: The data object of a POST request body
+    - $ref: '#/DatasetsMinimalReferenceSchema'
+
+DatasetsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/DatasetsMinimalReferenceSchema'

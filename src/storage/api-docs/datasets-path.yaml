@@ -37,3 +37,28 @@ get:
                       $ref: 'datasets-schema.yaml#/DatasetsGetResponseSchema'
     401:
       $ref: 'responses.yaml#/401ErrorResponse'
+post:
+  tags:
+    - datasets
+  summary: Store a new dataset entry
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'datasets-schema.yaml#/DatasetsPostRequestSchema'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'datasets-schema.yaml#/DatasetsGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
