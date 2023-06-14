@@ -70,5 +70,8 @@ Route::middleware(['auth:api'])->group(function() {
     Route::delete('/campaigns/{id}', [CampaignController::class, 'destroy']);
 
     Route::get('/datasets', [DatasetController::class, 'index']);
+    Route::post('/datasets', [DatasetController::class, 'store']);
     Route::get('/datasets/{id}', [DatasetController::class, 'show']);
+    Route::put('/datasets/{id}', [DatasetController::class, 'update']);
+    Route::delete('/datasets/{id}', [DatasetController::class, 'destroy']);
 });

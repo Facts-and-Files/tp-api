@@ -37,6 +37,47 @@ class DatasetController extends ResponseController
         }
     }
 
+    public function store(Request $request): JsonResponse
+    {
+        try {
+            $dataset = new Dataset();
+            $dataset->fill($request->all());
+            $dataset->save();
+
+            return $this->sendResponse(new DatasetResource($dataset), 'Dataset inserted.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        try {
+            $dataset = Dataset::findOrfail($id);
+            $dataset->fill($request->all());
+            $dataset->save();
+
+            return $this->sendResponse(new DatasetResource($dataset), 'Dataset updated.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $dataset = Dataset::findOrfail($id);
+            $resource = $dataset->toArray();
+            $resource = new DatasetResource($resource);
+            $dataset->delete();
+
+            return $this->sendResponse($resource, 'Dataset deleted.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
     protected function getDataByRequest(Request $request): Collection
     {
         $queries = $request->query();
