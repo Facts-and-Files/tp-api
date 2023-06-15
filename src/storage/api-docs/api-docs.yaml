@@ -40,6 +40,8 @@ tags:
     description: Operations related to campaigns
   - name: datasets
     description: Operations related to datasets
+  - name: projects
+    description: Operations related to projects
 
 paths:
   /htrdata:
@@ -87,6 +89,11 @@ paths:
     $ref: 'datasets-path.yaml'
   /datasets/{DatasetId}:
     $ref: 'datasets-datasetId-path.yaml'
+
+  /projects:
+    $ref: 'projects-path.yaml'
+  /projects/{ProjectId}:
+    $ref: 'projects-projectId-path.yaml'
 
   /stories:
     $ref: 'stories-path.yaml'
@@ -149,3 +156,9 @@ components:
       $ref: 'datasets-schema.yaml#/DatasetsPostRequestSchema'
     DatasetsPutRequestSchema:
       $ref: 'datasets-schema.yaml#/DatasetsPutRequestSchema'
+    ProjectsGetResponseSchema:
+      $ref: 'projects-schema.yaml#/ProjectsGetResponseSchema'
+    ProjectsPostRequestSchema:
+      $ref: 'projects-schema.yaml#/ProjectsPostRequestSchema'
+    ProjectsPutRequestSchema:
+      $ref: 'projects-schema.yaml#/ProjectsPutRequestSchema'
