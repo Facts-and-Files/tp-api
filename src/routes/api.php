@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DatasetController;
+use App\Http\Controllers\ProjectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,4 +75,10 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/datasets/{id}', [DatasetController::class, 'show']);
     Route::put('/datasets/{id}', [DatasetController::class, 'update']);
     Route::delete('/datasets/{id}', [DatasetController::class, 'destroy']);
+
+    Route::get('/projects', [ProjectController::class, 'index']);
+    Route::post('/projects', [ProjectController::class, 'store']);
+    Route::get('/projects/{id}', [ProjectController::class, 'show']);
+    Route::put('/projects/{id}', [ProjectController::class, 'update']);
+    Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
 });

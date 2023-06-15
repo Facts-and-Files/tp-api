@@ -1,0 +1,31 @@
+ProjectsMinimalReferenceSchema:
+  properties:
+    ProjectId:
+      type: integer
+      description: ID of the entry previously defined by Wordpress
+      example: 2
+    Name:
+      type: string
+      description: Name of the project
+      example: Europeana
+    Url:
+      type: string
+      description: URL of the project defined by Wordpress (multi-site)
+      example: europeana
+
+ProjectsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/ProjectsMinimalReferenceSchema'
+
+ProjectsPostRequestSchema:
+  allOf:
+    - required: ['ProjectId', 'Name', 'Url']
+    - description: The data object of a POST request body
+    - $ref: '#/ProjectsMinimalReferenceSchema'
+
+ProjectsPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/ProjectsMinimalReferenceSchema'
