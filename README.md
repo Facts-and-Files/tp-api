@@ -41,16 +41,10 @@ It will be stored in the `api_clients` table as hash. The token can be applied b
 
 ## Development
 
-For deployment see Makefile and the deploy.sh script.
+For deployment see Makefile.
 Head to https://laravel.com/docs/9.x/deployment#main-content for server requirements. Probably the PHP DOM extension is missing by default.
 
     $ sudo apt upate && sudo apt install php8.0-xml
-
-The deploy script should do most of the tasks automagically. Just run
-
-    $ make deploy_local
-
-to deploy the the version on the server (.local here for instance)
 
 If needed (on initial install) connect to the deploy server and run the
 
