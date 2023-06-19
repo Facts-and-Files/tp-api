@@ -72,6 +72,7 @@ jobs:
           ssh -tt -o StrictHostKeyChecking=no -p "$PORT" "${{ secrets.DEV_SSH_USER }}@$HOST" <<EOF
             cd ${{ env.remote_path }}
             tar -xf ${{ env.deployfile }}
+            chcon -t httpd_user_rw_content_t -R ${{ env.remote_folder}}.${{ env.now }}
             cd ${{ env.remote_folder}}.${{ env.now }}
             php81 composer.phar install --optimize-autoloader --no-dev
             php81 artisan optimize:clear
