@@ -107,24 +107,19 @@ class Item extends Model
                 ->hasMany(Transcription::class, 'ItemId')
                 ->firstWhere('CurrentVersion', 1);
 
-            $manualTranscriptionText = $manualTranscription ? $manualTranscription->TextNoTags : '';
-
-            return $manualTranscriptionText;
+            return $manualTranscription ? $manualTranscription->TextNoTags : '';
         }
 
         if ($this->TranscriptionSource === 'htr') {
-            $htrTranscription = $this
+            $latest = $this
                 ->htrData()
                 ->with(['htrDataRevision' => function ($query) {
                     $query->latest();
                 }])
                 ->latest()
-                ->first()
-                ->htrDataRevision
-                ->pluck('TranscriptionText')
                 ->first();
 
-            return $htrTranscription;
+            return $latest ? $latest->htrDataRevision->pluck('TranscriptionText')->first() : '';
         }
 
         return '';
