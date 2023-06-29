@@ -31,9 +31,9 @@ class ResponseTest extends TestCase
         $this->assertNotEquals($statusCode, 401);
     }
 
-    public function testWrongUriCallOnProjectShouldResponse_404(): void
+    public function testWrongUriCallShouldResponse_404(): void
     {
-        $response = $this->get('/project');
+        $response = $this->get('/notfound');
 
         $response->assertStatus(404);
     }
