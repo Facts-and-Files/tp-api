@@ -1,9 +1,3 @@
-PRAGMA foreign_keys = OFF;
-PRAGMA ignore_check_constraints = OFF;
-PRAGMA auto_vacuum = NONE;
-PRAGMA secure_delete = OFF;
-BEGIN TRANSACTION;
-
 DROP TABLE IF EXISTS `api_clients`;
 
 CREATE TABLE `api_clients` (
@@ -15,10 +9,3 @@ INSERT INTO `api_clients` (`id`, `api_token`) VALUES
 (1,	'a8595a37682ac4892995c7d6396d0f82e332625db02c0be7c22fe99e265a1bdf');
 
 CREATE UNIQUE INDEX `api_clients_api_clients_api_token_unique` ON `api_clients` (`api_token`);
-
-COMMIT;
-PRAGMA ignore_check_constraints = ON;
-PRAGMA foreign_keys = ON;
-PRAGMA journal_mode = WAL;
-PRAGMA synchronous = NORMAL;
-

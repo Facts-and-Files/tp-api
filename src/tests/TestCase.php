@@ -23,6 +23,14 @@ abstract class TestCase extends BaseTestCase
     {
         $files = glob('storage/test-migrations/*.sqlite');
 
+        DB::unprepared('
+            PRAGMA foreign_keys = OFF;
+            PRAGMA ignore_check_constraints = OFF;
+            PRAGMA auto_vacuum = NONE;
+            PRAGMA secure_delete = OFF;
+            BEGIN TRANSACTION;
+        ');
+
         foreach ($files as $file) {
 
             $sql = File::get($file);
@@ -30,5 +38,13 @@ abstract class TestCase extends BaseTestCase
             DB::unprepared($sql);
 
         }
+
+        DB::unprepared('
+            COMMIT;
+            PRAGMA ignore_check_constraints = ON;
+            PRAGMA foreign_keys = ON;
+            PRAGMA journal_mode = WAL;
+            PRAGMA synchronous = NORMAL;
+        ');
     }
 }
