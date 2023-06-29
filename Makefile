@@ -34,3 +34,7 @@ deploy_dev:
 	@echo "deploying to DEV..."
 	@bash deploy.sh dev
 	@echo "...deploying done"
+
+run_test:
+	@echo "running the tests..."
+	@bash d_artisan.sh test --without-tty
