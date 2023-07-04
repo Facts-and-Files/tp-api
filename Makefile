@@ -36,5 +36,6 @@ deploy_dev:
 	@echo "...deploying done"
 
 run_test:
+	@clear
 	@echo "running the tests..."
 	@bash d_artisan.sh test --without-tty
