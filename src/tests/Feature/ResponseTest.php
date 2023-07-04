@@ -7,14 +7,14 @@ use Illuminate\Support\Str;
 
 class ResponseTest extends TestCase
 {
-    public function testNoTokenCallsOnProjectsShouldResponse_401(): void
+    public function testUnauthorizedNoTokenRequest(): void
     {
         $response = $this->withoutToken()->get('/projects');
 
         $response->assertStatus(401);
     }
 
-    public function testWrongTokenCallsOnProjectsShouldResponse_401(): void
+    public function testUnauthorizedWrongTokenRequest(): void
     {
         $randomKey = Str::random($length = 50);
 
@@ -23,7 +23,7 @@ class ResponseTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function testAuthorizedCallsOnProjectsShouldNotResponse_401(): void
+    public function testAuthorizedRequest(): void
     {
         $response = $this->get('/projects');
         $statusCode = $response->getStatusCode();
@@ -31,7 +31,7 @@ class ResponseTest extends TestCase
         $this->assertNotEquals($statusCode, 401);
     }
 
-    public function testWrongUriCallShouldResponse_404(): void
+    public function testWrongUriRequest(): void
     {
         $response = $this->get('/notfound');
 

@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS `Project`;
+
+CREATE TABLE `Project` (
+`ProjectId` smallINTEGER,
+`Name` TEXT NOT NULL,
+`Url` TEXT NOT NULL,
+PRIMARY KEY (`ProjectId`)
+);
+
+CREATE UNIQUE INDEX `Project_InstitutionId_UNIQUE` ON `Project` (`ProjectId`);
+
