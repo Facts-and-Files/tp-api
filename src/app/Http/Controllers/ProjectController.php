@@ -55,6 +55,11 @@ class ProjectController extends ResponseController
     {
         try {
             $data = Project::findOrfail($id);
+        } catch(\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage(), 404);
+        }
+
+        try {
             $data->fill($request->all());
             $data->save();
 
@@ -68,6 +73,11 @@ class ProjectController extends ResponseController
     {
         try {
             $data = Project::findOrfail($id);
+        } catch(\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage(), 404);
+        }
+
+        try {
             $resource = $data->toArray();
             $resource = new ProjectResource($resource);
             $data->delete();

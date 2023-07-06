@@ -1,0 +1,12 @@
+DROP TABLE IF EXISTS `api_clients`;
+
+CREATE TABLE `api_clients` (
+`id` bigINTEGER  NOT NULL ,
+`api_token` TEXT  NOT NULL,
+PRIMARY KEY (`id`)
+);
+
+CREATE UNIQUE INDEX `api_clients_api_clients_api_token_unique` ON `api_clients` (`api_token`);
+
+INSERT INTO `api_clients` (`id`, `api_token`) VALUES
+(1,	'a8595a37682ac4892995c7d6396d0f82e332625db02c0be7c22fe99e265a1bdf');

@@ -1,0 +1,6 @@
+Testing needs a sqlite database running in the memory.
+
+Use this service to convert MySQL queries to sqlite queries:
+https://brunocassol.com/mysql2sqlite/
+
+Save result with .sqlite extension and store it in this folder.

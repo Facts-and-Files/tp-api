@@ -55,6 +55,11 @@ class DatasetController extends ResponseController
     {
         try {
             $dataset = Dataset::findOrfail($id);
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage(), 404);
+        }
+
+        try {
             $dataset->fill($request->all());
             $dataset->save();
 
@@ -68,6 +73,11 @@ class DatasetController extends ResponseController
     {
         try {
             $dataset = Dataset::findOrfail($id);
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage(), 404);
+        }
+
+        try {
             $resource = $dataset->toArray();
             $resource = new DatasetResource($resource);
             $dataset->delete();

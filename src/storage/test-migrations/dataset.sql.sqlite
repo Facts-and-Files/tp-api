@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS `Dataset`;
+
+CREATE TABLE `Dataset` (
+`DatasetId` smallINTEGER,
+`Name` TEXT NOT NULL,
+`ProjectId` smallINTEGER NOT NULL,
+PRIMARY KEY (`DatasetId`),
+FOREIGN KEY (`ProjectId`) REFERENCES `Project` (`ProjectId`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE INDEX `Dataset_FK_569_idx` ON `Dataset` (`ProjectId`);
