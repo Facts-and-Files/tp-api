@@ -166,7 +166,7 @@ class DatasetTest extends TestCase
         $response = $this->put(self::$endpoint . $queryParams, $updateData);
 
         $response
-            ->assertStatus(400)
+            ->assertNotFound()
             ->assertJson($awaitedSuccess);
     }
 
@@ -194,7 +194,7 @@ class DatasetTest extends TestCase
         $response = $this->delete(self::$endpoint . $queryParams);
 
         $response
-            ->assertStatus(400)
+            ->assertNotFound()
             ->assertJson($awaitedSuccess);
     }
 
