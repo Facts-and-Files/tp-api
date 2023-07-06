@@ -128,6 +128,20 @@ class ProjectTest extends TestCase
             ->assertJson($awaitedData);
     }
 
+    public function testUpdateANonExistentProject(): void
+    {
+        $queryParams = '/999999';
+        $updateData = [];
+        $awaitedSuccess = ['success' => false];
+
+        $response = $this->put(self::$endpoint . $queryParams, $updateData);
+
+        $response
+            ->assertNotFound()
+            ->assertJson($awaitedSuccess);
+    }
+
+
     public function testDeleteAProject(): void
     {
         $projectId = self::$tableData[1]['ProjectId'];
@@ -141,5 +155,18 @@ class ProjectTest extends TestCase
             ->assertOk()
             ->assertJson($awaitedSuccess)
             ->assertJson($awaitedData);
+    }
+
+    public function testDeleteANonExistentProject(): void
+    {
+        $queryParams = '/999999';
+        $updateData = [];
+        $awaitedSuccess = ['success' => false];
+
+        $response = $this->delete(self::$endpoint . $queryParams);
+
+        $response
+            ->assertNotFound()
+            ->assertJson($awaitedSuccess);
     }
 }
