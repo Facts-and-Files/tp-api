@@ -34,6 +34,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/items/{id}', [ItemController::class, 'show']);
     Route::put('/items/{id}', [ItemController::class, 'update']);
     Route::get('/items/{id}/htrdata', [HtrDataController::class, 'showByItemId']);
+    Route::get('/items/{id}/htrdata/active', [HtrDataController::class, 'showActiveByItemId']);
     Route::get('/items/{id}/autoenrichments', [AutoEnrichmentController::class, 'showByItemId']);
 
     Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);

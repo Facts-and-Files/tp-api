@@ -108,6 +108,27 @@ class HtrDataController extends ResponseController
         }
     }
 
+    public function showActiveByItemId(int $itemId): JsonResponse
+    {
+        try {
+            $queries = [
+                'limit'    => 1,
+                'page'     => 1,
+                'orderBy'  => 'LastUpdated',
+                'orderDir' => 'desc',
+                'offset'   => 0
+            ];
+            $data = HtrData::where(['ItemId' => $itemId, 'HtrStatus' => 'FINISHED']);
+            $data = $this->filterDataByQueries($data, $queries);
+            $resource = new HtrDataResource($data[0]);
+
+            return $this->sendResponse($resource, 'HtrData fetched.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage());
+        }
+    }
+
+
     /**
      * Update the specified resource in storage.
      *
