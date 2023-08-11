@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  version: 1.8.4
+  version: 1.9.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -62,6 +62,8 @@ paths:
     $ref: 'items-itemId-path.yaml'
   /items/{ItemId}/htrdata:
     $ref: 'items-itemId-htrdata-path.yaml'
+  /items/{ItemId}/htrdata/active:
+    $ref: 'items-itemId-htrdata-active-path.yaml'
   /items/{ItemId}/autoenrichments:
     $ref: 'items-itemId-autoenrichments-path.yaml'
 
