@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\ResponseController;
 use App\Models\HtrData;
 use App\Models\HtrDataRevision;
+use App\Models\Transcription;
+use App\Models\Item;
 use App\Http\Resources\HtrDataResource;
 
 class HtrDataController extends ResponseController
@@ -160,6 +162,12 @@ class HtrDataController extends ResponseController
                 $htrDataRevision->save();
             }
 
+            // try to update TranscriptionSource and TranscriptionStatusId if
+            // HTR is an only transcription
+            if ($request->HtrStatus === 'FINISHED') {
+                $this->setItemCompletionStatus($htrData->ItemId, 2);
+            }
+
             $resource = new HtrDataResource($htrData);
 
             return $this->sendResponse(new HtrDataResource($htrData), 'HtrData updated.');
@@ -262,5 +270,26 @@ class HtrDataController extends ResponseController
             }
         }
         return $text;
+    }
+
+    protected function setItemCompletionStatus (int $itemId, int $status): void
+    {
+            $transcription = Transcription::where([
+                'ItemId' => $itemId,
+                'CurrentVersion' => 1
+            ])->get();
+
+            $item = Item::find($itemId);
+
+
+            if (
+                count($transcription) === 0 and // no manual transcription available
+                $item->TranscriptionSource === 'manual' and // transcription source is also manual
+                $item->TranscriptionStatusId < 2 // and transcription status is also default 1
+            ) {
+                $item->TranscriptionSource = 'htr';
+                $item->TranscriptionStatusId = 2;
+                $item->save();
+            }
     }
 }
