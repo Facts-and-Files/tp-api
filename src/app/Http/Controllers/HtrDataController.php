@@ -288,7 +288,7 @@ class HtrDataController extends ResponseController
                 $item->TranscriptionStatusId < 2 // and transcription status is also default 1
             ) {
                 $item->TranscriptionSource = 'htr';
-                $item->TranscriptionStatusId = 2;
+                $item->TranscriptionStatusId = 3;
                 $item->save();
             }
     }
