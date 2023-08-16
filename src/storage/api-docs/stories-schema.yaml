@@ -197,6 +197,11 @@ StoriesMinimalReferenceSchema:
       nullable: true
       description: Id of the associated dataset
       example: 6
+    TranscriptionSource:
+      type: string
+      enum: ['htr', 'manual']
+      description: Source of the transcriptions of the items in this story
+      example: 'manual'
 
 StoriesAdditionalDataReferenceSchema:
   properties:
@@ -247,3 +252,8 @@ StoriesPutRequestSchema:
           nullable: true
           description: ID of the associated dataset
           example: 6
+        TranscriptionSource:
+          type: string
+          enum: ['htr', 'manual']
+          description: Source of the transcriptions of the items in this story
+          example: 'manual'
