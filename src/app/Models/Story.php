@@ -16,7 +16,9 @@ class Story extends Model
 
     protected $primaryKey = 'StoryId';
 
-    protected $fillable = ['DatasetId', 'TranscriptionSource'];
+    protected $fillable = ['DatasetId', 'HasHtr'];
+
+    protected $casts = ['HasHtr' => 'boolean'];
 
     protected $hidden = [
         'dc:title',
