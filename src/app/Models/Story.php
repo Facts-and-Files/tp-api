@@ -16,7 +16,7 @@ class Story extends Model
 
     protected $primaryKey = 'StoryId';
 
-    protected $fillable = ['DatasetId', 'HasHtr'];
+    protected $fillable = ['DatasetId', 'HasHtr', 'Dc'];
 
     protected $casts = ['HasHtr' => 'boolean'];
 
@@ -113,6 +113,11 @@ class Story extends Model
             'Language'    => $this->attributes['dc:language'],
             'Identifier'  => $this->attributes['dc:identifier']
         ];
+    }
+
+    public function setDcAttribute(Array $values): void
+    {
+        $this->attributes['dc:title'] = $values['Title'] ?? $this->attributes['dc:title'];
     }
 
     public function getEdmAttribute(): Array
