@@ -89,6 +89,11 @@ class CampaignController extends ResponseController
     {
         $queries = $request->query();
 
+        // $broadMatch = $queries['broadMatch'] ?? false;
+        $broadMatch =  empty($queries['broadMatch'])
+            ? false
+            : filter_var($queries['broadMatch'], FILTER_VALIDATE_BOOLEAN);
+
         $queryColumns = [
             'Name' => 'Name',
             'DatasetId' => 'DatasetId'
@@ -100,7 +105,11 @@ class CampaignController extends ResponseController
 
         foreach ($queries as $queryName => $queryValue) {
             if (array_key_exists($queryName, $queryColumns)) {
-                $data->where($queryColumns[$queryName], $queryValue);
+                if ($broadMatch === false) {
+                    $data->where($queryColumns[$queryName], $queryValue);
+                } else {
+                    $data->where($queryColumns[$queryName], 'LIKE', '%' . $queryValue . '%');
+                }
             }
         }
 
