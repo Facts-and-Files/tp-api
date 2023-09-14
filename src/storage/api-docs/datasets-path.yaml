@@ -16,11 +16,18 @@ get:
     - in: query
       name: Name
       description: Show entries associated with this Name
-      type: string
+      schema:
+        type: string
     - in: query
       name: ProjectId
       description: Show entries associated with this ProjectId
-      type: string
+      schema:
+        type: string
+    - in: query
+      name: broadMatch
+      description: Determine the type of query for the query parameters, if set, a broad search ( LIKE %term%) is processed otherwise the exact term is searched for
+      schema:
+        type: boolean
   responses:
     200:
       description: Ok
