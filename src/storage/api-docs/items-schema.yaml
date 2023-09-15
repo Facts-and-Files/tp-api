@@ -87,6 +87,10 @@ ItemsAdditionalDataReferenceSchema:
       type: string
       description: IIIF JSON string with full image link
       example: '{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif/full/full/0/default.jpg\",\"@type\":\"dctypes:Image\",\"width\":1531,\"height\":2121,\"service\":{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif\",\"@context\":\"http://iiif.io/api/image/2/context.json\",\"profile\":\"http://iiif.io/api/image/2/level1.json\"}}'
+    Manifest:
+      type: string
+      description: Location of the IIIF manifest
+      example: https://fresenia.man.poznan.pl/dei/api/transcription/iiif/manifest?recordId=/2020601/https___1914_1918_europeana_eu_contributions_17441
     OrderIndex:
       type: integer
       description: determine the order or the image within a story/record
