@@ -45,7 +45,6 @@ class Item extends Model
         'CompletionStatusId',
         'ProjectItemId',
         'DatasetId',
-        'Manifest',
         'DescriptionLanguage',
         'Exported',
         'OldItemId',
