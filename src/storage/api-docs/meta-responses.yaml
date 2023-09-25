@@ -1,0 +1,28 @@
+MetaPaginationResponse:
+  type: object
+  description: Pagination data
+  properties:
+    limit:
+      type: integer
+      description: The limit of the entries per page
+      example: 3
+    currentPage:
+      type: integer
+      description: Number of the current page
+      example: 2
+    lastPage:
+      type: integer
+      description: Number of the last page
+      example: 4
+    fromEntry:
+      type: integer
+      description: First entry on the current page
+      example: 4
+    toEntry:
+      type: integer
+      description: Last entry on the current page
+      example: 6
+    totalEntries:
+      type: integer
+      description: The total amount of entries
+      example: 12

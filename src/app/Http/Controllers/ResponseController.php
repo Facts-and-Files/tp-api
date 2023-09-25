@@ -2,8 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\JsonResource;
+
 class ResponseController extends Controller
 {
+    public function sendResponseWithMeta(JsonResource $result, array $meta, string $message): JsonResponse
+    {
+        $response = [
+            'success' => true,
+            'data'    => $result,
+            'meta'    => $meta,
+            'message' => $message
+        ];
+
+        return response()->json($response, 200);
+    }
+
     /**
      * success response method.
      *
