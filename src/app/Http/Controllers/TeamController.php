@@ -12,6 +12,8 @@ use App\Http\Resources\TeamResource;
 
 class TeamController extends ResponseController
 {
+    protected $meta = [];
+
     public function index(Request $request): JsonResponse
     {
         $data = $this->getDataByRequest($request);
@@ -22,7 +24,7 @@ class TeamController extends ResponseController
 
         $collection = TeamResource::collection($data);
 
-        return $this->sendResponse($collection, 'Teams fetched.');
+        return $this->sendResponseWithMeta($collection, $this->meta, 'Teams fetched.');
     }
 
     public function show(int $id): JsonResponse
@@ -130,6 +132,15 @@ class TeamController extends ResponseController
         $orderBy = $orderBy === 'id' ? 'TeamId' : $orderBy;
         $orderDir = $queries['orderDir'] ?? 'asc';
         $offset = $limit * ($page - 1);
+
+        $this->meta = [
+            'limit' => (int) $limit,
+            'currentPage' => (int) $page,
+            'lastPage' => ceil($data->count() / $limit),
+            'fromEntry' => ($page - 1) * $limit + 1,
+            'toEntry' => min($page * $limit, $data->count()),
+            'totalEntries' => $data->count()
+        ];
 
         $filtered = $data
             ->limit($limit)
