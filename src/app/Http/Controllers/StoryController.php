@@ -60,6 +60,20 @@ class StoryController extends ResponseController
         }
     }
 
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $story = Story::findOrfail($id);
+            $resource = $story->toArray();
+            $resource = new StoryResource($resource);
+            $story->delete();
+
+            return $this->sendResponse($resource, 'Story deleted.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
     public function showCampaigns(int $storyId): JsonResponse
     {
         try {
