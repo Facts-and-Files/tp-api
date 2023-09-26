@@ -16,7 +16,15 @@ class ItemController extends ResponseController
      */
     public function index(Request $request)
     {
-        $data = $this->getDataByRequest($request);
+        $queryColumns = [
+            'StoryId' => 'StoryId'
+        ];
+
+        $initialSortColumn = 'ItemId';
+
+        $model = new Item();
+
+        $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
         if (!$data) {
             return $this->sendError('Invalid data', $request . ' not valid', 400);
@@ -24,7 +32,7 @@ class ItemController extends ResponseController
 
         $collection = ItemResource::collection($data);
 
-        return $this->sendResponse($collection, 'Items fetched.');
+        return $this->sendResponseWithMeta($collection, 'Items fetched.');
     }
 
     /**
@@ -69,59 +77,5 @@ class ItemController extends ResponseController
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
-    }
-
-    /**
-     * Get data defined by request
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array \Illuminate\Database\Eloquent\Collection $data
-     */
-    protected function getDataByRequest(Request $request)
-    {
-        $queries = $request->query();
-
-        $queryColumns = [
-            'StoryId' => 'StoryId'
-        ];
-
-        $item = new Item();
-
-        $data = $item->whereRaw('1 = 1');
-
-        foreach ($queries as $queryName => $queryValue) {
-            if (array_key_exists($queryName, $queryColumns)) {
-                $data->where($queryColumns[$queryName], $queryValue);
-            }
-        }
-
-        $data = $this->filterDataByQueries($data, $queries);
-
-        return $data;
-    }
-
-    /**
-     * Filter data by requested queries
-     *
-     * @param  \Illuminate\Http\Resources $data
-     * @param  array                      $queries
-     * @return array \Illuminate\Database\Eloquent\Collection $data
-     */
-    protected function filterDataByQueries($data, $queries)
-    {
-        $limit = $queries['limit'] ?? 100;
-        $page = $queries['page'] ?? 1;
-        $orderBy = $queries['orderBy'] ?? 'ItemId';
-        $orderBy = $orderBy === 'id' ? 'ItemId' : $orderBy;
-        $orderDir = $queries['orderDir'] ?? 'asc';
-        $offset = $limit * ($page - 1);
-
-        $filtered = $data
-            ->limit($limit)
-            ->offset($offset)
-            ->orderBy($orderBy, $orderDir)
-            ->get();
-
-        return $filtered;
     }
 }

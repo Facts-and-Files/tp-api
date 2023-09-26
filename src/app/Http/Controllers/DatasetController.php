@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
@@ -14,7 +12,16 @@ class DatasetController extends ResponseController
 {
     public function index(Request $request): JsonResponse
     {
-        $data = $this->getDataByRequest($request);
+        $queryColumns = [
+            'Name' => 'Name',
+            'ProjectId' => 'ProjectId'
+        ];
+
+        $initialSortColumn = 'DatasetId';
+
+        $model = new Dataset();
+
+        $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
         if (!$data) {
             return $this->sendError('Invalid data', $request . ' not valid', 400);
@@ -22,7 +29,7 @@ class DatasetController extends ResponseController
 
         $collection = DatasetResource::collection($data);
 
-        return $this->sendResponse($collection, 'Datasets fetched.');
+        return $this->sendResponseWithMeta($collection, 'Datasets fetched.');
     }
 
     public function show(int $id): JsonResponse
@@ -86,56 +93,5 @@ class DatasetController extends ResponseController
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
-    }
-
-    protected function getDataByRequest(Request $request): Collection
-    {
-        $queries = $request->query();
-
-        // $broadMatch = $queries['broadMatch'] ?? false;
-        $broadMatch =  empty($queries['broadMatch'])
-            ? false
-            : filter_var($queries['broadMatch'], FILTER_VALIDATE_BOOLEAN);
-
-        $queryColumns = [
-            'Name' => 'Name',
-            'ProjectId' => 'ProjectId'
-        ];
-
-        $dataset = new Dataset();
-
-        $data = $dataset->whereRaw('1 = 1');
-
-        foreach ($queries as $queryName => $queryValue) {
-            if (array_key_exists($queryName, $queryColumns)) {
-                if ($broadMatch === false) {
-                    $data->where($queryColumns[$queryName], $queryValue);
-                } else {
-                    $data->where($queryColumns[$queryName], 'LIKE', '%' . $queryValue . '%');
-                }
-            }
-        }
-
-        $data = $this->filterDataByQueries($data, $queries);
-
-        return $data;
-    }
-
-    protected function filterDataByQueries(Builder $data, Array $queries): Collection
-    {
-        $limit = $queries['limit'] ?? 100;
-        $page = $queries['page'] ?? 1;
-        $orderBy = $queries['orderBy'] ?? 'DatasetId';
-        $orderBy = $orderBy === 'id' ? 'DatasetId' : $orderBy;
-        $orderDir = $queries['orderDir'] ?? 'asc';
-        $offset = $limit * ($page - 1);
-
-        $filtered = $data
-            ->limit($limit)
-            ->offset($offset)
-            ->orderBy($orderBy, $orderDir)
-            ->get();
-
-        return $filtered;
     }
 }

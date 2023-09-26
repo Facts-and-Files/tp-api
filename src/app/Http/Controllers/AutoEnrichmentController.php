@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
@@ -14,7 +12,18 @@ class AutoEnrichmentController extends ResponseController
 {
     public function index(Request $request): JsonResponse
     {
-        $data = $this->getDataByRequest($request);
+        $queryColumns = [
+            'Name' => 'Name',
+            'Type' => 'Type',
+            'StoryId' => 'StoryId',
+            'ItemId' => 'ItemId'
+        ];
+
+        $initialSortColumn = 'AutoEnrichmentId';
+
+        $model =  new AutoEnrichment();
+
+        $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
         if(!$data) {
             return $this->sendError('Invalid data', $request, ' not valid', 400);
@@ -22,7 +31,7 @@ class AutoEnrichmentController extends ResponseController
 
         $collection = AutoEnrichmentResource::collection($data);
 
-        return $this->sendResponse($collection, 'AutoEnrichments fetched.');
+        return $this->sendResponseWithMeta($collection, 'AutoEnrichments fetched.');
     }
 
     public function store(Request $request): JsonResponse
@@ -100,10 +109,10 @@ class AutoEnrichmentController extends ResponseController
         try {
             $queries = $request->query();
             $data = AutoEnrichment::where('ItemId', $itemId);
-            $data = $this->filterDataByQueries($data, $queries);
+            $data = $this->filterDataByQueries($data, $queries, 'AutoEnrichmentId');
             $resource = new AutoEnrichmentResource($data);
 
-            return $this->sendResponse($resource, 'Auto Enrichment fetched.');
+            return $this->sendResponseWithMeta($resource, 'Auto Enrichment fetched.');
         } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage());
         }
@@ -114,10 +123,10 @@ class AutoEnrichmentController extends ResponseController
         try {
             $queries = $request->query();
             $data = AutoEnrichment::where('StoryId', $storyId);
-            $data = $this->filterDataByQueries($data, $queries);
+            $data = $this->filterDataByQueries($data, $queries, 'AutoEnrichmentId');
             $resource = new AutoEnrichmentResource($data);
 
-            return $this->sendResponse($resource, 'Auto Enrichment fetched.');
+            return $this->sendResponseWithMeta($resource, 'Auto Enrichment fetched.');
         } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage());
         }
@@ -148,48 +157,5 @@ class AutoEnrichmentController extends ResponseController
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
-    }
-
-    protected function getDataByRequest(Request $request): Collection
-    {
-        $queries = $request->query();
-
-        $queryColumns = [
-            'Name' => 'Name',
-            'Type' => 'Type',
-            'StoryId' => 'StoryId',
-            'ItemId' => 'ItemId'
-        ];
-
-        $autoEnrichmentData = new AutoEnrichment();
-
-        $data = $autoEnrichmentData->whereRaw('1 = 1');
-
-        foreach ($queries as $queryName => $queryValue) {
-            if (array_key_exists($queryName, $queryColumns)) {
-                $data->where($queryColumns[$queryName], $queryValue);
-            }
-        }
-
-        $data = $this->filterDataByQueries($data, $queries);
-
-        return $data;
-    }
-
-    protected function filterDataByQueries(Builder $data, array $queries): Collection
-    {
-        $limit = $queries['limit'] ?? 100;
-        $page = $queries['page'] ?? 1;
-        $orderBy = $queries['orderBy'] ?? 'AutoEnrichmentId';
-        $orderDir = $queries['orderDir'] ?? 'asc';
-        $offset = $limit * ($page - 1);
-
-        $filtered = $data
-            ->limit($limit)
-            ->offset($offset)
-            ->orderBy($orderBy, $orderDir)
-            ->get();
-
-        return $filtered;
     }
 }
