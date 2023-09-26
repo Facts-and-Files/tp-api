@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use SimpleXMLElement;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Builder;
 use App\Http\Controllers\ResponseController;
 use App\Models\HtrData;
 use App\Models\HtrDataRevision;
@@ -24,7 +22,19 @@ class HtrDataController extends ResponseController
      */
     public function index(Request $request): JsonResponse
     {
-        $data = $this->getDataByRequest($request);
+        $queryColumns = [
+            'HtrProcessId' => 'HtrProcessId',
+            'ItemId' => 'ItemId',
+            'HtrModelId' => 'HtrModelId',
+            'HtrStatus' => 'HtrStatus',
+            'EuropeanaAnnotationId' => 'EuropeanaAnnotationId'
+        ];
+
+        $initialSortColumn = 'LastUpdated';
+
+        $model = new HtrData();
+
+        $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
         if (!$data) {
             return $this->sendError('Invalid data', $request . ' not valid', 400);
@@ -32,7 +42,7 @@ class HtrDataController extends ResponseController
 
         $collection = HtrDataResource::collection($data);
 
-        return $this->sendResponse($collection, 'HtrData fetched.');
+        return $this->sendResponseWithMeta($collection, 'HtrData fetched.');
     }
 
     /**
@@ -101,10 +111,10 @@ class HtrDataController extends ResponseController
         try {
             $queries = $request->query();
             $data = HtrData::where('ItemId', $itemId);
-            $data = $this->filterDataByQueries($data, $queries);
+            $data = $this->filterDataByQueries($data, $queries, 'LastUpdated');
             $resource = new HtrDataResource($data);
 
-            return $this->sendResponse($resource, 'HtrData fetched.');
+            return $this->sendResponseWithMeta($resource, 'HtrData fetched.');
         } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage());
         }
@@ -121,7 +131,7 @@ class HtrDataController extends ResponseController
                 'offset'   => 0
             ];
             $data = HtrData::where(['ItemId' => $itemId, 'HtrStatus' => 'FINISHED']);
-            $data = $this->filterDataByQueries($data, $queries);
+            $data = $this->filterDataByQueries($data, $queries, 'LastUpdated');
             $resource = new HtrDataResource($data[0]);
 
             return $this->sendResponse($resource, 'HtrData fetched.');
@@ -194,61 +204,6 @@ class HtrDataController extends ResponseController
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
-    }
-
-    /**
-     * Get data defined by request
-     *
-     * @param  Request  $request
-     * @return Collection
-     */
-    protected function getDataByRequest(Request $request): Collection
-    {
-        $queries = $request->query();
-
-        $queryColumns = array(
-            'HtrProcessId' => 'HtrProcessId',
-            'ItemId' => 'ItemId',
-            'HtrModelId' => 'HtrModelId',
-            'HtrStatus' => 'HtrStatus',
-            'EuropeanaAnnotationId' => 'EuropeanaAnnotationId'
-        );
-
-        $data = HtrData::whereRaw('1 = 1');
-
-        foreach ($queries as $queryName => $queryValue) {
-            if (array_key_exists($queryName, $queryColumns)) {
-                $data->where($queryColumns[$queryName], $queryValue);
-            }
-        }
-
-        $data = $this->filterDataByQueries($data, $queries);
-
-        return $data;
-    }
-
-    /**
-     * Filter data by requested queries
-     *
-     * @param  Builder $data
-     * @param  array   $queries
-     * @return Collection
-     */
-    protected function filterDataByQueries(Builder $data, Array $queries): Collection
-    {
-        $limit = $queries['limit'] ?? 100;
-        $page = $queries['page'] ?? 1;
-        $orderBy = $queries['orderBy'] ?? 'LastUpdated';
-        $orderDir = $queries['orderDir'] ?? 'asc';
-        $offset = $limit * ($page - 1);
-
-        $filtered = $data
-            ->limit($limit)
-            ->offset($offset)
-            ->orderBy($orderBy, $orderDir)
-            ->get();
-
-        return $filtered;
     }
 
     public function getTextFromPageXml(String $xmlString, String $break = ''): String
