@@ -16,9 +16,17 @@ class Story extends Model
 
     protected $primaryKey = 'StoryId';
 
-    protected $fillable = ['DatasetId', 'HasHtr', 'Dc'];
+    protected $fillable = [
+        'DatasetId',
+        'HasHtr',
+        'Dc',
+        'Public'
+    ];
 
-    protected $casts = ['HasHtr' => 'boolean'];
+    protected $casts = [
+        'HasHtr' => 'boolean',
+        'Public' => 'boolean'
+    ];
 
     protected $hidden = [
         'dc:title',
@@ -40,7 +48,6 @@ class Story extends Model
         'DateStart',
         'DateEnd',
         'OrderIndex',
-        'Public',
         'ImportName',
         'edm:country',
         'edm:dataProvider',
