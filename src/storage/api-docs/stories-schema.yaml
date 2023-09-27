@@ -199,7 +199,11 @@ StoriesMinimalReferenceSchema:
       example: 6
     HasHtr:
       type: boolean
-      description: Marks wether the Story has items with a HTR transcription
+      description: Indicates whether the story has items with a HTR transcription
+      example: true
+    Public:
+      type: boolean
+      description: Indicates whether the story is public or not
       example: true
 
 StoriesAdditionalDataReferenceSchema:
