@@ -105,9 +105,10 @@ class Item extends Model
         if ($this->TranscriptionSource === 'manual') {
             $manualTranscription = $this
                 ->hasMany(Transcription::class, 'ItemId')
+                ->select('UserId', 'TextNoTags', 'CurrentVersion')
                 ->firstWhere('CurrentVersion', 1);
 
-            return $manualTranscription ? $manualTranscription->select(['UserId', 'TextNoTags'])->first() : '';
+            return $manualTranscription ? $manualTranscription : '';
         }
 
         if ($this->TranscriptionSource === 'htr') {
@@ -119,7 +120,7 @@ class Item extends Model
                 ->latest()
                 ->first();
 
-            return $latest ? $latest->htrDataRevision->pluck('TranscriptionText')->first() : '';
+            return $latest ? $latest->htrDataRevision : '';
         }
 
         return '';
@@ -133,6 +134,16 @@ class Item extends Model
         if ($this->TranscriptionSource === 'manual') {
             $dateStart = $this
                 ->hasMany(Transcription::class, 'ItemId')
+                ->orderBy('Timestamp', 'asc')
+                ->pluck('Timestamp')
+                ->first();
+            
+            return $dateStart ? $dateStart : '';
+        }
+
+        if($this->TranscriptionSource === 'htr') {
+            $dateStart = $this
+                ->hasMany(HtrData::class, 'ItemId')
                 ->orderBy('Timestamp', 'asc')
                 ->pluck('Timestamp')
                 ->first();
