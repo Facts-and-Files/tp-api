@@ -108,7 +108,7 @@ class Item extends Model
                 ->select('UserId', 'TextNoTags as TranscriptionText', 'CurrentVersion')
                 ->firstWhere('CurrentVersion', 1);
 
-            return $manualTranscription ? $manualTranscription : '';
+            return $manualTranscription ? $manualTranscription : [];
         }
 
         if ($this->TranscriptionSource === 'htr') {
@@ -120,10 +120,10 @@ class Item extends Model
                 ->latest()
                 ->first();
 
-            return $latest ? $latest->htrDataRevision->first() : '';
+            return $latest ? $latest->htrDataRevision->first() : [];
         }
 
-        return '';
+        return [];
     }
 
     /** 
