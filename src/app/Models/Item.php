@@ -120,7 +120,7 @@ class Item extends Model
                 ->latest()
                 ->first();
 
-            return $latest ? $latest->htrDataRevision : '';
+            return $latest ? $latest->htrDataRevision->first() : '';
         }
 
         return '';
