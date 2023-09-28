@@ -106,7 +106,7 @@ class Item extends Model
                 ->hasMany(Transcription::class, 'ItemId')
                 ->firstWhere('CurrentVersion', 1);
 
-            return $manualTranscription ? $manualTranscription->TextNoTags : '';
+            return $manualTranscription ? $manualTranscription->select(['UserId', 'TextNoTags'])->first() : '';
         }
 
         if ($this->TranscriptionSource === 'htr') {
