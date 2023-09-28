@@ -60,7 +60,7 @@ class Item extends Model
     protected $appends = [
         'DescriptionLang',
         'CompletionStatus',
-        'TranscriptionText',
+        'Transcription',
         'Properties',
         'EditStart'
     ];
@@ -100,12 +100,12 @@ class Item extends Model
     /**
      * Get the current version of Item Transcription
      */
-    public function getTranscriptionTextAttribute()
+    public function getTranscriptionAttribute()
     {
         if ($this->TranscriptionSource === 'manual') {
             $manualTranscription = $this
                 ->hasMany(Transcription::class, 'ItemId')
-                ->select('UserId', 'TextNoTags', 'CurrentVersion')
+                ->select('UserId', 'TextNoTags as TranscriptionText', 'CurrentVersion')
                 ->firstWhere('CurrentVersion', 1);
 
             return $manualTranscription ? $manualTranscription : '';
