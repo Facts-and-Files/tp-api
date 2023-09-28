@@ -62,7 +62,8 @@ class Item extends Model
         'CompletionStatus',
         'Transcription',
         'Properties',
-        'EditStart'
+        'EditStart',
+        'Place'
     ];
 
     public function htrData()
@@ -170,5 +171,17 @@ class Item extends Model
             ->get(['Property.PropertyId', 'Value', 'Description', 'PropertyTypeId']);
 
         return $plucked;
+    }
+
+    /**
+     * Get the Item places
+     */
+    public function getPlaceAttribute()
+    {
+        $place = $this
+            ->hasMany(Place::class, 'ItemId')
+            ->get();
+
+        return $place ? $place : [];
     }
 }
