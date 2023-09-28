@@ -61,7 +61,8 @@ class Item extends Model
         'DescriptionLang',
         'CompletionStatus',
         'TranscriptionText',
-        'Properties'
+        'Properties',
+        'EditStart'
     ];
 
     public function htrData()
@@ -119,6 +120,24 @@ class Item extends Model
                 ->first();
 
             return $latest ? $latest->htrDataRevision->pluck('TranscriptionText')->first() : '';
+        }
+
+        return '';
+    }
+
+    /** 
+     * Get the timestamp od first transcription
+     */
+    public function getEditStartAttribute()
+    {
+        if ($this->TranscriptionSource === 'manual') {
+            $dateStart = $this
+                ->hasMany(Transcription::class, 'ItemId')
+                ->orderBy('Timestamp', 'asc')
+                ->pluck('Timestamp')
+                ->first();
+            
+            return $dateStart ? $dateStart : '';
         }
 
         return '';
