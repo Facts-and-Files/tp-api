@@ -63,7 +63,8 @@ class Item extends Model
         'Transcription',
         'Properties',
         'EditStart',
-        'Place'
+        'Places',
+        'Persons'
     ];
 
     public function htrData()
@@ -176,12 +177,24 @@ class Item extends Model
     /**
      * Get the Item places
      */
-    public function getPlaceAttribute()
+    public function getPlacesAttribute()
     {
-        $place = $this
+        $places = $this
             ->hasMany(Place::class, 'ItemId')
             ->get();
 
-        return $place ? $place : [];
+        return $places ? $places : [];
+    }
+
+    /**
+     * Get the Item persons
+     */
+    public function getPersonsAttribute()
+    {
+        $persons = $this
+            ->hasMany(Person::class, 'ItemId')
+            ->get();
+
+        return $persons ? $persons : [];
     }
 }
