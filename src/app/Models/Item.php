@@ -128,7 +128,7 @@ class Item extends Model
         return [];
     }
 
-    /** 
+    /**
      * Get the timestamp od first transcription
      */
     public function getEditStartAttribute()
@@ -139,17 +139,17 @@ class Item extends Model
                 ->orderBy('Timestamp', 'asc')
                 ->pluck('Timestamp')
                 ->first();
-            
+
             return $dateStart ? $dateStart : '';
         }
 
-        if($this->TranscriptionSource === 'htr') {
+        if ($this->TranscriptionSource === 'htr') {
             $dateStart = $this
                 ->hasMany(HtrData::class, 'ItemId')
                 ->orderBy('Timestamp', 'asc')
                 ->pluck('Timestamp')
                 ->first();
-            
+
             return $dateStart ? $dateStart : '';
         }
 
