@@ -121,7 +121,7 @@ ItemsAdditionalGetReferenceSchema:
           description: the ID of the user of this transcription
           example: 1392
         CurrentVersion:
-          type: integer
+          type: boolean
           description: determine if this is the current/active transcription (only if transcription is manual)
           example: 1
         HtrDataId:
