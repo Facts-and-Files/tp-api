@@ -108,11 +108,43 @@ ItemsAdditionalDataReferenceSchema:
 
 ItemsAdditionalGetReferenceSchema:
   properties:
-    TranscriptionText:
-      type: string
-      nullable: true
-      description: plain text of the current selected transcription (of source manual or HTR)
-      example: Plain text representation oft the transcription data
+    Transcription:
+      type: object
+      properties:
+        TranscriptionText:
+          type: string
+          nullable: true
+          description: plain text of the current selected transcription (of source manual or HTR)
+          example: Plain text representation oft the transcription data
+        UserId:
+          type: integer
+          description: the ID of the user of this transcription
+          example: 1392
+        CurrentVersion:
+          type: integer
+          description: determine if this is the current/active transcription (only if transcription is manual)
+          example: 1
+        HtrDataId:
+          type: integer
+          description: ID of the HTR data entry (only if HTR data)
+          example: 2
+        Timestamp:
+          type: string
+          description: Time of creation of the HTR transcription (only if HTR data)
+          example: '2022-02-23T09:57:03.000000Z'
+        LastUpdated:
+          type: string
+          description: Time of last update of the HTR transcription (only if HTR data)
+          example: '2022-02-23T09:57:03.000000Z'
+        TranscriptionData:
+          type: string
+          nullable: true
+          description: HTR data data as XML string (only if HTR data)
+          example: '<?xml version="1.0" encoding="UTF-8"? />'
+        HtrDataRevisionId:
+          type: integer
+          description: ID of the HTR data revision entry (only if HTR data)
+          example: 2
 
 PropertiesReference:
   type: array
