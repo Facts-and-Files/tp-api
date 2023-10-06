@@ -60,8 +60,11 @@ class Item extends Model
     protected $appends = [
         'DescriptionLang',
         'CompletionStatus',
-        'TranscriptionText',
-        'Properties'
+        'Transcription',
+        'Properties',
+        'EditStart',
+        'Places',
+        'Persons'
     ];
 
     public function htrData()
@@ -99,14 +102,15 @@ class Item extends Model
     /**
      * Get the current version of Item Transcription
      */
-    public function getTranscriptionTextAttribute()
+    public function getTranscriptionAttribute()
     {
         if ($this->TranscriptionSource === 'manual') {
             $manualTranscription = $this
                 ->hasMany(Transcription::class, 'ItemId')
+                ->select('UserId', 'TextNoTags as TranscriptionText', 'CurrentVersion')
                 ->firstWhere('CurrentVersion', 1);
 
-            return $manualTranscription ? $manualTranscription->TextNoTags : '';
+            return $manualTranscription ? $manualTranscription : [];
         }
 
         if ($this->TranscriptionSource === 'htr') {
@@ -118,7 +122,35 @@ class Item extends Model
                 ->latest()
                 ->first();
 
-            return $latest ? $latest->htrDataRevision->pluck('TranscriptionText')->first() : '';
+            return $latest ? $latest->htrDataRevision->first() : [];
+        }
+
+        return [];
+    }
+
+    /**
+     * Get the timestamp od first transcription
+     */
+    public function getEditStartAttribute()
+    {
+        if ($this->TranscriptionSource === 'manual') {
+            $dateStart = $this
+                ->hasMany(Transcription::class, 'ItemId')
+                ->orderBy('Timestamp', 'asc')
+                ->pluck('Timestamp')
+                ->first();
+
+            return $dateStart ? $dateStart : '';
+        }
+
+        if ($this->TranscriptionSource === 'htr') {
+            $dateStart = $this
+                ->hasMany(HtrData::class, 'ItemId')
+                ->orderBy('Timestamp', 'asc')
+                ->pluck('Timestamp')
+                ->first();
+
+            return $dateStart ? $dateStart : '';
         }
 
         return '';
@@ -140,5 +172,29 @@ class Item extends Model
             ->get(['Property.PropertyId', 'Value', 'Description', 'PropertyTypeId']);
 
         return $plucked;
+    }
+
+    /**
+     * Get the Item places
+     */
+    public function getPlacesAttribute()
+    {
+        $places = $this
+            ->hasMany(Place::class, 'ItemId')
+            ->get();
+
+        return $places ? $places : [];
+    }
+
+    /**
+     * Get the Item persons
+     */
+    public function getPersonsAttribute()
+    {
+        $persons = $this
+            ->hasMany(Person::class, 'ItemId')
+            ->get();
+
+        return $persons ? $persons : [];
     }
 }

@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Transcription extends Model
+class Person extends Model
 {
     /**
      * Use user defined exisiting timestamp columns
@@ -19,14 +19,12 @@ class Transcription extends Model
      *
      * @var string
      */
-    protected $table = 'Transcription';
+    protected $table = 'Person';
 
     /**
      * The primary key associated with the table.
      *
      * @var string
      */
-    protected $primaryKey = 'TranscriptionId';
-
-    protected  $casts = ['CurrentVersion' => 'boolean'];
+    protected $primaryKey = 'PersonId';
 }
