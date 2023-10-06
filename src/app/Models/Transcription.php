@@ -27,4 +27,6 @@ class Transcription extends Model
      * @var string
      */
     protected $primaryKey = 'TranscriptionId';
+
+    protected  $casts = ['CurrentVersion' => 'boolean'];
 }
