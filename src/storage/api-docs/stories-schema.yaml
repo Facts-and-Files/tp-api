@@ -223,6 +223,10 @@ StoriesAdditionalDataReferenceSchema:
       nullable: true
       description: Language of the story
       example: 'Polski'
+    Timestamp:
+      type: string
+      description: Time of the creation
+      example: '2022-02-23 09:57:03'
     LastUpdated:
       type: string
       description: Time of last update
