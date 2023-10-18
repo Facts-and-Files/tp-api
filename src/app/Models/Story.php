@@ -9,7 +9,7 @@ use App\Models\CompletionStatus;
 
 class Story extends Model
 {
-    const CREATED_AT = null; // no Timestamp column available, maybe include later
+    const CREATED_AT = 'Timestamp';
     const UPDATED_AT = 'LastUpdated';
 
     protected $table = 'Story';
