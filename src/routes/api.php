@@ -46,6 +46,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::delete('/stories/{id}', [StoryController::class, 'destroy']);
     Route::get('/stories/{id}/campaigns', [StoryController::class, 'showCampaigns']);
     Route::put('/stories/{id}/campaigns', [StoryController::class, 'updateCampaigns']);
+    Route::put('/stories/{id}/add-campaigns', [StoryController::class, 'addCampaigns']);
 
     Route::get('/autoenrichments', [AutoEnrichmentController::class, 'index']);
     Route::post('/autoenrichments', [AutoEnrichmentController::class, 'store']);
