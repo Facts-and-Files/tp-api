@@ -105,6 +105,8 @@ paths:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
   /stories/{StoryId}/campaigns:
     $ref: 'stories-storyId-campaigns-path.yaml'
+  /stories/{StoryId}/add-campaigns:
+    $ref: 'stories-storyId-add-campaigns-path.yaml'
 
 components:
   securitySchemes:

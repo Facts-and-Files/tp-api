@@ -1,0 +1,56 @@
+put:
+  tags:
+    - stories
+    - campaigns
+  summary: Add campaigns data to an exisiting set of story campaigns
+  parameters:
+    - in: path
+      name: StoryId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+  requestBody:
+    description: Data to be added
+    required: true
+    content:
+      application/json:
+        schema:
+          description: The data object of a PUT request body
+          properties:
+            Campaigns:
+              type: array
+              example: [1, 3, 4]
+              items:
+                type: integer
+                description: Array of CampaignIds that should be added to the Story
+                example: 4
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  message:
+                    example: Campaigns updated.
+                  data:
+                    type: array
+                    description: Campaigns entries as array
+                    items:
+                      properties:
+                        CampaignId:
+                          type: integer
+                          description: ID of the entry
+                          example: 2
+                        Name:
+                          type: string
+                          description: Name of the campaign
+                          example: 1989 Online Run
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
