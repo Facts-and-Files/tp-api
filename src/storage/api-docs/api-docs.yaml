@@ -44,6 +44,11 @@ tags:
     description: Operations related to projects
 
 paths:
+  /stories/{StoryId}/autoenrichments:
+    $ref: 'stories-storyId-autoenrichments-path.yaml'
+  /stories/{StoryId}/campaigns:
+    $ref: 'stories-storyId-campaigns-path.yaml'
+
   /htrdata:
     $ref: 'htrdata-path.yaml'
   /htrdata/{HtrDataId}:
@@ -99,12 +104,10 @@ paths:
 
   /stories:
     $ref: 'stories-path.yaml'
+  /stories/campaigns:
+    $ref: 'stories-campaigns-path.yaml'
   /stories/{StoryId}:
     $ref: 'stories-storyId-path.yaml'
-  /stories/{StoryId}/autoenrichments:
-    $ref: 'stories-storyId-autoenrichments-path.yaml'
-  /stories/{StoryId}/campaigns:
-    $ref: 'stories-storyId-campaigns-path.yaml'
   /stories/{StoryId}/add-campaigns:
     $ref: 'stories-storyId-add-campaigns-path.yaml'
 

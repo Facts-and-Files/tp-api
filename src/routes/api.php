@@ -39,6 +39,7 @@ Route::middleware(['auth:api'])->group(function() {
 
     Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);
 
+    Route::get('/stories/campaigns', [StoryController::class, 'showCampaignsByStories']);
     Route::get('/stories', [StoryController::class, 'index']);
     Route::get('/stories/{id}', [StoryController::class, 'show']);
     Route::get('/stories/{id}/autoenrichments', [AutoEnrichmentController::class, 'showByStoryId']);
