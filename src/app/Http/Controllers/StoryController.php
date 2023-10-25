@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
 use App\Models\Story;
+use App\Models\Campaign;
 use App\Http\Resources\StoryResource;
 use App\Http\Resources\CampaignResource;
 
@@ -71,6 +72,39 @@ class StoryController extends ResponseController
             return $this->sendResponse($resource, 'Story deleted.');
         } catch(\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
+    public function showCampaignsByStories(Request $request): JsonResponse
+    {
+        try {
+            $storyIds = array_map('trim', explode(',', $request->input('StoryIds')));
+
+            $stories = Story::whereIn('StoryId', $storyIds)
+                ->select('StoryId')
+                ->with(['campaigns' => function($query) {
+                    $query->select('Campaign.CampaignId', 'Campaign.Name');
+                }])
+                ->get();
+
+            $data = [];
+
+            foreach ($stories as $story) {
+                // Teams shouldn't be here only CampaignId and Name aselected above
+                // so we hide from the response
+                $story->campaigns->makeHidden('Teams');
+
+                $data[] = [
+                    'StoryId' => $story->StoryId,
+                    'Campaigns' => $story->campaigns
+                ];
+            }
+
+            $resource = new StoryResource($data);
+
+            return $this->sendResponse($resource, 'Campaigns fetched.');
+        } catch (\Exception $exception) {
+            return $this->sendError('An error occurred', $exception->getMessage());
         }
     }
 
