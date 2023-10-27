@@ -6,6 +6,8 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Team;
+use App\Models\Story;
+use Illuminate\Support\Facades\DB;
 
 class Campaign extends Model
 {
@@ -26,20 +28,35 @@ class Campaign extends Model
         'pivot'
     ];
 
-    protected $appends = ['Teams'];
+    protected $appends = [
+        'Teams',
+        'StoryIds'
+    ];
 
-    public function team(): BelongsToMany
+    public function teams(): BelongsToMany
     {
         return $this->belongsToMany(Team::class, 'TeamCampaign', 'CampaignId', 'TeamId');
     }
 
+    public function stories(): BelongsToMany
+    {
+        return $this->belongsToMany(Story::class, 'StoryCampaign', 'CampaignId', 'StoryId');;
+    }
+
     public function getTeamsAttribute(): Collection
     {
-        return $this->team()->get()->map(function ($team) {
+        return $this->teams()->get()->map(function ($team) {
             return [
                 'TeamId' => $team->TeamId,
                 'Name' => $team->Name
             ];
+        });
+    }
+
+    public function getStoryIdsAttribute(): Collection
+    {
+        return $this->stories()->get()->map(function ($story) {
+            return $story->StoryId;
         });
     }
 }

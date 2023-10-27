@@ -52,7 +52,7 @@ class CampaignController extends ResponseController
             $campaign->save();
 
             if (is_array($request['TeamIds'])) {
-                $campaign->team()->sync($request['TeamIds']);
+                $campaign->teams()->sync($request['TeamIds']);
             }
 
             return $this->sendResponse(new CampaignResource($campaign), 'Campaign inserted.');
@@ -69,7 +69,7 @@ class CampaignController extends ResponseController
             $campaign->save();
 
             if (is_array($request['TeamIds'])) {
-                $campaign->team()->sync($request['TeamIds']);
+                $campaign->teams()->sync($request['TeamIds']);
             }
 
             return $this->sendResponse(new CampaignResource($campaign), 'Campaign updated.');
