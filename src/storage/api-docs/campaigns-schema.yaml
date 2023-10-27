@@ -38,6 +38,13 @@ CampaignsGetResponseSchema:
     - $ref: '#/CampaignsMinimalReferenceSchema'
     - $ref: '#/CampaignsAdditionalDataReferenceSchema'
     - properties:
+        StoryIds:
+          type: array
+          description: Array of associated StoryIds with this Campaign
+          items:
+            type: integer
+            description: A StoryId
+            example: 152120
         Teams:
           type: array
           description: Array of transcribathon users associated with this team
