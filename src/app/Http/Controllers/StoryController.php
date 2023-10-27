@@ -16,7 +16,8 @@ class StoryController extends ResponseController
     {
         $queryColumns = [
             'RecordId' => 'RecordId',
-            'DcTitle' => 'dc:title'
+            'DcTitle' => 'dc:title',
+            'DatasetId' => 'DatasetId'
         ];
 
         $initialSortColumn = 'StoryId';
