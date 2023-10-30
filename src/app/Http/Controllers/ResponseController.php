@@ -89,15 +89,22 @@ class ResponseController extends Controller
     {
         $queries = $request->query();
 
-        // $broadMatch = $queries['broadMatch'] ?? false;
-        $broadMatch =  empty($queries['broadMatch'])
+        $broadMatch = empty($queries['broadMatch'])
             ? false
             : filter_var($queries['broadMatch'], FILTER_VALIDATE_BOOLEAN);
+
+        $sep = $queries['separator'] ?? false;
 
         $data = $model->whereRaw('1 = 1');
 
         foreach ($queries as $queryName => $queryValue) {
             if (array_key_exists($queryName, $queryColumns)) {
+                if ($sep) {
+                    $queryValueArray = array_map('trim', explode($sep, $queryValue));
+                    $data->whereIn($queryColumns[$queryName], $queryValueArray);
+                    continue;
+                }
+
                 if ($broadMatch === false) {
                     $data->where($queryColumns[$queryName], $queryValue);
                 } else {
