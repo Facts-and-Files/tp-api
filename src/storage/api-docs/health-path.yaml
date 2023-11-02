@@ -1,4 +1,5 @@
 get:
+  security: []
   tags:
     - health
   summary: Get some info about the servers health
