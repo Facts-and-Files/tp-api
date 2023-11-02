@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  version: 1.23.0
+  version: 1.24.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -42,12 +42,17 @@ tags:
     description: Operations related to datasets
   - name: projects
     description: Operations related to projects
+  - name: health
+    description: Check health and performance of some server values
 
 paths:
   /stories/{StoryId}/autoenrichments:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
   /stories/{StoryId}/campaigns:
     $ref: 'stories-storyId-campaigns-path.yaml'
+
+  /health:
+    $ref: 'health-path.yaml'
 
   /htrdata:
     $ref: 'htrdata-path.yaml'
@@ -169,3 +174,5 @@ components:
       $ref: 'projects-schema.yaml#/ProjectsPostRequestSchema'
     ProjectsPutRequestSchema:
       $ref: 'projects-schema.yaml#/ProjectsPutRequestSchema'
+    HealthGetResponseSchema:
+      $ref: 'health-schema.yaml#/HealthGetResponseSchema'

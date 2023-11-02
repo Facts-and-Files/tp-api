@@ -1,0 +1,41 @@
+HealthGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+  properties:
+    ScriptExecutionTimeMS:
+      type: integer
+      description: Script execution time in ms
+      example: 16
+    ScriptExecutionTimeStatus:
+      type: string
+      description: Script execution time status as string literal
+      example: 'Ok|Slow|Very Slow'
+    DatabaseConnectionStatus:
+      type: string
+      description: Database connection status as string literal
+      example: 'Ok|Failed'
+    DatabaseConnectionTimeMS:
+      type: integer
+      description: Database connection in ms
+      example: 2
+    DatabaseExecutionTimeMS:
+      type: integer
+      description: Database execution in ms
+      example: 1
+    DatabaseExecutionTimeStatus:
+      type: string
+      description: Database execution time status as string literal
+      example: 'Ok|Slow|Very Slow'
+    NetworkConnectionStatus:
+      type: string
+      description: Network connection status as string literal
+      example: 'Ok|Failed'
+    NetworkConnectionTimeMS:
+      type: integer
+      description: Network connection in ms
+      example: 35
+    NetworkConnectionTimeStatus:
+      type: string
+      description: Network connection time status as string literal
+      example: 'Ok|Slow|Very Slow'

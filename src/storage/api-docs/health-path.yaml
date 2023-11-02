@@ -1,0 +1,20 @@
+get:
+  security: []
+  tags:
+    - health
+  summary: Get some info about the servers health
+  description: The endpoint can be used to get some health status information
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    type: array
+                    description: The healt status info as array
+                    items:
+                      $ref: 'health-schema.yaml#/HealthGetResponseSchema'
