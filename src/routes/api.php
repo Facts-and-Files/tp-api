@@ -11,6 +11,7 @@ use App\Http\Controllers\TeamController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DatasetController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\HealthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,7 @@ use App\Http\Controllers\ProjectController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('/health', [HealthController::class, 'check']);
 
 Route::middleware(['auth:api'])->group(function() {
     Route::get('/htrdata', [HtrDataController::class, 'index']);
