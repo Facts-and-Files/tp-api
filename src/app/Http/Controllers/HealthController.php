@@ -18,25 +18,32 @@ class HealthController extends ResponseController
         $databaseConnection = $this->checkDatabaseConnection();
         $databaseExecutionMS = $this->checkDatabaseExecutionTime();
         $networkConnection = $this->checkNetworkConnection();
+        $apiV1Connection = $this->checkApiV1Connection();
 
         $data['ScriptExecutionTimeMS'] = $executionTimeMS;
-        $data['ScriptExecutionTimeStatus'] = $executionTimeMS <= 100
+        $data['ScriptExecutionTimeStatus'] = $executionTimeMS <= 200
             ? 'Ok'
-            : ($executionTimeMS <= 500 ? 'Slow' : 'Very Slow');
+            : ($executionTimeMS <= 500 ? 'Moderate' : 'Slow');
 
         $data['DatabaseConnectionStatus'] = $databaseConnection['conected'];
         $data['DatabaseConnectionTimeMS'] = $databaseConnection['time'];
 
         $data['DatabaseExecutionTimeMS'] = $databaseExecutionMS;
-        $data['DatabaseExecutionTimeStatus'] = $databaseExecutionMS <= 1
+        $data['DatabaseExecutionTimeStatus'] = $databaseExecutionMS <= 10
             ? 'Ok'
-            : ($databaseExecutionMS <= 10 ? 'Slow' : 'Very Slow');
+            : ($databaseExecutionMS <= 50 ? 'Moderate' : 'Slow');
 
         $data['NetworkConnectionStatus'] = $networkConnection['conected'];
         $data['NetworkConnectionTimeMS'] = $networkConnection['time'];
         $data['NetworkConnectionTimeStatus'] = $networkConnection['time'] <= 100
             ? 'Ok'
-            : ($networkConnection['time'] <= 1000 ? 'Slow' : 'Very Slow');
+            : ($networkConnection['time'] <= 1000 ? 'Moderate' : 'Slow');
+
+        $data['APIv1ConnectionStatus'] = $apiV1Connection['conected'];
+        $data['APIv1ConnectionTimeMS'] = $apiV1Connection['time'];
+        $data['APIv1ConnectionTimeStatus'] = $apiV1Connection['time'] <= 200
+            ? 'Ok'
+            : ($apiV1Connection['time'] <= 500 ? 'Moderate' : 'Slow');
 
         $resource = new HealthResource($data);
 
@@ -92,6 +99,31 @@ class HealthController extends ResponseController
             $end = microtime(true);
             if ($fp) {
                 fclose($fp);
+                $data['conected'] = 'Ok';
+                $data['time'] = round(($end - $start) * 1000);
+            }
+        } catch(Exception $exception) { }
+
+        return $data;
+    }
+
+    protected function checkApiV1Connection(): array
+    {
+        $data = [];
+        $data['conected'] = 'Failed';
+        $data['time'] = 0;
+
+        try {
+            $start = microtime(true);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL,'http://transcribathon.eu/tp-api/projects/');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+            $response = curl_exec($ch);
+            $end = microtime(true);
+            if ($response) {
+                curl_close($ch);
                 $data['conected'] = 'Ok';
                 $data['time'] = round(($end - $start) * 1000);
             }
