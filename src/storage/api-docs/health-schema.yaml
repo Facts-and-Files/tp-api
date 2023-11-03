@@ -10,7 +10,7 @@ HealthGetResponseSchema:
     ScriptExecutionTimeStatus:
       type: string
       description: Script execution time status as string literal
-      example: 'Ok|Slow|Very Slow'
+      example: 'Ok|Moderate|Slow'
     DatabaseConnectionStatus:
       type: string
       description: Database connection status as string literal
@@ -26,7 +26,7 @@ HealthGetResponseSchema:
     DatabaseExecutionTimeStatus:
       type: string
       description: Database execution time status as string literal
-      example: 'Ok|Slow|Very Slow'
+      example: 'Ok|Moderate|Slow'
     NetworkConnectionStatus:
       type: string
       description: Network connection status as string literal
@@ -38,4 +38,16 @@ HealthGetResponseSchema:
     NetworkConnectionTimeStatus:
       type: string
       description: Network connection time status as string literal
-      example: 'Ok|Slow|Very Slow'
+      example: 'Ok|Moderate|Slow'
+    APIv1ConnectionStatus:
+      type: string
+      description: API v1 connection status as string literal
+      example: 'Ok|Failed'
+    APIv1ConnectionTimeMS:
+      type: integer
+      description: Response time in ms
+      example: 35
+    APIv1ConnectionTimeStatus:
+      type: string
+      description: API v1 response time status as string literal
+      example: 'Ok|Moderate|Slow'
