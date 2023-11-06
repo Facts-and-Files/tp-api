@@ -115,19 +115,26 @@ class HealthController extends ResponseController
 
         try {
             $start = microtime(true);
+
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL,'http://transcribathon.eu/tp-api/projects/');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
             $response = curl_exec($ch);
             $end = microtime(true);
+
             if ($response) {
-                curl_close($ch);
-                $data['conected'] = 'Ok';
-                $data['time'] = round(($end - $start) * 1000);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                if ($httpCode <= 400) {
+                    $data['conected'] = 'Ok';
+                    $data['time'] = round(($end - $start) * 1000);
+                }
             }
-        } catch(Exception $exception) { }
+
+            curl_close($ch);
+        } catch (Exception $exception) { }
 
         return $data;
     }
