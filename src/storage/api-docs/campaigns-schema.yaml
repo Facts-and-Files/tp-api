@@ -74,6 +74,13 @@ CampaignsPostRequestSchema:
             type: integer
             description: Array of TeamIds participating in this campaign
             example: 44
+        StoryIds:
+          type: array
+          example: [152121, 152122, 152119]
+          items:
+            type: integer
+            description: Array of StoryIds associated to this campaign
+            example: 152121
 
 CampaignsPutRequestSchema:
   allOf:
@@ -87,3 +94,10 @@ CampaignsPutRequestSchema:
             type: integer
             description: Array of TeamIds participating in this campaign
             example: 44
+        StoryIds:
+          type: array
+          example: [152121, 152122, 152119]
+          items:
+            type: integer
+            description: Array of StoryIds associated to this campaign
+            example: 152121

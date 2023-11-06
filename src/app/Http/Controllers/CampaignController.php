@@ -55,6 +55,10 @@ class CampaignController extends ResponseController
                 $campaign->teams()->sync($request['TeamIds']);
             }
 
+            if (is_array($request['StoryIds'])) {
+                $campaign->stories()->sync($request['StoryIds']);
+            }
+
             return $this->sendResponse(new CampaignResource($campaign), 'Campaign inserted.');
         } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
@@ -70,6 +74,10 @@ class CampaignController extends ResponseController
 
             if (is_array($request['TeamIds'])) {
                 $campaign->teams()->sync($request['TeamIds']);
+            }
+
+            if (is_array($request['StoryIds'])) {
+                $campaign->stories()->sync($request['StoryIds']);
             }
 
             return $this->sendResponse(new CampaignResource($campaign), 'Campaign updated.');
