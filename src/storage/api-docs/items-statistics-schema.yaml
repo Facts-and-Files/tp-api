@@ -1,0 +1,71 @@
+ItemsStatisticsMinimalDataReferenceSchema:
+  properties:
+    EditStart:
+      type: string
+      format: date-time
+      description: Start date of the editing process
+      example: '2022-02-23 09:57:03'
+    TranscribedCharsManual:
+      type: integer
+      description: Amount of chars of current active manual transcription
+      example: 356
+    TranscribedCharsHtr:
+      type: integer
+      description: Amount of chars of current active HTR transcription
+      example: 512
+
+ItemsStatisticsAdditionalGetReferenceSchema:
+  properties:
+    ItemId:
+      type: integer
+      description: ID of the entry
+      example: 2
+    StoryId:
+      type: integer
+      description: associated parent story ID
+      example: 14698
+    Timestamp:
+      type: string
+      format: date-time
+      description: Time of creation
+      example: '2022-02-23 09:57:03'
+    LastUpdated:
+      type: string
+      format: date-time
+      description: Time of last update
+      example: '2022-02-23 09:57:03'
+
+ItemsStatisticsUserIdsReferenceSchema:
+  properties:
+    UserIds:
+      type: array
+      description: Array of UserIds of users who were participating in the transcribathon
+      example: [4265, 2425, 1865]
+      items:
+        type: integer
+        description: An ID of an user
+        example: 2865
+
+ItemsStatisticsEnrichmentsReferenceSchema:
+  type: object
+  description: Object with statistics data of enrichments
+  properties:
+    PlaceIds:
+      type: array
+      description: Array of PlaceIds enrichments
+      example: [4, 24, 1]
+      items:
+        type: integer
+        description: An ID of a place
+        example: 4
+
+ItemsStatisticsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/ItemsStatisticsMinimalDataReferenceSchema'
+    - $ref: '#/ItemsStatisticsAdditionalGetReferenceSchema'
+    - $ref: '#/ItemsStatisticsUserIdsReferenceSchema'
+      properties:
+        Enrichments:
+          $ref: '#ItemsStatisticsEnrichmentsReferenceSchema'

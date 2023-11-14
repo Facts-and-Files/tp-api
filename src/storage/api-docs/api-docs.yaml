@@ -42,6 +42,8 @@ tags:
     description: Operations related to datasets
   - name: projects
     description: Operations related to projects
+  - name: statistics
+    description: Operations related to statistics
   - name: health
     description: Check health and performance of some server values
 
@@ -50,6 +52,9 @@ paths:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
   /stories/{StoryId}/campaigns:
     $ref: 'stories-storyId-campaigns-path.yaml'
+
+  /items/statistics:
+    $ref: 'items-statistics-path.yaml'
 
   /health:
     $ref: 'health-path.yaml'

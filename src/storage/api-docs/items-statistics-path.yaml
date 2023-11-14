@@ -1,0 +1,35 @@
+get:
+  tags:
+    - items
+    - statistics
+  summary: Get all stored items statisics entries
+  description: The item statistics endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: StoryId
+      description: Show entries associated with this StoryId
+      type: integer
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: Items statistics entry objects as array
+                    items:
+                      $ref: 'items-statistics-schema.yaml#/ItemsStatisticsGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
