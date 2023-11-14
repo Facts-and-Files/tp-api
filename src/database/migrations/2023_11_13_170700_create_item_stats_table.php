@@ -12,15 +12,13 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
 
-            $table->bigIncrements('ItemStatsId');
             $table->integer('ItemId')->unique();
             $table->integer('StoryId');
             $table->dateTime('EditStart')->nullable();
             $table->json('UserIds');
             $table->integer('TranscribedCharsManual')->default(0);
             $table->integer('TranscribedCharsHtr')->default(0);
-            $table->json('PersonIds');
-            $table->json('PlaceIds');
+            $table->json('Enrichments');
             $table->dateTime('Timestamp');
             $table->dateTime('LastUpdated');
 
