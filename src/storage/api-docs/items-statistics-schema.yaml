@@ -50,14 +50,26 @@ ItemsStatisticsEnrichmentsReferenceSchema:
   type: object
   description: Object with statistics data of enrichments
   properties:
-    PlaceIds:
-      type: array
-      description: Array of PlaceIds enrichments
-      example: [4, 24, 1]
-      items:
-        type: integer
-        description: An ID of a place
-        example: 4
+    Places:
+      type: integer
+      description: Amount of place enrichments in this item
+      example: 4
+    Persons:
+      type: integer
+      description: Amount of person enrichments in this item
+      example: 3
+    Properties:
+      type: integer
+      description: Amount of property enrichments in this item
+      example: 3
+    Dates:
+      type: integer
+      description: Amount of date enrichments in this item
+      example: 1
+    Description:
+      type: integer
+      description: Amount of description enrichments in this item
+      example: 1
 
 ItemsStatisticsGetResponseSchema:
   allOf:
