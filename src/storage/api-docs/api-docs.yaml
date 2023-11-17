@@ -55,6 +55,8 @@ paths:
 
   /items/statistics:
     $ref: 'items-statistics-path.yaml'
+  /items/{ItemId}/statistics:
+    $ref: 'items-itemId-statistics-path.yaml'
 
   /health:
     $ref: 'health-path.yaml'
