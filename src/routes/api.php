@@ -12,6 +12,7 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DatasetController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\ItemStatsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,12 +33,14 @@ Route::middleware(['auth:api'])->group(function() {
     Route::put('/htrdata/{id}', [HtrDataController::class, 'update']);
     Route::delete('/htrdata/{id}', [HtrDataController::class, 'destroy']);
 
+    Route::get('/items/statistics', [ItemStatsController::class, 'index']);
     Route::get('/items', [ItemController::class, 'index']);
     Route::get('/items/{id}', [ItemController::class, 'show']);
     Route::put('/items/{id}', [ItemController::class, 'update']);
     Route::get('/items/{id}/htrdata', [HtrDataController::class, 'showByItemId']);
     Route::get('/items/{id}/htrdata/active', [HtrDataController::class, 'showActiveByItemId']);
     Route::get('/items/{id}/autoenrichments', [AutoEnrichmentController::class, 'showByItemId']);
+    Route::get('/items/{id}/statistics', [ItemStatsController::class, 'show']);
 
     Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);
 
