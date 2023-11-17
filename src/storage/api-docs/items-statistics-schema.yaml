@@ -81,3 +81,17 @@ ItemsStatisticsGetResponseSchema:
       properties:
         Enrichments:
           $ref: '#ItemsStatisticsEnrichmentsReferenceSchema'
+
+ItemStatisticsPostRequestSchema:
+  description: The data object of a single POST request body
+  required:
+    - ItemIds
+  properties:
+    ItemIds:
+      type: array
+      description: Array of items within Transcribathon
+      example: [1, 3, 4]
+      items:
+        type: integer
+        description: An ItemId within Transcribathon
+        example: 4
