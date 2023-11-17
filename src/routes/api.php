@@ -34,6 +34,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::delete('/htrdata/{id}', [HtrDataController::class, 'destroy']);
 
     Route::get('/items/statistics', [ItemStatsController::class, 'index']);
+    Route::post('/items/statistics', [ItemStatsController::class, 'store']);
     Route::get('/items', [ItemController::class, 'index']);
     Route::get('/items/{id}', [ItemController::class, 'show']);
     Route::put('/items/{id}', [ItemController::class, 'update']);
