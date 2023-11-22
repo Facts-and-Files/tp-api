@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\hasOneThrough;
+use Illuminate\Database\Eloquent\Relations\hasMany;
 
 class Item extends Model
 {
@@ -67,9 +68,16 @@ class Item extends Model
         'Persons'
     ];
 
-    public function htrData()
+// declare relationships
+
+    public function htrData(): hasMany
     {
         return $this->hasMany(HtrData::class, 'ItemId');
+    }
+
+    public function transcriptions(): hasMany
+    {
+        return $this->hasMany(Transcription::class, 'ItemId');
     }
 
 // to harmonize the API regarding the existent database schema
@@ -106,7 +114,7 @@ class Item extends Model
     {
         if ($this->TranscriptionSource === 'manual') {
             $manualTranscription = $this
-                ->hasMany(Transcription::class, 'ItemId')
+                ->transcriptions()
                 ->select('UserId', 'TextNoTags as TranscriptionText', 'CurrentVersion')
                 ->firstWhere('CurrentVersion', 1);
 
@@ -126,6 +134,24 @@ class Item extends Model
         }
 
         return [];
+    }
+
+    /**
+     * Get the Item properties
+     */
+    public function getPropertiesAttribute()
+    {
+        $plucked = $this
+            ->hasManyThrough(
+                Property::class,
+                ItemProperty::class,
+                'ItemId',
+                'PropertyId',
+                'ItemId',
+                'PropertyId')
+            ->get(['Property.PropertyId', 'Value', 'Description', 'PropertyTypeId']);
+
+        return $plucked;
     }
 
     /**
@@ -154,24 +180,6 @@ class Item extends Model
         }
 
         return '';
-    }
-
-    /**
-     * Get the Item properties
-     */
-    public function getPropertiesAttribute()
-    {
-        $plucked = $this
-            ->hasManyThrough(
-                Property::class,
-                ItemProperty::class,
-                'ItemId',
-                'PropertyId',
-                'ItemId',
-                'PropertyId')
-            ->get(['Property.PropertyId', 'Value', 'Description', 'PropertyTypeId']);
-
-        return $plucked;
     }
 
     /**
