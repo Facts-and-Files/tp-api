@@ -54,6 +54,8 @@ post:
             allOf:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
+                  message:
+                    example: ItemStats updated.
                   data:
                     type: array
                     description: Items statistics entry objects as array
