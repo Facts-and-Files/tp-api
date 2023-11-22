@@ -1,0 +1,97 @@
+ItemsStatisticsMinimalDataReferenceSchema:
+  properties:
+    EditStart:
+      type: string
+      format: date-time
+      description: Start date of the editing process
+      example: '2022-02-23 09:57:03'
+    TranscribedCharsManual:
+      type: integer
+      description: Amount of chars of current active manual transcription
+      example: 356
+    TranscribedCharsHtr:
+      type: integer
+      description: Amount of chars of current active HTR transcription
+      example: 512
+
+ItemsStatisticsAdditionalGetReferenceSchema:
+  properties:
+    ItemId:
+      type: integer
+      description: ID of the entry
+      example: 2
+    StoryId:
+      type: integer
+      description: associated parent story ID
+      example: 14698
+    Timestamp:
+      type: string
+      format: date-time
+      description: Time of creation
+      example: '2022-02-23 09:57:03'
+    LastUpdated:
+      type: string
+      format: date-time
+      description: Time of last update
+      example: '2022-02-23 09:57:03'
+
+ItemsStatisticsUserIdsReferenceSchema:
+  properties:
+    UserIds:
+      type: array
+      description: Array of UserIds of users who were participating in the transcribathon
+      example: [4265, 2425, 1865]
+      items:
+        type: integer
+        description: An ID of an user
+        example: 2865
+
+ItemsStatisticsEnrichmentsReferenceSchema:
+  type: object
+  description: Object with statistics data of enrichments
+  properties:
+    Places:
+      type: integer
+      description: Amount of place enrichments in this item
+      example: 4
+    Persons:
+      type: integer
+      description: Amount of person enrichments in this item
+      example: 3
+    Properties:
+      type: integer
+      description: Amount of property enrichments in this item
+      example: 3
+    Dates:
+      type: integer
+      description: Amount of date enrichments in this item
+      example: 1
+    Description:
+      type: integer
+      description: Amount of description enrichments in this item
+      example: 1
+
+ItemsStatisticsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/ItemsStatisticsMinimalDataReferenceSchema'
+    - $ref: '#/ItemsStatisticsAdditionalGetReferenceSchema'
+    - $ref: '#/ItemsStatisticsUserIdsReferenceSchema'
+      properties:
+        Enrichments:
+          $ref: '#ItemsStatisticsEnrichmentsReferenceSchema'
+
+ItemStatisticsPostRequestSchema:
+  description: The data object of a single POST request body
+  required:
+    - ItemIds
+  properties:
+    ItemIds:
+      type: array
+      description: Array of items within Transcribathon
+      example: [1, 3, 4]
+      items:
+        type: integer
+        description: An ItemId within Transcribathon
+        example: 4
