@@ -68,7 +68,7 @@ class ItemStatsController extends ResponseController
                 $itemStats->TranscribedCharsManual = $item->TranscriptionSource === 'manual' ? $transcriptionCount : 0;
                 $itemStats->TranscribedCharsHtr = $item->TranscriptionSource === 'htr' ? $transcriptionCount : 0;
                 $itemStats->EditStart = $this->getOldestTranscriptionDate($item);
-                $itemStats->UserIds = [];
+                $itemStats->UserIds = $this->getUserIds($item);
 
                 $itemStats->save();
 
@@ -77,10 +77,40 @@ class ItemStatsController extends ResponseController
 
             $resource = new ItemStatsResource($data);
 
-            return $this->sendResponse($resource, 'HtrData inserted.');
+            return $this->sendResponse($resource, 'ItemStats updated.');
         } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
+    }
+
+    protected function getUserIds(Item $item): array
+    {
+       $manualUserIds = $item
+            ->transcriptions()
+            ->select('UserId')
+            ->groupBy('UserId')
+            ->get()
+            ->pluck('UserId')
+            ->toArray();
+
+        $htrUserIds = $item
+            ->htrData()
+            ->with('htrDataRevision')
+            ->get()
+            ->flatMap(function ($htrData) {
+                return $htrData
+                    ->htrDataRevision
+                    ->pluck('UserId')
+                    ->filter(function ($userId) {
+                        return $userId !== null;
+                    })
+                ->unique();
+            })
+            ->toArray();
+
+        $merged = array_unique(array_merge($manualUserIds, $htrUserIds));
+
+        return $merged;
     }
 
     protected function getEnrichmentsCounts(Item $item): array
@@ -99,7 +129,7 @@ class ItemStatsController extends ResponseController
     {
         // manual transcription begin date
         $editStartManual = $item
-            ->hasMany(Transcription::class, 'ItemId')
+            ->transcriptions()
             ->orderBy('Timestamp', 'asc')
             ->first('Timestamp');
 
