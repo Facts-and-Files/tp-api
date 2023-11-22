@@ -122,6 +122,14 @@ class ItemStatsController extends ResponseController
             ? date('Y-m-d H:i:s', strtotime($editStartManual->Timestamp))
             : null;
 
+        // if both dates exists retrun oldest
+        if ($editStartManualDatetime && $editStartHtrDatetime) {
+            return $editStartManualDatetime < $editStartHtrDatetime
+                ? $editStartManualDatetime
+                : $editStartHtrDatetime;
+        }
+
+        // otherwise return existent or null
         return $editStartManualDatetime ?: $editStartHtrDatetime ?: null;
     }
 
