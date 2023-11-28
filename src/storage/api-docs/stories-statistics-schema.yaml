@@ -1,0 +1,69 @@
+StoriesStatisticsMinimalDataReferenceSchema:
+  properties:
+    EditStart:
+      type: string
+      format: date-time
+      description: Start date of the editing process
+      example: '2022-02-23 09:57:03'
+    TranscribedCharsManual:
+      type: integer
+      description: Amount of chars of current active manual transcription
+      example: 356
+    TranscribedCharsHtr:
+      type: integer
+      description: Amount of chars of current active HTR transcription
+      example: 512
+
+StoriesStatisticsAdditionalGetReferenceSchema:
+  properties:
+    StoryId:
+      type: integer
+      description: associated parent story ID
+      example: 14698
+
+StoriesStatisticsUserIdsReferenceSchema:
+  properties:
+    UserIds:
+      type: array
+      description: Array of UserIds of users who were participating in transcribing items of that story
+      example: [4265, 2425, 1865]
+      items:
+        type: integer
+        description: An ID of an user
+        example: 2865
+
+StoriesStatisticsEnrichmentsReferenceSchema:
+  type: object
+  description: Object with statistics data of enrichments
+  properties:
+    Places:
+      type: integer
+      description: Amount of place enrichments in this item
+      example: 4
+    Persons:
+      type: integer
+      description: Amount of person enrichments in this item
+      example: 3
+    Properties:
+      type: integer
+      description: Amount of property enrichments in this item
+      example: 3
+    Dates:
+      type: integer
+      description: Amount of date enrichments in this item
+      example: 1
+    Description:
+      type: integer
+      description: Amount of description enrichments in this item
+      example: 1
+
+StoriesStatisticsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/StoriesStatisticsMinimalDataReferenceSchema'
+    - $ref: '#/StoriesStatisticsAdditionalGetReferenceSchema'
+    - $ref: '#/StoriesStatisticsUserIdsReferenceSchema'
+      properties:
+        Enrichments:
+          $ref: '#StoriesStatisticsEnrichmentsReferenceSchema'
