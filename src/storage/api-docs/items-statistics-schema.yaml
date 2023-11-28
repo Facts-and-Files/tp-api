@@ -82,7 +82,7 @@ ItemsStatisticsGetResponseSchema:
         Enrichments:
           $ref: '#ItemsStatisticsEnrichmentsReferenceSchema'
 
-ItemStatisticsPostRequestSchema:
+ItemsStatisticsPostRequestSchema:
   description: The data object of a single POST request body
   required:
     - ItemIds

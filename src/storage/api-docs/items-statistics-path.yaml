@@ -44,7 +44,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: 'items-statistics-schema.yaml#/ItemStatisticsPostRequestSchema'
+          $ref: 'items-statistics-schema.yaml#/ItemsStatisticsPostRequestSchema'
   responses:
     200:
       description: Ok
