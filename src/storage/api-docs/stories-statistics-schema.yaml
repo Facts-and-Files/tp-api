@@ -7,11 +7,11 @@ StoriesStatisticsMinimalDataReferenceSchema:
       example: '2022-02-23 09:57:03'
     TranscribedCharsManual:
       type: integer
-      description: Amount of chars of current active manual transcription
+      description: Amount of chars of all current manual transcription of this story
       example: 356
     TranscribedCharsHtr:
       type: integer
-      description: Amount of chars of current active HTR transcription
+      description: Amount of chars of all active HTR transcriptions of this story
       example: 512
 
 StoriesStatisticsAdditionalGetReferenceSchema:
@@ -44,27 +44,27 @@ StoriesStatisticsUserIdsReferenceSchema:
 
 StoriesStatisticsEnrichmentsReferenceSchema:
   type: object
-  description: Object with statistics data of enrichments
+  description: Object with statistics data of enrichments of this items
   properties:
     Places:
       type: integer
-      description: Amount of place enrichments in this item
+      description: Amount of place enrichments in this story
       example: 4
     Persons:
       type: integer
-      description: Amount of person enrichments in this item
+      description: Amount of person enrichments in this story
       example: 3
     Properties:
       type: integer
-      description: Amount of property enrichments in this item
+      description: Amount of property enrichments in this story
       example: 3
     Dates:
       type: integer
-      description: Amount of date enrichments in this item
+      description: Amount of date enrichments in this story
       example: 1
     Description:
       type: integer
-      description: Amount of description enrichments in this item
+      description: Amount of description enrichments in this story
       example: 1
 
 StoriesStatisticsGetResponseSchema:
