@@ -55,7 +55,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/stories/{id}/campaigns', [StoryController::class, 'showCampaigns']);
     Route::put('/stories/{id}/campaigns', [StoryController::class, 'updateCampaigns']);
     Route::put('/stories/{id}/add-campaigns', [StoryController::class, 'addCampaigns']);
-    Route::get('/stpries/{id}/statistics', [StoryStatsController::class, 'show']);
+    Route::get('/stories/{id}/statistics', [StoryStatsController::class, 'show']);
 
     Route::get('/autoenrichments', [AutoEnrichmentController::class, 'index']);
     Route::post('/autoenrichments', [AutoEnrichmentController::class, 'store']);
