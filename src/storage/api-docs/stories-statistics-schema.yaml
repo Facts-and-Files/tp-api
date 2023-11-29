@@ -62,7 +62,7 @@ StoriesStatisticsEnrichmentsReferenceSchema:
       type: integer
       description: Amount of date enrichments in this story
       example: 1
-    Description:
+    Descriptions:
       type: integer
       description: Amount of description enrichments in this story
       example: 1
