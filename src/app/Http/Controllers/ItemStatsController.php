@@ -116,7 +116,7 @@ class ItemStatsController extends ResponseController
     protected function getEnrichmentsCounts(Item $item): array
     {
         $enrichments = [];
-        $enrichments['Description'] = !empty($item->Description) ? 1 : 0;
+        $enrichments['Descriptions'] = !empty($item->Description) ? 1 : 0;
         $enrichments['Places'] = $item->Places->count();
         $enrichments['Persons'] = $item->Persons->count();
         $enrichments['Properties'] = $item->Properties->count();
