@@ -13,6 +13,7 @@ use App\Http\Controllers\DatasetController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\ItemStatsController;
+use App\Http\Controllers\StoryStatsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/stories/{id}/campaigns', [StoryController::class, 'showCampaigns']);
     Route::put('/stories/{id}/campaigns', [StoryController::class, 'updateCampaigns']);
     Route::put('/stories/{id}/add-campaigns', [StoryController::class, 'addCampaigns']);
+    Route::get('/stories/{id}/statistics', [StoryStatsController::class, 'show']);
 
     Route::get('/autoenrichments', [AutoEnrichmentController::class, 'index']);
     Route::post('/autoenrichments', [AutoEnrichmentController::class, 'store']);

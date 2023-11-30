@@ -37,14 +37,14 @@ post:
   tags:
     - items
     - statistics
-  summary: Triggers a full statistics update of multiple items
+  summary: Triggers a full statistics update of one or multiple items
   requestBody:
     description: Array of ItemIds that should be updated
     required: true
     content:
       application/json:
         schema:
-          $ref: 'items-statistics-schema.yaml#/ItemStatisticsPostRequestSchema'
+          $ref: 'items-statistics-schema.yaml#/ItemsStatisticsPostRequestSchema'
   responses:
     200:
       description: Ok
