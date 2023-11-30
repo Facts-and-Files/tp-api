@@ -37,7 +37,7 @@ post:
   tags:
     - items
     - statistics
-  summary: Triggers a full statistics update of multiple items
+  summary: Triggers a full statistics update of one or multiple items
   requestBody:
     description: Array of ItemIds that should be updated
     required: true
