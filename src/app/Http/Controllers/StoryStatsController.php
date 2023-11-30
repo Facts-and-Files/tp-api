@@ -26,6 +26,10 @@ class StoryStatsController extends ResponseController
 
             $storyData = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
+            if ($storyData->count() <= 0) {
+                return $this->sendError('Not found', 'No statistics exists for this storyId.');
+            }
+
             $data = [];
             $data['StoryId'] = $id;
             $data['EditStart'] = $storyData->first()->EditStart; // oldest aka first from sorted collection
@@ -56,7 +60,7 @@ class StoryStatsController extends ResponseController
 
             return $this->sendResponse($resource, 'ItemStats fetched.');
         } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
 
