@@ -36,6 +36,7 @@ class StoryStatsController extends ResponseController
             $data['TranscribedCharsManual'] = $storyData->sum('TranscribedCharsManual');
             $data['TranscribedCharsHtr'] = $storyData->sum('TranscribedCharsHtr');
             $data['Timestamp'] = $storyData->min('Timestamp');
+            $data['ItemStatsDone'] = $storyData->count();
             $data['LastUpdated'] = $storyData->max('LastUpdated');
             $data['UserIds'] = [];
             $data['Enrichments'] = [

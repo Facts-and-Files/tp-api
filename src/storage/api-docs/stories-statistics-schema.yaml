@@ -30,6 +30,10 @@ StoriesStatisticsAdditionalGetReferenceSchema:
       format: date-time
       description: Time of last update of an item within this story
       example: '2022-02-23 09:57:03'
+    ItemStatsDone:
+      type: integer
+      description: Amount of itemStats that are generated and inlucded in this storyStats
+      example: 12
 
 StoriesStatisticsUserIdsReferenceSchema:
   properties:
