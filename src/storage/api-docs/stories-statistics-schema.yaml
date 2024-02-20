@@ -5,6 +5,7 @@ StoriesStatisticsMinimalDataReferenceSchema:
       format: date-time
       description: Start date of the editing process
       example: '2022-02-23 09:57:03'
+      nullable: true
     TranscribedCharsManual:
       type: integer
       description: Amount of chars of all current manual transcription of this story
