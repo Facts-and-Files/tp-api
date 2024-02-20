@@ -30,9 +30,11 @@ class StoryStatsController extends ResponseController
                 return $this->sendError('Not found', 'No statistics exists for this storyId.');
             }
 
+            $firstWithDate = $storyData->whereNotNull('EditStart')->first(); // get oldest with data and not null
+
             $data = [];
             $data['StoryId'] = $id;
-            $data['EditStart'] = $storyData->whereNotNull('EditStart')->first()->EditStart; // oldest aka first from sorted collection, if not null
+            $data['EditStart'] = $firstWithDate ? $firstWithDate->EditStart : null;
             $data['TranscribedCharsManual'] = $storyData->sum('TranscribedCharsManual');
             $data['TranscribedCharsHtr'] = $storyData->sum('TranscribedCharsHtr');
             $data['Timestamp'] = $storyData->min('Timestamp');
