@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\ResponseController;
+use App\Http\Resources\StoryStatsResource;
+use App\Models\Item;
+use App\Models\ItemStats;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
-use App\Models\ItemStats;
-use App\Http\Resources\StoryStatsResource;
+use Illuminate\Support\Facades\DB;
 
 class StoryStatsController extends ResponseController
 {
@@ -30,7 +32,18 @@ class StoryStatsController extends ResponseController
                 return $this->sendError('Not found', 'No statistics exists for this storyId.');
             }
 
-            $firstWithDate = $storyData->whereNotNull('EditStart')->first(); // get oldest with data and not null
+            // get oldest with data and not null
+            $firstWithDate = $storyData->whereNotNull('EditStart')->first();
+
+            $itemCompletions = Item::selectRaw('CompletionStatusId as StatusId, COUNT(*) as Amount')
+                ->where('StoryId', $id)
+                ->groupBy('StatusId')
+                ->get();
+
+            // replace custom properties of Item model with own from above
+            $itemCompletions->each(function ($item) {
+                $item->setAppends([]);
+            });
 
             $data = [];
             $data['StoryId'] = $id;
@@ -48,6 +61,7 @@ class StoryStatsController extends ResponseController
                 'Dates' => 0,
                 'Descriptions' => 0
             ];
+            $data['CompletionStatus'] = $itemCompletions;
 
             $storyData->each(function ($item) use (&$data) {
                 // get all unique item transcribers/users

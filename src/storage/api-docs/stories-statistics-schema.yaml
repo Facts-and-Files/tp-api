@@ -47,6 +47,20 @@ StoriesStatisticsUserIdsReferenceSchema:
         description: An ID of an user
         example: 2865
 
+StoriesStatisticsItemCompletionIdsReferenceSchema:
+  type: array
+  description: Objects with the amount of items with a specific CompletionStatusId
+  items:
+    properties:
+      StatusId:
+        type: integer
+        description: Id of the completion status (CompletionStatusId)
+        example: 1
+      Amount:
+        type: integer
+        description: Amount of item with this StatusId (CompletionStatusId)
+        example: 68
+
 StoriesStatisticsEnrichmentsReferenceSchema:
   type: object
   description: Object with statistics data of enrichments of this items
@@ -82,3 +96,5 @@ StoriesStatisticsGetResponseSchema:
       properties:
         Enrichments:
           $ref: '#StoriesStatisticsEnrichmentsReferenceSchema'
+        CompletionStatus:
+          $ref: '#StoriesStatisticsItemCompletionIdsReferenceSchema'
