@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use App\Models\CompletionStatus;
 
@@ -86,12 +88,38 @@ class Story extends Model
         'CompletionStatus'
     ];
 
+// define relations
+
+    public function campaigns(): BelongsToMany
+    {
+        return $this->belongsToMany(Campaign::class, 'StoryCampaign', 'StoryId', 'CampaignId');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class, 'StoryId');;
+    }
+
+    public function completionStatus(): BelongsTo
+    {
+        return $this->belongsTo(CompletionStatus::class, 'CompletionStatusId');
+    }
+
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
     public function getItemIdsAttribute(): Collection
     {
-        return $this->hasMany(Item::class, 'StoryId')->pluck('ItemId');
+        return $this->items()->pluck('ItemId');
+    }
+
+    public function getCompletionStatusAttribute(): CompletionStatus
+    {
+        $plucked = $this
+            ->completionStatus()
+            ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
+
+        return $plucked;
     }
 
     public function getDctermsAttribute(): Array
@@ -153,19 +181,5 @@ class Story extends Model
             'Longitude' => $this->attributes['PlaceLongitude'],
             'Zoom'      => $this->attributes['placeZoom']
         ];
-    }
-
-    public function getCompletionStatusAttribute(): CompletionStatus
-    {
-        $plucked = $this
-            ->belongsTo(CompletionStatus::class, 'CompletionStatusId')
-            ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
-
-        return $plucked;
-    }
-
-    public function campaigns(): BelongsToMany
-    {
-        return $this->belongsToMany(Campaign::class, 'StoryCampaign', 'StoryId', 'CampaignId');
     }
 }
