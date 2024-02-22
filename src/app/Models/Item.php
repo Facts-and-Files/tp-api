@@ -2,46 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\hasOneThrough;
-use Illuminate\Database\Eloquent\Relations\hasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Item extends Model
 {
-    /**
-     * Use user defined exisiting timestamp columns
-     */
     const CREATED_AT = 'Timestamp';
     const UPDATED_AT = 'LastUpdated';
 
-    /**
-     * The table associated with the model.
-     *
-     * Config over convention here to respect exsting table names.
-     *
-     * @var string
-     */
     protected $table = 'Item';
 
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
     protected $primaryKey = 'ItemId';
 
-    /**
-     * The attributes that are not mass assignable.
-     *
-     * @var array
-     */
     protected $guarded = ['StoryId', 'ItemId'];
 
-    /**
-     * hide old field names
-     *
-     * @var array
-     */
     protected $hidden = [
         'CompletionStatusId',
         'ProjectItemId',
@@ -53,64 +30,86 @@ class Item extends Model
         'EuropeanaAttachment'
     ];
 
-    /**
-     * append new/renamed fields
-     *
-     * @var array
-     */
     protected $appends = [
         'DescriptionLang',
         'CompletionStatus',
         'Transcription',
         'Properties',
-        'EditStart',
         'Places',
         'Persons'
     ];
 
 // declare relationships
 
-    public function htrData(): hasMany
+    public function htrData(): HasMany
     {
         return $this->hasMany(HtrData::class, 'ItemId');
     }
 
-    public function transcriptions(): hasMany
+    public function transcriptions(): HasMany
     {
         return $this->hasMany(Transcription::class, 'ItemId');
+    }
+
+    public function language(): BelongsTo
+    {
+        return $this->belongsTo(Language::class, 'DescriptionLanguage');
+    }
+
+    public function completionStatus(): BelongsTo
+    {
+        return $this->belongsTo(CompletionStatus::class, 'CompletionStatusId');
+    }
+
+    public function places(): HasMany
+    {
+        return $this->hasMany(Place::class, 'ItemId');
+    }
+
+    public function persons(): HasMany
+    {
+       return $this->hasMany(Person::class, 'ItemId');
+    }
+
+    public function properties(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Property::class,
+            ItemProperty::class,
+            'ItemId',
+            'PropertyId',
+            'ItemId',
+            'PropertyId');
     }
 
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
-    /**
-     * Get the description language
-     */
-    public function getDescriptionLangAttribute()
+    public function getDescriptionLangAttribute(): Language|array
     {
-        $plucked = $this
-            ->belongsTo(Language::class, 'DescriptionLanguage')
-            ->first();
-
-        return $plucked;
+        return $this->language()->first() ?: [];
     }
 
-    /**
-     * Get the completion object of the story
-     */
-    public function getCompletionStatusAttribute()
+    public function getCompletionStatusAttribute(): CompletionStatus
     {
-        $plucked = $this
-            ->belongsTo(CompletionStatus::class, 'CompletionStatusId')
-            ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
+        $status = $this
+            ->completionStatus()
+            ->first([
+                'CompletionStatusId as StatusId',
+                'Name',
+                'ColorCode',
+                'ColorCodeGradient'
+            ]);
 
-        return $plucked;
+        return $status;
     }
 
-    /**
-     * Get the current version of Item Transcription
-     */
-    public function getTranscriptionAttribute()
+    public function getPlacesAttribute(): Collection
+    {
+        return $this->places()->get() ?: [];
+    }
+
+    public function getTranscriptionAttribute(): Transcription|HtrDataRevision|array
     {
         if ($this->TranscriptionSource === 'manual') {
             $manualTranscription = $this
@@ -136,73 +135,17 @@ class Item extends Model
         return [];
     }
 
-    /**
-     * Get the Item properties
-     */
-    public function getPropertiesAttribute()
+    public function getPropertiesAttribute(): Collection
     {
-        $plucked = $this
-            ->hasManyThrough(
-                Property::class,
-                ItemProperty::class,
-                'ItemId',
-                'PropertyId',
-                'ItemId',
-                'PropertyId')
+        $properties = $this
+            ->properties()
             ->get(['Property.PropertyId', 'Value', 'Description', 'PropertyTypeId']);
 
-        return $plucked;
+        return $properties ?: [];
     }
 
-    /**
-     * Get the timestamp od first transcription
-     */
-    public function getEditStartAttribute()
+    public function getPersonsAttribute(): Collection
     {
-        if ($this->TranscriptionSource === 'manual') {
-            $dateStart = $this
-                ->hasMany(Transcription::class, 'ItemId')
-                ->orderBy('Timestamp', 'asc')
-                ->pluck('Timestamp')
-                ->first();
-
-            return $dateStart ? $dateStart : '';
-        }
-
-        if ($this->TranscriptionSource === 'htr') {
-            $dateStart = $this
-                ->hasMany(HtrData::class, 'ItemId')
-                ->orderBy('Timestamp', 'asc')
-                ->pluck('Timestamp')
-                ->first();
-
-            return $dateStart ? $dateStart : '';
-        }
-
-        return '';
-    }
-
-    /**
-     * Get the Item places
-     */
-    public function getPlacesAttribute()
-    {
-        $places = $this
-            ->hasMany(Place::class, 'ItemId')
-            ->get();
-
-        return $places ? $places : [];
-    }
-
-    /**
-     * Get the Item persons
-     */
-    public function getPersonsAttribute()
-    {
-        $persons = $this
-            ->hasMany(Person::class, 'ItemId')
-            ->get();
-
-        return $persons ? $persons : [];
+        return $this->persons()->get() ?: [];
     }
 }

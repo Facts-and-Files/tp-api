@@ -1,19 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HtrDataController;
-use App\Http\Controllers\ItemController;
-use App\Http\Controllers\StoryController;
 use App\Http\Controllers\AutoEnrichmentController;
-use App\Http\Controllers\LanguageController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\TeamController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\DatasetController;
-use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\HtrDataController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemStatsController;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\StoryController;
 use App\Http\Controllers\StoryStatsController;
+use App\Http\Controllers\TeamController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/stories', [StoryController::class, 'index']);
     Route::get('/stories/{id}', [StoryController::class, 'show']);
     Route::get('/stories/{id}/autoenrichments', [AutoEnrichmentController::class, 'showByStoryId']);
+    Route::get('/stories/{id}/places', [PlaceController::class, 'showByStoryId']);
     Route::put('/stories/{id}', [StoryController::class, 'update']);
     Route::delete('/stories/{id}', [StoryController::class, 'destroy']);
     Route::get('/stories/{id}/campaigns', [StoryController::class, 'showCampaigns']);

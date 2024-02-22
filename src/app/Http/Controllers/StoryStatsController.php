@@ -35,14 +35,17 @@ class StoryStatsController extends ResponseController
             // get oldest with data and not null
             $firstWithDate = $storyData->whereNotNull('EditStart')->first();
 
-            $itemCompletions = Item::selectRaw('CompletionStatusId as StatusId, COUNT(*) as Amount')
+            $itemCompletions = Item::selectRaw('CompletionStatusId, COUNT(*) as Amount')
                 ->where('StoryId', $id)
-                ->groupBy('StatusId')
+                ->groupBy('CompletionStatusId')
                 ->get();
 
-            // replace custom properties of Item model with own from above
-            $itemCompletions->each(function ($item) {
-                $item->setAppends([]);
+            // remove other attributes from CompletionStatus model
+            $itemCompletions = $itemCompletions->map(function ($item) {
+                return [
+                    'CompletionStatusId' => $item->CompletionStatusId,
+                    'Amount' => $item->Amount
+                ];
             });
 
             $data = [];

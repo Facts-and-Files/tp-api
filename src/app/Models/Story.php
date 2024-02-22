@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use App\Models\CompletionStatus;
 
@@ -86,15 +88,41 @@ class Story extends Model
         'CompletionStatus'
     ];
 
+// define relations
+
+    public function campaigns(): BelongsToMany
+    {
+        return $this->belongsToMany(Campaign::class, 'StoryCampaign', 'StoryId', 'CampaignId');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class, 'StoryId');;
+    }
+
+    public function completionStatus(): BelongsTo
+    {
+        return $this->belongsTo(CompletionStatus::class, 'CompletionStatusId');
+    }
+
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
     public function getItemIdsAttribute(): Collection
     {
-        return $this->hasMany(Item::class, 'StoryId')->pluck('ItemId');
+        return $this->items()->pluck('ItemId');
     }
 
-    public function getDctermsAttribute(): Array
+    public function getCompletionStatusAttribute(): CompletionStatus
+    {
+        $plucked = $this
+            ->completionStatus()
+            ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
+
+        return $plucked;
+    }
+
+    public function getDctermsAttribute(): array
     {
         return [
             'Medium'     => $this->attributes['dcterms:medium'],
@@ -103,7 +131,7 @@ class Story extends Model
         ];
     }
 
-    public function getDcAttribute(): Array
+    public function getDcAttribute(): array
     {
         return [
             'Title'       => $this->attributes['dc:title'],
@@ -122,12 +150,12 @@ class Story extends Model
         ];
     }
 
-    public function setDcAttribute(Array $values): void
+    public function setDcAttribute(array $values): void
     {
         $this->attributes['dc:title'] = $values['Title'] ?? $this->attributes['dc:title'];
     }
 
-    public function getEdmAttribute(): Array
+    public function getEdmAttribute(): array
     {
         return [
             'LandingPage'  => $this->attributes['edm:landingPage'],
@@ -145,7 +173,7 @@ class Story extends Model
         ];
     }
 
-    public function getPlaceAttribute(): Array
+    public function getPlaceAttribute(): array
     {
         return [
             'Name'      => $this->attributes['PlaceName'],
@@ -153,19 +181,5 @@ class Story extends Model
             'Longitude' => $this->attributes['PlaceLongitude'],
             'Zoom'      => $this->attributes['placeZoom']
         ];
-    }
-
-    public function getCompletionStatusAttribute(): CompletionStatus
-    {
-        $plucked = $this
-            ->belongsTo(CompletionStatus::class, 'CompletionStatusId')
-            ->first(['CompletionStatusId as StatusId', 'Name', 'ColorCode', 'ColorCodeGradient']);
-
-        return $plucked;
-    }
-
-    public function campaigns(): BelongsToMany
-    {
-        return $this->belongsToMany(Campaign::class, 'StoryCampaign', 'StoryId', 'CampaignId');
     }
 }

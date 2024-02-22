@@ -1,0 +1,35 @@
+get:
+  tags:
+    - places
+    - stories
+  summary: Get the places of the enriched items of this story
+  parameters:
+    - in: path
+      name: StoryId
+      description: Numeric ID of the story within transcribathon
+      type: integer
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: Automatically generated enrichments data entries as array
+                    items:
+                      $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'

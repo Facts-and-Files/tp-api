@@ -12,4 +12,9 @@ class Place extends Model
     protected $table = 'Place';
 
     protected $primaryKey = 'PlaceId';
+
+    protected $casts = [
+        'UserGenerated' => 'boolean'
+    ];
+
 }
