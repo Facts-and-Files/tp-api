@@ -1,0 +1,68 @@
+
+PlacesMinimalReferenceSchema:
+  properties:
+    PlaceId:
+      type: integer
+      description: ID of the entry
+      example: 2
+    Name:
+      type: string
+      description: Name of the place
+      nullable: true
+      example: Grenzübergang, Bösebrücke, Bornholmer Str., Berlin, Germany
+    Latitude:
+      type: number
+      description: Latitude coordinate of the place
+      example: 52.5547
+    Longitude:
+      type: number
+      description: Longitude coordinate of the place
+      example: 13.398
+    ItemId:
+      type: integer
+      description: Id of the item which was enriched with this place
+      example: 434384
+    Link:
+      type: string
+      description: A link (unclear, probably not used)
+      nullable: true
+    Zoom:
+      type: integer
+      description: Initial zoom of the on the map
+      nullable: true
+      example: 10
+    Comment:
+      type: string
+      description: A comment
+      nullable: true
+      example: Grenzübergang Bornhomer Str.
+    UserGenerated:
+      type: boolean
+      description: Inticates if this place is user generated or not
+      example: true
+    UserId:
+      type: integer
+      description: Id of the user which was enriched this place
+      nullable: true
+      example: 42
+    WikidataName:
+      type: string
+      description: Name of the place on WikiData
+      nullable: true
+      example: 	Bihucourt
+    WikidataId:
+      type: string
+      description: ID of the place on WikiData
+      nullable: true
+      example: Q998856
+    PlaceRole:
+      type: string
+      enum: ['CreationPlace', 'Other']
+      description: Indicates the role of the place in this item/document
+      example: Other
+
+PlacesGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/PlacesMinimalReferenceSchema'

@@ -22,36 +22,40 @@ security:
   - bearerAuth: []
 
 tags:
-  - name: htrdata
-    description: Operations related to HTR data
-  - name: items
-    description: Operations related to items data
-  - name: stories
-    description: Operations related to stories data
   - name: autoenrichments
     description: Operations related to automatically generated enrichments (Test phase)
-  - name: languages
-    description: Operations related to languaes
-  - name: teams
-    description: Operations related to teams
-  - name: users
-    description: Operations related to users
   - name: campaigns
     description: Operations related to campaigns
   - name: datasets
     description: Operations related to datasets
+  - name: health
+    description: Check health and performance of some server values
+  - name: htrdata
+    description: Operations related to HTR data
+  - name: items
+    description: Operations related to items data
+  - name: languages
+    description: Operations related to languaes
+  - name: places
+    description: Operations related to places
   - name: projects
     description: Operations related to projects
   - name: statistics
     description: Operations related to statistics
-  - name: health
-    description: Check health and performance of some server values
+  - name: stories
+    description: Operations related to stories data
+  - name: teams
+    description: Operations related to teams
+  - name: users
+    description: Operations related to users
 
 paths:
   /stories/{StoryId}/autoenrichments:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
   /stories/{StoryId}/campaigns:
     $ref: 'stories-storyId-campaigns-path.yaml'
+  /stories/{StoryId}/places:
+    $ref: 'stories-storyId-places-path.yaml'
 
   /items/statistics:
     $ref: 'items-statistics-path.yaml'
@@ -59,7 +63,6 @@ paths:
     $ref: 'items-itemId-statistics-path.yaml'
   /stories/{StoryId}/statistics:
     $ref: 'stories-storyId-statistics-path.yaml'
-
 
   /health:
     $ref: 'health-path.yaml'
@@ -178,6 +181,8 @@ components:
       $ref: 'datasets-schema.yaml#/DatasetsPostRequestSchema'
     DatasetsPutRequestSchema:
       $ref: 'datasets-schema.yaml#/DatasetsPutRequestSchema'
+    PlacesGetResponseSchema:
+      $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
     ProjectsGetResponseSchema:
       $ref: 'projects-schema.yaml#/ProjectsGetResponseSchema'
     ProjectsPostRequestSchema:
