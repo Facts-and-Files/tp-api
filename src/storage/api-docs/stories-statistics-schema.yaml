@@ -52,13 +52,13 @@ StoriesStatisticsItemCompletionIdsReferenceSchema:
   description: Objects with the amount of items with a specific CompletionStatusId
   items:
     properties:
-      StatusId:
+      CompletionStatusId:
         type: integer
-        description: Id of the completion status (CompletionStatusId)
+        description: Id of the completion status
         example: 1
       Amount:
         type: integer
-        description: Amount of item with this StatusId (CompletionStatusId)
+        description: Amount of item with this CompletionStatusId
         example: 68
 
 StoriesStatisticsEnrichmentsReferenceSchema:
