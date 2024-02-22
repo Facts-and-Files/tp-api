@@ -122,7 +122,7 @@ class Story extends Model
         return $plucked;
     }
 
-    public function getDctermsAttribute(): Array
+    public function getDctermsAttribute(): array
     {
         return [
             'Medium'     => $this->attributes['dcterms:medium'],
@@ -131,7 +131,7 @@ class Story extends Model
         ];
     }
 
-    public function getDcAttribute(): Array
+    public function getDcAttribute(): array
     {
         return [
             'Title'       => $this->attributes['dc:title'],
@@ -150,12 +150,12 @@ class Story extends Model
         ];
     }
 
-    public function setDcAttribute(Array $values): void
+    public function setDcAttribute(array $values): void
     {
         $this->attributes['dc:title'] = $values['Title'] ?? $this->attributes['dc:title'];
     }
 
-    public function getEdmAttribute(): Array
+    public function getEdmAttribute(): array
     {
         return [
             'LandingPage'  => $this->attributes['edm:landingPage'],
@@ -173,7 +173,7 @@ class Story extends Model
         ];
     }
 
-    public function getPlaceAttribute(): Array
+    public function getPlaceAttribute(): array
     {
         return [
             'Name'      => $this->attributes['PlaceName'],
