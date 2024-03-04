@@ -15,6 +15,7 @@ use App\Http\Controllers\StoryController;
 use App\Http\Controllers\StoryStatsController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ScoreController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,9 @@ Route::middleware(['auth:api'])->group(function() {
 
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/users/{id}', [UserController::class, 'show']);
+
+    Route::get('/scores', [ScoreController::class, 'index']);
+    Route::post('/scores', [ScoreController::class, 'store']);
 
     Route::get('/teams', [TeamController::class, 'index']);
     Route::post('/teams', [TeamController::class, 'store']);
