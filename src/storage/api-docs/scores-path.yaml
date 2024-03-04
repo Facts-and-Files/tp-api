@@ -1,0 +1,74 @@
+get:
+  tags:
+    - scores
+  summary: Get all scores entries
+  description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - in: query
+      name: orderBy
+      default: Timestamp
+      description: Table column to order the return
+      schema:
+        type: string
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: ItemId
+      description: Show entries associated with this ItemId
+      type: integer
+    - in: query
+      name: UserId
+      description: Show entries associated with this UserId
+      type: integer
+    - in: query
+      name: ScoreTypeId
+      description: Show entries associated with this ScoreTypeId
+      type: integer
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: items entry objects as array
+                    items:
+                      $ref: 'scores-schema.yaml#/ScoresGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+post:
+  tags:
+    - scores
+  summary: Store a new score
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'scores-schema.yaml#/ScoresPostRequestSchema'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  message:
+                    example: Score inserted.
+                  data:
+                    $ref: 'scores-schema.yaml#/ScoresGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'

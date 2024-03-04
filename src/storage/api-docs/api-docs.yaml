@@ -48,6 +48,8 @@ tags:
     description: Operations related to teams
   - name: users
     description: Operations related to users
+  - name: scores
+    description: Operations related to scores
 
 paths:
   /stories/{StoryId}/autoenrichments:
@@ -120,6 +122,9 @@ paths:
   /projects/{ProjectId}:
     $ref: 'projects-projectId-path.yaml'
 
+  /scores:
+    $ref: 'scores-path.yaml'
+
   /stories:
     $ref: 'stories-path.yaml'
   /stories/campaigns:
@@ -189,5 +194,9 @@ components:
       $ref: 'projects-schema.yaml#/ProjectsPostRequestSchema'
     ProjectsPutRequestSchema:
       $ref: 'projects-schema.yaml#/ProjectsPutRequestSchema'
+    ScoresGetResponseSchema:
+      $ref: 'scores-schema.yaml#/ScoresGetResponseSchema'
+    ScoresPostRequestSchema:
+      $ref: 'scores-schema.yaml#/ScoresPostRequestSchema'
     HealthGetResponseSchema:
       $ref: 'health-schema.yaml#/HealthGetResponseSchema'
