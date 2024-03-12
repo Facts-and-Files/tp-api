@@ -26,4 +26,4 @@ jobs:
         run: cd src && php artisan key:generate
 
       - name: Run tests
-        run: cd src php artisan test --without-tty
+        run: cd src && php artisan test --without-tty
