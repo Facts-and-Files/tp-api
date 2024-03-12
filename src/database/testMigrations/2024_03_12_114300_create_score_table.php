@@ -23,6 +23,7 @@ return new class extends Migration
             $table->index('UserId');
             $table->index('ScoreTypeId');
 
+            /*
             $table->foreign('ItemId')
                   ->references('ItemId')
                   ->on('Item')
@@ -39,6 +40,7 @@ return new class extends Migration
                   ->references('ScoreTypeId')
                   ->on('ScoreType')
                   ->cascadeOnUpdate();
+            */
         });
     }
 
