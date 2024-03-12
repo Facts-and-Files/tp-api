@@ -1,0 +1,43 @@
+ScoresMinimalReferenceSchema:
+  properties:
+    ItemId:
+      type: integer
+      description: ID of the item ih which the score is counted
+      example: 12435
+    UserId:
+      type: integer
+      description: ID of the user who scored
+      example: 5422
+    ScoreTypeId:
+      type: integer
+      description: ID of the completion status of the location/place
+      example: 1
+    Amount:
+      type: integer
+      description: Amount of the score with a particluar ScoreTypeId
+      example: 1
+
+ScoresAdditionalGetReferenceSchema:
+  properties:
+    ScoreId:
+      type: integer
+      description: ID of the entry
+      example: 2
+    Timestamp:
+      type: string
+      format: date-time
+      description: Time of creation
+      example: '2022-02-23 09:57:03'
+
+ScoresGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/ScoresMinimalReferenceSchema'
+    - $ref: '#/ScoresAdditionalGetReferenceSchema'
+
+ScoresPostRequestSchema:
+  required: ['ItemId', 'UserId', 'ScoreTypeId', 'Amount']
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/ScoresMinimalReferenceSchema'

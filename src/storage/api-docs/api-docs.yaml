@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  version: 1.29.0
+  version: 1.30.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -48,6 +48,8 @@ tags:
     description: Operations related to teams
   - name: users
     description: Operations related to users
+  - name: scores
+    description: Operations related to scores
 
 paths:
   /stories/{StoryId}/autoenrichments:
@@ -120,6 +122,9 @@ paths:
   /projects/{ProjectId}:
     $ref: 'projects-projectId-path.yaml'
 
+  /scores:
+    $ref: 'scores-path.yaml'
+
   /stories:
     $ref: 'stories-path.yaml'
   /stories/campaigns:
@@ -189,5 +194,9 @@ components:
       $ref: 'projects-schema.yaml#/ProjectsPostRequestSchema'
     ProjectsPutRequestSchema:
       $ref: 'projects-schema.yaml#/ProjectsPutRequestSchema'
+    ScoresGetResponseSchema:
+      $ref: 'scores-schema.yaml#/ScoresGetResponseSchema'
+    ScoresPostRequestSchema:
+      $ref: 'scores-schema.yaml#/ScoresPostRequestSchema'
     HealthGetResponseSchema:
       $ref: 'health-schema.yaml#/HealthGetResponseSchema'
