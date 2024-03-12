@@ -17,6 +17,8 @@ abstract class TestCase extends BaseTestCase
         $this->withToken('8je2CZ8r1U1JUdclpfSVKyP6gSzF65c16Q6bY6P2EqpGAWSwLvgHjhfuu4FS');
 
         $this->makeMigrations();
+
+        $this->artisan('migrate', ['--path' => 'database/testMigrations']);
     }
 
     protected function makeMigrations(): void
