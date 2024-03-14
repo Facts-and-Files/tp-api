@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -25,14 +26,7 @@ class ResponseController extends Controller
         return response()->json($response, 200);
     }
 
-    /**
-     * success response method.
-     *
-     * @param  \Illuminate\Http\Resources\Json\JsonResource $result
-     * @param  string                                       $message
-     * @return \Illuminate\Http\Response
-     */
-    public static function sendResponse($result, $message)
+    public static function sendResponse(JsonResource $result, string $message): JsonResponse
     {
         $response = [
             'success' => true,
@@ -43,15 +37,11 @@ class ResponseController extends Controller
         return response()->json($response, 200);
     }
 
-    /**
-     * partly success response method.
-     *
-     * @param  \Illuminate\Http\Resources\Json\JsonResource $result
-     * @param  array                                        $errors
-     * @param  string                                       $message
-     * @return \Illuminate\Http\Response
-     */
-    public static function sendPartlyResponse($result, $errors, $message)
+    public static function sendPartlyResponse(
+        JsonResource $result,
+        array $errors,
+        string $message
+    ): JsonResponse
     {
         $response = [
             'success' => true,
@@ -63,15 +53,11 @@ class ResponseController extends Controller
         return response()->json($response, 207);
     }
 
-    /**
-     * return error response.
-     *
-     * @param  string  $error
-     * @param  array   $errorMessages
-     * @param  integer $code
-     * @return \Illuminate\Http\Response
-     */
-    public static function sendError($error, $errorMessages = [], $code = 404)
+    public static function sendError(
+        string $error,
+        string|array $errorMessages,
+        int $code = 404
+    ): JsonResponse
     {
         $response = [
             'success' => false,
@@ -85,7 +71,12 @@ class ResponseController extends Controller
         return response()->json($response, $code);
     }
 
-    protected function getDataByRequest(Request $request, Model $model, array $queryColumns, string $initialSortColumn): Collection
+    protected function getDataByRequest(
+        Request $request,
+        Model $model,
+        array $queryColumns,
+        string $initialSortColumn
+    ): Collection
     {
         $queries = $request->query();
 
@@ -95,7 +86,7 @@ class ResponseController extends Controller
 
         $sep = $queries['separator'] ?? false;
 
-        $data = $model->whereRaw('1 = 1');
+        $data = $model->query();
 
         foreach ($queries as $queryName => $queryValue) {
             if (array_key_exists($queryName, $queryColumns)) {
@@ -113,12 +104,35 @@ class ResponseController extends Controller
             }
         }
 
+        $data = $this->filterDataByDateTime($data, $queries);
+
         $data = $this->filterDataByQueries($data, $queries, $initialSortColumn);
 
         return $data;
     }
 
-    protected function filterDataByQueries(Builder $data, array $queries, string $initialSortColumn): Collection
+    protected function filterDataByDateTime(Builder $data, array $queries): Builder
+    {
+        $to   = isset($queries['to']) ? Carbon::parse($queries['to']) : null;
+        $from = isset($queries['from']) ? Carbon::parse($queries['from']) : null;
+        $timeColumn = $queries['timeColumn'] ?? 'Timestamp';
+
+        if ($from && $to) {
+            $data->whereBetween($timeColumn, [$from, $to]);
+        } elseif ($from) {
+            $data->where($timeColumn, '>=', $from);
+        } elseif ($to) {
+            $data->where($timeColumn, '<=', $to);
+        }
+
+        return $data;
+    }
+
+    protected function filterDataByQueries(
+        Builder $data,
+        array $queries,
+        string $initialSortColumn
+    ): Collection
     {
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;

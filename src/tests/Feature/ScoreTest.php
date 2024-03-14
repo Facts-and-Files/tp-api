@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Carbon\Carbon;
 use Tests\TestCase;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,7 @@ class ScoreTest extends TestCase
             'UserId'      => 1,
             'ScoreTypeId' => 2,
             'Amount'      => 1,
-            'Timestamp'   => '2021-01-01T00:00:00.000000Z'
+            'Timestamp'   => '2021-01-01T12:00:00.000000Z'
         ],
         [
             'ScoreId'     => 2,
@@ -26,7 +27,7 @@ class ScoreTest extends TestCase
             'UserId'      => 2,
             'ScoreTypeId' => 2,
             'Amount'      => 2,
-            'Timestamp'   => '2021-01-02T00:00:00.000000Z'
+            'Timestamp'   => '2021-02-01T12:00:00.000000Z'
         ]
     ];
 
@@ -68,7 +69,7 @@ class ScoreTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetAllScoredByUserId(): void
+    public function testGetScoresByUserId(): void
     {
         $queryParams = '?UserId='. self::$tableData[1]['UserId'];
         $awaitedSuccess = ['success' => true];
@@ -82,7 +83,7 @@ class ScoreTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetAllScoredByItemId(): void
+    public function testGetScoresByItemId(): void
     {
         $queryParams = '?ItemId='. self::$tableData[1]['ItemId'];
         $awaitedSuccess = ['success' => true];
@@ -96,11 +97,71 @@ class ScoreTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetAllScoredByScoreTypeId(): void
+    public function testGetScoresByScoreTypeId(): void
     {
         $queryParams = '?ScoreTypeId='. self::$tableData[1]['ScoreTypeId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => self::$tableData];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function testGetScoresByFromDatetime(): void
+    {
+        $queryParams = '?from=' . Carbon::parse(self::$tableData[1]['Timestamp'] )->sub(1, 'day');
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [self::$tableData[1]]];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function testGetScoresByToDatetime(): void
+    {
+        $queryParams = '?to='. Carbon::parse(self::$tableData[0]['Timestamp'] )->add(1, 'day');
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [self::$tableData[0]]];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function testGetAllScoresByBetweenDatetimes(): void
+    {
+        $to = Carbon::parse(self::$tableData[1]['Timestamp'] )->add(1, 'day');
+        $from = Carbon::parse(self::$tableData[0]['Timestamp'] )->sub(1, 'day');
+        $queryParams = '?from=' . $from . '&to=' . $to;
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => self::$tableData];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function testGetNoScoreByTimestampBetween(): void
+    {
+        $to = Carbon::parse(self::$tableData[1]['Timestamp'] )->sub(1, 'day');
+        $from = Carbon::parse(self::$tableData[0]['Timestamp'] )->add(1, 'day');
+        $queryParams = '?from=' . $from . '&to=' . $to;
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => []];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
