@@ -101,6 +101,8 @@ paths:
     $ref: 'users-path.yaml'
   /users/{UserId}:
     $ref: 'users-userId-path.yaml'
+  /users/{UserId}/statistics:
+    $ref: 'users-userId-statistics-path.yaml'
 
   /teams:
     $ref: 'teams-path.yaml'
