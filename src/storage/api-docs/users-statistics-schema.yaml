@@ -1,0 +1,37 @@
+UserStatisticsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        UserId:
+          type: integer
+          description: ID of the User
+          example: 2
+        Items:
+          type: integer
+          description: Number of items the user has participated in
+          example: 4
+        Locations:
+          type: integer
+          description: Number of locations and places the user has geolocated
+          example: 12
+        ManualTranscriptions:
+          type: integer
+          description: Number of chars the user has transcribed manually
+          example: 2365
+        Enrichments:
+          type: integer
+          description: Number of enrichments the user has created
+          example: 12
+        Descriptions:
+          type: integer
+          description: Number of chars of the descriptions the user has created
+          example: 513
+        HTRTranscriptions:
+          type: integer
+          description: Number of chars the user has transcribed with HTR
+          example: 1285
+        Miles:
+          type: integer
+          description: Number of points the user has so far
+          example: 23655
