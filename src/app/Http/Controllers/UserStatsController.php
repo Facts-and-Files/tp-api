@@ -18,7 +18,10 @@ class UserStatsController extends ResponseController
                 return $this->sendError('Not found', 'No statistics exists for this UserId.');
             }
 
-            $collection = collect($data[0]);
+            // cast all as integer
+            $collection = collect($data[0])->map(function ($value) {
+                return is_numeric($value) ? (int) $value : $value;
+            });
 
             $resource = new UserStatsResource($collection);
 
