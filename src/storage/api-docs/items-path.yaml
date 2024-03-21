@@ -12,6 +12,15 @@ get:
       name: StoryId
       description: Show entries associated with this StoryId
       type: integer
+    - in: query
+      name: ItemId
+      description: Show entries associated with this ItemId
+      type: integer
+    - in: query
+      name: separator
+      description: If set determines that the query (StoryId, ItemId) is a multiple query string and separated by this separator
+      schema:
+        type: string
   responses:
     200:
       description: Ok
