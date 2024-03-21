@@ -17,7 +17,8 @@ class ItemController extends ResponseController
     public function index(Request $request)
     {
         $queryColumns = [
-            'StoryId' => 'StoryId'
+            'StoryId' => 'StoryId',
+            'ItemId'  => 'ItemId'
         ];
 
         $initialSortColumn = 'ItemId';
