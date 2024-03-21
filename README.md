@@ -1,3 +1,9 @@
+<div align="right">
+	
+[![Run tests](https://github.com/Facts-and-Files/tp-api/actions/workflows/run-tests.yml/badge.svg)](https://github.com/Facts-and-Files/tp-api/actions/workflows/run-tests.yml)
+ 
+</div>
+
 # Transcribathon platform API
 
 Version 2 of the Transcribathon platform API (tp-api) as PHP Laravel stack.
