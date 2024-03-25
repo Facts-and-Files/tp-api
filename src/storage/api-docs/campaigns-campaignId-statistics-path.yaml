@@ -1,0 +1,29 @@
+get:
+  tags:
+    - statistics
+    - campaigns
+  summary: Get stored statistics data of a campaign
+  description: The returned data is single object
+  parameters:
+    - in: path
+      name: CampaignId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'campaigns-statistics-schema.yaml#/CampaignStatisticsGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'

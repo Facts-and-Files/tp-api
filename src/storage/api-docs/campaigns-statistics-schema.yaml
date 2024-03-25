@@ -1,0 +1,64 @@
+CampaignStatisticsMinimal:
+  properties:
+    Stories:
+      type: integer
+      description: Amount of stories that were transcribed/enriched in this campaign
+      example: 4
+    Items:
+      type: integer
+      description: Amount of items that were transcribed/enriched in this campaign
+      example: 4
+    Locations:
+      type: integer
+      description: Number of locations and places that has been geolocated
+      example: 12
+    ManualTranscriptions:
+      type: integer
+      description: Number of chars that has been transcribed manually
+      example: 2365
+    Enrichments:
+      type: integer
+      description: Number of enrichments that has been created
+      example: 12
+    Descriptions:
+      type: integer
+      description: Number of chars of the descriptions that has been created
+      example: 513
+    HTRTranscriptions:
+      type: integer
+      description: Number of chars that has been transcribed with HTR
+      example: 1285
+    Miles:
+      type: integer
+      description: Number of points the user/s has/have so far
+      example: 23655
+
+CampaignStatisticsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        CampaignId:
+          type: integer
+          description: ID of the campaign
+          example: 2
+        Summary:
+          type: object
+          description: Summarized statistics that has been achieved in this campaign so far
+          $ref: '#/CampaignStatisticsMinimal'
+          properties:
+            Users:
+              type: integer
+              description: Amount of users that particpated in this campaign
+        Users:
+          type: array
+          description: Breakdown of achieved statistic of each users that particpated in this campaign
+          items:
+            type: object
+            description: Summarized statistics that has been achieved by an user in this campaign
+            $ref: '#/CampaignStatisticsMinimal'
+            properties:
+              UserId:
+                type: integer
+                description: UserId of am user that particpated in this campaign
+                example: 55
