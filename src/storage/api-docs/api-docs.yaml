@@ -113,6 +113,8 @@ paths:
     $ref: 'campaigns-path.yaml'
   /campaigns/{CampaignId}:
     $ref: 'campaigns-campaignId-path.yaml'
+  /campaigns/{CampaignId}/statistics:
+    $ref: 'campaigns-campaignId-statistics-path.yaml'
 
   /datasets:
     $ref: 'datasets-path.yaml'
