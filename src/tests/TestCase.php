@@ -24,5 +24,9 @@ abstract class TestCase extends BaseTestCase
             ['--path' => 'database/migrations/2024_03_18_103600_create_user_stats_view.php']
         );
 
+        $this->artisan(
+            'migrate',
+            ['--path' => 'database/migrations/2024_03_22_150100_create_campaign_stats_view.php']
+        );
     }
 }
