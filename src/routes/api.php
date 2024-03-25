@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutoEnrichmentController;
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\CampaignStatsController;
 use App\Http\Controllers\DatasetController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HtrDataController;
@@ -89,6 +90,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/campaigns/{id}', [CampaignController::class, 'show']);
     Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
     Route::delete('/campaigns/{id}', [CampaignController::class, 'destroy']);
+    Route::get('/campaigns/{id}/statistics', [CampaignStatsController::class, 'show']);
 
     Route::get('/datasets', [DatasetController::class, 'index']);
     Route::post('/datasets', [DatasetController::class, 'store']);
