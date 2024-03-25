@@ -25,7 +25,7 @@ class UserStatsController extends ResponseController
 
             $resource = new UserStatsResource($collection);
 
-            return $this->sendResponse($resource, 'ItemStats fetched.');
+            return $this->sendResponse($resource, 'UserStats fetched.');
         } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
