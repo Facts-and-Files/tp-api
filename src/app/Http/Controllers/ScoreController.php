@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
+use App\Events\ScoreTableUpdated;
 use App\Models\Score;
 use App\Http\Resources\ScoreResource;
 
@@ -44,6 +45,8 @@ class ScoreController extends ResponseController
 
             $score->fill($request->all());
             $score->save();
+
+            ScoreTableUpdated::dispatch($score);
 
             return $this->sendResponse(new ScoreResource($score), 'Score inserted.');
         } catch (\Exception $exception) {
