@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Team;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Model
 {
@@ -19,5 +21,10 @@ class User extends Model
         'Token',
         'pivot'
     ];
+
+    public function teams(): BelongsToMany
+    {
+        return $this->belongsToMany(Team::class, 'TeamUser', 'UserId', 'TeamId');
+    }
 
 }
