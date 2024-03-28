@@ -33,7 +33,6 @@ return new class extends Migration
         });
 
         $this->populateTable();
-
     }
 
     protected function populateTable(): void
