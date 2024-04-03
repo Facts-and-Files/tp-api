@@ -26,5 +26,4 @@ class User extends Model
     {
         return $this->belongsToMany(Team::class, 'TeamUser', 'UserId', 'TeamId');
     }
-
 }
