@@ -38,7 +38,6 @@ class Team extends Model
         return $this->belongsToMany(Score::class, 'TeamScore', 'TeamId', 'ScoreId');
     }
 
-
     public function getUsersAttribute(): Collection
     {
         return $this->user()->get()->map(function ($user) {
@@ -58,5 +57,4 @@ class Team extends Model
             ];
         });
     }
-
 }
