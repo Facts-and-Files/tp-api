@@ -32,6 +32,10 @@ CampaignStatisticsMinimal:
       type: integer
       description: Number of points the user/s has/have so far
       example: 23655
+    UserId:
+      type: integer
+      description: UserId of am user that particpated in this campaign
+      example: 55
 
 CampaignStatisticsGetResponseSchema:
   allOf:
@@ -57,8 +61,3 @@ CampaignStatisticsGetResponseSchema:
             type: object
             description: Summarized statistics that has been achieved by an user in this campaign
             $ref: '#/CampaignStatisticsMinimal'
-            properties:
-              UserId:
-                type: integer
-                description: UserId of am user that particpated in this campaign
-                example: 55
