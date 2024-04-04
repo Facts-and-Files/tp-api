@@ -69,6 +69,7 @@ class TeamStatsController extends ResponseController
                 });
 
             $data = [
+                'TeamId'  => $id,
                 'Summary' => $summary,
                 'Users'   => $users->values()
             ];
