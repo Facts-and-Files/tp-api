@@ -7,7 +7,6 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
 use App\Models\Item;
 use App\Models\ItemStats;
-use App\Models\Transcription;
 use App\Http\Resources\ItemStatsResource;
 
 class ItemStatsController extends ResponseController

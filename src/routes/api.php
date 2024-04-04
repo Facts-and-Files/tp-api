@@ -15,6 +15,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\StoryStatsController;
 use App\Http\Controllers\TeamController;
+use App\Http\Controllers\TeamStatsController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserStatsController;
 use App\Http\Controllers\ScoreController;
@@ -84,6 +85,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/teams/{id}', [TeamController::class, 'show']);
     Route::put('/teams/{id}', [TeamController::class, 'update']);
     Route::delete('/teams/{id}', [TeamController::class, 'destroy']);
+    Route::get('/teams/{id}/statistics', [TeamStatsController::class, 'show']);
 
     Route::get('/campaigns', [CampaignController::class, 'index']);
     Route::post('/campaigns', [CampaignController::class, 'store']);

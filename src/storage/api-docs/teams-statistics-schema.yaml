@@ -1,0 +1,51 @@
+TeamStatisticsMinimal:
+  properties:
+    Items:
+      type: integer
+      description: Amount of different items that were transcribed/enriched
+      example: 4
+    Locations:
+      type: integer
+      description: Number of locations and places that has been geolocated
+      example: 12
+    ManualTranscriptions:
+      type: integer
+      description: Number of chars that has been transcribed manually
+      example: 2365
+    Enrichments:
+      type: integer
+      description: Number of enrichments that has been created
+      example: 12
+    Descriptions:
+      type: integer
+      description: Number of chars of the descriptions that has been created
+      example: 513
+    HTRTranscriptions:
+      type: integer
+      description: Number of chars that has been transcribed with HTR
+      example: 1285
+    Miles:
+      type: integer
+      description: Number of points the user/s has/have so far
+      example: 23655
+
+TeamStatisticsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        TeamId:
+          type: integer
+          description: ID of the team
+          example: 2
+        Summary:
+          type: object
+          description: Summarized statistics that has been achieved by this team
+          $ref: '#/TeamStatisticsMinimal'
+        Users:
+          type: array
+          description: Breakdown of achieved statistic of each users that particpated while in this team
+          items:
+            type: object
+            description: Summarized statistics that has been achieved by an user while this team
+            $ref: '#/TeamStatisticsMinimal'

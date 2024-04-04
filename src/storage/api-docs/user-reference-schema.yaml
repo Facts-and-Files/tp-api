@@ -26,4 +26,18 @@ UserReferenceSchema:
       type: integer
       description: Determines if the user is assigned to an event, can be 0 or 1
       example: 0
-
+    Teams:
+      type: array
+      description: Array of teams the is member of
+      items:
+        type: object
+        description: Teams the user is member of
+        properties:
+          TeamId:
+            type: integer
+            description: ID of team
+            example: 42
+          Name:
+            type: string
+            description: Name of the team
+            example: 'A-Team'
