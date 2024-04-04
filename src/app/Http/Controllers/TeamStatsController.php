@@ -7,13 +7,11 @@ use App\Http\Controllers\ResponseController;
 use App\Models\Team;
 use App\Models\ScoreType;
 use App\Http\Resources\TeamStatsResource;
+use App\Traits\Rename;
 
 class TeamStatsController extends ResponseController
 {
-    protected $renameProperties = [
-        'Transcription'     => 'ManualTranscriptions',
-        'HTR-Transcription' => 'HTRTranscriptions'
-    ];
+    use Rename;
 
     public function show(int $id): JsonResponse
     {
@@ -26,7 +24,7 @@ class TeamStatsController extends ResponseController
                 'Miles' => 0
             ];
             $scoreTypes->map(function ($score) use (&$summary) {
-                $scoreName = $this->renameProperties($score->Name);
+                $scoreName = $this->rename($score->Name);
                 $summary[$scoreName] = 0;
             });
 
@@ -41,13 +39,13 @@ class TeamStatsController extends ResponseController
                     ];
 
                     $scoreTypes->map(function ($score) use (&$userStat){
-                        $scoreName = $this->renameProperties($score->Name);
+                        $scoreName = $this->rename($score->Name);
                         $userStat[$scoreName] = 0;
                     });
 
                     $scores->map(function ($score) use ($scoreTypes, &$userStat) {
                         $nameAndRates = $scoreTypes->where('ScoreTypeId', $score->ScoreTypeId);
-                        $name = $this->renameProperties($nameAndRates->pluck('Name')->first());
+                        $name = $this->rename($nameAndRates->pluck('Name')->first());
                         $rate = $nameAndRates->pluck('Rate')->first();
                         $userStat[$name] += $score->Amount;
                         $userStat['Miles'] += $score->Amount * $rate;
@@ -59,7 +57,7 @@ class TeamStatsController extends ResponseController
                     $summary['Miles'] += $userStat['Miles'];
 
                     $scoreTypes->map(function ($score) use ($userStat, &$summary){
-                        $scoreName = $this->renameProperties($score->Name);
+                        $scoreName = $this->rename($score->Name);
                         $summary[$scoreName] += $userStat[$scoreName];
                     });
 
@@ -80,10 +78,5 @@ class TeamStatsController extends ResponseController
         } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage());
         }
-    }
-
-    protected function renameProperties (string $name): string
-    {
-        return $this->renameProperties[$name] ?? $name;
     }
 }
