@@ -108,6 +108,8 @@ paths:
     $ref: 'teams-path.yaml'
   /teams/{TeamId}:
     $ref: 'teams-teamId-path.yaml'
+  /teams/{TeamId}/statistics:
+    $ref: 'teams-teamId-statistics-path.yaml'
 
   /campaigns:
     $ref: 'campaigns-path.yaml'
