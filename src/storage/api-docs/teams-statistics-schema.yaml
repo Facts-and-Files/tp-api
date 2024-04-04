@@ -2,7 +2,7 @@ TeamStatisticsMinimal:
   properties:
     Items:
       type: integer
-      description: Amount of items that were transcribed/enriched
+      description: Amount of different items that were transcribed/enriched
       example: 4
     Locations:
       type: integer
