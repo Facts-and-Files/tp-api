@@ -23,8 +23,7 @@ class TeamStatsController extends ResponseController
             $scoreTypes = ScoreType::get();
 
             $summary = [
-                'Miles' => 0,
-                'Items' => 0
+                'Miles' => 0
             ];
             $scoreTypes->map(function ($score) use (&$summary) {
                 $scoreName = $this->renameProperties($score->Name);
@@ -58,7 +57,6 @@ class TeamStatsController extends ResponseController
                     $userStat['Items'] = $scores->pluck('ItemId')->unique()->count();
 
                     $summary['Miles'] += $userStat['Miles'];
-                    $summary['Items'] += $userStat['Items'];
 
                     $scoreTypes->map(function ($score) use ($userStat, &$summary){
                         $scoreName = $this->renameProperties($score->Name);
@@ -67,6 +65,8 @@ class TeamStatsController extends ResponseController
 
                     return $userStat;
                 });
+
+            $summary['Items'] = $team->scores->pluck('ItemId')->unique()->count();
 
             $data = [
                 'TeamId'  => $id,
