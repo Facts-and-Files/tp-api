@@ -10,6 +10,11 @@ use App\Http\Resources\TeamStatsResource;
 
 class TeamStatsController extends ResponseController
 {
+    protected $renameProperties = [
+        'Transcription'     => 'ManualTranscriptions',
+        'HTR-Transcription' => 'HTRTranscriptions'
+    ];
+
     public function show(int $id): JsonResponse
     {
         try {
@@ -17,38 +22,47 @@ class TeamStatsController extends ResponseController
 
             $scoreTypes = ScoreType::get();
 
-            $summary = [];
-            $summary['Miles'] = 0;
+            $summary = [
+                'Miles' => 0,
+                'Items' => 0
+            ];
             $scoreTypes->map(function ($score) use (&$summary) {
-                $summary[$score->Name] = 0;
+                $scoreName = $this->renameProperties($score->Name);
+                $summary[$scoreName] = 0;
             });
 
             $users = $team
                 ->scores
                 ->groupBy('UserId')
                 ->map(function ($scores, $userId) use ($scoreTypes, &$summary) {
-                    $userStat = [];
-                    $userStat['UserId'] = $userId;
-                    $userStat['Miles'] = 0;
+                    $userStat = [
+                        'UserId' => $userId,
+                        'Miles'  => 0,
+                        'Items'  => 0
+                    ];
 
                     $scoreTypes->map(function ($score) use (&$userStat){
-                        $userStat[$score->Name] = 0;
+                        $scoreName = $this->renameProperties($score->Name);
+                        $userStat[$scoreName] = 0;
                     });
 
                     $scores->map(function ($score) use ($scoreTypes, &$userStat) {
                         $nameAndRates = $scoreTypes->where('ScoreTypeId', $score->ScoreTypeId);
-                        $name = $nameAndRates->pluck('Name')->first();
+                        $name = $this->renameProperties($nameAndRates->pluck('Name')->first());
                         $rate = $nameAndRates->pluck('Rate')->first();
                         $userStat[$name] += $score->Amount;
                         $userStat['Miles'] += $score->Amount * $rate;
                     });
 
                     $userStat['Miles'] = ceil($userStat['Miles']);
+                    $userStat['Items'] = $scores->pluck('ItemId')->unique()->count();
 
                     $summary['Miles'] += $userStat['Miles'];
+                    $summary['Items'] += $userStat['Items'];
 
                     $scoreTypes->map(function ($score) use ($userStat, &$summary){
-                        $summary[$score->Name] += $userStat[$score->Name];
+                        $scoreName = $this->renameProperties($score->Name);
+                        $summary[$scoreName] += $userStat[$scoreName];
                     });
 
                     return $userStat;
@@ -65,5 +79,10 @@ class TeamStatsController extends ResponseController
         } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage());
         }
+    }
+
+    protected function renameProperties (string $name): string
+    {
+        return $this->renameProperties[$name] ?? $name;
     }
 }
