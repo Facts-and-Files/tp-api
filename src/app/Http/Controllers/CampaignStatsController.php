@@ -48,7 +48,6 @@ class CampaignStatsController extends ResponseController
     protected function buildCampaignStatisticsSummary(Collection $collection): array
     {
         $data = $this->buildStatistics($collection);
-        $data['Users'] = $collection->pluck('UserId')->unique()->count();
 
         return $data;
     }
