@@ -16,9 +16,17 @@ StatisticsGetResponseSchema:
       type: integer
       description: Amount of unique users who participated with this ScoreType in this month
       example: 4
+    UniqueItemsPerScoreType:
+      type: integer
+      description: Amount of unique items which has been enriched/transcribed with this ScoreType in this month
+      example: 4
     OverallUniqueUsers:
       type: integer
       description: Amount of unique users who participated in this month over all ScoreTypes
+      example: 8
+    OverallUniqueItems:
+      type: integer
+      description: Amount of unique items which has been enriched/transcribed in this month over all ScoreTypes
       example: 8
     Amount:
       type: integer

@@ -14,7 +14,9 @@ return new class extends Migration
                 strftime('%m', Timestamp) AS Month,
                 ScoreTypeId,
                 COUNT(DISTINCT UserId) AS UniqueUsersPerScoreType,
+                COUNT(DISTINCT ItemId) AS UniqueItemsPerScoreType,
                 t2.UniqueUsers AS OverallUniqueUsers,
+                t2.UniqueItems AS OverallUniqueItems,
                 SUM(Amount) AS Amount
             FROM
                 Score
@@ -23,7 +25,8 @@ return new class extends Migration
                     SELECT
                         strftime('%Y', Timestamp) AS Year,
                         strftime('%m', Timestamp) AS Month,
-                        COUNT(DISTINCT UserId) AS UniqueUsers
+                        COUNT(DISTINCT UserId) AS UniqueUsers,
+                        COUNT(DISTINCT UserId) AS UniqueItems
                     FROM
                         Score
                     GROUP BY

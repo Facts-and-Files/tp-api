@@ -17,7 +17,9 @@ class SummaryStatsView extends Model
         'Month'                   => 'integer',
         'ScoreTypeId'             => 'integer',
         'UniqueUsersPerScoreType' => 'integer',
+        'UniqueItemsPerScoreType' => 'integer',
         'OverallUniqueUsers'      => 'integer',
+        'OverallUniqueItems'      => 'integer',
         'Amount'                  => 'integer'
     ];
 }
