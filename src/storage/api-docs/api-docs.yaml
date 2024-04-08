@@ -140,6 +140,10 @@ paths:
   /stories/{StoryId}/add-campaigns:
     $ref: 'stories-storyId-add-campaigns-path.yaml'
 
+  /statistics:
+    $ref: 'statistics-path.yaml'
+
+
 components:
   securitySchemes:
     bearerAuth:
@@ -204,5 +208,7 @@ components:
       $ref: 'scores-schema.yaml#/ScoresGetResponseSchema'
     ScoresPostRequestSchema:
       $ref: 'scores-schema.yaml#/ScoresPostRequestSchema'
+    StatisticsGetResponseSchema:
+      $ref: 'statistics-schema.yaml#/StatisticsGetResponseSchema'
     HealthGetResponseSchema:
       $ref: 'health-schema.yaml#/HealthGetResponseSchema'

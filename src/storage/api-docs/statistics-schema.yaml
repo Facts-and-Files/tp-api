@@ -1,0 +1,26 @@
+StatisticsGetResponseSchema:
+  properties:
+    Year:
+      type: integer
+      description: The year of the statistics
+      example: 2021
+    Month:
+      type: integer
+      description: The month of the statistics (from 1-12)
+      example: 1
+    ScoreTypeId:
+      type: integer
+      description: ID of the ScoreType for this statistics
+      example: 1
+    UniqueUsersPerScoreType:
+      type: integer
+      description: Amount of unique users who participated with this ScoreType in this month
+      example: 4
+    OverallUniqueUsers:
+      type: integer
+      description: Amount of unique users who participated in this month over all ScoreTypes
+      example: 8
+    Amount:
+      type: integer
+      description: Amount of the score with a particluar ScoreType
+      example: 23554
