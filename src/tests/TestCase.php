@@ -19,14 +19,13 @@ abstract class TestCase extends BaseTestCase
 
         // since we cannot use all migrations from the begining select here specific ones
         // basically since the start of creating tests, all other will be covered
-        $this->artisan(
-            'migrate',
-            ['--path' => 'database/migrations/2024_03_18_103600_create_user_stats_view.php']
-        );
+        $additionalMigrations = [
+            '2024_03_18_103600_create_user_stats_view.php',
+            '2024_03_22_150100_create_campaign_stats_view.php'
+        ];
 
-        $this->artisan(
-            'migrate',
-            ['--path' => 'database/migrations/2024_03_22_150100_create_campaign_stats_view.php']
-        );
+        foreach ($additionalMigrations as $migration) {
+            $this->artisan('migrate', ['--path' => 'database/migrations/' . $migration]);
+        }
     }
 }
