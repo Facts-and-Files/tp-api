@@ -35,7 +35,7 @@ class SummaryStatsTest extends TestCase
             'UserId'      => 1,
             'ScoreTypeId' => 3,
             'Amount'      => 10,
-            'Timestamp'   => '2021-02-01T12:00:00.000000Z'
+            'Timestamp'   => '2022-02-01T12:00:00.000000Z'
         ]
     ];
 
@@ -55,23 +55,25 @@ class SummaryStatsTest extends TestCase
         $queryParams = '';
         $awaitedSuccess = ['success' => true];
         $awaitedData = [
-            'data' => [
-                [
-                    'Year'                    => 2021,
-                    'Month'                   => 1,
-                    'ScoreTypeId'             => 2,
-                    'UniqueUsersPerScoreType' => 2,
-                    'OverallUniqueUsers'      => 2,
-                    'Amount'                  => 57
-                ],
-                [
-                    'Year'                    => 2021,
-                    'Month'                   => 2,
-                    'ScoreTypeId'             => 3,
-                    'UniqueUsersPerScoreType' => 1,
-                    'OverallUniqueUsers'      => 1,
-                    'Amount'                  => 10
-                ]
+            [
+                'Year'                    => 2021,
+                'Month'                   => 1,
+                'ScoreTypeId'             => 2,
+                'UniqueUsersPerScoreType' => 2,
+                'UniqueItemsPerScoreType' => 2,
+                'OverallUniqueUsers'      => 2,
+                'OverallUniqueItems'      => 2,
+                'Amount'                  => 57
+            ],
+            [
+                'Year'                    => 2022,
+                'Month'                   => 2,
+                'ScoreTypeId'             => 3,
+                'UniqueUsersPerScoreType' => 1,
+                'UniqueItemsPerScoreType' => 1,
+                'OverallUniqueUsers'      => 1,
+                'OverallUniqueItems'      => 1,
+                'Amount'                  => 10
             ]
         ];
 
@@ -79,8 +81,9 @@ class SummaryStatsTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson($awaitedSuccess);
+
+        $this->assertEquals($response['data'], $awaitedData);
     }
 
     public function testGetEmptyStatisticsByYear(): void
@@ -102,15 +105,15 @@ class SummaryStatsTest extends TestCase
         $queryParams = '?Year=2021';
         $awaitedSuccess = ['success' => true];
         $awaitedData = [
-            'data' => [
-                [
-                    'Year'                    => 2021,
-                    'Month'                   => 1,
-                    'ScoreTypeId'             => 2,
-                    'UniqueUsersPerScoreType' => 2,
-                    'OverallUniqueUsers'      => 2,
-                    'Amount'                  => 57
-                ]
+            [
+                'Year'                    => 2021,
+                'Month'                   => 1,
+                'ScoreTypeId'             => 2,
+                'UniqueUsersPerScoreType' => 2,
+                'UniqueItemsPerScoreType' => 2,
+                'OverallUniqueUsers'      => 2,
+                'OverallUniqueItems'      => 2,
+                'Amount'                  => 57
             ]
         ];
 
@@ -118,8 +121,9 @@ class SummaryStatsTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson($awaitedSuccess);
+
+        $this->assertEquals($response['data'], $awaitedData);
     }
 
     public function testGetStatisticsByYearAndMonth(): void
@@ -127,15 +131,15 @@ class SummaryStatsTest extends TestCase
         $queryParams = '?Year=2021&Month=01';
         $awaitedSuccess = ['success' => true];
         $awaitedData = [
-            'data' => [
-                [
-                    'Year'                    => 2021,
-                    'Month'                   => 1,
-                    'ScoreTypeId'             => 2,
-                    'UniqueUsersPerScoreType' => 2,
-                    'OverallUniqueUsers'      => 2,
-                    'Amount'                  => 57
-                ]
+            [
+                'Year'                    => 2021,
+                'Month'                   => 1,
+                'ScoreTypeId'             => 2,
+                'UniqueUsersPerScoreType' => 2,
+                'UniqueItemsPerScoreType' => 2,
+                'OverallUniqueUsers'      => 2,
+                'OverallUniqueItems'      => 2,
+                'Amount'                  => 57
             ]
         ];
 
@@ -143,8 +147,9 @@ class SummaryStatsTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson($awaitedSuccess);
+
+        $this->assertEquals($response['data'], $awaitedData);
     }
 
     public function testGetStatisticsByYearMonthAndScoreType(): void
@@ -152,15 +157,15 @@ class SummaryStatsTest extends TestCase
         $queryParams = '?Year=2021&Month=01&ScoreTypeId=2';
         $awaitedSuccess = ['success' => true];
         $awaitedData = [
-            'data' => [
-                [
-                    'Year'                    => 2021,
-                    'Month'                   => 1,
-                    'ScoreTypeId'             => 2,
-                    'UniqueUsersPerScoreType' => 2,
-                    'OverallUniqueUsers'      => 2,
-                    'Amount'                  => 57
-                ]
+            [
+                'Year'                    => 2021,
+                'Month'                   => 1,
+                'ScoreTypeId'             => 2,
+                'UniqueUsersPerScoreType' => 2,
+                'UniqueItemsPerScoreType' => 2,
+                'OverallUniqueUsers'      => 2,
+                'OverallUniqueItems'      => 2,
+                'Amount'                  => 57
             ]
         ];
 
@@ -168,7 +173,8 @@ class SummaryStatsTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson($awaitedSuccess);
+
+        $this->assertEquals($response['data'], $awaitedData);
     }
 }
