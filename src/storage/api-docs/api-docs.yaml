@@ -52,6 +52,9 @@ tags:
     description: Operations related to scores
 
 paths:
+  /statistics:
+    $ref: 'statistics-path.yaml'
+
   /stories/{StoryId}/autoenrichments:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
   /stories/{StoryId}/campaigns:
@@ -139,10 +142,6 @@ paths:
     $ref: 'stories-storyId-path.yaml'
   /stories/{StoryId}/add-campaigns:
     $ref: 'stories-storyId-add-campaigns-path.yaml'
-
-  /statistics:
-    $ref: 'statistics-path.yaml'
-
 
 components:
   securitySchemes:
