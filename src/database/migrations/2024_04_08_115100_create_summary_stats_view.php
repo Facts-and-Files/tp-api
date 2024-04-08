@@ -14,7 +14,9 @@ return new class extends Migration
                 t1.Month,
                 t1.ScoreTypeId,
                 t1.UniqueUsers AS UniqueUsersPerScoreType,
+                t1.UniqueItems AS UniqueItemsPerScoreType,
                 t2.UniqueUsers AS OverallUniqueUsers,
+                t2.UniqueItems AS OverallUniqueItems,
                 t1.Amount
             FROM
                 (
@@ -23,6 +25,7 @@ return new class extends Migration
                         MONTH(Timestamp) AS Month,
                         ScoreTypeId,
                         COUNT(DISTINCT UserId) AS UniqueUsers,
+                        COUNT(DISTINCT ItemId) AS UniqueItems,
                         SUM(Amount) AS Amount
                     FROM
                         Score
@@ -36,7 +39,8 @@ return new class extends Migration
                     SELECT
                         YEAR(Timestamp) AS Year,
                         MONTH(Timestamp) AS Month,
-                        COUNT(DISTINCT UserId) AS UniqueUsers
+                        COUNT(DISTINCT UserId) AS UniqueUsers,
+                        COUNT(DISTINCT ItemId) AS UniqueItems
                     FROM
                         Score
                     GROUP BY
