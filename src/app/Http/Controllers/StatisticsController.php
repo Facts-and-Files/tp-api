@@ -21,6 +21,8 @@ class StatisticsController extends ResponseController
                 'ScoreTypeId' => 'ScoreTypeId'
             ];
 
+            $request->merge(['limit' => 1000000]);
+
             $initialSortColumn = 'Year';
 
             $model = new SummaryStatsView();
