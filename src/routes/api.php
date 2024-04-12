@@ -108,4 +108,5 @@ Route::middleware(['auth:api'])->group(function() {
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
 
     Route::get('/statistics', [StatisticsController::class, 'index']);
+    Route::get('/statistics/alltime', [StatisticsController::class, 'alltimeIndex']);
 });
