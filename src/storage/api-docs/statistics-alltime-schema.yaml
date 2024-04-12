@@ -1,0 +1,45 @@
+StatisticsAlltimeGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        ActiveUsers:
+          type: integer
+          description: Amount of users who partizipated in transctiption or enrichment
+          example: 2549
+        ItemsNotStarted:
+          type: integer
+          description: Amount of items whose Transctiption/Enrichment has not yet started
+          example: 31563
+        ItemsEdited:
+          type: integer
+          description: Amount of items whose status »Edit«
+          example: 315642
+        ItemsReviewed:
+          type: integer
+          description: Amount of items whose are reviewed
+          example: 1186
+        ItemsCompleted:
+          type: integer
+          description: Amount of items whose are completed
+          example: 358
+        ManualTranscriptions:
+          type: integer
+          description: Amount of manual transcribed chars
+          example: 2642433
+        HTRTranscriptions:
+          type: integer
+          description: Amount of corrected chars in the HTR editor
+          example: 2642433
+        Locations:
+          type: integer
+          description: Amount of geo-located locations
+          example: 36845
+        Enrichments:
+          type: integer
+          description: Amount of done enrichments
+          example: 84433
+        Descriptions:
+          type: integer
+          description: Amount of written descriptions
+          example: 8510

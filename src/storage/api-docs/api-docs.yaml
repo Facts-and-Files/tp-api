@@ -54,6 +54,8 @@ tags:
 paths:
   /statistics:
     $ref: 'statistics-path.yaml'
+  /statistics/alltime:
+    $ref: 'statistics-alltime-path.yaml'
 
   /stories/{StoryId}/autoenrichments:
     $ref: 'stories-storyId-autoenrichments-path.yaml'
@@ -209,5 +211,7 @@ components:
       $ref: 'scores-schema.yaml#/ScoresPostRequestSchema'
     StatisticsGetResponseSchema:
       $ref: 'statistics-schema.yaml#/StatisticsGetResponseSchema'
+    StatisticsAlltimeGetResponseSchema:
+      $ref: 'statistics-alltime-schema.yaml#/StatisticsAlltimeGetResponseSchema'
     HealthGetResponseSchema:
       $ref: 'health-schema.yaml#/HealthGetResponseSchema'
