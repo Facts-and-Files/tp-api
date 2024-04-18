@@ -50,35 +50,35 @@ return new class extends Migration
                         YEAR(Timestamp),
                         MONTH(Timestamp)
                 ) AS t2
-        ON
-            t1.Year = t2.Year
-            AND t1.Month = t2.Month
-        LEFT JOIN
-            (
-                SELECT
-                    YEAR(s.Timestamp) AS Year,
-                    MONTH(s.Timestamp) AS Month,
-                    COUNT(*) AS NumberOfFirstRecords
-                FROM
-                    Score s
-                INNER JOIN (
+            ON
+                t1.Year = t2.Year
+                AND t1.Month = t2.Month
+            LEFT JOIN
+                (
                     SELECT
-                        ItemId,
-                        MIN(ScoreId) AS FirstScoreId
+                        YEAR(s.Timestamp) AS Year,
+                        MONTH(s.Timestamp) AS Month,
+                        COUNT(*) AS NumberOfFirstRecords
                     FROM
-                        Score
+                        Score s
+                    INNER JOIN (
+                        SELECT
+                            ItemId,
+                            MIN(ScoreId) AS FirstScoreId
+                        FROM
+                            Score
+                        GROUP BY
+                            ItemId
+                    ) AS firstRecords
+                    ON
+                        s.ItemId = firstRecords.ItemId
+                        AND s.ScoreId = firstRecords.FirstScoreId
                     GROUP BY
-                        ItemId
-                ) AS firstRecords
-                ON
-                    s.ItemId = firstRecords.ItemId
-                    AND s.ScoreId = firstRecords.FirstScoreId
-                GROUP BY
-                    YEAR(s.Timestamp), MONTH(s.Timestamp)
-            ) AS t3
-        ON
-            t1.Year = t3.Year
-            AND t1.Month = t3.Month;
+                        YEAR(s.Timestamp), MONTH(s.Timestamp)
+                ) AS t3
+            ON
+                t1.Year = t3.Year
+                AND t1.Month = t3.Month;
         ');
     }
 
