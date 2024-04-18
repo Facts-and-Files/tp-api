@@ -28,6 +28,10 @@ StatisticsGetResponseSchema:
       type: integer
       description: Amount of unique items which has been enriched/transcribed in this month over all ScoreTypes
       example: 8
+    OverallItemsStarted:
+      type: integer
+      description: Amount of unique items which has been started with enriching/transcribing in this month (does not count HTR imports)
+      example: 8
     Amount:
       type: integer
       description: Amount of the score with a particluar ScoreType

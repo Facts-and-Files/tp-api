@@ -7,7 +7,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("
+        DB::statement('DROP VIEW IF EXISTS summary_stats_view');
+
+        DB::statement('
             CREATE VIEW summary_stats_view AS
             SELECT
                 t1.Year,
@@ -17,13 +19,13 @@ return new class extends Migration
                 t1.UniqueItems AS UniqueItemsPerScoreType,
                 t2.UniqueUsers AS OverallUniqueUsers,
                 t2.UniqueItems AS OverallUniqueItems,
-                t1.Amount,
-                COALESCE(t3.NumberOfFirstRecords, 0) AS OverallItemsStarted
+                COALESCE(t3.NumberOfFirstRecords, 0) AS OverallItemsStarted,
+                t1.Amount
             FROM
                 (
                     SELECT
-                        strftime('%Y', Timestamp) AS Year,
-                        strftime('%m', Timestamp) AS Month,
+                        YEAR(Timestamp) AS Year,
+                        MONTH(Timestamp) AS Month,
                         ScoreTypeId,
                         COUNT(DISTINCT UserId) AS UniqueUsers,
                         COUNT(DISTINCT ItemId) AS UniqueItems,
@@ -31,22 +33,22 @@ return new class extends Migration
                     FROM
                         Score
                     GROUP BY
-                        strftime('%Y', Timestamp),
-                        strftime('%m', Timestamp),
+                        YEAR(Timestamp),
+                        MONTH(Timestamp),
                         ScoreTypeId
                 ) AS t1
             JOIN
                 (
                     SELECT
-                        strftime('%Y', Timestamp) AS Year,
-                        strftime('%m', Timestamp) AS Month,
+                        YEAR(Timestamp) AS Year,
+                        MONTH(Timestamp) AS Month,
                         COUNT(DISTINCT UserId) AS UniqueUsers,
                         COUNT(DISTINCT ItemId) AS UniqueItems
                     FROM
                         Score
                     GROUP BY
-                        strftime('%Y', Timestamp),
-                        strftime('%m', Timestamp)
+                        YEAR(Timestamp),
+                        MONTH(Timestamp)
                 ) AS t2
             ON
                 t1.Year = t2.Year
@@ -54,8 +56,8 @@ return new class extends Migration
             LEFT JOIN
                 (
                     SELECT
-                        strftime('%Y', s.Timestamp) AS Year,
-                        strftime('%m', s.Timestamp) AS Month,
+                        YEAR(s.Timestamp) AS Year,
+                        MONTH(s.Timestamp) AS Month,
                         COUNT(*) AS NumberOfFirstRecords
                     FROM
                         Score s
@@ -72,12 +74,12 @@ return new class extends Migration
                         s.ItemId = firstRecords.ItemId
                         AND s.ScoreId = firstRecords.FirstScoreId
                     GROUP BY
-                        strftime('%Y', s.Timestamp), strftime('%m', s.Timestamp)
+                        YEAR(s.Timestamp), MONTH(s.Timestamp)
                 ) AS t3
             ON
                 t1.Year = t3.Year
                 AND t1.Month = t3.Month;
-        ");
+        ');
     }
 
     public function down(): void

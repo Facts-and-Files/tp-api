@@ -63,6 +63,7 @@ class SummaryStatsTest extends TestCase
                 'UniqueItemsPerScoreType' => 2,
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
+                'OverallItemsStarted'     => 2,
                 'Amount'                  => 57
             ],
             [
@@ -73,6 +74,7 @@ class SummaryStatsTest extends TestCase
                 'UniqueItemsPerScoreType' => 1,
                 'OverallUniqueUsers'      => 1,
                 'OverallUniqueItems'      => 1,
+                'OverallItemsStarted'     => 1,
                 'Amount'                  => 10
             ]
         ];
@@ -113,6 +115,7 @@ class SummaryStatsTest extends TestCase
                 'UniqueItemsPerScoreType' => 2,
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
+                'OverallItemsStarted'     => 2,
                 'Amount'                  => 57
             ]
         ];
@@ -139,6 +142,7 @@ class SummaryStatsTest extends TestCase
                 'UniqueItemsPerScoreType' => 2,
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
+                'OverallItemsStarted'     => 2,
                 'Amount'                  => 57
             ]
         ];
@@ -165,6 +169,7 @@ class SummaryStatsTest extends TestCase
                 'UniqueItemsPerScoreType' => 2,
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
+                'OverallItemsStarted'     => 2,
                 'Amount'                  => 57
             ]
         ];
