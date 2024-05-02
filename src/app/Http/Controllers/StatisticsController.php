@@ -41,20 +41,29 @@ class StatisticsController extends ResponseController
     public function alltimeIndex(): JsonResponse
     {
         try {
-            $items  = DB::table('Item')->select('CompletionStatusId');
-            $scores = DB::table('Score')->select('ScoreTypeId', 'UserId', 'Amount');
+            $items   = DB::table('Item')->select('CompletionStatusId, TranscriptionStatusId');
+            $stories = DB::table('Story')->select('CompletionStatusId');
+            $scores  = DB::table('Score')->select('ScoreTypeId', 'UserId', 'Amount');
 
             $data = [
-                'ActiveUsers'          => $this->countDistinctUsers($scores),
-                'ItemsNotStarted'      => $this->countByCompletionStatusId($items, 1),
-                'ItemsEdited'          => $this->countByCompletionStatusId($items, 2),
-                'ItemsReviewed'        => $this->countByCompletionStatusId($items, 3),
-                'ItemsCompleted'       => $this->countByCompletionStatusId($items, 4),
-                'ManualTranscriptions' => $this->sumByScoreTypeId($scores, 2),
-                'HTRTranscriptions'    => $this->sumByScoreTypeId($scores, 5),
-                'Locations'            => $this->sumByScoreTypeId($scores, 1),
-                'Enrichments'          => $this->sumByScoreTypeId($scores, 3),
-                'Descriptions'         => $this->sumByScoreTypeId($scores, 4)
+                'ActiveUsers'              => $this->countDistinctUsers($scores),
+                'TranscriptionsNotStarted' => $this->countByCompletionStatusId($items, 1, 'TranscriptionStatusId'),
+                'TranscriptionsEdited'     => $this->countByCompletionStatusId($items, 2, 'TranscriptionStatusId'),
+                'TranscriptionsReviewed'   => $this->countByCompletionStatusId($items, 3, 'TranscriptionStatusId'),
+                'TranscriptionsCompleted'  => $this->countByCompletionStatusId($items, 4, 'TranscriptionStatusId'),
+                'ItemsNotStarted'          => $this->countByCompletionStatusId($items, 1),
+                'ItemsEdited'              => $this->countByCompletionStatusId($items, 2),
+                'ItemsReviewed'            => $this->countByCompletionStatusId($items, 3),
+                'ItemsCompleted'           => $this->countByCompletionStatusId($items, 4),
+                'StoriesNotStarted'        => $this->countByCompletionStatusId($stories, 1),
+                'StoriesEdited'            => $this->countByCompletionStatusId($stories, 2),
+                'StoriesReviewed'          => $this->countByCompletionStatusId($stories, 3),
+                'StoriesCompleted'         => $this->countByCompletionStatusId($stories, 4),
+                'ManualTranscriptions'     => $this->sumByScoreTypeId($scores, 2),
+                'HTRTranscriptions'        => $this->sumByScoreTypeId($scores, 5),
+                'Locations'                => $this->sumByScoreTypeId($scores, 1),
+                'Enrichments'              => $this->sumByScoreTypeId($scores, 3),
+                'Descriptions'             => $this->sumByScoreTypeId($scores, 4)
             ];
 
             $resource = new StatisticsResource($data);
@@ -71,10 +80,10 @@ class StatisticsController extends ResponseController
         return intval($cloned->where('ScoreTypeId', '=', $scoreTypeId)->sum('Amount'));
     }
 
-    private function countByCompletionStatusId(Builder $query, int $completionStatusId): int
+    private function countByCompletionStatusId(Builder $query, int $completionStatusId, string $completionStatus = 'CompletionStatusId'): int
     {
         $cloned = clone $query;
-        return $cloned->where('CompletionStatusId', '=', $completionStatusId)->count();
+        return $cloned->where($completionStatus, '=', $completionStatusId)->count();
     }
 
     private function countDistinctUsers(Builder $query): int

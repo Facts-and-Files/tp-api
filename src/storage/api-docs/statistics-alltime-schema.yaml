@@ -23,6 +23,38 @@ StatisticsAlltimeGetResponseSchema:
           type: integer
           description: Amount of items whose are completed
           example: 358
+        StoriesNotStarted:
+          type: integer
+          description: Amount of stories whose Transctiption/Enrichment has not yet started
+          example: 31563
+        StoriesEdited:
+          type: integer
+          description: Amount of stories whose status »Edit«
+          example: 315642
+        StoriesReviewed:
+          type: integer
+          description: Amount of stories whose are reviewed
+          example: 1186
+        StoriesCompleted:
+          type: integer
+          description: Amount of stories whose are completed
+          example: 358
+        TranscriptionsNotStarted:
+          type: integer
+          description: Amount of transcriptions not have yet started
+          example: 31563
+        TranscriptionsEdited:
+          type: integer
+          description: Amount of transcriptions whose status »Edit«
+          example: 315642
+        TranscriptionsReviewed:
+          type: integer
+          description: Amount of transcriptions whose are reviewed
+          example: 1186
+        TranscriptionsCompleted:
+          type: integer
+          description: Amount of transcriptions whose are completed
+          example: 358
         ManualTranscriptions:
           type: integer
           description: Amount of manual transcribed chars
