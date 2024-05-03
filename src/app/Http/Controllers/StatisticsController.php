@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\ResponseController;
 use App\Http\Resources\StatisticsResource;
 use App\Models\SummaryStatsView;
+use App\Models\SummaryStatsViewByYear;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,10 +26,13 @@ class StatisticsController extends ResponseController
 
             $initialSortColumn = 'Year';
 
-            $model = new SummaryStatsView();
+            $month = new SummaryStatsView();
+            $year = new SummaryStatsViewByYear();
 
-            $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
+            $monthData = $this->getDataByRequest($request, $month, $queryColumns, $initialSortColumn);
+            $yearData = $this->getDataByRequest($request, $year, $queryColumns, $initialSortColumn);
 
+            $data = $monthData->concat($yearData);
 
             $resource = new StatisticsResource($data);
 
