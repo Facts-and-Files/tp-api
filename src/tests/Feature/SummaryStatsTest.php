@@ -76,6 +76,28 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueItems'      => 1,
                 'OverallItemsStarted'     => 1,
                 'Amount'                  => 10
+            ],
+            [
+                'Year'                    => 2021,
+                'Month'                   => 0,
+                'ScoreTypeId'             => 2,
+                'UniqueUsersPerScoreType' => 2,
+                'UniqueItemsPerScoreType' => 2,
+                'OverallUniqueUsers'      => 2,
+                'OverallUniqueItems'      => 2,
+                'OverallItemsStarted'     => 2,
+                'Amount'                  => 57
+            ],
+            [
+                'Year'                    => 2022,
+                'Month'                   => 0,
+                'ScoreTypeId'             => 3,
+                'UniqueUsersPerScoreType' => 1,
+                'UniqueItemsPerScoreType' => 1,
+                'OverallUniqueUsers'      => 1,
+                'OverallUniqueItems'      => 1,
+                'OverallItemsStarted'     => 1,
+                'Amount'                  => 10
             ]
         ];
 
@@ -110,6 +132,17 @@ class SummaryStatsTest extends TestCase
             [
                 'Year'                    => 2021,
                 'Month'                   => 1,
+                'ScoreTypeId'             => 2,
+                'UniqueUsersPerScoreType' => 2,
+                'UniqueItemsPerScoreType' => 2,
+                'OverallUniqueUsers'      => 2,
+                'OverallUniqueItems'      => 2,
+                'OverallItemsStarted'     => 2,
+                'Amount'                  => 57
+            ],
+            [
+                'Year'                    => 2021,
+                'Month'                   => 0,
                 'ScoreTypeId'             => 2,
                 'UniqueUsersPerScoreType' => 2,
                 'UniqueItemsPerScoreType' => 2,
