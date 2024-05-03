@@ -21,7 +21,7 @@ get:
       type: integer
     - in: query
       name: Month
-      description: To month of the statistics (from 1-12)
+      description: To month of the statistics (from 1-12). With month 0 or just it will the stats for the whole year (same as omitting month completly).
       type: string
   responses:
     200:

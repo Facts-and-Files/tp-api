@@ -6,7 +6,7 @@ StatisticsGetResponseSchema:
       example: 2021
     Month:
       type: integer
-      description: The month of the statistics (from 1-12)
+      description: The month of the statistics (from 1-12). Month 0 is the statistic for the whole year.
       example: 1
     ScoreTypeId:
       type: integer
