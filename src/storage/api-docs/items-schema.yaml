@@ -139,7 +139,7 @@ ItemsAdditionalGetReferenceSchema:
         TranscriptionData:
           type: string
           nullable: true
-          description: HTR data data as XML string (only if HTR data)
+          description: Raw transcription data (XML in case of HTR, Text with HTML in case of manual transcription)
           example: '<?xml version="1.0" encoding="UTF-8"? />'
         HtrDataRevisionId:
           type: integer
