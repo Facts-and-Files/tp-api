@@ -114,7 +114,12 @@ class Item extends Model
         if ($this->TranscriptionSource === 'manual') {
             $manualTranscription = $this
                 ->transcriptions()
-                ->select('UserId', 'TextNoTags as TranscriptionText', 'CurrentVersion')
+                ->select(
+                    'UserId',
+                    'TextNoTags as TranscriptionText',
+                    'Text as TranscriptionData',
+                    'CurrentVersion'
+                )
                 ->firstWhere('CurrentVersion', 1);
 
             return $manualTranscription ? $manualTranscription : [];
