@@ -11,6 +11,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemStatsController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\StoryStatsController;
@@ -109,4 +110,10 @@ Route::middleware(['auth:api'])->group(function() {
 
     Route::get('/statistics', [StatisticsController::class, 'index']);
     Route::get('/statistics/alltime', [StatisticsController::class, 'alltimeIndex']);
+
+    Route::get('/persons', [PersonController::class, 'index']);
+    Route::post('/persons', [PersonController::class, 'store']);
+    Route::get('/persons/{id}', [PersonController::class, 'show']);
+    Route::put('/persons/{id}', [PersonController::class, 'update']);
+    Route::delete('/persons/{id}', [PersonController::class, 'destroy']);
 });
