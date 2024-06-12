@@ -12,4 +12,6 @@ class Person extends Model
     protected $table = 'Person';
 
     protected $primaryKey = 'PersonId';
+
+    protected $hidden = ['pivot'];
 }
