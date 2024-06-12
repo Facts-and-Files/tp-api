@@ -1,0 +1,90 @@
+get:
+  tags:
+    - persons
+  summary: Get all stored persons
+  description: The index endpoint can be used to get all persons. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - in: query
+      name: orderBy
+      default: PersonId
+      description: Table column to order the return
+      schema:
+        type: string
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: FirstName
+      description: Show entries associated with this FirsName
+      schema:
+        type: string
+    - in: query
+      name: LastName
+      description: Show entries associated with this LastName
+      schema:
+        type: string
+    - in: query
+      name: BirthPlace
+      description: Show entries associated with this birth place
+      schema:
+        type: string
+    - in: query
+      name: DeathPlace
+      description: Show entries associated with this death place
+      schema:
+        type: string
+    - in: query
+      name: PersonRole
+      description: Show entries associated with this role
+      schema:
+        type: string
+    - in: query
+      name: broadMatch
+      description: Determine the type of query, if set, a broad search ( LIKE %term%) is processed otherwise the exact term is searched for
+      schema:
+        type: boolean
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: A person entry objects as array
+                    items:
+                      $ref: 'persons-schema.yaml#/PersonGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+# post:
+#   tags:
+#     - teams
+#   summary: Store a new team entry
+#   requestBody:
+#     required: true
+#     content:
+#       application/json:
+#         schema:
+#           $ref: 'teams-schema.yaml#/TeamsPostRequestSchema'
+#   responses:
+#     200:
+#       description: Ok
+#       content:
+#         application/json:
+#           schema:
+#             allOf:
+#               - $ref: 'responses.yaml#/BasicSuccessResponse'
+#               - properties:
+#                   data:
+#                     $ref: 'teams-schema.yaml#/TeamsGetResponseSchema'
+#     401:
+#       $ref: 'responses.yaml#/401ErrorResponse'
+#     400:
+#       $ref: 'responses.yaml#/400ErrorResponse'

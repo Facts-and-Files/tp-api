@@ -40,6 +40,8 @@ tags:
     description: Operations related to places
   - name: projects
     description: Operations related to projects
+  - name: persons
+    description: Operations related to persons
   - name: statistics
     description: Operations related to statistics
   - name: stories
@@ -115,6 +117,11 @@ paths:
     $ref: 'teams-teamId-path.yaml'
   /teams/{TeamId}/statistics:
     $ref: 'teams-teamId-statistics-path.yaml'
+
+  /persons:
+    $ref: 'persons-path.yaml'
+  /persons/{PersonId}:
+    $ref: 'persons-personId-path.yaml'
 
   /campaigns:
     $ref: 'campaigns-path.yaml'
