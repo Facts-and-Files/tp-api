@@ -17,18 +17,25 @@ PersonMinimalReferenceSchema:
       nullable: true
     BirthDate:
       type: string
+      format: date
       description: Birth date of the person in MySQL Date format
-      example: 1407-01-02
+      example: '1407-01-02'
       nullable: true
     BirthDateDisplay:
       type: string
       description: Birth date of the person for displaying (if BirthDate is just year or format is unclear)
       example: 02/01/1407
       nullable: true
+    DeathPlace:
+      type: string
+      description: Death place of the person
+      example: Rotenburg
+      nullable: true
     DeathDate:
       type: string
+      format: date
       description: Death date of the person in MySQL Date format
-      example: 1407-01-02
+      example: '1407-01-02'
       nullable: true
     DeathDateDisplay:
       type: string
@@ -37,7 +44,7 @@ PersonMinimalReferenceSchema:
       nullable: true
     Link:
       type: string
-      description: WikiData Identifier
+      description: WikiData Identifier (currently filled with mixed data as links, descriptions etc.)
       example: Q90478
       nullable: true
     Description:
@@ -75,39 +82,26 @@ PersonGetResponseSchema:
             description: ItemId within Transcribathon
             example: 2259965
 
-# TeamsPostRequestSchema:
-#   allOf:
-#     - required: ['Name', 'ShortName']
-#     - description: The data object of a POST request body
-#     - $ref: '#/TeamsMinimalReferenceSchema'
-#     - properties:
-#         Code:
-#           type: string
-#           description: Access code for the team
-#           example: 1337P455W0r7
-#           nullable: true
-#         UserIds:
-#           type: array
-#           example: [4448, 365, 9724]
-#           items:
-#             type: integer
-#             description: Array of UserId associated with this team
-#             example: 4448
-#
-# TeamsPutRequestSchema:
-#   allOf:
-#     - description: The data object of a PUT request body
-#     - $ref: '#/TeamsMinimalReferenceSchema'
-#     - properties:
-#         Code:
-#           type: string
-#           description: Access code for the team
-#           example: 1337P455W0r7
-#           nullable: true
-#         UserIds:
-#           type: array
-#           example: [4448, 365, 9724]
-#           items:
-#             type: integer
-#             description: Array of UserId associated with this team
-#             example: 4448
+PersonPostRequestSchema:
+  allOf:
+    - description: The data object of a POST request body
+    - $ref: '#/PersonMinimalReferenceSchema'
+    - properties:
+        ItemId:
+          type: integer
+          description: Id of the item the person appeared
+          example: 2259965
+
+PersonPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/PersonMinimalReferenceSchema'
+    - properties:
+        ItemIds:
+          type: array
+          description: Array of items this person appears
+          example: [24668, 366874, 2259965]
+          items:
+            type: integer
+            description: ItemId within Transcribathon
+            example: 2259965
