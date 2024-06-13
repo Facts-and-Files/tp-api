@@ -47,55 +47,53 @@ class PersonController extends ResponseController
         }
     }
 
-    // public function store(Request $request): JsonResponse
-    // {
-    //     try {
-    //         $team = new Team();
-    //         $team->fill($request->all());
-    //         $team->save();
-    //
-    //         if (is_array($request['UserIds'])) {
-    //             $team->user()->sync($request['UserIds']);
-    //         }
-    //
-    //         $resource = new TeamResource($team);
-    //
-    //         return $this->sendResponse($resource, 'Team inserted.');
-    //     } catch (\Exception $exception) {
-    //         return $this->sendError('Invalid data', $exception->getMessage(), 400);
-    //     }
-    // }
-    //
-    // public function update(Request $request, int $id): JsonResponse
-    // {
-    //     try {
-    //         $team = Team::findOrfail($id);
-    //         $team->fill($request->all());
-    //         $team->save();
-    //
-    //         if (is_array($request['UserIds'])) {
-    //             $team->user()->sync($request['UserIds']);
-    //         }
-    //
-    //         $resource = new TeamResource($team);
-    //
-    //         return $this->sendResponse(new TeamResource($team), 'Team updated.');
-    //     } catch(\Exception $exception) {
-    //         return $this->sendError('Invalid data', $exception->getMessage(), 400);
-    //     }
-    // }
-    //
-    // public function destroy(int $id): JsonResponse
-    // {
-    //     try {
-    //         $team = Team::findOrfail($id);
-    //         $resource = $team->toArray();
-    //         $resource = new TeamResource($resource);
-    //         $team->delete();
-    //
-    //         return $this->sendResponse($resource, 'Team deleted.');
-    //     } catch(\Exception $exception) {
-    //         return $this->sendError('Invalid data', $exception->getMessage(), 400);
-    //     }
-    // }
+    public function store(Request $request): JsonResponse
+    {
+        try {
+            $person = new Person();
+            $person->fill($request->all());
+            $person->save();
+
+            $person->items()->attach($request['ItemId']);
+
+            $resource = new PersonResource($person);
+
+            return $this->sendResponse($resource, 'Person inserted.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
+    public function update(Request $request, int $id): JsonResponse
+    {
+        try {
+            $person = Person::findOrfail($id);
+            $person->fill($request->all());
+            $person->save();
+
+            if (is_array($request['ItemIds'])) {
+                $person->items()->sync($request['ItemIds']);
+            }
+
+            $resource = new PersonResource($person);
+
+            return $this->sendResponse($resource, 'Person updated.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        try {
+            $person = Person::findOrfail($id);
+            $resource = $person->toArray();
+            $resource = new PersonResource($resource);
+            $person->delete();
+
+            return $this->sendResponse($resource, 'Person deleted.');
+        } catch(\Exception $exception) {
+            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+        }
+    }
 }
