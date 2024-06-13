@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Events\PersonInserted;
 use App\Http\Controllers\ResponseController;
 use App\Models\Person;
 use App\Http\Resources\PersonResource;
@@ -55,6 +56,8 @@ class PersonController extends ResponseController
             $person->save();
 
             $person->items()->attach($request['ItemId']);
+
+            PersonInserted::dispatch($person);
 
             $resource = new PersonResource($person);
 
