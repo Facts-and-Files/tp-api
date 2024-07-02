@@ -57,7 +57,7 @@ class PersonController extends ResponseController
 
             $person->items()->attach($request['ItemId']);
 
-            PersonInserted::dispatch($person);
+            PersonInserted::dispatch($request['ItemId']);
 
             $resource = new PersonResource($person);
 
