@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\Person;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
@@ -10,10 +9,10 @@ class PersonInserted
 {
     use Dispatchable, SerializesModels;
 
-    public $person;
+    public $itemId;
 
-    public function __construct(Person $person)
+    public function __construct(int $itemId)
     {
-        $this->person = $person;
+        $this->itemId = $itemId;
     }
 }
