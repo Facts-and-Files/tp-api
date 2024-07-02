@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Item extends Model
 {
@@ -66,20 +66,14 @@ class Item extends Model
         return $this->hasMany(Place::class, 'ItemId');
     }
 
-    public function persons(): HasMany
+    public function persons(): BelongsToMany
     {
-       return $this->hasMany(Person::class, 'ItemId');
+        return $this->belongsToMany(Person::class, 'ItemPerson', 'ItemId', 'PersonId');
     }
 
-    public function properties(): HasManyThrough
+    public function properties(): BelongsToMany
     {
-        return $this->hasManyThrough(
-            Property::class,
-            ItemProperty::class,
-            'ItemId',
-            'PropertyId',
-            'ItemId',
-            'PropertyId');
+        return $this->belongsToMany(Property::class, 'ItemProperty', 'ItemId', 'PropertyId');
     }
 
 // to harmonize the API regarding the existent database schema

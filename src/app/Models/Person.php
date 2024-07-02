@@ -3,28 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Collection;
 
 class Person extends Model
 {
-    /**
-     * Use user defined exisiting timestamp columns
-     */
     const CREATED_AT = null;
     const UPDATED_AT = null;
 
-    /**
-     * The table associated with the model.
-     *
-     * Config over convention here to respect exsting table names.
-     *
-     * @var string
-     */
     protected $table = 'Person';
 
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
     protected $primaryKey = 'PersonId';
+
+    protected $guarded = ['PersonId'];
+
+    protected $hidden = ['pivot', 'ItemId', 'StoryId'];
+
+    protected $appends = ['ItemIds'];
+
+    public function items(): BelongsToMany
+    {
+        return $this->belongsToMany(Item::class, 'ItemPerson', 'PersonId', 'ItemId');
+    }
+
+    public function getItemIdsAttribute(): Collection
+    {
+        return $this->items()->pluck('Item.ItemId');
+    }
 }

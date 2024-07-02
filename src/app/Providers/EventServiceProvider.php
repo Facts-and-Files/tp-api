@@ -9,6 +9,9 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         \App\Events\ScoreTableUpdated::class => [
             \App\Listeners\InsertDataWhenScoreTableIsUpdated::class
+        ],
+        \App\Events\PersonInserted::class => [
+            \App\Listeners\UpdateItemStatusWhenPersonIsInserted::class
         ]
     ];
 

@@ -1,0 +1,107 @@
+PersonMinimalReferenceSchema:
+  properties:
+    FirstName:
+      type: string
+      description: Firstname of the person
+      example: Amédé
+      nullable: true
+    LastName:
+      type: string
+      description: Lastname of the person
+      example: Fleury
+      nullable: true
+    BirthPlace:
+      type: string
+      description: Birthplace of the person
+      example: Rotenburg
+      nullable: true
+    BirthDate:
+      type: string
+      format: date
+      description: Birth date of the person in MySQL Date format
+      example: '1407-01-02'
+      nullable: true
+    BirthDateDisplay:
+      type: string
+      description: Birth date of the person for displaying (if BirthDate is just year or format is unclear)
+      example: 02/01/1407
+      nullable: true
+    DeathPlace:
+      type: string
+      description: Death place of the person
+      example: Rotenburg
+      nullable: true
+    DeathDate:
+      type: string
+      format: date
+      description: Death date of the person in MySQL Date format
+      example: '1407-01-02'
+      nullable: true
+    DeathDateDisplay:
+      type: string
+      description: Death date of the person for displaying (if BirthDate is just year or format is unclear)
+      example: 02/01/1407
+      nullable: true
+    Link:
+      type: string
+      description: WikiData Identifier (currently filled with mixed data as links, descriptions etc.)
+      example: Q90478
+      nullable: true
+    Description:
+      type: string
+      description: Description (profession, known for, context)
+      example: German poet
+      nullable: true
+    PersonRole:
+      type: string
+      enum: ['DocumentCreator', 'AddressedPerson', 'PersonMentioned']
+      description: Role of the person in relation to the document
+      example: DocumentCreator
+      nullable: true
+
+PersonAdditionalDataReferenceSchema:
+  properties:
+    PersonId:
+      type: integer
+      description: ID of the entry
+      example: 2
+
+PersonGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/PersonMinimalReferenceSchema'
+    - $ref: '#/PersonAdditionalDataReferenceSchema'
+    - properties:
+        ItemIds:
+          type: array
+          description: Array of items this person appears
+          example: [24668, 366874, 2259965]
+          items:
+            type: integer
+            description: ItemId within Transcribathon
+            example: 2259965
+
+PersonPostRequestSchema:
+  allOf:
+    - description: The data object of a POST request body
+    - $ref: '#/PersonMinimalReferenceSchema'
+    - properties:
+        ItemId:
+          type: integer
+          description: Id of the item the person appeared
+          example: 2259965
+
+PersonPutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/PersonMinimalReferenceSchema'
+    - properties:
+        ItemIds:
+          type: array
+          description: Array of items this person appears
+          example: [24668, 366874, 2259965]
+          items:
+            type: integer
+            description: ItemId within Transcribathon
+            example: 2259965
