@@ -55,9 +55,16 @@ class PersonTest extends TestCase
 
     private static $itemData = [
         [
-            'ItemId'             => 1,
-            'CompletionStatusId' => 1,
-            'TaggingStatusId'    => 1,
+            'ItemId'                => 1,
+            'CompletionStatusId'    => 1,
+            'TranscriptionStatusId' => 1,
+            'TaggingStatusId'       => 1
+        ],
+        [
+            'ItemId'                => 2,
+            'CompletionStatusId'    => 1,
+            'TranscriptionStatusId' => 1,
+            'TaggingStatusId'       => 1
         ]
     ];
 
@@ -131,14 +138,47 @@ class PersonTest extends TestCase
 
     public function testCreateAPerson(): void
     {
-        $this->markTestSkipped('must be revisited.');
+        $createData = [
+            'FirstName'  => 'Max 3',
+            'PersonRole' => 'DocumentCreator',
+            'ItemId'     => 2
+        ];
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => $createData];
+        $awaitedData['data']['PersonId'] = 3;
+        $awaitedData['data']['ItemIds'] = [2];
 
+        $response = $this->post(self::$endpoint, $createData);
+
+        unset($awaitedData['data']['ItemId']);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function testUpdateItemStatusWhenPersonIsInserted(): void
+    {
+        $this->markTestSkipped('must be revisited.');
     }
 
     public function testUpdateAPerson(): void
     {
-        $this->markTestSkipped('must be revisited.');
+        $updateData = [
+            'FirstName'  => 'Max 4'
+        ];
+        $personId = self::$tableData[1]['PersonId'];
+        $queryParams = '/' . $personId;
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => $updateData];
 
+        $response = $this->put(self::$endpoint . $queryParams, $updateData);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
     }
 
     public function testDeleteAPerson(): void
