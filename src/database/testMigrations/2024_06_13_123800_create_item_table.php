@@ -14,6 +14,7 @@ return new class extends Migration
 
             $table->increments('ItemId');
             $table->smallInteger('CompletionStatusId');
+            $table->smallInteger('TranscriptionStatusId');
             $table->smallInteger('TaggingStatusId');
         });
     }
