@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use stdClass;
 
 class Item extends Model
 {
@@ -35,8 +36,8 @@ class Item extends Model
         'CompletionStatus',
         'Transcription',
         'Properties',
-        'Places',
-        'Persons'
+        // 'Places',
+        // 'Persons'
     ];
 
 // declare relationships
@@ -79,9 +80,9 @@ class Item extends Model
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
-    public function getDescriptionLangAttribute(): Language|array
+    public function getDescriptionLangAttribute(): object
     {
-        return $this->language()->first() ?: [];
+        return $this->language()->first() ?: (object)[];
     }
 
     public function getCompletionStatusAttribute(): CompletionStatus
