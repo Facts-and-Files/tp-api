@@ -136,6 +136,20 @@ class PersonTest extends TestCase
             ->assertJson($awaitedData);
     }
 
+    public function testGetAllPersonsByItemId(): void
+    {
+        $endpoint = '/items/' . self::$itemPersonData[0]['ItemId'] . '/persons';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => self::$tableData];
+
+        $response = $this->get($endpoint);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
     public function testCreateAPerson(): void
     {
         $createData = [
