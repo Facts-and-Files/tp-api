@@ -98,6 +98,8 @@ paths:
     $ref: 'items-itemId-htrdata-active-path.yaml'
   /items/{ItemId}/autoenrichments:
     $ref: 'items-itemId-autoenrichments-path.yaml'
+  /items/{ItemId}/persons:
+    $ref: 'items-itemId-persons-path.yaml'
 
   /languages:
     $ref: 'languages-path.yaml'
