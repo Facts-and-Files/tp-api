@@ -34,9 +34,7 @@ class Item extends Model
         'DescriptionLang',
         'CompletionStatus',
         'Transcription',
-        'Properties',
-        'Places',
-        'Persons'
+        'Properties'
     ];
 
 // declare relationships
@@ -98,11 +96,6 @@ class Item extends Model
         return $status;
     }
 
-    public function getPlacesAttribute(): Collection
-    {
-        return $this->places()->get() ?: [];
-    }
-
     public function getTranscriptionAttribute(): Transcription|HtrDataRevision|array
     {
         if ($this->TranscriptionSource === 'manual') {
@@ -147,4 +140,10 @@ class Item extends Model
     {
         return $this->persons()->get() ?: [];
     }
+
+    public function getPlacesAttribute(): Collection
+    {
+        return $this->places()->get() ?: [];
+    }
+
 }
