@@ -34,9 +34,7 @@ class Item extends Model
         'DescriptionLang',
         'CompletionStatus',
         'Transcription',
-        'Properties',
-        'Places',
-        'Persons'
+        'Properties'
     ];
 
 // declare relationships
@@ -79,9 +77,9 @@ class Item extends Model
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
-    public function getDescriptionLangAttribute(): Language|array
+    public function getDescriptionLangAttribute(): object
     {
-        return $this->language()->first() ?: [];
+        return $this->language()->first() ?: (object)[];
     }
 
     public function getCompletionStatusAttribute(): CompletionStatus
@@ -96,11 +94,6 @@ class Item extends Model
             ]);
 
         return $status;
-    }
-
-    public function getPlacesAttribute(): Collection
-    {
-        return $this->places()->get() ?: [];
     }
 
     public function getTranscriptionAttribute(): Transcription|HtrDataRevision|array
@@ -147,4 +140,10 @@ class Item extends Model
     {
         return $this->persons()->get() ?: [];
     }
+
+    public function getPlacesAttribute(): Collection
+    {
+        return $this->places()->get() ?: [];
+    }
+
 }

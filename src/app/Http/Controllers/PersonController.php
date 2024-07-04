@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Events\PersonInserted;
 use App\Http\Controllers\ResponseController;
+use App\Models\Item;
 use App\Models\Person;
 use App\Http\Resources\PersonResource;
 
@@ -43,6 +44,19 @@ class PersonController extends ResponseController
             $resource = new PersonResource($data);
 
             return $this->sendResponse($resource, 'Person fetched.');
+        } catch (\Exception $exception) {
+            return $this->sendError('Not found', $exception->getMessage());
+        }
+    }
+
+    public function showByItemId(int $itemId): JsonResponse
+    {
+        try {
+            $item = Item::findOrFail($itemId);
+            $persons = $item->persons;
+            $resource = new PersonResource($persons);
+
+            return $this->sendResponseWithMeta($resource, 'Persons fetched.');
         } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage());
         }

@@ -50,6 +50,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/items/{id}/htrdata/active', [HtrDataController::class, 'showActiveByItemId']);
     Route::get('/items/{id}/autoenrichments', [AutoEnrichmentController::class, 'showByItemId']);
     Route::get('/items/{id}/statistics', [ItemStatsController::class, 'show']);
+    Route::get('/items/{id}/persons', [PersonController::class, 'showByItemId']);
 
     Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);
 
