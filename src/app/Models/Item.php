@@ -35,8 +35,8 @@ class Item extends Model
         'CompletionStatus',
         'Transcription',
         'Properties',
-        // 'Places',
-        // 'Persons'
+        'Places',
+        'Persons'
     ];
 
 // declare relationships
