@@ -1,11 +1,11 @@
 get:
   tags:
-    - persons
-  summary: Get stored person data of an entry
+    - places
+  summary: Get stored place data of an entry
   description: The returned data is single object
   parameters:
     - in: path
-      name: PersonId
+      name: PlaceId
       description: Numeric ID of the entry
       type: integer
       required: true
@@ -19,7 +19,7 @@ get:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    $ref: 'persons-schema.yaml#/PersonGetResponseSchema'
+                    $ref: 'places-schema.yaml#/PlaceGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
@@ -29,11 +29,11 @@ get:
 
 put:
   tags:
-    - persons
-  summary: Updates data of a person
+    - places
+  summary: Updates data of a place
   parameters:
     - in: path
-      name: PersonId
+      name: PlaceId
       description: Numeric ID of the entry
       type: integer
       required: true
@@ -43,7 +43,7 @@ put:
     content:
       application/json:
         schema:
-          $ref: 'persons-schema.yaml#/PersonPutRequestSchema'
+          $ref: 'places-schema.yaml#/PlacePutRequestSchema'
   responses:
     200:
       description: Ok
@@ -54,9 +54,9 @@ put:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    $ref: 'persons-schema.yaml#/PersonGetResponseSchema'
+                    $ref: 'places-schema.yaml#/PlaceGetResponseSchema'
                   message:
-                    example: Person updated.
+                    example: Place updated.
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
@@ -66,11 +66,11 @@ put:
 
 delete:
   tags:
-    - persons
+    - places
   summary: delete a person data entry
   parameters:
     - in: path
-      name: PersonId
+      name: PlaceId
       description: Numeric ID of the entry
       type: integer
       required: true
@@ -84,9 +84,9 @@ delete:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    $ref: 'persons-schema.yaml#/PersonGetResponseSchema'
+                    $ref: 'places-schema.yaml#/PlaceGetResponseSchema'
                   message:
-                    example: Person deleted.
+                    example: Place deleted.
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:

@@ -1,12 +1,12 @@
 get:
   tags:
     - places
-    - stories
-  summary: Get the places of the enriched items of this story
+    - items
+  summary: Get stored places of an item
   parameters:
     - in: path
-      name: StoryId
-      description: Numeric ID of the story within transcribathon
+      name: ItemId
+      description: Numeric ID of the item within transcribathon
       type: integer
       required: true
   responses:
@@ -20,7 +20,7 @@ get:
               - properties:
                   data:
                     type: array
-                    description: Automatically generated enrichments data entries as array
+                    description: Places data entries as array
                     items:
                       $ref: 'places-schema.yaml#/PlaceGetResponseSchema'
     400:

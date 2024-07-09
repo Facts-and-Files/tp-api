@@ -1,10 +1,5 @@
-
-PlacesMinimalReferenceSchema:
+PlaceMinimalReferenceSchema:
   properties:
-    PlaceId:
-      type: integer
-      description: ID of the entry
-      example: 2
     Name:
       type: string
       description: Name of the place
@@ -61,8 +56,24 @@ PlacesMinimalReferenceSchema:
       description: Indicates the role of the place in this item/document
       example: Other
 
-PlacesGetResponseSchema:
+PlaceGetResponseSchema:
   allOf:
     - type: object
     - description: The data object of a single response entry
-    - $ref: '#/PlacesMinimalReferenceSchema'
+    - $ref: '#/PlaceMinimalReferenceSchema'
+    - properties:
+        PlaceId:
+          type: integer
+          description: ID of the entry
+          example: 2
+
+PlacePostRequestSchema:
+  allOf:
+    - required: ['ItemId', 'Longitude', 'Latitude']
+    - description: The data object of a POST request body
+    - $ref: '#/PlaceMinimalReferenceSchema'
+
+PlacePutRequestSchema:
+  allOf:
+    - description: The data object of a PUT request body
+    - $ref: '#/PlaceMinimalReferenceSchema'

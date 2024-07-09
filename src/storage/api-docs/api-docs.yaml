@@ -1,7 +1,7 @@
 openapi: 3.0.3
 
 info:
-  version: 1.44.0
+  version: 1.45.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -36,12 +36,12 @@ tags:
     description: Operations related to items data
   - name: languages
     description: Operations related to languaes
+  - name: persons
+    description: Operations related to persons
   - name: places
     description: Operations related to places
   - name: projects
     description: Operations related to projects
-  - name: persons
-    description: Operations related to persons
   - name: statistics
     description: Operations related to statistics
   - name: stories
@@ -100,6 +100,8 @@ paths:
     $ref: 'items-itemId-autoenrichments-path.yaml'
   /items/{ItemId}/persons:
     $ref: 'items-itemId-persons-path.yaml'
+  /items/{ItemId}/places:
+    $ref: 'items-itemId-places-path.yaml'
 
   /languages:
     $ref: 'languages-path.yaml'
@@ -124,6 +126,11 @@ paths:
     $ref: 'persons-path.yaml'
   /persons/{PersonId}:
     $ref: 'persons-personId-path.yaml'
+
+  /places:
+    $ref: 'places-path.yaml'
+  /places/{PlaceId}:
+    $ref: 'places-placeId-path.yaml'
 
   /campaigns:
     $ref: 'campaigns-path.yaml'

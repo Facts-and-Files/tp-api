@@ -13,6 +13,8 @@ class Place extends Model
 
     protected $primaryKey = 'PlaceId';
 
+    protected $guarded = ['PlaceId'];
+
     protected $casts = [
         'UserGenerated' => 'boolean'
     ];

@@ -94,3 +94,17 @@ BasicErrorResponse:
                 example: Some detailled error
               message:
                 example: Not found
+
+422ErrorResponse:
+  description: Unprocessable Content
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '#/BasicErrorResponse'
+          - properties:
+              data:
+                example: Some detailled error
+              message:
+                example: Validation error
+

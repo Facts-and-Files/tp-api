@@ -12,6 +12,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         \App\Events\PersonInserted::class => [
             \App\Listeners\UpdateItemStatusWhenPersonIsInserted::class
+        ],
+        \App\Events\PlaceInserted::class => [
+            \App\Listeners\UpdateItemStatusWhenPlaceIsInserted::class
         ]
     ];
 
