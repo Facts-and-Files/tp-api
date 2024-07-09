@@ -18,8 +18,8 @@ class PlaceController extends ResponseController
     {
         $queryColumns = [
             'Name'         => 'Name',
-            'WikiDataName' => 'WikiDataName',
-            'WikiDataId'   => 'WikiDataId',
+            'WikidataName' => 'WikidataName',
+            'WikidataId'   => 'WikidataId',
             'ItemId'       => 'ItemId',
             'UserId'       => 'UserId',
             'PlaceRole'    => 'PlaceRole'
