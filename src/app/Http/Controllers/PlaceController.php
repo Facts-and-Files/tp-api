@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\PlaceInserted;
 use App\Http\Controllers\ResponseController;
 use App\Http\Resources\PlaceResource;
 use App\Models\Story;
@@ -67,7 +68,7 @@ class PlaceController extends ResponseController
             $place->fill($request->all());
             $place->save();
 
-            // PlaceInserted::dispatch($request['ItemId']);
+            PlaceInserted::dispatch($place->ItemId);
 
             $resource = new PlaceResource($place);
 
