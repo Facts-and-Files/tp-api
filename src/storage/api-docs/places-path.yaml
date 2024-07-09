@@ -93,3 +93,5 @@ post:
       $ref: 'responses.yaml#/401ErrorResponse'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
+    422:
+      $ref: 'responses.yaml#/422ErrorResponse'
