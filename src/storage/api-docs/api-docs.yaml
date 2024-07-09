@@ -36,12 +36,12 @@ tags:
     description: Operations related to items data
   - name: languages
     description: Operations related to languaes
+  - name: persons
+    description: Operations related to persons
   - name: places
     description: Operations related to places
   - name: projects
     description: Operations related to projects
-  - name: persons
-    description: Operations related to persons
   - name: statistics
     description: Operations related to statistics
   - name: stories
