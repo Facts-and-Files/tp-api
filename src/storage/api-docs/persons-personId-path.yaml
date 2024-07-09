@@ -56,7 +56,7 @@ put:
                   data:
                     $ref: 'persons-schema.yaml#/PersonGetResponseSchema'
                   message:
-                    example: Team updated.
+                    example: Person updated.
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
