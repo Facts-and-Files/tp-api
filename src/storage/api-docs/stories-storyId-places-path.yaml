@@ -18,15 +18,11 @@ get:
             allOf:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
-                  meta:
-                    type: object
-                    description: Meta data with pagination details
-                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
                   data:
                     type: array
                     description: Automatically generated enrichments data entries as array
                     items:
-                      $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
+                      $ref: 'places-schema.yaml#/PlaceGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
