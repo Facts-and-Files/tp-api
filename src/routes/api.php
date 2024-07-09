@@ -51,6 +51,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/items/{id}/autoenrichments', [AutoEnrichmentController::class, 'showByItemId']);
     Route::get('/items/{id}/statistics', [ItemStatsController::class, 'show']);
     Route::get('/items/{id}/persons', [PersonController::class, 'showByItemId']);
+    Route::get('/items/{id}/places', [PlaceController::class, 'showByItemId']);
 
     Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);
 
@@ -117,4 +118,10 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/persons/{id}', [PersonController::class, 'show']);
     Route::put('/persons/{id}', [PersonController::class, 'update']);
     Route::delete('/persons/{id}', [PersonController::class, 'destroy']);
+
+    Route::get('/places', [PlaceController::class, 'index']);
+    Route::post('/places', [PlaceController::class, 'store']);
+    Route::get('/places/{id}', [PlaceController::class, 'show']);
+    Route::put('/places/{id}', [PlaceController::class, 'update']);
+    Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
 });
