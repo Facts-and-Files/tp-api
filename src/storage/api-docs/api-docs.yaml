@@ -100,6 +100,8 @@ paths:
     $ref: 'items-itemId-autoenrichments-path.yaml'
   /items/{ItemId}/persons:
     $ref: 'items-itemId-persons-path.yaml'
+  /items/{ItemId}/places:
+    $ref: 'items-itemId-places-path.yaml'
 
   /languages:
     $ref: 'languages-path.yaml'
@@ -124,6 +126,11 @@ paths:
     $ref: 'persons-path.yaml'
   /persons/{PersonId}:
     $ref: 'persons-personId-path.yaml'
+
+  /places:
+    $ref: 'places-path.yaml'
+  /places/{PlaceId}:
+    $ref: 'places-placeId-path.yaml'
 
   /campaigns:
     $ref: 'campaigns-path.yaml'
