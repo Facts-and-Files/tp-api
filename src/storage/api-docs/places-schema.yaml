@@ -69,6 +69,7 @@ PlaceGetResponseSchema:
 
 PlacePostRequestSchema:
   allOf:
+    - required: ['ItemId', 'Longitude', 'Latitude']
     - description: The data object of a POST request body
     - $ref: '#/PlaceMinimalReferenceSchema'
 
