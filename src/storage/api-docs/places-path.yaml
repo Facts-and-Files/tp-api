@@ -37,6 +37,11 @@ get:
       name: UserId
       description: Show entries associated with this UserId
       schema:
+        type: integer
+    - in: query
+      name: PlaceRole
+      description: Show entries associated with this PlaceRole
+      schema:
         type: string
     - in: query
       name: broadMatch
