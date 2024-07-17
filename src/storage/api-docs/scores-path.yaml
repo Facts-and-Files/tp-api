@@ -18,6 +18,14 @@ get:
       description: Show entries associated with this ItemId
       type: integer
     - in: query
+      name: StoryId
+      description: Show entries associated with this StoryId
+      type: integer
+    - in: query
+      name: CampaignId
+      description: Show entries associated with this CampaignId
+      type: integer
+    - in: query
       name: UserId
       description: Show entries associated with this UserId
       type: integer
@@ -53,8 +61,12 @@ get:
                     description: items entry objects as array
                     items:
                       $ref: 'scores-schema.yaml#/ScoresGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
     401:
       $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
 post:
   tags:
     - scores
