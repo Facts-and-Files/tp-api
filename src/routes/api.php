@@ -7,6 +7,7 @@ use App\Http\Controllers\CampaignStatsController;
 use App\Http\Controllers\DatasetController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HtrDataController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemStatsController;
 use App\Http\Controllers\LanguageController;
@@ -124,4 +125,6 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/places/{id}', [PlaceController::class, 'show']);
     Route::put('/places/{id}', [PlaceController::class, 'update']);
     Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
+
+    Route::post('/import', [ImportController::class, 'store']);
 });
