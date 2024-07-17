@@ -13,6 +13,7 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
 
             $table->increments('ItemId');
+            $table->integer('StoryId');
             $table->smallInteger('CompletionStatusId')->default(1);
             $table->smallInteger('TranscriptionStatusId')->default(1);
             $table->smallInteger('TaggingStatusId')->default(1);
