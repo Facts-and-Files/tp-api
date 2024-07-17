@@ -45,12 +45,14 @@ class PlaceTest extends TestCase
     private static $itemData = [
         [
             'ItemId'                => 1,
+            'StoryId'               => 1,
             'CompletionStatusId'    => 1,
             'TranscriptionStatusId' => 1,
             'LocationStatusId'      => 1
         ],
         [
             'ItemId'                => 2,
+            'StoryId'               => 1,
             'CompletionStatusId'    => 1,
             'TranscriptionStatusId' => 1,
             'LocaionStatusId'       => 1

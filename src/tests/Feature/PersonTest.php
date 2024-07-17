@@ -56,12 +56,14 @@ class PersonTest extends TestCase
     private static $itemData = [
         [
             'ItemId'                => 1,
+            'StoryId'               => 1,
             'CompletionStatusId'    => 1,
             'TranscriptionStatusId' => 1,
             'TaggingStatusId'       => 1
         ],
         [
             'ItemId'                => 2,
+            'StoryId'               => 1,
             'CompletionStatusId'    => 1,
             'TranscriptionStatusId' => 1,
             'TaggingStatusId'       => 1
