@@ -8,6 +8,66 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
+    protected static $campaignData = [
+        [
+            'CampaignId' => 1
+        ],
+        [
+            'CampaignId' => 2
+        ]
+    ];
+
+    protected static $storyData = [
+        [
+            'StoryId' => 1
+        ],
+        [
+            'StoryId' => 2
+        ],
+        [
+            'StoryId' => 3
+        ]
+    ];
+
+    protected static $storyCampaignData = [
+        [
+            'CampaignId' => 1,
+            'StoryId'    => 1
+        ],
+        [
+            'CampaignId' => 1,
+            'StoryId'    => 2
+        ],
+        [
+            'CampaignId' => 2,
+            'StoryId'    => 3
+        ]
+    ];
+
+    protected static $itemData = [
+        [
+            'ItemId'                => 1,
+            'StoryId'               => 1,
+            'CompletionStatusId'    => 1,
+            'TranscriptionStatusId' => 1,
+            'LocationStatusId'      => 1
+        ],
+        [
+            'ItemId'                => 2,
+            'StoryId'               => 2,
+            'CompletionStatusId'    => 1,
+            'TranscriptionStatusId' => 1,
+            'LocaionStatusId'       => 1
+        ],
+        [
+            'ItemId'                => 3,
+            'StoryId'               => 3,
+            'CompletionStatusId'    => 1,
+            'TranscriptionStatusId' => 1,
+            'LocaionStatusId'       => 1
+        ]
+    ];
+
     protected function setUp(): void
     {
         parent::setUp();

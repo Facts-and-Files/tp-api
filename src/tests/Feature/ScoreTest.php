@@ -28,6 +28,14 @@ class ScoreTest extends TestCase
             'ScoreTypeId' => 2,
             'Amount'      => 2,
             'Timestamp'   => '2021-02-01T12:00:00.000000Z'
+        ],
+        [
+            'ScoreId'     => 3,
+            'ItemId'      => 3,
+            'UserId'      => 3,
+            'ScoreTypeId' => 3,
+            'Amount'      => 3,
+            'Timestamp'   => '2023-02-01T12:00:00.000000Z'
         ]
     ];
 
@@ -37,9 +45,13 @@ class ScoreTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         DB::table(self::$tableName)->insert(self::$tableData);
+        DB::table('Item')->insert(parent::$itemData);
+        DB::table('Story')->insert(parent::$storyData);
+        DB::table('Campaign')->insert(parent::$campaignData);
+        DB::table('StoryCampaign')->insert(parent::$storyCampaignData);
     }
 
     public function testGetAllScores(): void
@@ -59,7 +71,7 @@ class ScoreTest extends TestCase
     {
         $queryParams = '?limit=1&page=1&orderBy=ScoreId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [self::$tableData[2]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -97,11 +109,39 @@ class ScoreTest extends TestCase
             ->assertJson($awaitedData);
     }
 
+    public function testGetScoresByStoryId(): void
+    {
+        $queryParams = '?StoryId='. parent::$itemData[1]['StoryId'];
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [self::$tableData[1]]];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function testGetScoresByCampaignId(): void
+    {
+        $queryParams = '?CampaignId='. parent::$campaignData[0]['CampaignId'];
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [self::$tableData[0], self::$tableData[1]]];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
     public function testGetScoresByScoreTypeId(): void
     {
         $queryParams = '?ScoreTypeId='. self::$tableData[1]['ScoreTypeId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => [self::$tableData[0], self::$tableData[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -145,7 +185,7 @@ class ScoreTest extends TestCase
         $from = Carbon::parse(self::$tableData[0]['Timestamp'] )->sub(1, 'day');
         $queryParams = '?from=' . $from . '&to=' . $to;
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => [self::$tableData[0], self::$tableData[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 

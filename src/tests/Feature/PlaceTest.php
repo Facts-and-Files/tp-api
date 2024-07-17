@@ -42,21 +42,6 @@ class PlaceTest extends TestCase
         ]
     ];
 
-    private static $itemData = [
-        [
-            'ItemId'                => 1,
-            'CompletionStatusId'    => 1,
-            'TranscriptionStatusId' => 1,
-            'LocationStatusId'      => 1
-        ],
-        [
-            'ItemId'                => 2,
-            'CompletionStatusId'    => 1,
-            'TranscriptionStatusId' => 1,
-            'LocaionStatusId'       => 1
-        ]
-    ];
-
     public function setUp(): void
     {
         parent::setUp();
@@ -65,7 +50,7 @@ class PlaceTest extends TestCase
 
     public static function populateTable (): void
     {
-        DB::table('Item')->insert(self::$itemData);
+        DB::table('Item')->insert(parent::$itemData);
         DB::table('Place')->insert(self::$tableData);
     }
 
@@ -126,7 +111,7 @@ class PlaceTest extends TestCase
 
     public function testGetAllPlacesByItemId(): void
     {
-        $endpoint = '/items/' . self::$itemData[0]['ItemId'] . '/places';
+        $endpoint = '/items/' . parent::$itemData[0]['ItemId'] . '/places';
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => self::$tableData];
 

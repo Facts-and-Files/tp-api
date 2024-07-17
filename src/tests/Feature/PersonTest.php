@@ -53,21 +53,6 @@ class PersonTest extends TestCase
         ]
     ];
 
-    private static $itemData = [
-        [
-            'ItemId'                => 1,
-            'CompletionStatusId'    => 1,
-            'TranscriptionStatusId' => 1,
-            'TaggingStatusId'       => 1
-        ],
-        [
-            'ItemId'                => 2,
-            'CompletionStatusId'    => 1,
-            'TranscriptionStatusId' => 1,
-            'TaggingStatusId'       => 1
-        ]
-    ];
-
     public function setUp(): void
     {
         parent::setUp();
@@ -76,7 +61,7 @@ class PersonTest extends TestCase
 
     public static function populateTable (): void
     {
-        DB::table('Item')->insert(self::$itemData);
+        DB::table('Item')->insert(parent::$itemData);
         DB::table('Person')->insert(self::$tableData);
         DB::table('ItemPerson')->insert(self::$itemPersonData);
     }

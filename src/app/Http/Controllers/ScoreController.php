@@ -6,7 +6,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
 use App\Events\ScoreTableUpdated;
+use App\Models\Campaign;
+use App\Models\Item;
 use App\Models\Score;
+use App\Models\Story;
 use App\Http\Resources\ScoreResource;
 
 class ScoreController extends ResponseController
@@ -22,6 +25,32 @@ class ScoreController extends ResponseController
         $initialSortColumn = 'Timestamp';
 
         $model = new Score();
+
+        $storyIds = $request['StoryId'] ? [$request['StoryId']] : [];
+        $itemIds = $request['ItemId'] ? [$request['ItemId']] : [];
+
+        if ($campaignId = $request['CampaignId']) {
+            $campaign = Campaign::find($campaignId);
+
+            if (!$campaign) {
+                return $this->sendError('Not found', 'Campaign not found.');
+            }
+
+            $storyIds = $campaign->StoryIds->toArray();
+        }
+
+        if ($storyId = $request['StoryId']) {
+            $story = Story::find($storyId);
+            if (!$story) {
+                return $this->sendError('Not found', 'Story not found.');
+            }
+        }
+
+        if (count($storyIds) > 0) {
+            $itemIds = Item::whereIn('StoryId', $storyIds)->pluck('ItemId')->toArray();
+            $request['ItemId'] = implode(',', $itemIds);
+            $request['separator'] = ',';
+        }
 
         $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
