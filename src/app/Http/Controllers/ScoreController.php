@@ -9,6 +9,7 @@ use App\Events\ScoreTableUpdated;
 use App\Models\Campaign;
 use App\Models\Item;
 use App\Models\Score;
+use App\Models\Story;
 use App\Http\Resources\ScoreResource;
 
 class ScoreController extends ResponseController
@@ -36,6 +37,13 @@ class ScoreController extends ResponseController
             }
 
             $storyIds = $campaign->StoryIds->toArray();
+        }
+
+        if ($storyId = $request['StoryId']) {
+            $story = Story::find($storyId);
+            if (!$story) {
+                return $this->sendError('Not found', 'Story not found.');
+            }
         }
 
         if (count($storyIds) > 0) {
