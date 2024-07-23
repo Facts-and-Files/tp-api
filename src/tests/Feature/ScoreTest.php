@@ -3,41 +3,17 @@
 namespace Tests\Feature;
 
 use Carbon\Carbon;
+use Database\Seeders\CampaignDataSeeder;
+use Database\Seeders\ItemDataSeeder;
+use Database\Seeders\ScoreDataSeeder;
+use Database\Seeders\StoryCampaignDataSeeder;
+use Database\Seeders\StoryDataSeeder;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
-use Illuminate\Support\Facades\DB;
 
 class ScoreTest extends TestCase
 {
     private static $endpoint = '/scores';
-
-    private static $tableName = 'Score';
-
-    private static $tableData = [
-        [
-            'ScoreId'     => 1,
-            'ItemId'      => 1,
-            'UserId'      => 1,
-            'ScoreTypeId' => 2,
-            'Amount'      => 1,
-            'Timestamp'   => '2021-01-01T12:00:00.000000Z'
-        ],
-        [
-            'ScoreId'     => 2,
-            'ItemId'      => 2,
-            'UserId'      => 2,
-            'ScoreTypeId' => 2,
-            'Amount'      => 2,
-            'Timestamp'   => '2021-02-01T12:00:00.000000Z'
-        ],
-        [
-            'ScoreId'     => 3,
-            'ItemId'      => 3,
-            'UserId'      => 3,
-            'ScoreTypeId' => 3,
-            'Amount'      => 3,
-            'Timestamp'   => '2023-02-01T12:00:00.000000Z'
-        ]
-    ];
 
     public function setUp(): void
     {
@@ -47,17 +23,17 @@ class ScoreTest extends TestCase
 
     public static function populateTable(): void
     {
-        DB::table(self::$tableName)->insert(self::$tableData);
-        DB::table('Item')->insert(parent::$itemData);
-        DB::table('Story')->insert(parent::$storyData);
-        DB::table('Campaign')->insert(parent::$campaignData);
-        DB::table('StoryCampaign')->insert(parent::$storyCampaignData);
+        Artisan::call('db:seed', ['--class' => ScoreDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => CampaignDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => StoryCampaignDataSeeder::class]);
     }
 
     public function testGetAllScores(): void
     {
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => ScoreDataSeeder::$data];
 
         $response = $this->get(self::$endpoint);
 
@@ -71,7 +47,7 @@ class ScoreTest extends TestCase
     {
         $queryParams = '?limit=1&page=1&orderBy=ScoreId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[2]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[2]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -83,9 +59,9 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByUserId(): void
     {
-        $queryParams = '?UserId='. self::$tableData[1]['UserId'];
+        $queryParams = '?UserId='. ScoreDataSeeder::$data[1]['UserId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -97,9 +73,9 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByItemId(): void
     {
-        $queryParams = '?ItemId='. self::$tableData[1]['ItemId'];
+        $queryParams = '?ItemId='. ScoreDataSeeder::$data[1]['ItemId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -111,9 +87,9 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByStoryId(): void
     {
-        $queryParams = '?StoryId='. parent::$itemData[1]['StoryId'];
+        $queryParams = '?StoryId='. ItemDataSeeder::$data[1]['StoryId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -125,9 +101,9 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByCampaignId(): void
     {
-        $queryParams = '?CampaignId='. parent::$campaignData[0]['CampaignId'];
+        $queryParams = '?CampaignId='. CampaignDataSeeder::$data[0]['CampaignId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[0], self::$tableData[1]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[0], ScoreDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -139,9 +115,9 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByScoreTypeId(): void
     {
-        $queryParams = '?ScoreTypeId='. self::$tableData[1]['ScoreTypeId'];
+        $queryParams = '?ScoreTypeId='. ScoreDataSeeder::$data[1]['ScoreTypeId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[0], self::$tableData[1]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[0], ScoreDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -153,9 +129,9 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByFromDatetime(): void
     {
-        $queryParams = '?from=' . Carbon::parse(self::$tableData[1]['Timestamp'] )->sub(1, 'day');
+        $queryParams = '?from=' . Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'] )->sub(1, 'day');
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -167,9 +143,9 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByToDatetime(): void
     {
-        $queryParams = '?to='. Carbon::parse(self::$tableData[0]['Timestamp'] )->add(1, 'day');
+        $queryParams = '?to='. Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'] )->add(1, 'day');
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[0]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[0]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -181,11 +157,11 @@ class ScoreTest extends TestCase
 
     public function testGetAllScoresByBetweenDatetimes(): void
     {
-        $to = Carbon::parse(self::$tableData[1]['Timestamp'] )->add(1, 'day');
-        $from = Carbon::parse(self::$tableData[0]['Timestamp'] )->sub(1, 'day');
+        $to = Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'] )->add(1, 'day');
+        $from = Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'] )->sub(1, 'day');
         $queryParams = '?from=' . $from . '&to=' . $to;
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[0], self::$tableData[1]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[0], ScoreDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -197,8 +173,8 @@ class ScoreTest extends TestCase
 
     public function testGetNoScoreByTimestampBetween(): void
     {
-        $to = Carbon::parse(self::$tableData[1]['Timestamp'] )->sub(1, 'day');
-        $from = Carbon::parse(self::$tableData[0]['Timestamp'] )->add(1, 'day');
+        $to = Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'] )->sub(1, 'day');
+        $from = Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'] )->add(1, 'day');
         $queryParams = '?from=' . $from . '&to=' . $to;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => []];

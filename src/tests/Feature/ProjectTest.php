@@ -2,27 +2,13 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\ProjectDataSeeder;
 use Tests\TestCase;
-use Illuminate\Support\Facades\DB;
 
 class ProjectTest extends TestCase
 {
     private static $endpoint = 'projects';
-
-    private static $tableName = 'Project';
-
-    private static $tableData = [
-        [
-            'ProjectId' => 1,
-            'Name'      => 'Project-1',
-            'Url'       => 'project-1'
-        ],
-        [
-            'ProjectId' => 2,
-            'Name'      => 'Project-2',
-            'Url'       => 'project-2'
-        ]
-    ];
 
     public function setUp(): void
     {
@@ -32,13 +18,13 @@ class ProjectTest extends TestCase
 
     public static function populateTable (): void
     {
-        DB::table(self::$tableName)->insert(self::$tableData);
+        Artisan::call('db:seed', ['--class' => ProjectDataSeeder::class]);
     }
 
     public function testGetAllProjects(): void
     {
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => ProjectDataSeeder::$data];
 
         $response = $this->get(self::$endpoint);
 
@@ -52,7 +38,7 @@ class ProjectTest extends TestCase
     {
         $queryParams = '?limit=1&page=1&orderBy=ProjectId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [ProjectDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -64,9 +50,9 @@ class ProjectTest extends TestCase
 
     public function testGetAllProjectsByName(): void
     {
-        $queryParams = '?Name='. self::$tableData[1]['Name'];
+        $queryParams = '?Name='. ProjectDataSeeder::$data[1]['Name'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [ProjectDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -78,9 +64,9 @@ class ProjectTest extends TestCase
 
     public function testGetASingleProject(): void
     {
-        $queryParams = '/'. self::$tableData[1]['ProjectId'];
+        $queryParams = '/'. ProjectDataSeeder::$data[1]['ProjectId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData[1]];
+        $awaitedData = ['data' => ProjectDataSeeder::$data[1]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -114,7 +100,7 @@ class ProjectTest extends TestCase
            'Name' => 'UpdatedProject',
            'Url'  => 'updatedproject'
         ];
-        $projectId = self::$tableData[1]['ProjectId'];
+        $projectId = ProjectDataSeeder::$data[1]['ProjectId'];
         $queryParams = '/' . $projectId;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => $updateData];
@@ -144,10 +130,10 @@ class ProjectTest extends TestCase
 
     public function testDeleteAProject(): void
     {
-        $projectId = self::$tableData[1]['ProjectId'];
+        $projectId = ProjectDataSeeder::$data[1]['ProjectId'];
         $queryParams = '/' . $projectId;
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData[1]];
+        $awaitedData = ['data' => ProjectDataSeeder::$data[1]];
 
         $response = $this->delete(self::$endpoint . $queryParams);
 

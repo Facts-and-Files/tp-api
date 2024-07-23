@@ -2,7 +2,8 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\DatasetDataSeeder;
 use Tests\TestCase;
 use Tests\Feature\ProjectTest;
 
@@ -10,38 +11,22 @@ class DatasetTest extends TestCase
 {
     private static $endpoint = '/datasets';
 
-    private static $tableName = 'Dataset';
-
-    private static $tableData = [
-        [
-            'DatasetId' => 1,
-            'Name'      => 'Dataset-1',
-            'ProjectId' => 1
-        ],
-        [
-            'DatasetId' => 2,
-            'Name'      => 'Dataset-2',
-            'ProjectId' => 2
-        ]
-    ];
-
     public function setUp(): void
     {
         parent::setUp();
         ProjectTest::populateTable();
         self::populateTable();
-
     }
 
     public static function populateTable(): void
     {
-        DB::table(self::$tableName)->insert(self::$tableData);
+        Artisan::call('db:seed', ['--class' => DatasetDataSeeder::class]);
     }
 
     public function testGetAllDatasets(): void
     {
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => DatasetDataSeeder::$data];
 
         $response = $this->get(self::$endpoint);
 
@@ -55,7 +40,7 @@ class DatasetTest extends TestCase
     {
         $queryParams = '?limit=1&page=1&orderBy=DatasetId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [DatasetDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -67,9 +52,9 @@ class DatasetTest extends TestCase
 
     public function testGetAllDatasetsByProjectId(): void
     {
-        $queryParams = '?ProjectId='. self::$tableData[1]['ProjectId'];
+        $queryParams = '?ProjectId='. DatasetDataSeeder::$data[1]['ProjectId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [DatasetDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -81,9 +66,9 @@ class DatasetTest extends TestCase
 
     public function testGetAllDatasetsByName(): void
     {
-        $queryParams = '?Name='. self::$tableData[1]['Name'];
+        $queryParams = '?Name='. DatasetDataSeeder::$data[1]['Name'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [DatasetDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -95,9 +80,9 @@ class DatasetTest extends TestCase
 
     public function testAGetSingleDataset(): void
     {
-        $queryParams = '/'. self::$tableData[1]['DatasetId'];
+        $queryParams = '/'. DatasetDataSeeder::$data[1]['DatasetId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData[1]];
+        $awaitedData = ['data' => DatasetDataSeeder::$data[1]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -143,7 +128,7 @@ class DatasetTest extends TestCase
            'Name'      => 'UpdatedDataset',
            'ProjectId' => 1
         ];
-        $datasetId = self::$tableData[1]['DatasetId'];
+        $datasetId = DatasetDataSeeder::$data[1]['DatasetId'];
         $queryParams = '/' . $datasetId;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => $updateData];
@@ -172,10 +157,10 @@ class DatasetTest extends TestCase
 
     public function testDeleteADataset(): void
     {
-        $datasetId = self::$tableData[1]['DatasetId'];
+        $datasetId = DatasetDataSeeder::$data[1]['DatasetId'];
         $queryParams = '/' . $datasetId;
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData[1]];
+        $awaitedData = ['data' => DatasetDataSeeder::$data[1]];
 
         $response = $this->delete(self::$endpoint . $queryParams);
 

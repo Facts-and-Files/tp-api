@@ -3,44 +3,13 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\ItemDataSeeder;
+use Database\Seeders\PlaceDataSeeder;
 
 class PlaceTest extends TestCase
 {
     private static $endpoint = '/places';
-
-    private static $tableData = [
-        [
-            'PlaceId'       => 1,
-            'Name'          => 'TestStadt',
-            'Latitude'      => 78,
-            'Longitude'     => 21,
-            'ItemId'        => 1,
-            'Link'          => 'link',
-            'Zoom'          => 10,
-            'Comment'       => 'TestComment',
-            'UserGenerated' => true,
-            'UserId'        => 1,
-            'WikidataName'  => 'Teststadt',
-            'WikidataId'    => 'Q777',
-            'PlaceRole'     => 'Other'
-        ],
-        [
-            'PlaceId'       => 2,
-            'Name'          => 'TestStadt 2',
-            'Latitude'      => 78,
-            'Longitude'     => 21,
-            'ItemId'        => 1,
-            'Link'          => 'link',
-            'Zoom'          => 10,
-            'Comment'       => 'TestComment',
-            'UserGenerated' => true,
-            'UserId'        => 1,
-            'WikidataName'  => 'Teststadt',
-            'WikidataId'    => 'Q778',
-            'PlaceRole'     => 'Other'
-        ]
-    ];
 
     public function setUp(): void
     {
@@ -50,14 +19,14 @@ class PlaceTest extends TestCase
 
     public static function populateTable (): void
     {
-        DB::table('Item')->insert(parent::$itemData);
-        DB::table('Place')->insert(self::$tableData);
+        Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => PlaceDataSeeder::class]);
     }
 
     public function testGetAllPlaces(): void
     {
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => PlaceDataSeeder::$data];
 
         $response = $this->get(self::$endpoint);
 
@@ -71,7 +40,7 @@ class PlaceTest extends TestCase
     {
         $queryParams = '?limit=1&page=1&orderBy=PlaceId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -83,9 +52,9 @@ class PlaceTest extends TestCase
 
     public function testGetAllPlacesByName(): void
     {
-        $queryParams = '?Name='. self::$tableData[1]['Name'];
+        $queryParams = '?Name='. PlaceDataSeeder::$data[1]['Name'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -97,9 +66,9 @@ class PlaceTest extends TestCase
 
     public function testGetAllPlacesByWikidataId(): void
     {
-        $queryParams = '?WikidataId='. self::$tableData[1]['WikidataId'];
+        $queryParams = '?WikidataId='. PlaceDataSeeder::$data[1]['WikidataId'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -111,9 +80,9 @@ class PlaceTest extends TestCase
 
     public function testGetAllPlacesByItemId(): void
     {
-        $endpoint = '/items/' . parent::$itemData[0]['ItemId'] . '/places';
+        $endpoint = '/items/' . ItemDataSeeder::$data[0]['ItemId'] . '/places';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => PlaceDataSeeder::$data];
 
         $response = $this->get($endpoint);
 
@@ -166,7 +135,7 @@ class PlaceTest extends TestCase
         $updateData = [
             'Name' => 'Teststadt 4'
         ];
-        $placeId = self::$tableData[1]['PlaceId'];
+        $placeId = PlaceDataSeeder::$data[1]['PlaceId'];
         $queryParams = '/' . $placeId;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => $updateData];
@@ -181,10 +150,10 @@ class PlaceTest extends TestCase
 
     public function testDeleteAPlace(): void
     {
-        $placeId = self::$tableData[1]['PlaceId'];
+        $placeId = PlaceDataSeeder::$data[1]['PlaceId'];
         $queryParams = '/' . $placeId;
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData[1]];
+        $awaitedData = ['data' => PlaceDataSeeder::$data[1]];
 
         $response = $this->delete(self::$endpoint . $queryParams);
 
