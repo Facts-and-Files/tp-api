@@ -19,11 +19,10 @@ return new class extends Migration
             $table->smallInteger('TaggingStatusId')->default(1);
             $table->smallInteger('LocationStatusId')->default(1);
             $table->string('Title', 1000)->nullable();
+            $table->string('ProjectItemId', 1000)->nullable();
             $table->text('Description')->nullable();
             $table->text('ImageLink');
             $table->integer('OrderIndex');
-            $table->text('Manifest')->nullable();
-            $table->text('edm:WebResource')->nullable();
             $table->dateTime('LastUpdated')->useCurrent();
             $table->dateTime('Timestamp')->useCurrent();
         });
