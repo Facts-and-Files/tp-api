@@ -7,7 +7,7 @@ use App\Http\Resources\ImportResource;
 use App\Models\Story;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 
 class ImportController extends ResponseController
 {
@@ -18,15 +18,21 @@ class ImportController extends ResponseController
         $inserted = [];
         $errors = [];
 
-        try {
-            $validatedData = $request->validate([
-                '*.Story.Dc.Title' => 'required'
+        foreach ($data as $index => $import) {
+            $validator = Validator::make($import, [
+                'Story.Dc.Title' => 'required',
             ]);
-        } catch (ValidationException $exception) {
-            return $this->sendError('Validation error', $exception->errors(), 422);
-        }
 
-        foreach ($data as $import) {
+            if ($validator->fails()) {
+                $errors[] = [
+                    'ExternalRecordId' => $import['Story']['ExternalRecordId'],
+                    'RecordId'         => $import['Story']['RecordId'],
+                    'dc:title'         => $import['Story']['Dc']['Title'],
+                    'error'            => $validator->errors()->all()
+                ];
+                continue;
+            }
+
             $story = new Story();
 
             // fill non-guarded
@@ -51,12 +57,16 @@ class ImportController extends ResponseController
                 ];
                 $inserted[] = $insertedStory;
             } catch (\Exception $exception) {
-                $errors[] = $exception->getMessage();
+                $errors[] = [
+                    'ExternalRecordId' => $story->ExternalRecordId,
+                    'RecordId'         => $story->RecordId,
+                    'dc:title'         => $story->Dc['Title'],
+                    'error'            => $exception->getMessage()
+                ];
             }
         }
 
         $insertedResource = new ImportResource($inserted);
-        $errorResource = new ImportResource($errors);
 
         $insertedCount = count($inserted);
         $errorsCount = count($errors);
@@ -70,7 +80,7 @@ class ImportController extends ResponseController
         }
 
         if ($insertedCount > 0 && $errorsCount > 0) {
-            return $this->sendPartlyResponse($insertedResource, $errorResource, 'Import could only partially inserted.');
+            return $this->sendPartlyResponse($insertedResource, $errors, 'Import could only partially inserted.');
         }
     }
 }
