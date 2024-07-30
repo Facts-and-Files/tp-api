@@ -11,7 +11,9 @@ class ImportTest extends TestCase
     private static $importData = [
         [
             'Story' => [
-                'ExternalRecordId' => 'TestRecordId1',
+                'ExternalRecordId' => null,
+                'RecordId' => 'RecordId1',
+                'Manifest' => 'http://example.com/manifest/Record1.json',
                 'PlaceName' => '',
                 'PlaceLatitude' => '',
                 'PlaceLongitude' => '',
@@ -20,7 +22,6 @@ class ImportTest extends TestCase
                 'Public' => 1,
                 'ImportName' => '',
                 'ProjectId' => 1,
-                'RecordId' => null,
                 'PreviewImage' => '',
                 'DatasetId' => 1,
                 'StoryLanguage' => '',
@@ -65,26 +66,24 @@ class ImportTest extends TestCase
             ],
             'Items' => [
                 [
+                    'ProjectItemId' => 'ExternalId1',
                     'Title' => 'Test Story 1 Item 1',
-                    'Description' => '',
                     'ImageLink' => 'ImageLink 1',
-                    'OrderIndex' => 1,
-                    'Manifest' => '',
-                    'edm:WebResource' => ''
+                    'OrderIndex' => 1
                 ],
                 [
+                    'ProjectItemId' => 'ExternalId2',
                     'Title' => 'Test Story 1 Item 2',
-                    'Description' => '',
                     'ImageLink' => 'ImageLink 2',
-                    'OrderIndex' => 2,
-                    'Manifest' => '',
-                    'edm:WebResource' => ''
+                    'OrderIndex' => 2
                 ]
             ]
         ],
         [
             'Story' => [
-                'ExternalRecordId' => 'TestRecordId2',
+                'ExternalRecordId' => null,
+                'RecordId' => 'TestRecordId2',
+                'Manifest' => 'http://example.com/manifest/Record1.json',
                 'PlaceName' => '',
                 'PlaceLatitude' => '',
                 'PlaceLongitude' => '',
@@ -93,7 +92,6 @@ class ImportTest extends TestCase
                 'Public' => 1,
                 'ImportName' => '',
                 'ProjectId' => 1,
-                'RecordId' => null,
                 'PreviewImage' => '',
                 'DatasetId' => 1,
                 'StoryLanguage' => '',
@@ -138,12 +136,10 @@ class ImportTest extends TestCase
             ],
             'Items' => [
                 [
+                    'ProjectItemId' => 'ExternalId12',
                     'Title' => 'Test Story 2 Item 1',
-                    'Description' => '',
                     'ImageLink' => 'Image Link',
-                    'OrderIndex' => 1,
-                    'Manifest' => '',
-                    'edm:WebResource' => ''
+                    'OrderIndex' => 1
                 ]
             ]
         ]
@@ -238,7 +234,8 @@ class ImportTest extends TestCase
                 [
                     'ExternalRecordId' => $partialImportData[0]['Story']['ExternalRecordId'],
                     'RecordId' => $partialImportData[0]['Story']['RecordId'],
-                    'ItemOrderIndex' => 2,
+                    'ProjectItemId' => $partialImportData[0]['Items'][1]['ProjectItemId'],
+                    'ItemOrderIndex' => $partialImportData[0]['Items'][1]['OrderIndex'],
                     'error'    => []
                 ]
             ]
