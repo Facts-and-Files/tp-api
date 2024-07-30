@@ -52,8 +52,13 @@ tags:
     description: Operations related to users
   - name: scores
     description: Operations related to scores
+  - name: imports
+    description: Operations related to imports
 
 paths:
+  /import:
+    $ref: 'import-path.yaml'
+
   /statistics:
     $ref: 'statistics-path.yaml'
   /statistics/alltime:

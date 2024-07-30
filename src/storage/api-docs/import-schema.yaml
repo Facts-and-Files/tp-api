@@ -1,0 +1,115 @@
+ImportStoryMinimalReferenceSchema:
+  properties:
+    RecordId:
+      type: string
+      nullable: true
+      description: external ID (Europeana RecordId)
+      example: '/135/_nnVvTts'
+    PreviewImage:
+      type: string
+      nullable: true
+      description: IIIF JSON string with full image link
+      example: '{"@id":"rhus-148.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//135/_nnVvTts/ND-0001.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3934,"height":5390,"service":{"@id":"rhus-148.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//135/_nnVvTts/ND-0001.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}'
+    ExternalRecordId:
+      type: string
+      nullable: true
+      description: external ID (Europeana resource location)
+      example: 'https://www.europeana.eu/en/item/135/_nnVvTts'
+    Manifest:
+      type: string
+      nullable: true
+      description: Location of the IIIF manifest
+      example: https://iiif.transcribathon.eu/iiif/manifest/bb7fe5cc-0b04-4de7-87c0-6e4051b23470.json
+    PlaceName:
+      type: string
+      nullable: true
+      description: Name of the place
+      example: 'Vaudesincourt'
+    PlaceLatitude:
+      type: number
+      nullable: true
+      description: Latitude in decimal degrees format
+      example: 51.4545
+    PlaceLongitude:
+      type: number
+      nullable: true
+      description: Longitude in decimal degrees format
+      example: -2.58791
+    PlaceLink:
+      type: string
+      nullable: true
+      description: WikiData ID
+      example: Q2
+    PlaceComment:
+      type: string
+      nullable: true
+      description: WikiData name
+      example: Earth
+    DateStart:
+      type: string
+      format: date-time
+      nullable: true
+      example: '2017-07-21T17:32:28Z'
+    DateEnd:
+      type: string
+      format: date-time
+      nullable: true
+      example: '2018-10-30T23:55:59Z'
+
+ImportItemMinimalReferenceSchema:
+  properties:
+    Title:
+      type: string
+      description: title of the item
+      example: 'Wide Streets Commission Minutes Volume 46 Item 1'
+    ProjectItemId:
+      type: string
+      nullable: true
+      description: The external id at the institutions platform
+      exmaple: 'bb7fe5cc-0b04-4de7-87c0-6e4051b23470'
+    ImageLink:
+      type: string
+      description: IIIF JSON string with full image link
+      example: '{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif/full/full/0/default.jpg\",\"@type\":\"dctypes:Image\",\"width\":1531,\"height\":2121,\"service\":{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif\",\"@context\":\"http://iiif.io/api/image/2/context.json\",\"profile\":\"http://iiif.io/api/image/2/level1.json\"}}'
+    OrderIndex:
+      type: integer
+      description: determine the order or the image within a story/record
+      example: 3
+
+ImportPostRequestSchema:
+  allOf:
+    - description: Array of stories with associated items
+    - properties:
+        Story:
+          $ref: '#/ImportStoryMinimalReferenceSchema'
+          properties:
+            Dc:
+              $ref: 'stories-schema.yaml#/DcElementsReferenceSchema'
+            Dcterms:
+              $ref: 'stories-schema.yaml#/DctermsReferenceSchema'
+            Edm:
+              $ref: 'stories-schema.yaml#/EdmReferenceSchema'
+        Items:
+          type: array
+          items:
+            $ref: '#/ImportItemMinimalReferenceSchema'
+
+
+ImportGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        AutoEnrichmentId:
+          type: integer
+          description: ID of the entry
+          example: 2
+        Timestamp:
+          type: string
+          description: Time of creation
+          example: '2022-02-23T09:57:03.000000Z'
+        LastUpdated:
+          type: string
+          description: Time of last update
+          example: '2022-02-23T09:57:03.000000Z'
+    - $ref: '#/ImportStoryMinimalReferenceSchema'
