@@ -13,21 +13,27 @@ class ItemDataSeeder extends Seeder
             'StoryId'               => 1,
             'CompletionStatusId'    => 1,
             'TranscriptionStatusId' => 1,
-            'LocationStatusId'      => 1
+            'LocationStatusId'      => 1,
+            'OrderIndex'            => 1,
+            'ImageLink'             => 'Imagelink Item 1'
         ],
         [
             'ItemId'                => 2,
             'StoryId'               => 2,
             'CompletionStatusId'    => 1,
             'TranscriptionStatusId' => 1,
-            'LocaionStatusId'       => 1
+            'LocaionStatusId'       => 1,
+            'OrderIndex'            => 1,
+            'ImageLink'             => 'Imagelink Item 2'
         ],
         [
             'ItemId'                => 3,
             'StoryId'               => 3,
             'CompletionStatusId'    => 1,
             'TranscriptionStatusId' => 1,
-            'LocaionStatusId'       => 1
+            'LocaionStatusId'       => 1,
+            'OrderIndex'            => 1,
+            'ImageLink'             => 'Imagelink Item 3'
         ]
     ];
 
