@@ -20,7 +20,7 @@ class ImportTest extends TestCase
                 'Public' => 1,
                 'ImportName' => '',
                 'ProjectId' => 1,
-                'RecordId' => '',
+                'RecordId' => null,
                 'PreviewImage' => '',
                 'DatasetId' => 1,
                 'StoryLanguage' => '',
@@ -76,7 +76,7 @@ class ImportTest extends TestCase
                 'Public' => 1,
                 'ImportName' => '',
                 'ProjectId' => 1,
-                'RecordId' => '',
+                'RecordId' => null,
                 'PreviewImage' => '',
                 'DatasetId' => 1,
                 'StoryLanguage' => '',
@@ -161,19 +161,21 @@ class ImportTest extends TestCase
         $partialImportData = self::$importData;
         $partialImportData[1]['Story']['Dc']['Title'] = null;
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' =>
-            [
+        $awaitedData = [
+            'data' => [
                 [
                     'StoryId' => 1,
                     'ExternalRecordId' => self::$importData[0]['Story']['ExternalRecordId'],
                     'RecordId' => self::$importData[0]['Story']['RecordId'],
                     'dc:title' => self::$importData[0]['Story']['Dc']['Title'],
                 ],
+            ],
+            'error' => [
                 [
-                    'StoryId' => 2,
-                    'ExternalRecordId' => self::$importData[1]['Story']['ExternalRecordId'],
-                    'RecordId' => self::$importData[1]['Story']['RecordId'],
-                    'dc:title' => self::$importData[1]['Story']['Dc']['Title'],
+                    'ExternalRecordId' => $partialImportData[1]['Story']['ExternalRecordId'],
+                    'RecordId' => $partialImportData[1]['Story']['RecordId'],
+                    'dc:title' => $partialImportData[1]['Story']['Dc']['Title'],
+                    'error'    => []
                 ]
             ]
         ];
@@ -181,7 +183,7 @@ class ImportTest extends TestCase
         $response = $this->post(self::$endpoint, $partialImportData);
 
         $response
-            ->assertStatus(422)
+            ->assertStatus(207)
             ->assertJson($awaitedSuccess)
             ->assertJson($awaitedData);
     }
