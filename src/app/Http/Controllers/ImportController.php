@@ -65,7 +65,8 @@ class ImportController extends ResponseController
                             $errors[] = [
                                 'ExternalRecordId' => $import['Story']['ExternalRecordId'] ?? null,
                                 'RecordId'         => $import['Story']['RecordId'] ?? null,
-                                'ItemOrderIndex'   => $itemData['OrderIndex'],
+                                'ItemOrderIndex'   => $itemData['OrderIndex'] ?? null,
+                                'ProjectItemId'    => $itemData['ProjectItemId'] ?? null,
                                 'error'            => $itemValidator->errors()->all()
                             ];
 
@@ -77,6 +78,7 @@ class ImportController extends ResponseController
                         $item->fill($itemData);
                         // fill guarded
                         $item->StoryId = $story->StoryId;
+                        $item->ProjectItemId = $itemData['ProjectItemId'] ?? null;
                         $item->save();
                     }
                 }
