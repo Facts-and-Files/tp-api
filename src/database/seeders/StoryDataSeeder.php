@@ -10,6 +10,7 @@ class StoryDataSeeder extends Seeder
     public static $data = [
         [
             'StoryId' => 1,
+            'Manifest' => 'http://example.com/manifest1.json',
             'ExternalRecordId' => '',
             'PlaceName' => '',
             'PlaceLatitude' => '',
@@ -58,6 +59,7 @@ class StoryDataSeeder extends Seeder
         ],
         [
             'StoryId' => 2,
+            'Manifest' => 'http://example.com/manifest2.json',
             'ExternalRecordId' => '',
             'PlaceName' => '',
             'PlaceLatitude' => '',
@@ -106,6 +108,7 @@ class StoryDataSeeder extends Seeder
         ],
         [
             'StoryId' => 3,
+            'Manifest' => 'http://example.com/manifest3.json',
             'ExternalRecordId' => '',
             'PlaceName' => '',
             'PlaceLatitude' => '',
