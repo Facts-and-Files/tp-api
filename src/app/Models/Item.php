@@ -17,11 +17,10 @@ class Item extends Model
 
     protected $primaryKey = 'ItemId';
 
-    protected $guarded = ['StoryId', 'ItemId'];
+    protected $guarded = ['StoryId', 'ItemId', 'ProjectItemId'];
 
     protected $hidden = [
         'CompletionStatusId',
-        'ProjectItemId',
         'DatasetId',
         'DescriptionLanguage',
         'Exported',

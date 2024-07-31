@@ -2,56 +2,15 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\ItemDataSeeder;
+use Database\Seeders\ItemPersonDataSeeder;
+use Database\Seeders\PersonDataSeeder;
 use Tests\TestCase;
-use Illuminate\Support\Facades\DB;
 
 class PersonTest extends TestCase
 {
     private static $endpoint = '/persons';
-
-    private static $tableData = [
-        [
-            'PersonId'         => 1,
-            'FirstName'        => 'Max',
-            'LastName'         => 'Mustermann',
-            'BirthPlace'       => 'Musterstadt',
-            'BirthDate'        => '0001-01-01',
-            'BirthDateDisplay' => 'Januar 1',
-            'DeathPlace'       => 'Musterstadt',
-            'DeathDate'        => '2999-12-31',
-            'DeathDateDisplay' => 'Spät',
-            'Link'             => 'Q11111',
-            'Description'      => 'Test Entry',
-            'PersonRole'       => 'DocumentCreator'
-        ],
-        [
-            'PersonId'         => 2,
-            'FirstName'        => 'Max 2',
-            'LastName'         => 'Mustermann 2',
-            'BirthPlace'       => 'Musterstadt 2',
-            'BirthDate'        => '0001-01-02',
-            'BirthDateDisplay' => 'Januar 2',
-            'DeathPlace'       => 'Musterstadt 2',
-            'DeathDate'        => '3000-12-31',
-            'DeathDateDisplay' => 'Sehr spät',
-            'Link'             => 'Q11111',
-            'Description'      => 'Test Entry 2',
-            'PersonRole'       => 'DocumentCreator'
-        ]
-    ];
-
-    private static $itemPersonData = [
-        [
-            'ItemPersonId' => 1,
-            'ItemId'       => 1,
-            'PersonId'     => 1
-        ],
-        [
-            'ItemPersonId' => 2,
-            'ItemId'       => 1,
-            'PersonId'     => 2
-        ]
-    ];
 
     public function setUp(): void
     {
@@ -61,15 +20,15 @@ class PersonTest extends TestCase
 
     public static function populateTable (): void
     {
-        DB::table('Item')->insert(parent::$itemData);
-        DB::table('Person')->insert(self::$tableData);
-        DB::table('ItemPerson')->insert(self::$itemPersonData);
+        Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => PersonDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => ItemPersonDataSeeder::class]);
     }
 
     public function testGetAllPersons(): void
     {
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => PersonDataSeeder::$data];
 
         $response = $this->get(self::$endpoint);
 
@@ -83,7 +42,7 @@ class PersonTest extends TestCase
     {
         $queryParams = '?limit=1&page=1&orderBy=PersonId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [PersonDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -95,9 +54,9 @@ class PersonTest extends TestCase
 
     public function testGetAllPersonsByFirstname(): void
     {
-        $queryParams = '?FirstName='. self::$tableData[1]['FirstName'];
+        $queryParams = '?FirstName='. PersonDataSeeder::$data[1]['FirstName'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [PersonDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -109,9 +68,9 @@ class PersonTest extends TestCase
 
     public function testGetAllPersonsByLastname(): void
     {
-        $queryParams = '?LastName='. self::$tableData[1]['LastName'];
+        $queryParams = '?LastName='. PersonDataSeeder::$data[1]['LastName'];
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [self::$tableData[1]]];
+        $awaitedData = ['data' => [PersonDataSeeder::$data[1]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -123,9 +82,9 @@ class PersonTest extends TestCase
 
     public function testGetAllPersonsByItemId(): void
     {
-        $endpoint = '/items/' . self::$itemPersonData[0]['ItemId'] . '/persons';
+        $endpoint = '/items/' . ItemPersonDataSeeder::$data[0]['ItemId'] . '/persons';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData];
+        $awaitedData = ['data' => PersonDataSeeder::$data];
 
         $response = $this->get($endpoint);
 
@@ -167,7 +126,7 @@ class PersonTest extends TestCase
         $updateData = [
             'FirstName'  => 'Max 4'
         ];
-        $personId = self::$tableData[1]['PersonId'];
+        $personId = PersonDataSeeder::$data[1]['PersonId'];
         $queryParams = '/' . $personId;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => $updateData];
@@ -182,10 +141,10 @@ class PersonTest extends TestCase
 
     public function testDeleteAPerson(): void
     {
-        $datasetId = self::$tableData[1]['PersonId'];
+        $datasetId = PersonDataSeeder::$data[1]['PersonId'];
         $queryParams = '/' . $datasetId;
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => self::$tableData[1]];
+        $awaitedData = ['data' => PersonDataSeeder::$data[1]];
 
         $response = $this->delete(self::$endpoint . $queryParams);
 
