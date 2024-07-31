@@ -197,6 +197,10 @@ StoriesMinimalReferenceSchema:
       nullable: true
       description: Id of the associated dataset
       example: 6
+    ProjectId:
+      type: integer
+      description: Id of the associated project
+      example: 6
     HasHtr:
       type: boolean
       description: Indicates whether the story has items with a HTR transcription
