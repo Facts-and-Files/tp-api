@@ -49,7 +49,6 @@ DcElementsReferenceSchema:
   properties:
     Title:
       type: string
-      nullable: true
       description: dc:title of the entry
       example: 'Neues Deutschland - Ausgaben zwischen dem 27.10. und 30.11.1989'
     Description:
