@@ -22,7 +22,8 @@ abstract class TestCase extends BaseTestCase
         // basically since the start of creating tests, all other will be covered
         $additionalMigrations = [
             '2024_03_18_103600_create_user_stats_view.php',
-            '2024_03_22_150100_create_campaign_stats_view.php'
+            '2024_03_22_150100_create_campaign_stats_view.php',
+            '2024_07_31_094900_add_manifest_to_story_table.php'
         ];
 
         foreach ($additionalMigrations as $migration) {
