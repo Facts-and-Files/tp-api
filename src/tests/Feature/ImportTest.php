@@ -27,8 +27,6 @@ class ImportTest extends TestCase
                 'StoryLanguage' => '',
                 'PlaceLink' => '',
                 'PlaceComment' => '',
-                'DateStart' => '2022-02-23 12:12:12',
-                'DateEnd' => '2023-02-23 12:12:12',
                 'Dc' => [
                     'Title' => 'TestTitle1',
                     'Description' => '',
@@ -97,8 +95,6 @@ class ImportTest extends TestCase
                 'StoryLanguage' => '',
                 'PlaceLink' => '',
                 'PlaceComment' => '',
-                'DateStart' => '',
-                'DateEnd' => '',
                 'Dc' => [
                     'Title' => 'TestTitle2',
                     'Description' => '',
