@@ -18,16 +18,6 @@ class Story extends Model
 
     protected $primaryKey = 'StoryId';
 
-    // protected $fillable = [
-    //     'DatasetId',
-    //     'HasHtr',
-    //     'Dc',
-    //     'Dcterms',
-    //     'Edm',
-    //     'Public',
-    //     'ProjectId',
-    // ];
-
     protected $guarded = [
         'StoryId',
         'ExternalRecordId',
@@ -41,13 +31,36 @@ class Story extends Model
     ];
 
     protected $hidden = [
+        'edm:landingPage',
+        'edm:country',
+        'edm:dataProvider',
+        'edm:provider',
+        'edm:rights',
+        'edm:year',
+        'edm:datasetName',
+        'edm:begin',
+        'edm:end',
+        'edm:isShownAt',
+        'edm:language',
+        'edm:agent',
+        'dc:rights',
         'dc:title',
         'dc:description',
-        'edm:landingPage',
-        'PlaceUserId',
-        'PlaceUserGenerated',
         'dc:creator',
         'dc:source',
+        'dc:contributor',
+        'dc:publisher',
+        'dc:coverage',
+        'dc:date',
+        'dc:type',
+        'dc:relation',
+        'dc:language',
+        'dc:identifier',
+        'dcterms:medium',
+        'dcterms:provenance',
+        'dcterms:created',
+        'PlaceUserId',
+        'PlaceUserGenerated',
         'Summary',
         'ParentStory',
         'SearchText',
@@ -55,31 +68,8 @@ class Story extends Model
         'DateEnd',
         'OrderIndex',
         'ImportName',
-        'edm:country',
-        'edm:dataProvider',
-        'edm:provider',
-        'edm:rights',
-        'dc:contributor',
-        'edm:year',
-        'dc:publisher',
-        'dc:coverage',
-        'dc:date',
-        'dc:type',
-        'dc:relation',
-        'dcterms:medium',
-        'edm:datasetName',
-        'edm:begin',
-        'edm:end',
-        'edm:isShownAt',
-        'dc:rights',
-        'dc:language',
-        'edm:language',
         'CompletionStatusId',
-        'dcterms:provenance',
-        'dc:identifier',
-        'OldStoryId',
-        'edm:agent',
-        'dcterms:created'
+        'OldStoryId'
     ];
 
     protected $appends = [
