@@ -205,6 +205,11 @@ StoriesMinimalReferenceSchema:
       type: boolean
       description: Indicates whether the story is public or not
       example: true
+    Manifest:
+      type: string
+      nullable: true
+      description: Location of the IIIF manifest
+      example: https://iiif.transcribathon.eu/iiif/manifest/bb7fe5cc-0b04-4de7-87c0-6e4051b23470.json
 
 StoriesAdditionalDataReferenceSchema:
   properties:
