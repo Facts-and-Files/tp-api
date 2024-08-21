@@ -1,0 +1,52 @@
+get:
+  tags:
+    - users
+  summary: Get all stored WP_UserId for provided UserId
+  description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - in: query
+      name: orderBy
+      default: UserId
+      description: Table column to order the return
+      schema:
+        type: string
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: UserId
+      description: Show entries associated with this UserId
+      type: integer
+    - in: query
+      name: separator
+      description: If set determines that query (UserId) is a multiple query string and separated by this separator
+      schema:
+        type: string
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: UserId and WP_UserId entry objects as array
+                    items:
+                      properties:
+                        UserId:
+                          type: integer
+                          description: Id of the user
+                          example: 1
+                        WP_UserId:
+                          type: integer
+                          description: ID of the user within Wordpress
+                          example: 1
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'

@@ -115,6 +115,8 @@ paths:
 
   /users:
     $ref: 'users-path.yaml'
+  /users/wpuserids:
+    $ref: 'users-wpuserids-path.yaml'
   /users/{UserId}:
     $ref: 'users-userId-path.yaml'
   /users/{UserId}/statistics:
