@@ -27,27 +27,27 @@ return new class extends Migration
                   (
                     (
                       SELECT
-                        YEAR(transcribathon.Score.Timestamp) AS Year,
-                        transcribathon.Score.ScoreTypeId AS ScoreTypeId,
-                        COUNT(DISTINCT transcribathon.Score.UserId) AS UniqueUsers,
-                        COUNT(DISTINCT transcribathon.Score.ItemId) AS UniqueItems,
-                        SUM(transcribathon.Score.Amount) AS Amount
+                        YEAR(Score.Timestamp) AS Year,
+                        Score.ScoreTypeId AS ScoreTypeId,
+                        COUNT(DISTINCT Score.UserId) AS UniqueUsers,
+                        COUNT(DISTINCT Score.ItemId) AS UniqueItems,
+                        SUM(Score.Amount) AS Amount
                       FROM
-                        transcribathon.Score
+                        Score
                       GROUP BY
-                        YEAR(transcribathon.Score.Timestamp),
-                        transcribathon.Score.ScoreTypeId
+                        YEAR(Score.Timestamp),
+                        Score.ScoreTypeId
                     )
                   ) t1
                   JOIN (
                     SELECT
-                      YEAR(transcribathon.Score.Timestamp) AS Year,
-                      COUNT(DISTINCT transcribathon.Score.UserId) AS UniqueUsers,
-                      COUNT(DISTINCT transcribathon.Score.ItemId) AS UniqueItems
+                      YEAR(Score.Timestamp) AS Year,
+                      COUNT(DISTINCT Score.UserId) AS UniqueUsers,
+                      COUNT(DISTINCT Score.ItemId) AS UniqueItems
                     FROM
-                      transcribathon.Score
+                      Score
                     GROUP BY
-                      YEAR(transcribathon.Score.Timestamp)
+                      YEAR(Score.Timestamp)
                   ) t2 ON(
                     (t1.Year = t2.Year)
                   )
@@ -58,15 +58,15 @@ return new class extends Migration
                     COUNT(0) AS NumberOfFirstRecords
                   FROM
                     (
-                      transcribathon.Score s
+                      Score s
                       JOIN (
                         SELECT
-                          transcribathon.Score.ItemId AS ItemId,
-                          MIN(transcribathon.Score.ScoreId) AS FirstScoreId
+                          Score.ItemId AS ItemId,
+                          MIN(Score.ScoreId) AS FirstScoreId
                         FROM
-                          transcribathon.Score
+                          Score
                         GROUP BY
-                          transcribathon.Score.ItemId
+                          Score.ItemId
                       ) firstRecords ON(
                         (
                           (s.ItemId = firstRecords.ItemId)
