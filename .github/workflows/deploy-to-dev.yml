@@ -70,6 +70,7 @@ jobs:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
           ssh -tt -o StrictHostKeyChecking=no -p "$PORT" "${{ secrets.DEV_SSH_USER }}@$HOST" <<EOF
+            set -e
             cd ${{ env.remote_path }}
             tar -xf ${{ env.deployfile }}
             chcon -t httpd_user_rw_content_t -R ${{ env.remote_folder}}.${{ env.now }}
