@@ -2,7 +2,7 @@ ItemsMinimalReferenceSchema:
   properties:
     TranscriptionSource:
       type: string
-      enum: ['htr', 'manual']
+      enum: ['htr', 'manual', 'occam']
       description: source of the transcription
       example: 'manual'
     Title:
