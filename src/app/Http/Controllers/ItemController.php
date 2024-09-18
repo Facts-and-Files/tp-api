@@ -5,16 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\ResponseController;
 use App\Models\Item;
 use App\Http\Resources\ItemResource;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ItemController extends ResponseController
 {
-    /**
-     * Display a paginated listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $queryColumns = [
             'StoryId' => 'StoryId',
@@ -36,13 +32,7 @@ class ItemController extends ResponseController
         return $this->sendResponseWithMeta($collection, 'Items fetched.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show(int $id): JsonResponse
     {
         try {
             $data = Item::findOrFail($id);
@@ -54,14 +44,7 @@ class ItemController extends ResponseController
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         try {
             $item = Item::findOrfail($id);
