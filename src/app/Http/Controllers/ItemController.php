@@ -23,6 +23,8 @@ class ItemController extends ResponseController
 
         $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
+        $data = $this->filterDataByFieldlist($data, $request, ['StoryId', 'ItemId'], $initialSortColumn);
+
         if (!$data) {
             return $this->sendError('Invalid data', $request . ' not valid', 400);
         }

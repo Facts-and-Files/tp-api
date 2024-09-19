@@ -158,4 +158,34 @@ class ResponseController extends Controller
 
         return $filtered;
     }
+
+    protected function filterDataByFieldlist(
+        Collection $data,
+        Request $request,
+        array $defaults,
+        string $initialSortColumn
+    ): Collection
+    {
+        $queries = $request->query();
+
+        if (empty($queries['fieldlist'])) {
+            return $data;
+        }
+
+        $fieldlist = explode(',', $queries['fieldlist']);
+        $fieldlist = array_map('trim', $fieldlist);
+        $fieldlist[] = $queries['orderBy'] ?? $initialSortColumn;
+        $fieldlist = array_merge($defaults, $fieldlist);
+        $fieldlist = array_unique($fieldlist);
+        $dataArray = $data->toArray()[0] ?: $data->toArray();
+        $fieldsToRemove = array_filter(array_keys($dataArray), function($field) use ($fieldlist) {
+            return !in_array($field, $fieldlist);
+        });
+
+        $data->each(function($data) use ($fieldsToRemove) {
+            $data->makeHidden($fieldsToRemove);
+        });
+
+        return $data;
+    }
 }
