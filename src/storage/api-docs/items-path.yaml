@@ -22,7 +22,7 @@ get:
       schema:
         type: string
     - in: query
-      name: fieldList
+      name: fieldlist
       description: Comma-separated list of fields that will be shown in the response
       type: string
   responses:
