@@ -21,6 +21,10 @@ get:
       description: If set determines that the query (StoryId, ItemId) is a multiple query string and separated by this separator
       schema:
         type: string
+    - in: query
+      name: fieldlist
+      description: Comma-separated list of fields that will be shown in the response
+      type: string
   responses:
     200:
       description: Ok

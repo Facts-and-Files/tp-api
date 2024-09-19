@@ -76,9 +76,9 @@ class Item extends Model
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
-    public function getDescriptionLangAttribute(): object
+    public function getDescriptionLangAttribute(): Language
     {
-        return $this->language()->first() ?: (object)[];
+        return $this->language()->first() ?: new Language();
     }
 
     public function getCompletionStatusAttribute(): CompletionStatus
@@ -92,10 +92,10 @@ class Item extends Model
                 'ColorCodeGradient'
             ]);
 
-        return $status;
+        return $status ?: new CompletionStatus();
     }
 
-    public function getTranscriptionAttribute(): Transcription|HtrDataRevision|array
+    public function getTranscriptionAttribute(): Transcription|HtrDataRevision
     {
         if ($this->TranscriptionSource === 'manual') {
             $manualTranscription = $this
@@ -108,7 +108,7 @@ class Item extends Model
                 )
                 ->firstWhere('CurrentVersion', 1);
 
-            return $manualTranscription ? $manualTranscription : [];
+            return $manualTranscription ?: new Transcription();
         }
 
         if ($this->TranscriptionSource === 'htr') {
@@ -120,7 +120,7 @@ class Item extends Model
                 ->latest()
                 ->first();
 
-            return $latest ? $latest->htrDataRevision->first() : [];
+            return $latest ? $latest->htrDataRevision->first() : new HtrData();
         }
 
         return [];
@@ -144,5 +144,4 @@ class Item extends Model
     {
         return $this->places()->get() ?: [];
     }
-
 }
