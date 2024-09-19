@@ -54,6 +54,11 @@ HtrDataPostRequestSchema:
         type: integer
         description: Array of LanguageId associated with this data
         example: 4
+    TranscriptionProviderId:
+      type: integer
+      nullable: true
+      description: ID of the TranscriptionProvider
+      example: 1
 
 HtrDataGetResponseSchema:
   allOf:
@@ -80,6 +85,10 @@ HtrDataGetResponseSchema:
           type: array
           items:
             $ref: 'language-reference-schema.yaml#/LanguageReferenceSchema'
+        TranscriptionProvider:
+          type: string
+          description: Name TranscriptionProvider
+          example: ReadCoop-Transkribus
     - $ref: '#/HtrDataMinimalReferenceSchema'
 
 HtrDataPutRequestSchema:
@@ -93,4 +102,9 @@ HtrDataPutRequestSchema:
             type: integer
             description: Array of LanguageId associated with this data
             example: 4
+        TranscriptionProviderId:
+          type: integer
+          nullable: true
+          description: ID of the TranscriptionProvider
+          example: 1
     - $ref: '#/HtrDataMinimalReferenceSchema'
