@@ -159,6 +159,11 @@ paths:
   /scores:
     $ref: 'scores-path.yaml'
 
+  /transcription-providers:
+    $ref: 'transcription-providers-path.yaml'
+  /transcription-providers/{TranscriptionProviderId}:
+    $ref: 'transcription-providers-transcriptionProviderId-path.yaml'
+
   /stories:
     $ref: 'stories-path.yaml'
   /stories/campaigns:

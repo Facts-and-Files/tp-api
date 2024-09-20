@@ -1,0 +1,29 @@
+TranscriptionProvidersMinimalReferenceSchema:
+  properties:
+    Name:
+      type: string
+      description: Name of the transcription provider
+      example: ReadCoop-Transkribus
+
+TranscriptionProvidersGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/TranscriptionProvidersMinimalReferenceSchema'
+    - properties:
+        TranscriptionProviderId:
+          type: integer
+          description: ID of the entry
+          example: 2
+
+TranscriptionProvidersPostRequestSchema:
+  allOf:
+    - required: ['Name']
+    - description: The data object of a POST request body
+    - $ref: '#/TranscriptionProvidersMinimalReferenceSchema'
+
+TranscriptionProvidersPutRequestSchema:
+  allOf:
+    - required: ['Name']
+    - description: The data object of a PUT request body
+    - $ref: '#/TranscriptionProvidersMinimalReferenceSchema'
