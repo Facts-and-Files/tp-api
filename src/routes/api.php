@@ -22,6 +22,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserStatsController;
 use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\TranscriptionProviderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -126,6 +127,12 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/places/{id}', [PlaceController::class, 'show']);
     Route::put('/places/{id}', [PlaceController::class, 'update']);
     Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
+
+    Route::get('/transcription-providers', [TranscriptionProviderController::class, 'index']);
+    Route::post('/transcription-providers', [TranscriptionProviderController::class, 'store']);
+    Route::get('/transcription-providers/{id}', [TranscriptionProviderController::class, 'show']);
+    Route::put('/transcription-providers/{id}', [TranscriptionProviderController::class, 'update']);
+    Route::delete('/transcription-providers/{id}', [TranscriptionProviderController::class, 'destroy']);
 
     Route::post('/import', [ImportController::class, 'store']);
 });

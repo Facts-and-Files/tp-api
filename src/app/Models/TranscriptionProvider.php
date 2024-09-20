@@ -14,6 +14,8 @@ class TranscriptionProvider extends Model
 
     protected $primaryKey = 'TranscriptionProviderId';
 
+    protected $guarded = ['TranscriptionProviderId'];
+
     public function htrData(): HasMany
     {
         return $this->hasMany(HtrData::class, 'TranscriptionProviderId');
