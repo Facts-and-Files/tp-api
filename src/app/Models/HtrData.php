@@ -26,12 +26,20 @@ class HtrData extends Model
         'Language'
     ];
 
+    protected  $hidden = ['TranscriptionProviderId'];
+
     protected $appends = [
         'UserId',
         'TranscriptionData',
         'TranscriptionText',
-        'Language'
+        'Language',
+        'TranscriptionProvider',
     ];
+
+    public function transcriptionProvider(): BelongsTo
+    {
+        return $this->belongsTo(TranscriptionProvider::class, 'TranscriptionProviderId');
+    }
 
     public function item(): BelongsTo
     {
@@ -58,6 +66,12 @@ class HtrData extends Model
     }
 
 // we make usage of some custom accessors and mutators
+
+    public function getTranscriptionProviderAttribute(): string
+    {
+        $transcriptionProvider = $this->transcriptionProvider()->first();
+        return $transcriptionProvider ? $transcriptionProvider['Name'] : 'No provider';
+    }
 
     public function getLanguageAttribute(): Collection
     {
