@@ -11,14 +11,14 @@ HtrDataMinimalReferenceSchema:
       description: ID of the used HTR model for this data
       example: 35909
     HtrProcessId:
-      type: integer
+      type: string
       nullable: true
-      description: ID of the process from the Transkribus API
+      description: ID of the process provided by the transcription provider
       example: 56845
     HtrStatus:
       type: string
       nullable: true
-      description: Current status of the data as received by Transkribus
+      description: Current status the process provided by the transcription provider
       example: CREATED
     TranscriptionData:
       type: string
