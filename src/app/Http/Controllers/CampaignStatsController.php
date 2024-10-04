@@ -132,7 +132,7 @@ class CampaignStatsController extends ResponseController
             'Enrichments'          => $collection->pluck('Enrichments')->sum(),
             'Descriptions'         => $collection->pluck('Descriptions')->sum(),
             'HTRTranscriptions'    => $collection->pluck('HTRTranscriptions')->sum(),
-            'Miles'                => $collection->pluck('Miles')->sum()
+            'Miles'                => ceil($collection->pluck('Miles')->sum())
         ];
     }
 }
