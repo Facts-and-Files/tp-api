@@ -19,7 +19,8 @@ class UserStatsController extends ResponseController
             }
 
             // cast all as integer
-            $collection = collect($data[0])->map(function ($value) {
+            $collection = collect($data[0])->map(function ($value, $key) {
+                $value = $key === 'Miles' ? ceil($value) : $value;
                 return is_numeric($value) ? (int) $value : $value;
             });
 
