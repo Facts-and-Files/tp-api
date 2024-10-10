@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Tests\Feature\ProjectTest;
 
 class ImportTest extends TestCase
 {
@@ -144,6 +145,7 @@ class ImportTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
+        ProjectTest::populateTable();
     }
 
     public function testImport(): void

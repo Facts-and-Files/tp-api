@@ -6,9 +6,11 @@ use App\Http\Controllers\ResponseController;
 use App\Http\Resources\ImportResource;
 use App\Models\Item;
 use App\Models\Story;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class ImportController extends ResponseController
 {
@@ -22,14 +24,15 @@ class ImportController extends ResponseController
         foreach ($data as $index => $import) {
             $validator = Validator::make($import, [
                 'Story.Dc.Title' => 'required',
+                'Story.RecordId' => 'required',
                 'Items' => 'array',
             ]);
 
             if ($validator->fails()) {
                 $errors[] = [
-                    'ExternalRecordId' => $import['Story']['ExternalRecordId'],
-                    'RecordId'         => $import['Story']['RecordId'],
-                    'dc:title'         => $import['Story']['Dc']['Title'],
+                    'ExternalRecordId' => $import['Story']['ExternalRecordId'] ?? null,
+                    'RecordId'         => $import['Story']['RecordId'] ?? null,
+                    'dc:title'         => $import['Story']['Dc']['Title'] ?? null,
                     'error'            => $validator->errors()->all()
                 ];
                 continue;
@@ -50,6 +53,10 @@ class ImportController extends ResponseController
             $story->edm     = $import['Story']['Edm'];
 
             try {
+                if ($story->ProjectId && !Project::find($story->ProjectId)) {
+                    throw ValidationException::withMessages(['ProjectId' => __('ProjectId does not exists')]);
+                }
+
                 $story->save();
 
                 if (isset($import['Items']) && is_array($import['Items'])) {
