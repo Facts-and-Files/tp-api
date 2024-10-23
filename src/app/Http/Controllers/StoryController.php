@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
+use App\Models\Project;
 use App\Models\Story;
-use App\Models\Campaign;
 use App\Http\Resources\StoryResource;
 use App\Http\Resources\CampaignResource;
+use Illuminate\Validation\ValidationException;
 
 class StoryController extends ResponseController
 {
@@ -51,8 +52,27 @@ class StoryController extends ResponseController
     public function update(Request $request, int $id): JsonResponse
     {
         try {
+
             $story = Story::findOrfail($id);
+
+            $validated = $request->validate([
+                'Dc' => 'array',
+                'Dcterms' => 'array',
+                'Edm' => 'array',
+            ]);
+
             $story->fill($request->all());
+
+            $story->dc = $request['Dc'] ?? [];
+            $story->dcterms = $request['Dcterms'] ?? [];
+            $story->edm = $request['Edm'] ?? [];
+
+            if ($story->ProjectId && !Project::find($story->ProjectId)) {
+                throw ValidationException::withMessages(
+                    ['ProjectId' => __('ProjectId does not exists')]
+                );
+            }
+
             $story->save();
 
             $resource = new StoryResource($story);
