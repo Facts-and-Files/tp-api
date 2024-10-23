@@ -261,23 +261,11 @@ StoriesGetResponseSchema:
 StoriesPutRequestSchema:
   allOf:
     - description: The data object of a PUT request body
-    - properties:
-        DatasetId:
-          type: integer
-          nullable: true
-          description: ID of the associated dataset
-          example: 6
-        HasHtr:
-          type: boolean
-          description: Marks wether the Story has items with a HTR transcription
-          example: true
+    - $ref: '#/StoriesMinimalReferenceSchema'
+      properties:
+        Dcterms:
+          $ref: '#/DctermsReferenceSchema'
         Dc:
-          type: object
-          description: Object with DCMI properties from the /elements/ namespace
-          properties:
-            Title:
-              type: string
-              nullable: true
-              description: dc:title of the entry
-              example: 'Neues Deutschland - Ausgaben zwischen dem 27.10. und 30.11.1989'
-
+          $ref: '#/DcElementsReferenceSchema'
+        Edm:
+          $ref: '#/EdmReferenceSchema'
