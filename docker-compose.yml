@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   php_apache:
     image: scto-php:8.0
