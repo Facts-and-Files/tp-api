@@ -21,27 +21,27 @@ An custom PHP image. When bulding the image use the name and tag as it is refere
 
 A Makefile is included for managing some of the processes as starting/stoping the docker container.
 
-    $ make docker_start
+    $ make serve
 
-    $ make docker_stop
+    $ make stop
 
 ### artisan
 
 To get direct access to the docker internal Laravel artisan console (and not the one from the host) you can use the provided d_artisan.sh wrapper script:
 
-    $ ./d_artisan.sh list
+    $ ./docker_artisan.sh list
 
 ### Composer
 
 Also the you can make use of the docker container internal compose with the provided wrapper:
 
-    $ ./d_composer.sh --version
+    $ ./docker_composer.sh --version
 
 ### API-Token
 
 To access the API routes a valid token is required. The token can be generated via
 
-    $ ./d_artisan.sh make:token
+    $ ./docker_artisan.sh make:token
 
 It will be stored in the `api_clients` table as hash. The token can be applied by the client as as bearer token in the header `Authorization: Bearer <api_token>`
 
