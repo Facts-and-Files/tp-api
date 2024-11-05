@@ -36,13 +36,13 @@ test: serve
 	@clear
 	@bash docker_artisan.sh test --without-tty
 
-lint-fix:
-	@clear
-	./src/vendor/bin/pint
-
 lint: serve
 	@clear
-	./src/vendor/bin/pint --test -v
+	./src/vendor/bin/pint --test -v src/app src/tests src/routes --preset psr12
+
+lint-fix: serve
+	@clear
+	./src/vendor/bin/pint src/app src/tests src/routes --preset psr12
 
 vendor: distclean
 	@clear
