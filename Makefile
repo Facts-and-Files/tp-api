@@ -1,14 +1,21 @@
+.PHONY: all distclean help lint lint-fix serve stop test vendor
+
 # include .env
 # export $(shell sed 's/=.*//' .env)
 
-this_container := $(shell pwd)
-api_db_container := ../tp-mysql
+PWD := $(shell pwd)
+TP_API_DB := ../tp-mysql
 
-docker_start:
+all: test
+
+distclean:
+	@rm -rf ./src/vendor ./src/composer.lock
+
+serve:
 	@echo "Starting database container..."
-	@cd $(api_db_container) && sudo docker-compose up -d
+	@cd $(TP_API_DB) && sudo docker compose up --detach
 	@echo "Starting PHP/Apache container..."
-	@cd $(this_container) && sudo docker-compose up -d
+	@cd $(PWD) && sudo docker compose up --detach
 	@echo
 	@echo "API database running on tp_mysql:3306"
 	@echo "Webserver running on https://api.transcribathon.eu.local:4443/v2/"
@@ -16,26 +23,57 @@ docker_start:
 	@echo "I'm up to no good..."
 	@echo
 
-docker_stop:
+stop:
 	@echo
 	@echo "Stopping all containers..."
-	@cd $(api_db_container) && sudo docker-compose down
-	@cd $(this_container) && sudo docker-compose down
+	@cd $(TP_API_DB) && sudo docker compose down
+	@cd $(PWD) && sudo docker compose down
 	@echo
 	@echo "...mischief managed."
 	@echo
 
-deploy_local:
-	@echo "deploying to local..."
-	@bash deploy.sh local
-	@echo "...deploying done"
-
-deploy_dev:
-	@echo "deploying to DEV..."
-	@bash deploy.sh dev
-	@echo "...deploying done"
-
-run_test:
+test: serve
 	@clear
-	@echo "running the tests..."
-	@bash d_artisan.sh test --without-tty
+	@bash docker_artisan.sh test --without-tty
+
+lint-fix:
+	@clear
+	./src/vendor/bin/pint
+
+lint: serve
+	@clear
+	./src/vendor/bin/pint --test -v
+
+vendor: distclean
+	@clear
+	@bash docker_composer.sh install
+
+help:
+	@echo "Manage project"
+	@echo ""
+	@echo "Usage:"
+	@echo "  $$ make [command]"
+	@echo ""
+	@echo "Commands:"
+	@echo ""
+	@echo "  $$ make lint"
+	@echo "  Lint code style"
+	@echo ""
+	@echo "  $$ make lint-fix"
+	@echo "  Lint and fix code style"
+	@echo ""
+	@echo "  $$ make distclean"
+	@echo "  Delete installed dependencies"
+	@echo ""
+	@echo "  $$ make serve"
+	@echo "  Starting the servers"
+	@echo ""
+	@echo "  $$ make stop"
+	@echo "  Stopping the servers"
+	@echo ""
+	@echo "  $$ make test"
+	@echo "  Run tests"
+	@echo ""
+	@echo "  $$ make vendor"
+	@echo "  Install dependencies"
+	@echo ""
