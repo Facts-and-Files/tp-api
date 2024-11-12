@@ -1,0 +1,45 @@
+get:
+  tags:
+    - statistics
+    - users
+  summary: Get stored statistics data of all user (default sorted by Miles descending)
+  description: The returned data is single object
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    # - $ref: 'basic-query-parameter.yaml#/SortParameters/orderBy'
+    # - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: orderBy
+      default: Miles
+      description: 'Table column to order the return (default: Miles)'
+      schema:
+        type: string
+    - in: query
+      name: orderDir
+      default: desc
+      description: 'Sort direction of the orderby property (default: desc)'
+      schema:
+        type: string
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: a user entry objects as array
+                    items:
+                      $ref: 'users-statistics-schema.yaml#/UserStatisticsGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'

@@ -80,6 +80,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/languages/{id}', [LanguageController::class, 'show']);
 
     Route::get('/users/wpuserids', [UserController::class, 'showWPUserIdsByUserId']);
+    Route::get('/users/statistics', [UserStatsController::class, 'index']);
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::get('/users/{id}/statistics', [UserStatsController::class, 'show']);

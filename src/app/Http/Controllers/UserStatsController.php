@@ -2,34 +2,57 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserStatsView;
 use App\Http\Controllers\ResponseController;
 use App\Http\Resources\UserStatsResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class UserStatsController extends ResponseController
 {
+    public function index(Request $request): JsonResponse
+    {
+        $queryColumns = [
+            'UserId',
+            'Items',
+            'Locations',
+            'ManualTranscriptions',
+            'Enrichments',
+            'Descriptions',
+            'HTRTranscriptions',
+            'Miles',
+        ];
+
+        $initialSortColumn = 'Miles';
+
+        $orderDir = $request->query()['orderDir'] ?? null;
+        if (!$orderDir) {
+            $request->merge(['orderDir' => 'desc']);
+        }
+
+        $model = new UserStatsView();
+
+        $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
+
+        if (!$data) {
+            return $this->sendError('Invalid data', $request . ' not valid', 400);
+        }
+
+        $collection = UserStatsResource::collection($data);
+
+        return $this->sendResponseWithMeta($collection, 'Users statistics fetched.');
+    }
+
     public function show(int $id): JsonResponse
     {
         try {
-            $data = DB::select('SELECT * FROM user_stats_view WHERE UserId = ?', [$id]);
+            $data = UserStatsView::findOrFail($id);
 
-            if (empty($data)) {
-                return $this->sendError('Not found', 'No statistics exists for this UserId.');
-            }
-
-            // cast all as integer
-            $collection = collect($data[0])->map(function ($value, $key) {
-                $value = $key === 'Miles' ? ceil($value) : $value;
-                return is_numeric($value) ? (int) $value : $value;
-            });
-
-            $resource = new UserStatsResource($collection);
+            $resource = new UserStatsResource($data);
 
             return $this->sendResponse($resource, 'UserStats fetched.');
         } catch (\Exception $exception) {
-            return $this->sendError('Invalid data', $exception->getMessage(), 400);
+            return $this->sendError('Not found', $exception->getMessage());
         }
     }
-
 }

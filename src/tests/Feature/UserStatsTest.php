@@ -41,9 +41,11 @@ class UserStatsTest extends TestCase
         $endpoint = '/users/' . $userId . '/statistics';
         $queryParams = '?limit=1&page=1&orderBy=ScoreId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
+
         $userFiltered = array_filter(ScoreDataSeeder::$data, function($entry) use ($userId) {
             return $entry['UserId'] == $userId;
         });
+
         function scoreFiltered (array $array, int $scoreTypeId): int
         {
             return array_sum(
@@ -55,6 +57,7 @@ class UserStatsTest extends TestCase
                 )
             );
         }
+
         $awaitedData = [
             'data' => [
                 'UserId'               => $userId,
@@ -68,6 +71,7 @@ class UserStatsTest extends TestCase
                 'HTRTranscriptions'    => scoreFiltered($userFiltered, 5)
             ]
         ];
+
         function rate (array $array, int $scoreTypeId): float
         {
             $filtered = array_filter($array, function ($entry) use ($scoreTypeId) {
@@ -77,6 +81,7 @@ class UserStatsTest extends TestCase
 
             return $filtered['Rate'];
         }
+
         $awaitedData['data']['Miles'] = ceil(
             $awaitedData['data']['Locations']            * rate(ScoreTypeDataSeeder::$data, 1) +
             $awaitedData['data']['ManualTranscriptions'] * rate(ScoreTypeDataSeeder::$data, 2) +
@@ -91,5 +96,82 @@ class UserStatsTest extends TestCase
             ->assertOk()
             ->assertJson($awaitedSuccess)
             ->assertJson($awaitedData);
+    }
+
+    function testGetStatisiticsForAllUsers(): void
+    {
+        $endpoint = '/users/statistics';
+        $queryParams = '';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = [
+            'data' => [
+                [
+                    'UserId' => 1,
+                    'Items' => 2,
+                    'Locations' => 0,
+                    'ManualTranscriptions' => 55,
+                    'Enrichments' => 10,
+                    'Descriptions' => 0,
+                    'HTRTranscriptions' => 0,
+                    'Miles' => 3,
+                ],
+                [
+                    'UserId' => 2,
+                    'Items' => 1,
+                    'Locations' => 0,
+                    'ManualTranscriptions' => 2,
+                    'Enrichments' => 0,
+                    'Descriptions' => 0,
+                    'HTRTranscriptions' => 0,
+                    'Miles' => 1,
+                ]
+            ]
+        ];
+
+        $response = $this->get($endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function testGetStatisticsForAllUsersLimitedAndSorted(): void
+    {
+        $endpoint = '/users/statistics';
+        $queryParams = '?limit=1&page=1&orderBy=ManualTranscriptions&orderDir=asc';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = [
+            'data' => [
+                [
+                    'UserId' => 2,
+                    'Items' => 1,
+                    'Locations' => 0,
+                    'ManualTranscriptions' => 2,
+                    'Enrichments' => 0,
+                    'Descriptions' => 0,
+                    'HTRTranscriptions' => 0,
+                    'Miles' => 1,
+                ]
+            ]
+        ];
+        $awaitedMeta = [
+            'meta' => [
+                'limit' => 1,
+                'currentPage' => 1,
+                'lastPage' => 2,
+                'fromEntry' => 1,
+                'toEntry' => 1,
+                'totalEntries' => 2,
+            ],
+        ];
+
+        $response = $this->get($endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData)
+            ->assertJson($awaitedMeta);
     }
 }
