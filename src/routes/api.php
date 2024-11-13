@@ -55,8 +55,6 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/items/{id}/persons', [PersonController::class, 'showByItemId']);
     Route::get('/items/{id}/places', [PlaceController::class, 'showByItemId']);
 
-    Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);
-
     Route::get('/stories/campaigns', [StoryController::class, 'showCampaignsByStories']);
     Route::get('/stories', [StoryController::class, 'index']);
     Route::get('/stories/{id}', [StoryController::class, 'show']);
@@ -84,6 +82,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/users/{id}', [UserController::class, 'show']);
     Route::get('/users/{id}/statistics', [UserStatsController::class, 'show']);
+    Route::get('/users/{id}/htrdata', [HtrDataController::class, 'showByUserId']);
 
     Route::get('/scores', [ScoreController::class, 'index']);
     Route::post('/scores', [ScoreController::class, 'store']);
