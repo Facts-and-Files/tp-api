@@ -98,7 +98,7 @@ class UserStatsTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    function testGetStatisiticsForAllUsers(): void
+    function testGetStatisticsForAllUsers(): void
     {
         $endpoint = '/users/statistics';
         $queryParams = '';
@@ -107,13 +107,13 @@ class UserStatsTest extends TestCase
             'data' => [
                 [
                     'UserId' => 1,
-                    'Items' => 2,
+                    'Items' => 3,
                     'Locations' => 0,
                     'ManualTranscriptions' => 55,
-                    'Enrichments' => 10,
+                    'Enrichments' => 210,
                     'Descriptions' => 0,
                     'HTRTranscriptions' => 0,
-                    'Miles' => 3,
+                    'Miles' => 43,
                 ],
                 [
                     'UserId' => 2,
