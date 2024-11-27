@@ -31,7 +31,23 @@ class ScoreDataSeeder extends Seeder
             'ScoreTypeId' => 3,
             'Amount'      => 10,
             'Timestamp'   => '2022-02-01T12:00:00.000000Z'
-        ]
+        ],
+        [
+            'ScoreId'     => 4,
+            'ItemId'      => 1,
+            'UserId'      => 1,
+            'ScoreTypeId' => 3,
+            'Amount'      => 100,
+            'Timestamp'   => '2023-02-01T12:00:00.000000Z'
+        ],
+        [
+            'ScoreId'     => 5,
+            'ItemId'      => 5,
+            'UserId'      => 1,
+            'ScoreTypeId' => 3,
+            'Amount'      => 100,
+            'Timestamp'   => '2023-03-01T12:00:00.000000Z'
+        ],
     ];
 
     public function run(): void

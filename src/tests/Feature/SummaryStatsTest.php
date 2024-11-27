@@ -49,6 +49,28 @@ class SummaryStatsTest extends TestCase
                 'Amount'                  => 10
             ],
             [
+                'Year'                    => 2023,
+                'Month'                   => 2,
+                'ScoreTypeId'             => 3,
+                'UniqueUsersPerScoreType' => 1,
+                'UniqueItemsPerScoreType' => 1,
+                'OverallUniqueUsers'      => 1,
+                'OverallUniqueItems'      => 1,
+                'OverallItemsStarted'     => 0,
+                'Amount'                  => 100
+            ],
+            [
+                'Year'                    => 2023,
+                'Month'                   => 3,
+                'ScoreTypeId'             => 3,
+                'UniqueUsersPerScoreType' => 1,
+                'UniqueItemsPerScoreType' => 1,
+                'OverallUniqueUsers'      => 1,
+                'OverallUniqueItems'      => 1,
+                'OverallItemsStarted'     => 1,
+                'Amount'                  => 100
+            ],
+            [
                 'Year'                    => 2021,
                 'Month'                   => 0,
                 'ScoreTypeId'             => 2,
@@ -69,7 +91,18 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueItems'      => 1,
                 'OverallItemsStarted'     => 1,
                 'Amount'                  => 10
-            ]
+            ],
+            [
+                'Year'                    => 2023,
+                'Month'                   => 0,
+                'ScoreTypeId'             => 3,
+                'UniqueUsersPerScoreType' => 1,
+                'UniqueItemsPerScoreType' => 2,
+                'OverallUniqueUsers'      => 1,
+                'OverallUniqueItems'      => 2,
+                'OverallItemsStarted'     => 1,
+                'Amount'                  => 200
+            ],
         ];
 
         $response = $this->get(self::$endpoint . $queryParams);

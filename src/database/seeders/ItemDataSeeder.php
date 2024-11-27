@@ -34,6 +34,15 @@ class ItemDataSeeder extends Seeder
             'LocaionStatusId'       => 1,
             'OrderIndex'            => 1,
             'ImageLink'             => 'Imagelink Item 3'
+        ],
+        [
+            'ItemId'                => 5,
+            'StoryId'               => 3,
+            'CompletionStatusId'    => 1,
+            'TranscriptionStatusId' => 1,
+            'LocaionStatusId'       => 1,
+            'OrderIndex'            => 1,
+            'ImageLink'             => 'Imagelink Item 5'
         ]
     ];
 

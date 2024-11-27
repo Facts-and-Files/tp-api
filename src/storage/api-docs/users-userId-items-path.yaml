@@ -1,0 +1,61 @@
+get:
+  tags:
+    - items
+    - users
+  summary: Get latest entiched/translated items of an user
+  description: The returned data is an array
+  parameters:
+    - in: query
+      name: limit
+      description: The numbers of items to return per Project
+      default: 9
+      schema:
+        type: integer
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - in: path
+      name: UserId
+      description: Numeric ID of the user
+      type: integer
+      required: true
+    - in: query
+      name: threshold
+      description: Limits the numbers of scores entries to be queried. Prevents overused memory usage. Can be set higher if the resuling limit/page don't show item entries.
+      default: 500
+      schema:
+        type: integer
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    type: array
+                    description: Last edited items as array sorted in projects
+                    items:
+                      $ref: 'users-items-schema.yaml#/UserItemsGetResponseSchema'
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    properties:
+                      limit:
+                        type: integer
+                        description: The limit of the entries per page
+                        example: 3
+                      currentPage:
+                        type: integer
+                        description: Number of the current page
+                        example: 2
+                      threshold:
+                        type: integer
+                        description: Number of the threshold used for this query
+                        example: 500
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'

@@ -47,7 +47,7 @@ class ScoreTest extends TestCase
     {
         $queryParams = '?limit=1&page=1&orderBy=ScoreId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [ScoreDataSeeder::$data[2]]];
+        $awaitedData = ['data' => [ScoreDataSeeder::$data[4]]];
 
         $response = $this->get(self::$endpoint . $queryParams);
 
