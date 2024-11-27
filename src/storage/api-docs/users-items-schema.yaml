@@ -1,0 +1,50 @@
+UserItemsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+      properties:
+        ProjectName:
+          type: string
+          description: Name of the project
+          example: Europeana
+        Items:
+          type: array
+          description: Array of lastest edited items of this user in this project
+          items:
+            type: object
+            description: An item entry with limited properties
+            properties:
+              ItemId:
+                type: integer
+                description: ID of the item
+                example: 245354
+              ItemTitle:
+                type: string
+                description: Title of the item
+                example: 'Parchment no. 2'
+              ItemImageLink:
+                type: string
+                description: IIIF JSON string with full image link
+                example: '{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif/full/full/0/default.jpg\",\"@type\":\"dctypes:Image\",\"width\":1531,\"height\":2121,\"service\":{\"@id\":\"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=11/5//2020601/https___1914_1918_europeana_eu_contributions_17441/17441.245184.original.tif\",\"@context\":\"http://iiif.io/api/image/2/context.json\",\"profile\":\"http://iiif.io/api/image/2/level1.json\"}}'
+              CompletionStatus:
+                type: string
+                description: Name of the completion status
+                example: 'Edited'
+              LastEdit:
+                type: string
+                description: Time of this user's last edit
+                example: '2022-02-01 12:00:00'
+              Scores:
+                type: array
+                description: Array with scores amount and type for this item and user
+                items:
+                  type: object
+                  description: Summarized scores amount per score type
+                  properties:
+                    ScoreType:
+                      type: string
+                      description: Name of the ScoreType
+                      example: Enrichment
+                    Amount:
+                      type: integer
+                      description: Summarized score amount of this ScoreType

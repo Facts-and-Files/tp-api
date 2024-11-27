@@ -123,6 +123,8 @@ paths:
     $ref: 'users-userId-path.yaml'
   /users/{UserId}/statistics:
     $ref: 'users-userId-statistics-path.yaml'
+  /users/{UserId}/items:
+    $ref: 'users-userId-items-path.yaml'
 
   /teams:
     $ref: 'teams-path.yaml'
