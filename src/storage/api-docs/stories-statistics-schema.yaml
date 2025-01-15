@@ -95,6 +95,6 @@ StoriesStatisticsGetResponseSchema:
     - $ref: '#/StoriesStatisticsUserIdsReferenceSchema'
       properties:
         Enrichments:
-          $ref: '#StoriesStatisticsEnrichmentsReferenceSchema'
+          $ref: '#/StoriesStatisticsEnrichmentsReferenceSchema'
         CompletionStatus:
-          $ref: '#StoriesStatisticsItemCompletionIdsReferenceSchema'
+          $ref: '#/StoriesStatisticsItemCompletionIdsReferenceSchema'

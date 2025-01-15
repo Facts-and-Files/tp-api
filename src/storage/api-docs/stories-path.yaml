@@ -49,7 +49,7 @@ get:
                   meta:
                     type: object
                     description: Meta data with pagination details
-                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
+                    $ref: 'meta-responses.yaml#/MetaPaginationResponse'
                   data:
                     type: array
                     description: story entry objects as array

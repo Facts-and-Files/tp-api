@@ -150,7 +150,7 @@ PropertiesReference:
   type: array
   description: Array with data related to the properties of that item
   items:
-    $ref: 'property-reference-schema.yaml#PropertyReferenceSchema'
+    $ref: 'property-reference-schema.yaml#/PropertyReferenceSchema'
 
 ItemsGetResponseSchema:
   allOf:
@@ -163,9 +163,9 @@ ItemsGetResponseSchema:
         CompletionStatus:
           $ref: 'completionStatus-reference-schema.yaml#/CompletionStatusReferenceSchema'
         DescriptionLang:
-          $ref:  'language-reference-schema.yaml#LanguageReferenceSchema'
+          $ref:  'language-reference-schema.yaml#/LanguageReferenceSchema'
         Properties:
-          $ref: '#PropertiesReference'
+          $ref: '#/PropertiesReference'
 
 ItemsPutRequestSchema:
   allOf:

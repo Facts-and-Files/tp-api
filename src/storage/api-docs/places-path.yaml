@@ -60,7 +60,7 @@ get:
                   meta:
                     type: object
                     description: Meta data with pagination details
-                    $ref: 'meta-responses.yaml#MetaPaginationResponse'
+                    $ref: 'meta-responses.yaml#/MetaPaginationResponse'
                   data:
                     type: array
                     description: A place entry objects as array
