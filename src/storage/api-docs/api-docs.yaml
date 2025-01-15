@@ -183,9 +183,6 @@ components:
       type: http
       scheme: bearer
 
-  responses:
-    $ref: 'responses.yaml'
-
   schemas:
     MetaPaginationResponse:
       $ref: 'meta-responses.yaml#/MetaPaginationResponse'
