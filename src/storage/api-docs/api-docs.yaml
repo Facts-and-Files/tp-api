@@ -230,6 +230,10 @@ components:
       $ref: 'datasets-schema.yaml#/DatasetsPutRequestSchema'
     PlacesGetResponseSchema:
       $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
+    PlacesPutRequestSchema:
+      $ref: 'places-schema.yaml#/PlacesPutRequestSchema'
+    PlacesPostRequestSchema:
+      $ref: 'places-schema.yaml#/PlacesPostRequestSchema'
     ProjectsGetResponseSchema:
       $ref: 'projects-schema.yaml#/ProjectsGetResponseSchema'
     ProjectsPostRequestSchema:

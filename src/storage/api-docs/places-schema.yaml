@@ -63,7 +63,7 @@ PlaceMinimalReferenceSchema:
       description: Indicates the role of the place in this item/document
       example: Other
 
-PlaceGetResponseSchema:
+PlacesGetResponseSchema:
   allOf:
     - type: object
     - description: The data object of a single response entry
@@ -74,13 +74,13 @@ PlaceGetResponseSchema:
           description: ID of the entry
           example: 2
 
-PlacePostRequestSchema:
+PlacesPostRequestSchema:
   allOf:
     - required: ['ItemId', 'Longitude', 'Latitude']
     - description: The data object of a POST request body
     - $ref: '#/PlaceMinimalReferenceSchema'
 
-PlacePutRequestSchema:
+PlacesPutRequestSchema:
   allOf:
     - description: The data object of a PUT request body
     - $ref: '#/PlaceMinimalReferenceSchema'

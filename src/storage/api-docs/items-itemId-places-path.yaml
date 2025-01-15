@@ -22,7 +22,7 @@ get:
                     type: array
                     description: Places data entries as array
                     items:
-                      $ref: 'places-schema.yaml#/PlaceGetResponseSchema'
+                      $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
