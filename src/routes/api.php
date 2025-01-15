@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutoEnrichmentController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CampaignStatsController;
@@ -24,6 +23,8 @@ use App\Http\Controllers\UserStatsController;
 use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\TranscriptionProviderController;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,18 @@ use App\Http\Controllers\TranscriptionProviderController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('/documentation/{filename}', function ($filename) {
+    $filePath = storage_path('api-docs/' . $filename);
+
+    if (file_exists($filePath)) {
+        return response(File::get($filePath))
+            ->header('Content-Type', 'application/x-yaml');
+    } else {
+        abort(404, 'File not found');
+    }
+});
+
 Route::get('/health', [HealthController::class, 'check']);
 
 Route::middleware(['auth:api'])->group(function() {
