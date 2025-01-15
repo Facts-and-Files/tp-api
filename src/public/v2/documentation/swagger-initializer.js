@@ -5,7 +5,7 @@ window.onload = function() {
   window.ui = SwaggerUIBundle({
     url: window.location.origin + "/v2/documentation/api-docs.yaml",
     dom_id: '#swagger-ui',
-    deepLinking: true,
+    // deepLinking: true,
     persistAuthorization: true,
     presets: [
       SwaggerUIBundle.presets.apis,
