@@ -1,63 +1,74 @@
 PersonMinimalReferenceSchema:
   properties:
     FirstName:
-      type: string
+      type:
+        - string
+        - 'null'
       description: Firstname of the person
       example: Amédé
-      nullable: true
     LastName:
-      type: string
+      type:
+        - string
+        - 'null'
       description: Lastname of the person
       example: Fleury
-      nullable: true
     BirthPlace:
-      type: string
+      type:
+        - string
+        - 'null'
       description: Birthplace of the person
       example: Rotenburg
-      nullable: true
     BirthDate:
-      type: string
+      type:
+        - string
+        - 'null'
       format: date
       description: Birth date of the person in MySQL Date format
       example: '1407-01-02'
-      nullable: true
     BirthDateDisplay:
-      type: string
+      type:
+        - string
+        - 'null'
       description: Birth date of the person for displaying (if BirthDate is just year or format is unclear)
       example: 02/01/1407
-      nullable: true
     DeathPlace:
-      type: string
+      type:
+        - string
+        - 'null'
       description: Death place of the person
       example: Rotenburg
-      nullable: true
     DeathDate:
-      type: string
+      type:
+        - string
+        - 'null'
       format: date
       description: Death date of the person in MySQL Date format
       example: '1407-01-02'
-      nullable: true
     DeathDateDisplay:
-      type: string
+      type:
+        - string
+        - 'null'
       description: Death date of the person for displaying (if BirthDate is just year or format is unclear)
       example: 02/01/1407
-      nullable: true
     Link:
-      type: string
+      type:
+        - string
+        - 'null'
       description: WikiData Identifier (currently filled with mixed data as links, descriptions etc.)
       example: Q90478
-      nullable: true
     Description:
-      type: string
+      type:
+        - string
+        - 'null'
       description: Description (profession, known for, context)
       example: German poet
-      nullable: true
     PersonRole:
-      type: string
+      type:
+        - string
+        - 'null'
       enum: ['DocumentCreator', 'AddressedPerson', 'PersonMentioned']
       description: Role of the person in relation to the document
       example: DocumentCreator
-      nullable: true
 
 PersonAdditionalDataReferenceSchema:
   properties:

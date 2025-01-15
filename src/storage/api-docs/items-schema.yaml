@@ -10,10 +10,11 @@ ItemsMinimalReferenceSchema:
       description: title of the item
       example: 'Wide Streets Commission Minutes Volume 46 Item 1'
     Description:
-      type: string
+      type:
+        - string
+        - 'null'
       description: description of the item
       example: 'Text title on inside of cover book.'
-      nullable: true
     TranscriptionStatusId:
       type: integer
       description: ID of the completion status of the transcription
@@ -35,36 +36,42 @@ ItemsMinimalReferenceSchema:
       description: ID of the completion status of the automatic enrichments
       example: 1
     LockedTime:
-      type: string
+      type:
+        - string
+        - 'null'
       format: date-time
-      nullable: true
       description: time of locking the user
       example: '2022-02-23 09:57:03'
     LockedUser:
-      type: integer
-      nullable: true
+      type:
+        - integer
+        - 'null'
       description: ID of the locked user
       example: '2022-02-23 09:57:03'
     DateStart:
-      type: string
+      type:
+        - string
+        - 'null'
       format: date
-      nullable: true
       description: date of document start
       example: 1989-11-09
     DateEnd:
-      type: string
+      type:
+        - string
+        - 'null'
       format: date
-      nullable: true
       description: date of document end
       example: 1989-11-10
     DateStartDisplay:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: date of document start to be displayed
       example: 9/11/1989
     DateEndDisplay:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: date of document end to be displayed
       example: 10/11/1989
     DateRole:
@@ -112,8 +119,9 @@ ItemsAdditionalGetReferenceSchema:
       type: object
       properties:
         TranscriptionText:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: plain text of the current selected transcription (of source manual or HTR)
           example: Plain text representation oft the transcription data
         UserId:
@@ -137,8 +145,9 @@ ItemsAdditionalGetReferenceSchema:
           description: Time of last update of the HTR transcription (only if HTR data)
           example: '2022-02-23T09:57:03.000000Z'
         TranscriptionData:
-          type: string
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: Raw transcription data (XML in case of HTR, Text with HTML in case of manual transcription)
           example: '<?xml version="1.0" encoding="UTF-8"? />'
         HtrDataRevisionId:

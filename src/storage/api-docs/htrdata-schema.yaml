@@ -1,38 +1,45 @@
 HtrDataMinimalReferenceSchema:
   properties:
     UserId:
-      type: integer
-      nullable: true
+      type:
+        - integer
+        - 'null'
       description: ID of the user within Transcribathon, who provided the last/current transcription
       example: 5736
     HtrModelId:
-      type: integer
-      nullable: true
+      type:
+        - integer
+        - 'null'
       description: ID of the used HTR model for this data
       example: 35909
     HtrProcessId:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: ID of the process provided by the transcription provider
       example: 56845
     HtrStatus:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: Current status the process provided by the transcription provider
       example: CREATED
     TranscriptionData:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: Requested data as XML string
       example: '<?xml version="1.0" encoding="UTF-8"? />'
     TranscriptionText:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: Plain text representation oft the transcription data
       example: 'Transcribed text.'
     EuropeanaAnnotationId:
-      type: integer
-      nullable: true
+      type:
+        - integer
+        - 'null'
       description: ID of the external identifier (provided by Europeana)
       example: 56845
 
@@ -55,8 +62,9 @@ HtrDataPostRequestSchema:
         description: Array of LanguageId associated with this data
         example: 4
     TranscriptionProviderId:
-      type: integer
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: ID of the TranscriptionProvider
       example: 1
 
@@ -103,8 +111,9 @@ HtrDataPutRequestSchema:
             description: Array of LanguageId associated with this data
             example: 4
         TranscriptionProviderId:
-          type: integer
-          nullable: true
+          type:
+            - string
+            - 'null'
           description: ID of the TranscriptionProvider
           example: 1
     - $ref: '#/HtrDataMinimalReferenceSchema'

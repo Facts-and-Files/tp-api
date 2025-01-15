@@ -5,24 +5,27 @@ CampaignsMinimalReferenceSchema:
       description: Name of the campaign
       example: 1989 Online Run
     Start:
-      type: string
+      type:
+        - string
+        - 'null'
       description: Start datetime of the campaign
       example: '2019-09-24 14:45:00'
-      nullable: true
     End:
-      type: string
+      type:
+        - string
+        - 'null'
       description: End datetime of the campaign
       example: '2019-09-24 17:00:00'
-      nullable: true
     Public:
       type: bool
       description: Is it a public campaign
       example: true
     DatasetId:
-      type: integer
+      type:
+        - integer
+        - 'null'
       description: ID fo the associated dataset
       example: 6
-      nullable: true
 
 CampaignsAdditionalDataReferenceSchema:
   properties:

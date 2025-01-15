@@ -1,48 +1,57 @@
 ImportStoryMinimalReferenceSchema:
   properties:
     RecordId:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: external ID (Europeana RecordId)
       example: '/135/_nnVvTts'
     PreviewImage:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: IIIF JSON string with full image link
       example: '{"@id":"rhus-148.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//135/_nnVvTts/ND-0001.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3934,"height":5390,"service":{"@id":"rhus-148.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//135/_nnVvTts/ND-0001.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}'
     ExternalRecordId:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: external ID (Europeana resource location)
       example: 'https://www.europeana.eu/en/item/135/_nnVvTts'
     Manifest:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: Location of the IIIF manifest
       example: https://iiif.transcribathon.eu/iiif/manifest/bb7fe5cc-0b04-4de7-87c0-6e4051b23470.json
     PlaceName:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: Name of the place
       example: 'Vaudesincourt'
     PlaceLatitude:
-      type: number
-      nullable: true
+      type:
+        - number
+        - 'null'
       description: Latitude in decimal degrees format
       example: 51.4545
     PlaceLongitude:
-      type: number
-      nullable: true
+      type:
+        - number
+        - 'null'
       description: Longitude in decimal degrees format
       example: -2.58791
     PlaceLink:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: WikiData ID
       example: Q2
     PlaceComment:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: WikiData name
       example: Earth
     ProjectId:
@@ -57,8 +66,9 @@ ImportItemMinimalReferenceSchema:
       description: title of the item
       example: 'Wide Streets Commission Minutes Volume 46 Item 1'
     ProjectItemId:
-      type: string
-      nullable: true
+      type:
+        - string
+        - 'null'
       description: The external id at the institutions platform
       exmaple: 'bb7fe5cc-0b04-4de7-87c0-6e4051b23470'
     ImageLink:

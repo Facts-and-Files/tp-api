@@ -204,7 +204,7 @@ components:
     StoriesPutRequestSchema:
       $ref: 'stories-schema.yaml#/StoriesPutRequestSchema'
     AutoEnrichmentsGetResponseSchema:
-      $ref: 'autoenrichments-schema.yaml#AutoEnrichmentsGetResponseSchema'
+      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
     AutoEnrichmentsPostRequestSchema:
       $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPostRequestSchema'
     AutoEnrichmentsPutRequestSchema:

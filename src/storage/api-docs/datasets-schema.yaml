@@ -5,10 +5,11 @@ DatasetsMinimalReferenceSchema:
       description: Name of the campaign
       example: 1989 Online Run
     ProjectId:
-      type: integer
+      type:
+        - integer
+        - 'null'
       description: ID fo the associated project
       example: 6
-      nullable: true
 
 DatasetsAdditionalDataReferenceSchema:
   properties:
