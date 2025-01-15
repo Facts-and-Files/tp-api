@@ -1,11 +1,12 @@
 ItemsStatisticsMinimalDataReferenceSchema:
   properties:
     EditStart:
-      type: string
+      type:
+        - string
+        - 'null'
       format: date-time
       description: Start date of the editing process
       example: '2022-02-23 09:57:03'
-      nullable: true
     TranscribedCharsManual:
       type: integer
       description: Amount of chars of current active manual transcription
@@ -81,7 +82,7 @@ ItemsStatisticsGetResponseSchema:
     - $ref: '#/ItemsStatisticsUserIdsReferenceSchema'
       properties:
         Enrichments:
-          $ref: '#ItemsStatisticsEnrichmentsReferenceSchema'
+          $ref: '#/ItemsStatisticsEnrichmentsReferenceSchema'
 
 ItemsStatisticsPostRequestSchema:
   description: The data object of a single POST request body

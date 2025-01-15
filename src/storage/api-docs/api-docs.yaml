@@ -1,7 +1,7 @@
-openapi: 3.0.3
+openapi: 3.1.1
 
 info:
-  version: 1.54.0
+  version: 1.54.1
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -187,6 +187,8 @@ components:
     $ref: 'responses.yaml'
 
   schemas:
+    MetaPaginationResponse:
+      $ref: 'meta-responses.yaml#/MetaPaginationResponse'
     HtrDataPostRequestSchema:
       $ref: 'htrdata-schema.yaml#/HtrDataPostRequestSchema'
     HtrDataPutRequestSchema:
@@ -202,7 +204,7 @@ components:
     StoriesPutRequestSchema:
       $ref: 'stories-schema.yaml#/StoriesPutRequestSchema'
     AutoEnrichmentsGetResponseSchema:
-      $ref: 'autoenrichments-schema.yaml#AutoEnrichmentsGetResponseSchema'
+      $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
     AutoEnrichmentsPostRequestSchema:
       $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPostRequestSchema'
     AutoEnrichmentsPutRequestSchema:

@@ -13,18 +13,21 @@ AutoEnrichmentsMinimalReferenceSchema:
       description: Link to the WikiData page with correspondig enrichment
       example: http://www.wikidata.org/entity/Q64
     ItemId:
-      type: integer
-      nullable: true
+      type:
+        - integer
+        - 'null'
       description: ID of item/image within Transcribathon
       example: 421717
     StoryId:
-      nullable: true
-      type: integer
+      type:
+        - integer
+        - 'null'
       description: ID of story within Transcribathon
       example: 151742
     Comment:
-      nullable: true
-      type: string
+      type:
+        - string
+        - 'null'
       description: Comment for this AutoEnrichment entry
       example: This is a comment
     ExternalAnnotationId:
