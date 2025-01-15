@@ -65,7 +65,7 @@ get:
                     type: array
                     description: A place entry objects as array
                     items:
-                      $ref: 'places-schema.yaml#/PlaceGetResponseSchema'
+                      $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
     401:
       $ref: 'responses.yaml#/401ErrorResponse'
 post:
@@ -77,7 +77,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: 'places-schema.yaml#/PlacePostRequestSchema'
+          $ref: 'places-schema.yaml#/PlacesPostRequestSchema'
   responses:
     200:
       description: Ok
@@ -88,7 +88,7 @@ post:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    $ref: 'places-schema.yaml#/PlaceGetResponseSchema'
+                    $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
     401:
       $ref: 'responses.yaml#/401ErrorResponse'
     400:
