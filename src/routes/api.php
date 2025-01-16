@@ -23,6 +23,7 @@ use App\Http\Controllers\UserStatsController;
 use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\TranscriptionProviderController;
+use App\Http\Controllers\TranscriptionController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
@@ -148,6 +149,8 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/transcription-providers/{id}', [TranscriptionProviderController::class, 'show']);
     Route::put('/transcription-providers/{id}', [TranscriptionProviderController::class, 'update']);
     Route::delete('/transcription-providers/{id}', [TranscriptionProviderController::class, 'destroy']);
+
+    Route::get('/transcriptions', [TranscriptionController::class, 'index']);
 
     Route::post('/import', [ImportController::class, 'store']);
 });
