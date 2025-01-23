@@ -90,7 +90,7 @@ class Story extends Model
 
     public function items(): HasMany
     {
-        return $this->hasMany(Item::class, 'StoryId');;
+        return $this->hasMany(Item::class, 'StoryId')->orderBy('OrderIndex');
     }
 
     public function completionStatus(): BelongsTo
