@@ -257,7 +257,7 @@ StoriesAdditionalDataReferenceSchema:
       type: array
       items:
         type: integer
-        description: Array of ItemIds that belong to this story
+        description: Array of ItemIds that belong to this story ordered by its OrderIndex
         example: [39169822, 39169823, 39169824]
     StoryLanguage:
       type:
