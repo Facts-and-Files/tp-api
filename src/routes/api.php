@@ -151,6 +151,8 @@ Route::middleware(['auth:api'])->group(function() {
     Route::delete('/transcription-providers/{id}', [TranscriptionProviderController::class, 'destroy']);
 
     Route::get('/transcriptions', [TranscriptionController::class, 'index']);
+    Route::post('/transcriptions', [TranscriptionController::class, 'store']);
+    Route::get('/transcriptions/{id}', [TranscriptionController::class, 'show']);
 
     Route::post('/import', [ImportController::class, 'store']);
 });
