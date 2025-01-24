@@ -48,6 +48,8 @@ tags:
     description: Operations related to stories data
   - name: teams
     description: Operations related to teams
+  - name: transcriptions
+    description: Operations related to transcriptions
   - name: users
     description: Operations related to users
   - name: scores
@@ -168,6 +170,11 @@ paths:
   /transcription-providers/{TranscriptionProviderId}:
     $ref: 'transcription-providers-transcriptionProviderId-path.yaml'
 
+  /transcriptions:
+    $ref: 'transcriptions-path.yaml'
+  /transcriptions/{TranscriptionId}:
+    $ref: 'transcriptions-transcriptionId-path.yaml'
+
   /stories:
     $ref: 'stories-path.yaml'
   /stories/campaigns:
@@ -248,5 +255,9 @@ components:
       $ref: 'statistics-schema.yaml#/StatisticsGetResponseSchema'
     StatisticsAlltimeGetResponseSchema:
       $ref: 'statistics-alltime-schema.yaml#/StatisticsAlltimeGetResponseSchema'
+    TranscriptionsPostRequestSchema:
+      $ref: 'transcriptions-schema.yaml#/TranscriptionsPostRequestSchema'
+    TranscriptionsGetResponseSchema:
+      $ref: 'transcriptions-schema.yaml#/TranscriptionsGetResponseSchema'
     HealthGetResponseSchema:
       $ref: 'health-schema.yaml#/HealthGetResponseSchema'

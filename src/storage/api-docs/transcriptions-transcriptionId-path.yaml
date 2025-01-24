@@ -1,0 +1,28 @@
+get:
+  tags:
+    - transcriptions
+  summary: Get stored transcription data of an entry
+  description: The returned data is single object
+  parameters:
+    - in: path
+      name: TranscriptionId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'transcriptions-schema.yaml#/TranscriptionsGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
