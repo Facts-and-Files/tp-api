@@ -1,0 +1,78 @@
+get:
+  tags:
+    - transcriptions
+  summary: Get all stored transcriptions
+  description: The index endpoint can be used to get all teams. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - in: query
+      name: orderBy
+      default: TranscriptionId
+      description: Table column to order the return
+      schema:
+        type: string
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: ItemId
+      description: Table column to order the return
+      schema:
+        type: integer
+    - in: query
+      name: UserId
+      description: Table column to order the return
+      schema:
+        type: integer
+    - in: query
+      name: CurrentVersion
+      description: Table column to order the return
+      schema:
+        type: boolean
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#/MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: A transcription entry objects as array
+                    items:
+                      $ref: 'transcriptions-schema.yaml#/TranscriptionsGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+
+post:
+  tags:
+    - transcription
+  summary: Store a new transcription entry
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'transcriptions-schema.yaml#/TranscriptionsPostRequestSchema'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  message:
+                    example: Transcription inserted.
+                  data:
+                    $ref: 'transcriptions-schema.yaml#/TranscriptionsGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'

@@ -13,5 +13,10 @@ class Transcription extends Model
 
     protected $primaryKey = 'TranscriptionId';
 
-    protected  $casts = ['CurrentVersion' => 'boolean'];
+    protected  $casts = [
+        'CurrentVersion' => 'boolean',
+        'NoText' => 'boolean',
+    ];
+
+    protected $guarded = ['CurrentVersion'];
 }

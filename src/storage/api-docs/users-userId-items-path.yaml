@@ -2,7 +2,7 @@ get:
   tags:
     - items
     - users
-  summary: Get latest entiched/translated items of an user
+  summary: Get latest enriched/transcribed items of an user
   description: The returned data is an array
   parameters:
     - in: query

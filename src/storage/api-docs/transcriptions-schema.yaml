@@ -1,0 +1,52 @@
+TranscriptionsMinimalReferenceSchema:
+  properties:
+    Text:
+      type: string
+      description: Full text of the transcription with HTML tags
+      example: '<p>People Wall</p>'
+    TextNoTags:
+      type: string
+      description: Full text of the transcription without HTML tags
+      example: 'People Wall'
+    UserId:
+      type: integer
+      description: UserId of the transcriber
+      example: 1452
+    ItemId:
+      type: integer
+      description: ItemId of the realted Item
+      example: 3854622
+    EuropeanaAnnotationId:
+      type: integer
+      description: External Id of the EuropeanaAnnotation
+      example: 28564
+    NoText:
+      type: boolean
+      description: Determines if there is no transcribable text (otherwise it is a description)
+      example: true
+
+TranscriptionsGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/TranscriptionsMinimalReferenceSchema'
+    - properties:
+        TranscriptionId:
+          type: integer
+          description: ID of the entry
+          example: 2
+        Timestamp:
+          type: string
+          format: date-time
+          description: Time of the entry
+          example: '2025-01-15 12:00:00'
+        CurrentVersion:
+          type: boolean
+          description: Determines if this entry is the current used transcription
+          example: true
+
+TranscriptionsPostRequestSchema:
+  allOf:
+    - required: ['UserId', 'ItemId']
+    - description: The data object of a POST request body
+    - $ref: '#/TranscriptionsMinimalReferenceSchema'

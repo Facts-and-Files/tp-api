@@ -7,6 +7,7 @@ window.onload = function() {
     dom_id: '#swagger-ui',
     // deepLinking: true,
     persistAuthorization: true,
+    filter: true,
     presets: [
       SwaggerUIBundle.presets.apis,
       SwaggerUIStandalonePreset
