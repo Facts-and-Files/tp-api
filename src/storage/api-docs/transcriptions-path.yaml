@@ -51,7 +51,7 @@ get:
 
 post:
   tags:
-    - transcription
+    - transcriptions
   summary: Store a new transcription entry
   requestBody:
     required: true
