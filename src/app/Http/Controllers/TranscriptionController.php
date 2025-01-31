@@ -60,6 +60,10 @@ class TranscriptionController extends ResponseController
             $data->CurrentVersion = true;
             $data->save();
 
+            if (is_array($request['Language'])) {
+                $data->language()->sync($request['Language']);
+            }
+
             Transcription::where('ItemId', $data->ItemId)
                 ->where('CurrentVersion', '=', true)
                 ->where('TranscriptionId', '!=', $data->TranscriptionId)
