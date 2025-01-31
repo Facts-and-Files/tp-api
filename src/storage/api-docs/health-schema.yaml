@@ -1,7 +1,6 @@
 HealthGetResponseSchema:
-  allOf:
-    - type: object
-    - description: The data object of a single response entry
+  type: object
+  description: The data object of a single response entry
   properties:
     ScriptExecutionTimeMS:
       type: integer
