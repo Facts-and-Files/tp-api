@@ -217,6 +217,8 @@ components:
       $ref: 'htrdata-schema.yaml#/HtrDataPostRequestSchema'
     HtrDataPutRequestSchema:
       $ref: 'htrdata-schema.yaml#/HtrDataPutRequestSchema'
+    ImportGetResponseSchema:
+      $ref: 'import-schema.yaml#/ImportGetResponseSchema'
     ItemsGetResponseSchema:
       $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
     ItemsPutRequestSchema:
