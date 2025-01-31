@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Artisan;
 use Database\Seeders\LanguageDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
 use Database\Seeders\TranscriptionLanguageDataSeeder;
+use JetBrains\PhpStorm\Language;
 use Tests\TestCase;
 
 class TranscriptionTest extends TestCase
@@ -83,9 +84,22 @@ class TranscriptionTest extends TestCase
 
     public function test_get_a_single_transcription(): void
     {
-        $queryParams = '/'. TranscriptionDataSeeder::$data[1]['TranscriptionId'];
+        $transcriptionId = TranscriptionDataSeeder::$data[1]['TranscriptionId'];
+        $languageIds = array_filter(
+            TranscriptionLanguageDataSeeder::$data,
+            function($lang) use ($transcriptionId) {
+                return $lang['TranscriptionId'] === $transcriptionId;
+            }
+        );
+        $queryParams = '/'. $transcriptionId;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => TranscriptionDataSeeder::$data[1]];
+        $awaitedData['data']['Language'] = array_filter(
+            LanguageDataSeeder::$data,
+            function($lang) use ($languageIds) {
+                return in_array($lang['LanguageId'], $languageIds);
+            }
+        );
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -143,9 +157,16 @@ class TranscriptionTest extends TestCase
             'TextNoTags' => 'People Wall',
             'UserId' => 3,
             'ItemId' => 3,
+            'Language' => [1, 2],
         ];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => $createData];
+        $awaitedData['data']['Language'] = array_filter(
+            LanguageDataSeeder::$data,
+            function($lang) use ($createData) {
+                return in_array($lang['LanguageId'], $createData['Language']);
+            }
+        );
 
         $response = $this->post(self::$endpoint, $createData);
 
