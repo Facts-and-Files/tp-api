@@ -16,6 +16,14 @@ class LanguageDataSeeder extends Seeder
             'Code'        => 'de',
             'Code3'       => 'deu',
         ],
+        [
+            'LanguageId'  => '2',
+            'Name'        => 'Englisch',
+            'NameEnglish' => 'English',
+            'ShortName'   => 'EN',
+            'Code'        => 'en',
+            'Code3'       => 'eng',
+        ],
     ];
 
     public function run(): void

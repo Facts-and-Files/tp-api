@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\LanguageDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
+use Database\Seeders\TranscriptionLanguageDataSeeder;
 use Tests\TestCase;
 
 class TranscriptionTest extends TestCase
@@ -18,7 +20,9 @@ class TranscriptionTest extends TestCase
 
     public static function populateTable (): void
     {
+        Artisan::call('db:seed', ['--class' => LanguageDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => TranscriptionDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => TranscriptionLanguageDataSeeder::class]);
     }
 
     public function test_get_all_transcriptions(): void
