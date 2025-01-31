@@ -113,47 +113,49 @@ ItemsAdditionalDataReferenceSchema:
       description: Time of last update
       example: '2022-02-23 09:57:03'
 
-ItemsAdditionalGetReferenceSchema:
+TranscriptionReference:
+  type: object
   properties:
-    Transcription:
-      type: object
-      properties:
-        TranscriptionText:
-          type:
-            - string
-            - 'null'
-          description: plain text of the current selected transcription (of source manual or HTR)
-          example: Plain text representation oft the transcription data
-        UserId:
-          type: integer
-          description: the ID of the user of this transcription
-          example: 1392
-        CurrentVersion:
-          type: boolean
-          description: determine if this is the current/active transcription (only if transcription is manual)
-          example: 1
-        HtrDataId:
-          type: integer
-          description: ID of the HTR data entry (only if HTR data)
-          example: 2
-        Timestamp:
-          type: string
-          description: Time of creation of the HTR transcription (only if HTR data)
-          example: '2022-02-23T09:57:03.000000Z'
-        LastUpdated:
-          type: string
-          description: Time of last update of the HTR transcription (only if HTR data)
-          example: '2022-02-23T09:57:03.000000Z'
-        TranscriptionData:
-          type:
-            - string
-            - 'null'
-          description: Raw transcription data (XML in case of HTR, Text with HTML in case of manual transcription)
-          example: '<?xml version="1.0" encoding="UTF-8"? />'
-        HtrDataRevisionId:
-          type: integer
-          description: ID of the HTR data revision entry (only if HTR data)
-          example: 2
+    TranscriptionText:
+      type:
+        - string
+        - 'null'
+      description: plain text of the current selected transcription (of source manual or HTR)
+      example: Plain text representation oft the transcription data
+    UserId:
+      type: integer
+      description: the ID of the user of this transcription
+      example: 1392
+    CurrentVersion:
+      type: boolean
+      description: determine if this is the current/active transcription (only if transcription is manual)
+      example: 1
+    HtrDataId:
+      type: integer
+      description: ID of the HTR data entry (only if HTR data)
+      example: 2
+    Timestamp:
+      type: string
+      description: Time of creation of the HTR transcription (only if HTR data)
+      example: '2022-02-23T09:57:03.000000Z'
+    LastUpdated:
+      type: string
+      description: Time of last update of the HTR transcription (only if HTR data)
+      example: '2022-02-23T09:57:03.000000Z'
+    TranscriptionData:
+      type:
+        - string
+        - 'null'
+      description: Raw transcription data (XML in case of HTR, Text with HTML in case of manual transcription)
+      example: '<?xml version="1.0" encoding="UTF-8"? />'
+    HtrDataRevisionId:
+      type: integer
+      description: ID of the HTR data revision entry (only if HTR data)
+      example: 2
+    Language:
+      type: array
+      items:
+        $ref: 'language-reference-schema.yaml#/LanguageReferenceSchema'
 
 PropertiesReference:
   type: array
@@ -163,18 +165,18 @@ PropertiesReference:
 
 ItemsGetResponseSchema:
   allOf:
-    - type: object
     - description: The data object of a single response entry
     - $ref: '#/ItemsMinimalReferenceSchema'
     - $ref: '#/ItemsAdditionalDataReferenceSchema'
-    - $ref: '#/ItemsAdditionalGetReferenceSchema'
-      properties:
+    - properties:
         CompletionStatus:
           $ref: 'completionStatus-reference-schema.yaml#/CompletionStatusReferenceSchema'
         DescriptionLang:
           $ref:  'language-reference-schema.yaml#/LanguageReferenceSchema'
         Properties:
           $ref: '#/PropertiesReference'
+        Transcription:
+          $ref: '#/TranscriptionReference'
 
 ItemsPutRequestSchema:
   allOf:
