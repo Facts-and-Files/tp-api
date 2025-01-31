@@ -191,56 +191,46 @@ components:
       scheme: bearer
 
   schemas:
-    MetaPaginationResponse:
-      $ref: 'meta-responses.yaml#/MetaPaginationResponse'
-    HtrDataPostRequestSchema:
-      $ref: 'htrdata-schema.yaml#/HtrDataPostRequestSchema'
-    HtrDataPutRequestSchema:
-      $ref: 'htrdata-schema.yaml#/HtrDataPutRequestSchema'
-    HtrDataGetResponseSchema:
-      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
-    ItemsGetResponseSchema:
-      $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
-    ItemsPutRequestSchema:
-      $ref: 'items-schema.yaml#/ItemsPutRequestSchema'
-    StoriesGetResponseSchema:
-      $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
-    StoriesPutRequestSchema:
-      $ref: 'stories-schema.yaml#/StoriesPutRequestSchema'
     AutoEnrichmentsGetResponseSchema:
       $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsGetResponseSchema'
     AutoEnrichmentsPostRequestSchema:
       $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPostRequestSchema'
     AutoEnrichmentsPutRequestSchema:
       $ref: 'autoenrichments-schema.yaml#/AutoEnrichmentsPutRequestSchema'
-    LanguagesGetResponseSchema:
-      $ref: 'languages-schema.yaml#/LanguagesGetResponseSchema'
-    UsersGetResponseSchema:
-      $ref: 'users-schema.yaml#/UsersGetResponseSchema'
-    TeamsGetResponseSchema:
-      $ref: 'teams-schema.yaml#/TeamsGetResponseSchema'
-    TeamsPutRequestSchema:
-      $ref: 'teams-schema.yaml#/TeamsPutRequestSchema'
-    TeamsPostRequestSchema:
-      $ref: 'teams-schema.yaml#/TeamsPostRequestSchema'
     CampaignsGetResponseSchema:
       $ref: 'campaigns-schema.yaml#/CampaignsGetResponseSchema'
-    CampaignsPutRequestSchema:
-      $ref: 'campaigns-schema.yaml#/CampaignsPutRequestSchema'
     CampaignsPostRequestSchema:
       $ref: 'campaigns-schema.yaml#/CampaignsPostRequestSchema'
+    CampaignsPutRequestSchema:
+      $ref: 'campaigns-schema.yaml#/CampaignsPutRequestSchema'
     DatasetsGetResponseSchema:
       $ref: 'datasets-schema.yaml#/DatasetsGetResponseSchema'
     DatasetsPostRequestSchema:
       $ref: 'datasets-schema.yaml#/DatasetsPostRequestSchema'
     DatasetsPutRequestSchema:
       $ref: 'datasets-schema.yaml#/DatasetsPutRequestSchema'
+    HealthGetResponseSchema:
+      $ref: 'health-schema.yaml#/HealthGetResponseSchema'
+    HtrDataGetResponseSchema:
+      $ref: 'htrdata-schema.yaml#/HtrDataGetResponseSchema'
+    HtrDataPostRequestSchema:
+      $ref: 'htrdata-schema.yaml#/HtrDataPostRequestSchema'
+    HtrDataPutRequestSchema:
+      $ref: 'htrdata-schema.yaml#/HtrDataPutRequestSchema'
+    ItemsGetResponseSchema:
+      $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
+    ItemsPutRequestSchema:
+      $ref: 'items-schema.yaml#/ItemsPutRequestSchema'
+    LanguagesGetResponseSchema:
+      $ref: 'languages-schema.yaml#/LanguagesGetResponseSchema'
+    MetaPaginationResponse:
+      $ref: 'meta-responses.yaml#/MetaPaginationResponse'
     PlacesGetResponseSchema:
       $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
-    PlacesPutRequestSchema:
-      $ref: 'places-schema.yaml#/PlacesPutRequestSchema'
     PlacesPostRequestSchema:
       $ref: 'places-schema.yaml#/PlacesPostRequestSchema'
+    PlacesPutRequestSchema:
+      $ref: 'places-schema.yaml#/PlacesPutRequestSchema'
     ProjectsGetResponseSchema:
       $ref: 'projects-schema.yaml#/ProjectsGetResponseSchema'
     ProjectsPostRequestSchema:
@@ -255,9 +245,19 @@ components:
       $ref: 'statistics-schema.yaml#/StatisticsGetResponseSchema'
     StatisticsAlltimeGetResponseSchema:
       $ref: 'statistics-alltime-schema.yaml#/StatisticsAlltimeGetResponseSchema'
-    TranscriptionsPostRequestSchema:
-      $ref: 'transcriptions-schema.yaml#/TranscriptionsPostRequestSchema'
+    StoriesGetResponseSchema:
+      $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
+    StoriesPutRequestSchema:
+      $ref: 'stories-schema.yaml#/StoriesPutRequestSchema'
+    TeamsGetResponseSchema:
+      $ref: 'teams-schema.yaml#/TeamsGetResponseSchema'
+    TeamsPostRequestSchema:
+      $ref: 'teams-schema.yaml#/TeamsPostRequestSchema'
+    TeamsPutRequestSchema:
+      $ref: 'teams-schema.yaml#/TeamsPutRequestSchema'
     TranscriptionsGetResponseSchema:
       $ref: 'transcriptions-schema.yaml#/TranscriptionsGetResponseSchema'
-    HealthGetResponseSchema:
-      $ref: 'health-schema.yaml#/HealthGetResponseSchema'
+    TranscriptionsPostRequestSchema:
+      $ref: 'transcriptions-schema.yaml#/TranscriptionsPostRequestSchema'
+    UsersGetResponseSchema:
+      $ref: 'users-schema.yaml#/UsersGetResponseSchema'
