@@ -44,9 +44,21 @@ TranscriptionsGetResponseSchema:
           type: boolean
           description: Determines if this entry is the current used transcription
           example: true
+        Language:
+          type: array
+          items:
+            $ref: 'language-reference-schema.yaml#/LanguageReferenceSchema'
 
 TranscriptionsPostRequestSchema:
   allOf:
     - required: ['UserId', 'ItemId']
     - description: The data object of a POST request body
     - $ref: '#/TranscriptionsMinimalReferenceSchema'
+    - properties:
+        Language:
+          type: array
+          example: [1, 3, 4]
+          items:
+            type: integer
+            description: Array of LanguageId associated with this data
+            example: 4

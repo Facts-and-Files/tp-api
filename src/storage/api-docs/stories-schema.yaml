@@ -280,7 +280,7 @@ StoriesGetResponseSchema:
     - description: The data object of a single response entry
     - $ref: '#/StoriesMinimalReferenceSchema'
     - $ref: '#/StoriesAdditionalDataReferenceSchema'
-      properties:
+    - properties:
         Dcterms:
           $ref: '#/DctermsReferenceSchema'
         Dc:
@@ -296,7 +296,7 @@ StoriesPutRequestSchema:
   allOf:
     - description: The data object of a PUT request body
     - $ref: '#/StoriesMinimalReferenceSchema'
-      properties:
+    - properties:
         Dcterms:
           $ref: '#/DctermsReferenceSchema'
         Dc:

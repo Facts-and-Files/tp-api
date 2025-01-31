@@ -2,5 +2,4 @@ UsersGetResponseSchema:
   allOf:
     - type: object
     - description: Object with data related to the user
-      properties:
     - $ref: 'user-reference-schema.yaml#/UserReferenceSchema'

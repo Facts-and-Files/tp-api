@@ -94,7 +94,7 @@ StoriesStatisticsGetResponseSchema:
     - $ref: '#/StoriesStatisticsMinimalDataReferenceSchema'
     - $ref: '#/StoriesStatisticsAdditionalGetReferenceSchema'
     - $ref: '#/StoriesStatisticsUserIdsReferenceSchema'
-      properties:
+    - properties:
         Enrichments:
           $ref: '#/StoriesStatisticsEnrichmentsReferenceSchema'
         CompletionStatus:

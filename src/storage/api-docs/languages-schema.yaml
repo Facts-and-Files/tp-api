@@ -2,5 +2,4 @@ LanguagesGetResponseSchema:
   allOf:
     - type: object
     - description: Object with data related to the language
-      properties:
     - $ref: 'language-reference-schema.yaml#/LanguageReferenceSchema'

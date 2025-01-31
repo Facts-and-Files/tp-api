@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Language;
 
 class Transcription extends Model
 {
@@ -19,4 +22,21 @@ class Transcription extends Model
     ];
 
     protected $guarded = ['CurrentVersion'];
+
+    protected $appends = [
+        'Language',
+    ];
+
+    public function language(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Language::class, 'TranscriptionLanguage', 'TranscriptionId', 'LanguageId'
+        );
+    }
+
+    public function getLanguageAttribute(): Collection
+    {
+        return $this->language()->get();
+    }
+
 }
