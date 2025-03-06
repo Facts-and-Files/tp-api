@@ -37,6 +37,10 @@ get:
       description: Determine the type of query for the parameter (DcTitle, RecordId). If set, a broad search ( LIKE %term%) is processed otherwise the exact term is searched for
       schema:
         type: boolean
+    - in: query
+      name: fieldlist
+      description: Comma-separated list of fields that will be shown in the response
+      type: string
   responses:
     200:
       description: Ok
