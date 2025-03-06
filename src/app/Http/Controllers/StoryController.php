@@ -28,6 +28,8 @@ class StoryController extends ResponseController
 
         $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
+        $data = $this->filterDataByFieldlist($data, $request, ['StoryId'], $initialSortColumn);
+
         if (!$data) {
             return $this->sendError('Invalid data', $request . ' not valid', 400);
         }
