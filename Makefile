@@ -34,7 +34,7 @@ stop:
 
 test: serve
 	@clear
-	@bash docker_artisan.sh test --without-tty
+	@bash docker_artisan.sh test --without-tty --colors=always
 
 lint: serve
 	@clear

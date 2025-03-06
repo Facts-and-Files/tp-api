@@ -1,6 +1,6 @@
 services:
   php_apache:
-    image: scto-php:8.0
+    image: scto-php:8.1
     container_name: tp_api_v2
     volumes:
       - ./src/:/var/www/html/
