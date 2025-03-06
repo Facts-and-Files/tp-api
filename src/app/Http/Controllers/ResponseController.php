@@ -177,7 +177,7 @@ class ResponseController extends Controller
         $fieldlist[] = $queries['orderBy'] ?? $initialSortColumn;
         $fieldlist = array_merge($defaults, $fieldlist);
         $fieldlist = array_unique($fieldlist);
-        $dataArray = $data->toArray()[0] ?: $data->toArray();
+        $dataArray = $data->toArray()[0] ?? $data->toArray();
         $fieldsToRemove = array_filter(array_keys($dataArray), function($field) use ($fieldlist) {
             return !in_array($field, $fieldlist);
         });

@@ -1,22 +1,21 @@
 window.onload = function() {
-  //<editor-fold desc="Changeable Configuration Block">
-
-  // the following lines will be replaced by docker/configurator, when it runs in a docker-container
-  window.ui = SwaggerUIBundle({
-    url: window.location.origin + "/v2/documentation/api-docs.yaml",
-    dom_id: '#swagger-ui',
-    // deepLinking: true,
-    persistAuthorization: true,
-    filter: true,
-    presets: [
-      SwaggerUIBundle.presets.apis,
-      SwaggerUIStandalonePreset
-    ],
-    plugins: [
-      SwaggerUIBundle.plugins.DownloadUrl
-    ],
-    layout: "StandaloneLayout"
-  });
-
-  //</editor-fold>
+    window.ui = SwaggerUIBundle({
+        url: window.location.origin + "/v2/documentation/api-docs.yaml",
+        dom_id: '#swagger-ui',
+        docExpansion: 'none',
+        deepLinking: true,
+        persistAuthorization: true,
+        filter: true,
+        defaultModelsExpandDepth: 0,
+        docExpansion: 'none',
+        tagsSorter: 'alpha',
+        presets: [
+            SwaggerUIBundle.presets.apis,
+            SwaggerUIStandalonePreset,
+        ],
+        plugins: [
+            // SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: 'StandaloneLayout',
+    });
 };
