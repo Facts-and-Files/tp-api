@@ -18,6 +18,7 @@ class StoryController extends ResponseController
         $queryColumns = [
             'RecordId' => 'RecordId',
             'DcTitle' => 'dc:title',
+            'ProjectId' => 'ProjectId',
             'DatasetId' => 'DatasetId',
             'StoryId' => 'StoryId'
         ];
