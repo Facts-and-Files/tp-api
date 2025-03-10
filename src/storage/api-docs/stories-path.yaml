@@ -18,6 +18,11 @@ get:
       schema:
         type: string
     - in: query
+      name: ProjectId
+      description: Show entries associated with this ProjectId
+      schema:
+        type: string
+    - in: query
       name: DatasetId
       description: Show entries associated with this DatasetId
       schema:
