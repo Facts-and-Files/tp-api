@@ -13,6 +13,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SolrController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\StoryStatsController;
 use App\Http\Controllers\TeamController;
@@ -155,4 +156,6 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/transcriptions/{id}', [TranscriptionController::class, 'show']);
 
     Route::post('/import', [ImportController::class, 'store']);
+
+    Route::post('/update-solr', [SolrController::class, 'update']);
 });
