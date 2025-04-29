@@ -110,3 +110,16 @@ BasicErrorResponse:
               message:
                 example: Validation error
 
+502ErrorResponse:
+  description: Bad Gateway
+  content:
+    application/json:
+      schema:
+        allOf:
+          - $ref: '#/BasicErrorResponse'
+          - properties:
+              data:
+                example: Some detailled error
+              message:
+                example: 'Could not update Solr index.'
+

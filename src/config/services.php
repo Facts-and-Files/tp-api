@@ -30,4 +30,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'solr' => [
+        'uri' => env('SOLR_URL', 'http://tp_solr:8983'),
+    ],
+
 ];

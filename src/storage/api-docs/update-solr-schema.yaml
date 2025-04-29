@@ -1,0 +1,35 @@
+UpdateSolrGetResponseSchema:
+  allOf:
+    - type: object
+    - description: Returns the Solr delta-update statusMessages response
+      properties:
+        'Total Requests made to DataSource':
+          type: string
+          example: '3'
+        'Total Rows Fetched':
+          type: string
+          example: '0'
+        'Total Documents Processed':
+          type: string
+          example: '0'
+        'Total Documents Skipped':
+          type: string
+          example: '0'
+        'Delta Dump started':
+          type: string
+          example: '2025-04-29 08:26:22'
+        'Identifying Delta':
+          type: string
+          example: '2025-04-29 08:26:22'
+        'Deltas Obtained':
+          type: string
+          example: '2025-04-29 08:26:24'
+        'Building documents':
+          type: string
+          example: '2025-04-29 08:26:24'
+        'Total Changed Documents':
+          type: string
+          example: '0'
+        'Time taken':
+          type: string
+          example: '0:0:1.880'
