@@ -1,0 +1,27 @@
+post:
+  tags:
+    - solr
+  summary: Triggers a delta update of the Solr index
+  requestBody:
+    description: Used to save multiple stories and associated items
+    required: false
+    content:
+      application/json:
+        schema:
+          type: object
+          nullable: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  data:
+                    $ref: 'update-solr-schema.yaml#/UpdateSolrGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    502:
+      $ref: 'responses.yaml#/502ErrorResponse'

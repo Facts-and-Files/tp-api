@@ -56,10 +56,15 @@ tags:
     description: Operations related to scores
   - name: imports
     description: Operations related to imports
+  - name: solr
+    description: Operations related to the Solr index
 
 paths:
   /import:
     $ref: 'import-path.yaml'
+
+  /update-solr:
+    $ref: 'update-solr-path.yaml'
 
   /statistics:
     $ref: 'statistics-path.yaml'
@@ -261,5 +266,7 @@ components:
       $ref: 'transcriptions-schema.yaml#/TranscriptionsGetResponseSchema'
     TranscriptionsPostRequestSchema:
       $ref: 'transcriptions-schema.yaml#/TranscriptionsPostRequestSchema'
+    UpdateSolrGetResponseSchema:
+      $ref: 'update-solr-schema.yaml#/UpdateSolrGetResponseSchema'
     UsersGetResponseSchema:
       $ref: 'users-schema.yaml#/UsersGetResponseSchema'
