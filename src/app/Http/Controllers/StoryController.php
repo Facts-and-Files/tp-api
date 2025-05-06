@@ -78,6 +78,10 @@ class StoryController extends ResponseController
 
             $story->save();
 
+            // LastUpdated is not updating correclty so we update it manually
+            // can be removed when the issue is solved
+            $story->touch();
+
             $resource = new StoryResource($story);
 
             return $this->sendResponse(new StoryResource($story), 'Story updated.');
