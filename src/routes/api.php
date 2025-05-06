@@ -158,4 +158,5 @@ Route::middleware(['auth:api'])->group(function() {
     Route::post('/import', [ImportController::class, 'store']);
 
     Route::post('/update-solr', [SolrController::class, 'update']);
+    Route::get('/update-solr', [SolrController::class, 'update']);
 });
