@@ -58,6 +58,10 @@ ImportStoryMinimalReferenceSchema:
       type: integer
       description: Id of the associated project
       example: 6
+    DatasetId:
+      type: integer
+      description: Id of the associated dataset
+      example: 22
 
 ImportItemMinimalReferenceSchema:
   properties:

@@ -13,6 +13,7 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
 
             $table->increments('CampaignId');
+            $table->smallInteger('DatasetId');
         });
 
     }

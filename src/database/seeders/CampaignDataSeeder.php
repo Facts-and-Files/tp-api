@@ -9,10 +9,12 @@ class CampaignDataSeeder extends Seeder
 {
     public static $data = [
         [
-            'CampaignId' => 1
+            'CampaignId' => 1,
+            'DatasetId' => 1,
         ],
         [
-            'CampaignId' => 2
+            'CampaignId' => 2,
+            'DatasetId' => 2,
         ]
     ];
 

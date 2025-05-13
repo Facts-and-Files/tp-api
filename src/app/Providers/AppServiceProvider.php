@@ -2,16 +2,13 @@
 
 namespace App\Providers;
 
+use App\Models\Story;
+use App\Observers\StoryObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     *
-     * @return void
-     */
-    public function register()
+    public function register(): void
     {
         if ($this->app->environment('local')) {
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
@@ -19,13 +16,8 @@ class AppServiceProvider extends ServiceProvider
         }
     }
 
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
-     */
-    public function boot()
+    public function boot(): void
     {
-        //Model::preventSilentlyDiscardingAttributes($this->app->isLocal());
+        Story::observe(StoryObserver::class);
     }
 }

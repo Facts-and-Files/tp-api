@@ -2,8 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\Campaign;
+use App\Models\Story;
 use Tests\TestCase;
 use Tests\Feature\ProjectTest;
+use Tests\Feature\DatasetTest;
+use Database\Seeders\CampaignDataSeeder;
+use Illuminate\Support\Facades\Artisan;
 
 class ImportTest extends TestCase
 {
@@ -146,9 +151,12 @@ class ImportTest extends TestCase
     {
         parent::setUp();
         ProjectTest::populateTable();
+        DatasetTest::populateTable();
+        Artisan::call('db:seed', ['--class' => CampaignDataSeeder::class]);
+
     }
 
-    public function testImport(): void
+    public function test_import(): void
     {
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' =>
@@ -176,7 +184,24 @@ class ImportTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testPartialSuccessfulStoryImport(): void
+    public function test_story_is_assigned_to_campaign(): void
+    {
+        $response = $this->post(self::$endpoint, [self::$importData[1]]);
+        $response->assertOk();
+
+        $story = Story::where('RecordId', self::$importData[1]['Story']['RecordId'])->first();
+        $this->assertNotNull($story, 'Story was not created');
+
+        $campaigns = Campaign::where('DatasetId', $story->DatasetId)->get();
+        $this->assertNotEmpty($campaigns, 'No matching campaigns found');
+
+        $linked = $campaigns->contains(function ($campaign) use ($story) {
+            return $campaign->stories()->whereKey($story->StoryId)->exists();
+        });
+        $this->assertTrue($linked, 'Story was not linked to any campaign');
+    }
+
+    public function test_partial_successful_story_import(): void
     {
         $partialImportData = self::$importData;
         $partialImportData[1]['Story']['Dc']['Title'] = null;
@@ -208,7 +233,7 @@ class ImportTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testPartialSuccessfulItemImport(): void
+    public function test_partial_successful_item_import(): void
     {
         $partialImportData = self::$importData;
         $partialImportData[0]['Items'][1]['ImageLink'] = null;
