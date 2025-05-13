@@ -112,16 +112,21 @@ class ImportController extends ResponseController
         $insertedCount = count($inserted);
         $errorsCount = count($errors);
 
-        if ($insertedCount === 0 && $errorsCount > 0) {
+        // partly successful
+        if ($errorsCount > 0 && $insertedCount > 0) {
+            return $this->sendPartlyResponse($insertedResource, $errors, 'Import could only partially inserted.');
+        }
+
+        // no imports, all errors
+        if ($errorsCount > 0 && $insertedCount <= 0) {
             return $this->sendError('Invalid data', $errors, 400);
         }
 
-        if ($insertedCount > 0 && $errorsCount === 0) {
-            return $this->sendResponse($insertedResource, 'Import successfully inserted.');
+        // no imports, but no errors
+        if ($insertedCount <= 0) {
+            return $this->sendError('Invalid data', 'Nothing imported.', 400);
         }
 
-        if ($insertedCount > 0 && $errorsCount > 0) {
-            return $this->sendPartlyResponse($insertedResource, $errors, 'Import could only partially inserted.');
-        }
+        return $this->sendResponse($insertedResource, 'Import successfully inserted.');
     }
 }
