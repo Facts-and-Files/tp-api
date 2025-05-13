@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Tests\Feature\ProjectTest;
+use Tests\Feature\DatasetTest;
 
 class ImportTest extends TestCase
 {
@@ -146,6 +147,8 @@ class ImportTest extends TestCase
     {
         parent::setUp();
         ProjectTest::populateTable();
+        DatasetTest::populateTable();
+
     }
 
     public function testImport(): void
