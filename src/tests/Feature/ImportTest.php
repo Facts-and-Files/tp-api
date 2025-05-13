@@ -6,6 +6,7 @@ use Tests\TestCase;
 use Tests\Feature\ProjectTest;
 use Tests\Feature\DatasetTest;
 use Database\Seeders\CampaignDataSeeder;
+use Illuminate\Support\Facades\Artisan;
 
 class ImportTest extends TestCase
 {
