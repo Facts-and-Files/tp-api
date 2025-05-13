@@ -101,6 +101,16 @@ class Story extends Model
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
+    public function getStoryIdAttribute(): ?int
+    {
+        return $this->attributes['StoryId'] ?? null;
+    }
+
+    public function getDatasetIdAttribute(): ?int
+    {
+        return $this->attributes['DatasetId'] ?? null;
+    }
+
     public function getItemIdsAttribute(): Collection
     {
         return $this->items()->pluck('ItemId');
