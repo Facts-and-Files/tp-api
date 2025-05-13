@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Tests\Feature\ProjectTest;
 use Tests\Feature\DatasetTest;
+use Database\Seeders\CampaignDataSeeder;
 
 class ImportTest extends TestCase
 {
@@ -148,6 +149,7 @@ class ImportTest extends TestCase
         parent::setUp();
         ProjectTest::populateTable();
         DatasetTest::populateTable();
+        Artisan::call('db:seed', ['--class' => CampaignDataSeeder::class]);
 
     }
 
