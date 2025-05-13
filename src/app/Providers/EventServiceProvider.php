@@ -15,7 +15,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         \App\Events\PlaceInserted::class => [
             \App\Listeners\UpdateItemStatusWhenPlaceIsInserted::class
-        ]
+        ],
+        \App\Events\StoryInserted::class => [
+            \App\Listeners\UpdateStoryCampaignWhenStoryIsInserted::class
+        ],
     ];
 
     public function boot(): void
