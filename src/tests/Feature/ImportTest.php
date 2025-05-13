@@ -182,8 +182,9 @@ class ImportTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    // public function test_story_is_assigned_to_campaign(): void
-    // {
+    public function test_story_is_assigned_to_campaign(): void
+    {
+        $this->markTestSkipped('must be revisited.');
     //     $response = $this->post(self::$endpoint, [self::$importData[1]]);
     //     $response->assertOk();
     //
@@ -197,7 +198,7 @@ class ImportTest extends TestCase
     //         return $campaign->stories()->whereKey($story->StoryId)->exists();
     //     });
     //     $this->assertTrue($linked, 'Story was not linked to any campaign');
-    // }
+    }
 
     public function test_partial_successful_story_import(): void
     {
