@@ -156,7 +156,7 @@ class ImportTest extends TestCase
 
     }
 
-    public function testImport(): void
+    public function test_import(): void
     {
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' =>
@@ -201,7 +201,7 @@ class ImportTest extends TestCase
         $this->assertTrue($linked, 'Story was not linked to any campaign');
     }
 
-    public function testPartialSuccessfulStoryImport(): void
+    public function test_partial_successful_story_import(): void
     {
         $partialImportData = self::$importData;
         $partialImportData[1]['Story']['Dc']['Title'] = null;
@@ -233,7 +233,7 @@ class ImportTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testPartialSuccessfulItemImport(): void
+    public function test_partial_successful_item_import(): void
     {
         $partialImportData = self::$importData;
         $partialImportData[0]['Items'][1]['ImageLink'] = null;
