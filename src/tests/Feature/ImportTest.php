@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\Campaign;
+use App\Models\Story;
 use Tests\TestCase;
 use Tests\Feature\ProjectTest;
 use Tests\Feature\DatasetTest;
@@ -180,6 +182,23 @@ class ImportTest extends TestCase
             ->assertOk()
             ->assertJson($awaitedSuccess)
             ->assertJson($awaitedData);
+    }
+
+    public function test_story_is_assigned_to_campaign(): void
+    {
+        $response = $this->post(self::$endpoint, [self::$importData[1]]);
+        $response->assertOk();
+
+        $story = Story::where('RecordId', self::$importData[1]['Story']['RecordId'])->first();
+        $this->assertNotNull($story, 'Story was not created');
+
+        $campaigns = Campaign::where('DatasetId', $story->DatasetId)->get();
+        $this->assertNotEmpty($campaigns, 'No matching campaigns found');
+
+        $linked = $campaigns->contains(function ($campaign) use ($story) {
+            return $campaign->stories()->whereKey($story->StoryId)->exists();
+        });
+        $this->assertTrue($linked, 'Story was not linked to any campaign');
     }
 
     public function testPartialSuccessfulStoryImport(): void
