@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Story;
-use App\Observers\StoryObserver;
+// use App\Models\Story;
+// use App\Observers\StoryObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,6 +18,6 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Story::observe(StoryObserver::class);
+        // Story::observe(StoryObserver::class);
     }
 }
