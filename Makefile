@@ -5,6 +5,7 @@
 
 PWD := $(shell pwd)
 TP_API_DB := ../tp-mysql
+SOLR := ../tp-solr
 
 all: test
 
@@ -12,12 +13,12 @@ distclean:
 	@rm -rf ./src/vendor ./src/composer.lock
 
 serve:
-	@echo "Starting database container..."
 	@cd $(TP_API_DB) && sudo docker compose up --detach
-	@echo "Starting PHP/Apache container..."
+	@cd $(SOLR) && sudo docker compose up --detach
 	@cd $(PWD) && sudo docker compose up --detach
 	@echo
 	@echo "API database running on tp_mysql:3306"
+	@echo "SOLR is available on tp_solr:8983"
 	@echo "Webserver running on https://api.transcribathon.eu.local:4443/v2/"
 	@echo
 	@echo "I'm up to no good..."
@@ -26,6 +27,7 @@ serve:
 stop:
 	@echo
 	@echo "Stopping all containers..."
+	@cd $(SOLR) && sudo docker compose down
 	@cd $(TP_API_DB) && sudo docker compose down
 	@cd $(PWD) && sudo docker compose down
 	@echo
