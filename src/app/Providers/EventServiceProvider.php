@@ -19,6 +19,9 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\StoryInserted::class => [
             \App\Listeners\UpdateStoryCampaignWhenStoryIsInserted::class
         ],
+        \App\Events\StoryDeleted::class => [
+            \App\Listeners\DeleteFromSolrWhenStoryIsDeleted::class
+        ],
     ];
 
     public function boot(): void

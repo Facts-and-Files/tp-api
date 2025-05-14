@@ -31,7 +31,11 @@ return [
     ],
 
     'solr' => [
-        'uri' => env('SOLR_URL', 'http://tp_solr:8983'),
+        'uri' => env('SOLR_URL', 'http://tp_solr:8983'), // deprecated
+        'host' => env('SOLR_HOST', 'tp_solr'),
+        'port' => env('SOLR_PORT', 8983),
+        'path' => env('SOLR_PATH', ''),
+        'core' => env('SOLR_CORE', 'merged_core'),
     ],
 
 ];
