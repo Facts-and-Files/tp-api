@@ -7,6 +7,7 @@ use App\Http\Resources\ImportResource;
 use App\Models\Item;
 use App\Models\Story;
 use App\Models\Project;
+use App\Models\Dataset;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -33,7 +34,8 @@ class ImportController extends ResponseController
                     'ExternalRecordId' => $import['Story']['ExternalRecordId'] ?? null,
                     'RecordId'         => $import['Story']['RecordId'] ?? null,
                     'dc:title'         => $import['Story']['Dc']['Title'] ?? null,
-                    'error'            => $validator->errors()->all()
+                    'error'            => $validator->errors()->all(),
+                    'source'           => 'Story',
                 ];
                 continue;
             }
@@ -57,6 +59,10 @@ class ImportController extends ResponseController
                     throw ValidationException::withMessages(['ProjectId' => __('ProjectId does not exists')]);
                 }
 
+                if ($story->DatasetId && !Dataset::find($story->DatasetId)) {
+                    throw ValidationException::withMessages(['DatasetId' => __('DatasetId does not exists')]);
+                }
+
                 $story->save();
 
                 if (isset($import['Items']) && is_array($import['Items'])) {
@@ -74,7 +80,8 @@ class ImportController extends ResponseController
                                 'RecordId'         => $import['Story']['RecordId'] ?? null,
                                 'ItemOrderIndex'   => $itemData['OrderIndex'] ?? null,
                                 'ProjectItemId'    => $itemData['ProjectItemId'] ?? null,
-                                'error'            => $itemValidator->errors()->all()
+                                'error'            => $itemValidator->errors()->all(),
+                                'source'           => 'Item',
                             ];
 
                             continue;
@@ -97,12 +104,19 @@ class ImportController extends ResponseController
                     'dc:title'         => $story->Dc['Title']
                 ];
 
+            } catch (ValidationException $ve) {
+                $errors[] = [
+                    'ExternalRecordId' => $story->ExternalRecordId,
+                    'RecordId'         => $story->RecordId,
+                    'dc:title'         => $story->Dc['Title'],
+                    'error'            => $ve->errors()
+                ];
             } catch (\Exception $exception) {
                 $errors[] = [
                     'ExternalRecordId' => $story->ExternalRecordId,
                     'RecordId'         => $story->RecordId,
                     'dc:title'         => $story->Dc['Title'],
-                    'error'            => $exception->getMessage()
+                    'error'            => [$exception->getMessage()]
                 ];
             }
         }
