@@ -31,11 +31,11 @@ class ImportController extends ResponseController
 
             if ($validator->fails()) {
                 $errors[] = [
+                    'source'           => 'Story',
                     'ExternalRecordId' => $import['Story']['ExternalRecordId'] ?? null,
                     'RecordId'         => $import['Story']['RecordId'] ?? null,
                     'dc:title'         => $import['Story']['Dc']['Title'] ?? null,
                     'error'            => $validator->errors()->all(),
-                    'source'           => 'Story',
                 ];
                 continue;
             }
@@ -50,9 +50,9 @@ class ImportController extends ResponseController
             $story->RecordId         = $import['Story']['RecordId'] ?? null;
 
             // fill these with accessor/mutator
-            $story->dc      = $import['Story']['Dc'];
-            $story->dcterms = $import['Story']['Dcterms'];
-            $story->edm     = $import['Story']['Edm'];
+            $story->dc      = $import['Story']['Dc'] ?? [];
+            $story->dcterms = $import['Story']['Dcterms'] ?? [];
+            $story->edm     = $import['Story']['Edm'] ?? [];
 
             try {
                 if ($story->ProjectId && !Project::find($story->ProjectId)) {
@@ -76,12 +76,12 @@ class ImportController extends ResponseController
 
                         if ($itemValidator->fails()) {
                             $errors[] = [
+                                'source'           => 'Item',
                                 'ExternalRecordId' => $import['Story']['ExternalRecordId'] ?? null,
                                 'RecordId'         => $import['Story']['RecordId'] ?? null,
                                 'ItemOrderIndex'   => $itemData['OrderIndex'] ?? null,
                                 'ProjectItemId'    => $itemData['ProjectItemId'] ?? null,
                                 'error'            => $itemValidator->errors()->all(),
-                                'source'           => 'Item',
                             ];
 
                             continue;
@@ -106,6 +106,7 @@ class ImportController extends ResponseController
 
             } catch (ValidationException $ve) {
                 $errors[] = [
+                    'source'           => 'Story',
                     'ExternalRecordId' => $story->ExternalRecordId,
                     'RecordId'         => $story->RecordId,
                     'dc:title'         => $story->Dc['Title'],
@@ -113,6 +114,7 @@ class ImportController extends ResponseController
                 ];
             } catch (\Exception $exception) {
                 $errors[] = [
+                    'source'           => 'Story',
                     'ExternalRecordId' => $story->ExternalRecordId,
                     'RecordId'         => $story->RecordId,
                     'dc:title'         => $story->Dc['Title'],
