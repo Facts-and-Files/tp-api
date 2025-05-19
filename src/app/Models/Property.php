@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Property extends Model
 {
@@ -13,5 +14,16 @@ class Property extends Model
 
     protected $primaryKey = 'PropertyId';
 
-    protected $hidden = ['pivot'];
+    protected $hidden = [
+        'Description',
+        'X_Coord',
+        'Y_Coord',
+        'Width',
+        'Height',
+    ];
+
+    public function propertyType(): BelongsTo
+    {
+        return $this->belongsTo(PropertyType::class, 'PropertyTypeId');
+    }
 }

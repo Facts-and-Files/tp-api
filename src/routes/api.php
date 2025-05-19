@@ -13,6 +13,7 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\SolrController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\StoryStatsController;
@@ -144,6 +145,8 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/places/{id}', [PlaceController::class, 'show']);
     Route::put('/places/{id}', [PlaceController::class, 'update']);
     Route::delete('/places/{id}', [PlaceController::class, 'destroy']);
+
+    Route::get('/properties', [PropertyController::class, 'index']);
 
     Route::get('/transcription-providers', [TranscriptionProviderController::class, 'index']);
     Route::post('/transcription-providers', [TranscriptionProviderController::class, 'store']);
