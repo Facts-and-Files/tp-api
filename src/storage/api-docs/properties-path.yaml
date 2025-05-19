@@ -1,0 +1,43 @@
+get:
+  tags:
+    - properties
+  summary: Get all stored properties
+  description: The index endpoint can be used to get all teams. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - in: query
+      name: orderBy
+      default: PropertyId
+      description: Table column to order the return
+      schema:
+        type: string
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: Value
+      description: Show entries associated with this Name/Value
+      type: string
+    - in: query
+      name: PropertyTypeId
+      description: Show entries by its PropertyTypeId
+      type: integer
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#/MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: A projects entry objects as array
+                    items:
+                      $ref: 'properties-schema.yaml#/PropertiesGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'

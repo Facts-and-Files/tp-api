@@ -1,0 +1,20 @@
+PropertiesMinimalReferenceSchema:
+  properties:
+    PropertyId:
+      type: integer
+      description: ID of the entry
+      example: 2
+    Value:
+      type: string
+      description: Name of the property
+      example: Handwritten
+    PropertyTypeId:
+      type: integer
+      description: ID of the property\'s type
+      example: 2
+
+PropertiesGetResponseSchema:
+  allOf:
+    - type: object
+    - description: The data object of a single response entry
+    - $ref: '#/PropertiesMinimalReferenceSchema'
