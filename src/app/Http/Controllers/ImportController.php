@@ -7,6 +7,7 @@ use App\Http\Resources\ImportResource;
 use App\Models\Item;
 use App\Models\Story;
 use App\Models\Project;
+use App\Models\Dataset;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -30,10 +31,11 @@ class ImportController extends ResponseController
 
             if ($validator->fails()) {
                 $errors[] = [
+                    'source'           => 'Story',
                     'ExternalRecordId' => $import['Story']['ExternalRecordId'] ?? null,
                     'RecordId'         => $import['Story']['RecordId'] ?? null,
                     'dc:title'         => $import['Story']['Dc']['Title'] ?? null,
-                    'error'            => $validator->errors()->all()
+                    'error'            => $validator->errors()->all(),
                 ];
                 continue;
             }
@@ -48,13 +50,17 @@ class ImportController extends ResponseController
             $story->RecordId         = $import['Story']['RecordId'] ?? null;
 
             // fill these with accessor/mutator
-            $story->dc      = $import['Story']['Dc'];
-            $story->dcterms = $import['Story']['Dcterms'];
-            $story->edm     = $import['Story']['Edm'];
+            $story->dc      = $import['Story']['Dc'] ?? [];
+            $story->dcterms = $import['Story']['Dcterms'] ?? [];
+            $story->edm     = $import['Story']['Edm'] ?? [];
 
             try {
                 if ($story->ProjectId && !Project::find($story->ProjectId)) {
                     throw ValidationException::withMessages(['ProjectId' => __('ProjectId does not exists')]);
+                }
+
+                if ($story->DatasetId && !Dataset::find($story->DatasetId)) {
+                    throw ValidationException::withMessages(['DatasetId' => __('DatasetId does not exists')]);
                 }
 
                 $story->save();
@@ -70,11 +76,12 @@ class ImportController extends ResponseController
 
                         if ($itemValidator->fails()) {
                             $errors[] = [
+                                'source'           => 'Item',
                                 'ExternalRecordId' => $import['Story']['ExternalRecordId'] ?? null,
                                 'RecordId'         => $import['Story']['RecordId'] ?? null,
                                 'ItemOrderIndex'   => $itemData['OrderIndex'] ?? null,
                                 'ProjectItemId'    => $itemData['ProjectItemId'] ?? null,
-                                'error'            => $itemValidator->errors()->all()
+                                'error'            => $itemValidator->errors()->all(),
                             ];
 
                             continue;
@@ -97,12 +104,21 @@ class ImportController extends ResponseController
                     'dc:title'         => $story->Dc['Title']
                 ];
 
-            } catch (\Exception $exception) {
+            } catch (ValidationException $ve) {
                 $errors[] = [
+                    'source'           => 'Story',
                     'ExternalRecordId' => $story->ExternalRecordId,
                     'RecordId'         => $story->RecordId,
                     'dc:title'         => $story->Dc['Title'],
-                    'error'            => $exception->getMessage()
+                    'error'            => $ve->errors()
+                ];
+            } catch (\Exception $exception) {
+                $errors[] = [
+                    'source'           => 'Story',
+                    'ExternalRecordId' => $story->ExternalRecordId,
+                    'RecordId'         => $story->RecordId,
+                    'dc:title'         => $story->Dc['Title'],
+                    'error'            => [$exception->getMessage()]
                 ];
             }
         }
@@ -114,16 +130,16 @@ class ImportController extends ResponseController
 
         // partly successful
         if ($errorsCount > 0 && $insertedCount > 0) {
-            return $this->sendPartlyResponse($insertedResource, $errors, 'Import could only partially inserted.');
+            return $this->sendPartlyResponse($insertedResource, $errors, 'Import could only be partially inserted.');
         }
 
-        // no imports, all errors
-        if ($errorsCount > 0 && $insertedCount <= 0) {
+        // no imports, have errors
+        if ($errorsCount > 0 && $insertedCount === 0) {
             return $this->sendError('Invalid data', $errors, 400);
         }
 
         // no imports, but no errors
-        if ($insertedCount <= 0) {
+        if ($errorsCount === 0 && $insertedCount === 0) {
             return $this->sendError('Invalid data', 'Nothing imported.', 400);
         }
 

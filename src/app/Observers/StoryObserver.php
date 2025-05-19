@@ -5,9 +5,10 @@ namespace App\Observers;
 use App\Events\StoryInserted;
 use App\Events\StoryDeleted;
 use App\Models\Story;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
 
-class StoryObserver
+class StoryObserver implements ShouldQueue
 {
     public function created(Story $story): void
     {
