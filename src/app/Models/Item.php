@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Language;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -95,20 +96,24 @@ class Item extends Model
         return $status ?: new CompletionStatus();
     }
 
-    public function getTranscriptionAttribute(): Transcription|HtrDataRevision
+    public function getTranscriptionAttribute(): Transcription|HtrDataRevision|array
     {
         if ($this->TranscriptionSource === 'manual') {
             $manualTranscription = $this
                 ->transcriptions()
-                ->select(
-                    'UserId',
-                    'TextNoTags as TranscriptionText',
-                    'Text as TranscriptionData',
-                    'CurrentVersion'
-                )
                 ->firstWhere('CurrentVersion', 1);
 
-            return $manualTranscription ?: new Transcription();
+            $transcription = $manualTranscription
+                ? [
+                    'UserId' => $manualTranscription->UserId,
+                    'TranscriptionText' => $manualTranscription->TextNoTags,
+                    'Text' => $manualTranscription->Text,
+                    'CurrentVersion' => $manualTranscription->CurrentVersion,
+                    'Language' => $manualTranscription->language,
+                ]
+                : new Transcription();
+
+            return $transcription;
         }
 
         if ($this->TranscriptionSource === 'htr') {
