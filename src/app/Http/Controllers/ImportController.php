@@ -15,7 +15,7 @@ use Illuminate\Validation\ValidationException;
 
 class ImportController extends ResponseController
 {
-    public function store(Request $request): JsonResponse
+    public function import(Request $request): JsonResponse
     {
         $data = $request->all();
 
@@ -144,5 +144,12 @@ class ImportController extends ResponseController
         }
 
         return $this->sendResponse($insertedResource, 'Import successfully inserted.');
+    }
+
+    public function importFromDei(Request $request): JsonResponse
+    {
+        $imported = [];
+        $importedResource = new ImportResource($imported);
+        return $this->sendResponse($importedResource, 'Data successfully imported.');
     }
 }
