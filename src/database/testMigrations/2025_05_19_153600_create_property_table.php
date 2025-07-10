@@ -14,7 +14,7 @@ return new class extends Migration
 
             $table->bigIncrements('PropertyId');
             $table->string('Value', 750);
-            $table->string('Description', 1000);
+            $table->string('Description', 1000)->nullable();
             $table->smallInteger('PropertyTypeId');
         });
     }
