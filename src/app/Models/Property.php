@@ -14,6 +14,8 @@ class Property extends Model
 
     protected $primaryKey = 'PropertyId';
 
+    protected $guarded = ['PropertyId'];
+
     protected $hidden = [
         'X_Coord',
         'Y_Coord',
