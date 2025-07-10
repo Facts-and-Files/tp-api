@@ -2,10 +2,15 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Auth\AuthenticationException;
 use App\Http\Controllers\ResponseController;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+
 
 class Handler extends ExceptionHandler
 {
@@ -29,28 +34,40 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     *
-     * @return void
-     */
-    public function register()
+    public function register(): void
     {
         $this->reportable(function (Throwable $e) {
             //
         });
     }
 
-    /**
-     * A custom response for API unauthenticated usage
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Auth\AuthenticationException  $exception
-     *
-     * @return \Illuminate\Http\Response
-     */
-    protected function unauthenticated($request, AuthenticationException $exception)
+    protected function unauthenticated($request, AuthenticationException $exception): JsonResponse
     {
         return ResponseController::sendError($exception->getMessage(), '', 401);
+    }
+
+    public function render($request, Throwable $exception): JsonResponse
+    {
+        if ($exception instanceof AuthenticationException) {
+            return ResponseController::sendError($exception->getMessage(), '', 401);
+        }
+
+        if ($exception instanceof ModelNotFoundException) {
+            return ResponseController::sendError('Not found', $exception->getMessage(), 404);
+        }
+
+        if ($exception instanceof NotFoundHttpException) {
+            return ResponseController::sendError('Not found', $exception->getMessage(), 404);
+        }
+
+        if ($exception instanceof ValidationException) {
+            return ResponseController::sendError('Unprocessable Entity', $exception->getMessage(), 422);
+        }
+
+        if ($exception) {
+            return ResponseController::sendError('Internal Server Error', $exception->getMessage(), 500);
+        }
+
+        return parent::render($request, $exception);
     }
 }
