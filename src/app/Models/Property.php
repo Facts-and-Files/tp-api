@@ -15,7 +15,6 @@ class Property extends Model
     protected $primaryKey = 'PropertyId';
 
     protected $hidden = [
-        'Description',
         'X_Coord',
         'Y_Coord',
         'Width',
