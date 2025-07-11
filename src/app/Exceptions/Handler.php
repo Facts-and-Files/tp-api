@@ -61,7 +61,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($exception instanceof ValidationException) {
-            return ResponseController::sendError('Unprocessable Entity', $exception->getMessage(), 422);
+            return ResponseController::sendError('Unprocessable Content', $exception->getMessage(), 422);
         }
 
         if ($exception) {
