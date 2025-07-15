@@ -14,13 +14,28 @@ class Property extends Model
 
     protected $primaryKey = 'PropertyId';
 
+    protected $guarded = ['PropertyId'];
+
     protected $hidden = [
-        'Description',
         'X_Coord',
         'Y_Coord',
         'Width',
         'Height',
     ];
+
+    public static function createRules(): array
+    {
+        return [
+            'Value' => 'required|string|max:750',
+            'PropertyTypeId' => 'required|integer',
+            'Description' => 'sometimes|string|max:1000',
+        ];
+    }
+
+    public static function updateRules(): array
+    {
+        return self::createRules();
+    }
 
     public function propertyType(): BelongsTo
     {

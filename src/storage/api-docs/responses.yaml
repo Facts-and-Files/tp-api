@@ -108,7 +108,7 @@ BasicErrorResponse:
               data:
                 example: Some detailled error
               message:
-                example: Validation error
+                example: Unprocessable Content
 
 502ErrorResponse:
   description: Bad Gateway
