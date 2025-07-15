@@ -23,6 +23,20 @@ class Property extends Model
         'Height',
     ];
 
+    public static function createRules(): array
+    {
+        return [
+            'Value' => 'required|string|max:750',
+            'PropertyTypeId' => 'required|integer',
+            'Description' => 'sometimes|string|max:1000',
+        ];
+    }
+
+    public static function updateRules(): array
+    {
+        return self::createRules();
+    }
+
     public function propertyType(): BelongsTo
     {
         return $this->belongsTo(PropertyType::class, 'PropertyTypeId');
