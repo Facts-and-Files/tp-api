@@ -1,20 +1,40 @@
 PropertiesMinimalReferenceSchema:
   properties:
-    PropertyId:
-      type: integer
-      description: ID of the entry
-      example: 2
     Value:
       type: string
       description: Name of the property
       example: Handwritten
+    Description:
+      type: string
+      description: description of the property
+      example: Wikipedia entry about Michael Joyce, pictured.
     PropertyTypeId:
       type: integer
       description: ID of the property\'s type
+      example: 2
+
+PropertiesAdditionalReferenceSchema:
+  properties:
+    PropertyId:
+      type: integer
+      description: ID of the entry
       example: 2
 
 PropertiesGetResponseSchema:
   allOf:
     - type: object
     - description: The data object of a single response entry
+    - $ref: '#/PropertiesAdditionalReferenceSchema'
+    - $ref: '#/PropertiesMinimalReferenceSchema'
+
+PropertiesPostRequestSchema:
+  allOf:
+    - required: ['Value', 'PropertyTypeId']
+    - description: The data object of a POST request body
+    - $ref: '#/PropertiesMinimalReferenceSchema'
+
+PropertiesPutRequestSchema:
+  allOf:
+    - required: ['Value', 'PropertyTypeId']
+    - description: The data object of a PUT request body
     - $ref: '#/PropertiesMinimalReferenceSchema'

@@ -171,6 +171,8 @@ paths:
 
   /properties:
     $ref: 'properties-path.yaml'
+  /properties/{PropertyId}:
+    $ref: 'properties-propertyId-path.yaml'
 
   /scores:
     $ref: 'scores-path.yaml'
@@ -245,12 +247,16 @@ components:
       $ref: 'places-schema.yaml#/PlacesPutRequestSchema'
     ProjectsGetResponseSchema:
       $ref: 'projects-schema.yaml#/ProjectsGetResponseSchema'
-    PropertiesGetResponseSchema:
-      $ref: 'properties-schema.yaml#/PropertiesGetResponseSchema'
     ProjectsPostRequestSchema:
       $ref: 'projects-schema.yaml#/ProjectsPostRequestSchema'
     ProjectsPutRequestSchema:
       $ref: 'projects-schema.yaml#/ProjectsPutRequestSchema'
+    PropertiesGetResponseSchema:
+      $ref: 'properties-schema.yaml#/PropertiesGetResponseSchema'
+    PropertiesPostRequestSchema:
+      $ref: 'properties-schema.yaml#/PropertiesPostRequestSchema'
+    PropertiesPutRequestSchema:
+      $ref: 'properties-schema.yaml#/PropertiesPutRequestSchema'
     ScoresGetResponseSchema:
       $ref: 'scores-schema.yaml#/ScoresGetResponseSchema'
     ScoresPostRequestSchema:

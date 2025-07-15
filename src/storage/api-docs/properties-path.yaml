@@ -41,3 +41,32 @@ get:
                       $ref: 'properties-schema.yaml#/PropertiesGetResponseSchema'
     401:
       $ref: 'responses.yaml#/401ErrorResponse'
+post:
+  tags:
+    - properties
+  summary: Store a new property entry
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'properties-schema.yaml#/PropertiesPostRequestSchema'
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  message:
+                    example: Property inserted.
+                  data:
+                    $ref: 'properties-schema.yaml#/PropertiesGetResponseSchema'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    422:
+      $ref: 'responses.yaml#/422ErrorResponse'
