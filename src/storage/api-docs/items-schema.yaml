@@ -161,7 +161,7 @@ PropertiesReference:
   type: array
   description: Array with data related to the properties of that item
   items:
-    $ref: 'property-reference-schema.yaml#/PropertyReferenceSchema'
+    $ref: 'properties-schema.yaml#/PropertiesGetResponseSchema'
 
 ItemsGetResponseSchema:
   allOf:
