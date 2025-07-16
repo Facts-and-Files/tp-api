@@ -1,0 +1,37 @@
+delete:
+  tags:
+    - properties
+    - items
+  summary: Detach a property from an item
+  parameters:
+    - in: path
+      name: ItemId
+      description: Numeric ID of the item within transcribathon
+      type: integer
+      required: true
+    - in: path
+      name: PropertyId
+      description: Numeric ID of the property within transcribathon
+      type: integer
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  message:
+                    example: Property detached from the item.
+                  data:
+                    $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
+    422:
+      $ref: 'responses.yaml#/422ErrorResponse'
