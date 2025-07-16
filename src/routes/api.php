@@ -8,6 +8,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HtrDataController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemPropertyController;
 use App\Http\Controllers\ItemStatsController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PlaceController;
@@ -71,6 +72,8 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/items/{id}/statistics', [ItemStatsController::class, 'show']);
     Route::get('/items/{id}/persons', [PersonController::class, 'showByItemId']);
     Route::get('/items/{id}/places', [PlaceController::class, 'showByItemId']);
+    Route::post('/items/{id}/properties', [ItemPropertyController::class, 'attach']);
+    Route::delete('/items/{id}/properties/{propertyId}', [ItemPropertyController::class, 'detach']);
 
     Route::get('/stories/campaigns', [StoryController::class, 'showCampaignsByStories']);
     Route::get('/stories', [StoryController::class, 'index']);
