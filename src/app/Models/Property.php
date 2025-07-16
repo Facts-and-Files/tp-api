@@ -21,6 +21,7 @@ class Property extends Model
         'Y_Coord',
         'Width',
         'Height',
+        'pivot',
     ];
 
     public static function createRules(): array

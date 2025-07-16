@@ -1,7 +1,7 @@
 openapi: 3.1.1
 
 info:
-  version: 1.64.0
+  version: 1.65.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -116,6 +116,10 @@ paths:
     $ref: 'items-itemId-persons-path.yaml'
   /items/{ItemId}/places:
     $ref: 'items-itemId-places-path.yaml'
+  /items/{ItemId}/properties:
+    $ref: 'items-itemId-properties-path.yaml'
+  /items/{ItemId}/properties/{PropertyId}:
+    $ref: 'items-itemId-properties-propertyId-path.yaml'
 
   /languages:
     $ref: 'languages-path.yaml'

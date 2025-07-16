@@ -1,0 +1,43 @@
+post:
+  tags:
+    - properties
+    - items
+  summary: Attach a property to an item
+  parameters:
+    - in: path
+      name: ItemId
+      description: Numeric ID of the item within transcribathon
+      type: integer
+      required: true
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          properties:
+            PropertyId:
+              type: integer
+              required: true
+              description: Id of the Property
+              example: 3
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  message:
+                    example: Property attached to the item.
+                  data:
+                    $ref: 'items-schema.yaml#/ItemsGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
+    422:
+      $ref: 'responses.yaml#/422ErrorResponse'

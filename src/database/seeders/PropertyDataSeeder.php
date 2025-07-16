@@ -11,13 +11,19 @@ class PropertyDataSeeder extends Seeder
         [
             'PropertyId' => 1,
             'Value'  => 'German',
-            'Description' => 'Description for Test Propery 1',
+            'Description' => 'Description for Test Property 1',
             'PropertyTypeId' => 1,
         ],
         [
             'PropertyId' => 2,
             'Value' => 'Handwritten',
-            'Description' => 'Description for Test Propery 2',
+            'Description' => 'Description for Test Property 2',
+            'PropertyTypeId' => 2,
+        ],
+        [
+            'PropertyId' => 3,
+            'Value' => 'Print',
+            'Description' => 'Description for Test Property 3',
             'PropertyTypeId' => 2,
         ],
     ];
