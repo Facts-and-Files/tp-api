@@ -36,14 +36,9 @@ class ItemController extends ResponseController
 
     public function show(int $id): JsonResponse
     {
-        try {
-            $data = Item::findOrFail($id);
-            $resource = new ItemResource($data);
+        $item = Item::findOrFail($id);
 
-            return $this->sendResponse($resource, 'Item fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        return $this->sendResponse(new ItemResource($item), 'Item fetched.');
     }
 
     public function update(Request $request, int $id): JsonResponse
