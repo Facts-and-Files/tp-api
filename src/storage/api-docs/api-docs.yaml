@@ -116,6 +116,10 @@ paths:
     $ref: 'items-itemId-persons-path.yaml'
   /items/{ItemId}/places:
     $ref: 'items-itemId-places-path.yaml'
+  /items/{ItemId}/properties:
+    $ref: 'items-itemId-properties-path.yaml'
+  /items/{ItemId}/properties/{PropertyId}:
+    $ref: 'items-itemId-properties-propertyId-path.yaml'
 
   /languages:
     $ref: 'languages-path.yaml'
