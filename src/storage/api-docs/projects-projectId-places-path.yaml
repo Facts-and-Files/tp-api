@@ -1,0 +1,45 @@
+get:
+  tags:
+    - places
+    - projects
+  summary: List all Places of a Project
+  description: List all Places of a Project using ProjectId. The output is limited to 1000 but can be sorted and paginated.
+  parameters:
+    - in: path
+      name: ProjectId
+      description: Numeric ID of the project within transcribathon
+      type: integer
+      required: true
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: orderBy
+      default: PlaceId
+      description: Table column to order the return
+      schema:
+        type: string
+  responses:
+    200:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - properties:
+                  meta:
+                    type: object
+                    description: Meta data with pagination details
+                    $ref: 'meta-responses.yaml#/MetaPaginationResponse'
+                  data:
+                    type: array
+                    description: Places data entries as array
+                    items:
+                      $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'

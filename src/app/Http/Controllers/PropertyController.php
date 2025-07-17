@@ -29,7 +29,7 @@ class PropertyController extends ResponseController
 
         $collection = PropertyResource::collection($data);
 
-        return $this->sendResponseWithMeta($collection, 'Projects fetched.');
+        return $this->sendResponseWithMeta($collection, 'Properties fetched.');
     }
 
     public function show(int $id): JsonResponse

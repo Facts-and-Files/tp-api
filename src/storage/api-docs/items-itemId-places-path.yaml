@@ -2,7 +2,8 @@ get:
   tags:
     - places
     - items
-  summary: Get stored places of an item
+  summary: Get all Places of an Item
+  description: Get all Places of an Item using ItemId
   parameters:
     - in: path
       name: ItemId

@@ -1,8 +1,8 @@
 get:
   tags:
     - places
-  summary: Get stored place data of an entry
-  description: The returned data is single object
+  summary: Get a Place
+  description: Get a single Place using a PlaceId
   parameters:
     - in: path
       name: PlaceId
@@ -30,7 +30,8 @@ get:
 put:
   tags:
     - places
-  summary: Updates data of a place
+  summary: Update a Place
+  description: Update a Place using a PlaceId
   parameters:
     - in: path
       name: PlaceId
@@ -67,7 +68,8 @@ put:
 delete:
   tags:
     - places
-  summary: delete a person data entry
+  summary: Delete a Place
+  description: Delete a Place using PlaceId
   parameters:
     - in: path
       name: PlaceId

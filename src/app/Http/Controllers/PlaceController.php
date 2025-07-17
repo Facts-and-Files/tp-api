@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Events\PlaceInserted;
 use App\Http\Controllers\ResponseController;
 use App\Http\Resources\PlaceResource;
+use App\Models\Item;
 use App\Models\Story;
+use App\Models\Project;
 use App\Models\Place;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -112,26 +114,34 @@ class PlaceController extends ResponseController
 
     public function showByItemId(int $itemId): JsonResponse
     {
-        try {
-            $data = Place::where('ItemId', $itemId)->get();
-            $resource = new PlaceResource($data);
+        Item::findOrFail($itemId);
 
-            return $this->sendResponse($resource, 'Places fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        $data = Place::where('ItemId', $itemId)->get();
+        $resource = new PlaceResource($data);
+
+        return $this->sendResponse($resource, 'Places fetched.');
     }
 
     public function showByStoryId(int $storyId): JsonResponse
     {
-        try {
-            $story = Story::with('items.places')->find($storyId);
-            $data = $story->items->pluck('places')->unique();
-            $resource = new PlaceResource($data);
+        $story = Story::with('items.places')->findOrFail($storyId);
+        $places = $story->items->pluck('places')->flatten()->unique()->values();
 
-            return $this->sendResponse($resource, 'Places fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        $resource = PlaceResource::collection($places);
+
+        return $this->sendResponse($resource, 'Places fetched.');
+    }
+
+    public function showByProjectId(int $projectId): JsonResponse
+    {
+        Project::findOrFail($projectId);
+
+        $query = Place::whereHas('item.story', function ($q) use ($projectId) {
+            $q->where('ProjectId', $projectId);
+        });
+
+        $places = $this->filterDataByQueries($query, request()->all(), 'PlaceId');
+
+        return $this->sendResponseWithMeta(PlaceResource::collection($places), 'Places fetched.');
     }
 }
