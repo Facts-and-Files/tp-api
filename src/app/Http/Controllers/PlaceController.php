@@ -126,8 +126,9 @@ class PlaceController extends ResponseController
     {
         try {
             $story = Story::with('items.places')->find($storyId);
-            $data = $story->items->pluck('places')->unique();
-            $resource = new PlaceResource($data);
+            $places = $story->items->pluck('places')->flatten()->unique()->values();
+
+            $resource = PlaceResource::collection($places);
 
             return $this->sendResponse($resource, 'Places fetched.');
         } catch (\Exception $exception) {
