@@ -172,6 +172,8 @@ paths:
     $ref: 'projects-path.yaml'
   /projects/{ProjectId}:
     $ref: 'projects-projectId-path.yaml'
+  /projects/{ProjectId}/places:
+    $ref: 'projects-projectId-places-path.yaml'
 
   /properties:
     $ref: 'properties-path.yaml'

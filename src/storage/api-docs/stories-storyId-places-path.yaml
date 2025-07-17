@@ -2,7 +2,8 @@ get:
   tags:
     - places
     - stories
-  summary: Get the places of the enriched items of this story
+  summary: Get all Places of a Story
+  description: Get all Places of a Story using StoryId
   parameters:
     - in: path
       name: StoryId
@@ -20,7 +21,7 @@ get:
               - properties:
                   data:
                     type: array
-                    description: Automatically generated enrichments data entries as array
+                    description: Places data entries as array
                     items:
                       $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
     400:
