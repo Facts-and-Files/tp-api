@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
@@ -16,4 +17,9 @@ class Project extends Model
     public $incrementing = false;
 
     protected $guarded = [];
+
+    public function stories(): HasMany
+    {
+        return $this->hasMany(Story::class, 'ProjectId');
+    }
 }

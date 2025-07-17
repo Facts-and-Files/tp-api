@@ -74,6 +74,10 @@ class Item extends Model
         return $this->belongsToMany(Property::class, 'ItemProperty', 'ItemId', 'PropertyId');
     }
 
+    public function story()
+    {
+        return $this->belongsTo(Story::class, 'StoryId');
+    }
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 

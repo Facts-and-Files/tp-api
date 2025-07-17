@@ -19,4 +19,8 @@ class Place extends Model
         'UserGenerated' => 'boolean'
     ];
 
+    public function item()
+    {
+        return $this->belongsTo(Item::class, 'ItemId');
+    }
 }

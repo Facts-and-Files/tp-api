@@ -98,6 +98,11 @@ class Story extends Model
         return $this->belongsTo(CompletionStatus::class, 'CompletionStatusId');
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'ProjectId');
+    }
+
 // to harmonize the API regarding the existent database schema
 // we make use some custom accessors and mutators
 
