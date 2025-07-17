@@ -110,6 +110,34 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
+    public function test_get_all_places_by_project_id(): void
+    {
+        $endpoint = '/projects/' . ProjectDataSeeder::$data[0]['ProjectId'] . '/places';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => PlaceDataSeeder::$data];
+
+        $response = $this->get($endpoint);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_project_id_and_limited(): void
+    {
+        $endpoint = '/projects/' . ProjectDataSeeder::$data[0]['ProjectId'] . '/places?limit=1&page=2';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
+
+        $response = $this->get($endpoint);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
     public function test_creating_a_place_with_missing_fields_returs_422(): void
     {
         $createData = [
