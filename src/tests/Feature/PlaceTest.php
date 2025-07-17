@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\ProjectDataSeeder;
+use Database\Seeders\StoryDataSeeder;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\PlaceDataSeeder;
 
@@ -19,11 +21,13 @@ class PlaceTest extends TestCase
 
     public static function populateTable (): void
     {
+        Artisan::call('db:seed', ['--class' => ProjectDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PlaceDataSeeder::class]);
     }
 
-    public function testGetAllPlaces(): void
+    public function test_get_all_places(): void
     {
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => PlaceDataSeeder::$data];
@@ -36,7 +40,7 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetAllPlacesLimitedAndSorted(): void
+    public function test_get_all_places_limited_and_sorted(): void
     {
         $queryParams = '?limit=1&page=1&orderBy=PlaceId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
@@ -50,7 +54,7 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetAllPlacesByName(): void
+    public function test_get_all_places_by_name(): void
     {
         $queryParams = '?Name='. PlaceDataSeeder::$data[1]['Name'];
         $awaitedSuccess = ['success' => true];
@@ -64,7 +68,7 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetAllPlacesByWikidataId(): void
+    public function test_get_all_places_by_wikidata_id(): void
     {
         $queryParams = '?WikidataId='. PlaceDataSeeder::$data[1]['WikidataId'];
         $awaitedSuccess = ['success' => true];
@@ -78,7 +82,7 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetAllPlacesByItemId(): void
+    public function test_get_all_places_by_item_id(): void
     {
         $endpoint = '/items/' . ItemDataSeeder::$data[0]['ItemId'] . '/places';
         $awaitedSuccess = ['success' => true];
@@ -92,7 +96,21 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetValidationErrorWhenCreateAPlace(): void
+    public function test_get_all_places_by_story_id(): void
+    {
+        $endpoint = '/stories/' . StoryDataSeeder::$data[0]['StoryId'] . '/places';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => PlaceDataSeeder::$data];
+
+        $response = $this->get($endpoint);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_creating_a_place_with_missing_fields_returs_422(): void
     {
         $createData = [
             'Name' => 'Test'
@@ -106,7 +124,7 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedSuccess);
     }
 
-    public function testGetCreateAPlace(): void
+    public function test_create_a_place(): void
     {
         $createData = [
             'Name'      => 'TestStadt 2',
@@ -125,12 +143,12 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testUpdateItemStatusWhenPlaceIsInserted(): void
+    public function test_update_item_status_when_place_is_inserted(): void
     {
         $this->markTestSkipped('must be revisited.');
     }
 
-    public function testUpdateAPlace(): void
+    public function test_update_a_place(): void
     {
         $updateData = [
             'Name' => 'Teststadt 4'
@@ -148,7 +166,7 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testDeleteAPlace(): void
+    public function test_delete_a_place(): void
     {
         $placeId = PlaceDataSeeder::$data[1]['PlaceId'];
         $queryParams = '/' . $placeId;
