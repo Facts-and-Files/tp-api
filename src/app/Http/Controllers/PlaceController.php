@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\DB;
 
 class PlaceController extends ResponseController
 {
@@ -135,6 +134,8 @@ class PlaceController extends ResponseController
 
     public function showByProjectId(int $projectId): JsonResponse
     {
+        Project::findOrFail($projectId);
+
         $query = Place::whereHas('item.story', function ($q) use ($projectId) {
             $q->where('ProjectId', $projectId);
         });
