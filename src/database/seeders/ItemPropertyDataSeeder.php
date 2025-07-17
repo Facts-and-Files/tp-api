@@ -12,13 +12,11 @@ class ItemPropertyDataSeeder extends Seeder
             'ItemPropertyId' => 1,
             'PropertyId' => 1,
             'ItemId' => 1,
-            'UserGenerated' => true,
         ],
         [
             'ItemPropertyId' => 2,
             'PropertyId' => 2,
             'ItemId' => 1,
-            'UserGenerated' => true,
         ],
     ];
 
