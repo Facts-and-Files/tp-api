@@ -2,8 +2,8 @@ get:
   tags:
     - places
     - stories
-  summary: Get all Places of a Story
-  description: Get all Places of a Story using StoryId
+  summary: List all Places of a Story
+  description: List all Places of a Story using StoryId
   parameters:
     - in: path
       name: StoryId

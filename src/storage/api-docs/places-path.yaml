@@ -71,7 +71,8 @@ get:
 post:
   tags:
     - places
-  summary: store a new place
+  summary: Store a new Place
+  description: Store a new Place
   requestBody:
     required: true
     content:
