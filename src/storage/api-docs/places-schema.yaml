@@ -23,12 +23,6 @@ PlaceMinimalReferenceSchema:
         - string
         - 'null'
       description: A link (unclear, probably not used)
-    Zoom:
-      type:
-        - integer
-        - 'null'
-      description: Initial zoom of the on the map
-      example: 10
     Comment:
       type:
         - string
