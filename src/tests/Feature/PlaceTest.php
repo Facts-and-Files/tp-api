@@ -13,10 +13,34 @@ class PlaceTest extends TestCase
 {
     private static $endpoint = '/places';
 
+    private static $storyPlaces = [];
+
     public function setUp(): void
     {
         parent::setUp();
         self::populateTable();
+
+        self::$storyPlaces = [];
+        foreach (StoryDataSeeder::$data as $story) {
+            self::$storyPlaces[] = [
+                'PlaceId' => null,
+                'ItemId' => null,
+                'Name' => $story['PlaceName'],
+                'Latitude' => $story['PlaceLatitude'],
+                'Longitude' => $story['PlaceLongitude'],
+                'WikidataId' => $story['PlaceLink'],
+                'WikidataName' => $story['PlaceComment'],
+                'Link' => null,
+                'Comment' => null,
+                'UserGenerated' => $story['PlaceUserGenerated'],
+                'UserId' => $story['PlaceUserId'],
+                'PlaceRole' => 'StoryPlace',
+                'ItemTitle' => null,
+                'StoryId' => $story['StoryId'],
+                'StoryTitle' => $story['dc:title'],
+                'ProjectId' => $story['ProjectId'],
+            ];
+        }
     }
 
     public static function populateTable (): void
@@ -31,6 +55,7 @@ class PlaceTest extends TestCase
     {
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => PlaceDataSeeder::$data];
+        $awaitedData['data'] = [...self::$storyPlaces, ...$awaitedData['data']];
 
         $response = $this->get(self::$endpoint);
 
@@ -59,6 +84,20 @@ class PlaceTest extends TestCase
         $queryParams = '?Name='. PlaceDataSeeder::$data[1]['Name'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_role(): void
+    {
+        $queryParams = '?PlaceRole=StoryPlace';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => self::$storyPlaces];
 
         $response = $this->get(self::$endpoint . $queryParams);
 

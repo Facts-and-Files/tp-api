@@ -25,6 +25,7 @@ abstract class TestCase extends BaseTestCase
             '2024_03_22_150100_create_campaign_stats_view.php',
             '2024_07_31_094900_add_manifest_to_story_table.php',
             '2024_09_19_115300_create_transcription_provider_table.php',
+            '2025_07_21_125300_create_place_details_view.php',
         ];
 
         foreach ($additionalMigrations as $migration) {
