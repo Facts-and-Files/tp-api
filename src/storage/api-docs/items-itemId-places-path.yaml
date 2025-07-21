@@ -10,6 +10,15 @@ get:
       description: Numeric ID of the item within transcribathon
       type: integer
       required: true
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: orderBy
+      default: PlaceId
+      description: Table column to order the return
+      schema:
+        type: string
   responses:
     200:
       description: Ok
