@@ -54,7 +54,7 @@ PlaceMinimalReferenceSchema:
     PlaceRole:
       type: string
       enum: ['CreationPlace', 'Other']
-      description: Indicates the role of the place in this item/document
+      description: Indicates the role of the place in this item/document. On list view there is an additional string 'StoryPlace' returned, that indicates that the place is coming from the Story meta data.
       example: Other
 
 PlacesGetResponseSchema:
