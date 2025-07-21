@@ -96,11 +96,39 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
+    public function test_get_all_places_by_item_id_and_limited(): void
+    {
+        $endpoint = '/items/' . ItemDataSeeder::$data[0]['ItemId'] . '/places?limit=1&page=2';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
+
+        $response = $this->get($endpoint);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
     public function test_get_all_places_by_story_id(): void
     {
         $endpoint = '/stories/' . StoryDataSeeder::$data[0]['StoryId'] . '/places';
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => PlaceDataSeeder::$data];
+
+        $response = $this->get($endpoint);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_story_id_and_limited(): void
+    {
+        $endpoint = '/stories/' . StoryDataSeeder::$data[0]['StoryId'] . '/places?limit=1&page=2';
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
         $response = $this->get($endpoint);
 
