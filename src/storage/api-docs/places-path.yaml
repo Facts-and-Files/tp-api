@@ -34,6 +34,16 @@ get:
       schema:
         type: integer
     - in: query
+      name: StoryId
+      description: Show entries associated with this StoryId
+      schema:
+        type: integer
+    - in: query
+      name: ProjectId
+      description: Show entries associated with this ProjectId
+      schema:
+        type: integer
+    - in: query
       name: UserId
       description: Show entries associated with this UserId
       schema:
