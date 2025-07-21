@@ -9,6 +9,7 @@ use App\Models\Item;
 use App\Models\Story;
 use App\Models\Project;
 use App\Models\Place;
+use App\Models\PlaceCombinedDetails;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,12 +23,14 @@ class PlaceController extends ResponseController
             'WikidataId'   => 'WikidataId',
             'ItemId'       => 'ItemId',
             'UserId'       => 'UserId',
-            'PlaceRole'    => 'PlaceRole'
+            'StoryId'      => 'StoryId',
+            'ProjectId'    => 'ProjectId',
+            'PlaceRole'    => 'PlaceRole',
         ];
 
         $initialSortColumn = 'PlaceId';
 
-        $model = new Place();
+        $model = new PlaceCombinedDetails();
 
         $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
