@@ -95,43 +95,22 @@ class PlaceController extends ResponseController
 
     public function showByItemId(Request $request, int $itemId): JsonResponse
     {
-        Item::findOrFail($itemId);
+        $request->merge(['ItemId' => $itemId]);
 
-        $query = Place::where('ItemId', $itemId);
-        $places = $this->filterDataByQueries($query, request()->all(), 'PlaceId');
-
-        return $this->sendResponseWithMeta(
-            PlaceResource::collection($places),
-            'Places fetched.'
-        );
+        return $this->index($request);
     }
 
     public function showByStoryId(Request $request, int $storyId): JsonResponse
     {
-        Story::findOrFail($storyId);
+        $request->merge(['StoryId' => $storyId]);
 
-        $query = Place::whereHas('item', function ($q) use ($storyId) {
-            $q->where('StoryId', $storyId);
-        });
-
-        $places = $this->filterDataByQueries($query, request()->all(), 'PlaceId');
-
-        return $this->sendResponseWithMeta(
-            PlaceResource::collection($places),
-            'Places fetched.'
-        );
+        return $this->index($request);
     }
 
     public function showByProjectId(Request $request, int $projectId): JsonResponse
     {
-        Project::findOrFail($projectId);
+        $request->merge(['ProjectId' => $projectId]);
 
-        $query = Place::whereHas('item.story', function ($q) use ($projectId) {
-            $q->where('ProjectId', $projectId);
-        });
-
-        $places = $this->filterDataByQueries($query, request()->all(), 'PlaceId');
-
-        return $this->sendResponseWithMeta(PlaceResource::collection($places), 'Places fetched.');
+        return $this->index($request);
     }
 }
