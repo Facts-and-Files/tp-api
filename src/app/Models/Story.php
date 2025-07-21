@@ -214,10 +214,11 @@ class Story extends Model
     public function getPlaceAttribute(): array
     {
         return [
-            'Name'      => $this->attributes['PlaceName']      ?? null,
-            'Latitude'  => $this->attributes['PlaceLatitude']  ?? null,
-            'Longitude' => $this->attributes['PlaceLongitude'] ?? null,
-            'Zoom'      => $this->attributes['placeZoom']      ?? null
+            'Name'         => $this->attributes['PlaceName']      ?? null,
+            'Latitude'     => $this->attributes['PlaceLatitude']  ?? null,
+            'Longitude'    => $this->attributes['PlaceLongitude'] ?? null,
+            'WikiDataId'   => $this->attributes['PlaceLink']      ?? null,
+            'WikiDataName' => $this->attributes['PlaceComent']    ?? null,
         ];
     }
 }
