@@ -12,13 +12,58 @@ get:
       required: true
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
-    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
     - in: query
       name: orderBy
       default: PlaceId
       description: Table column to order the return
       schema:
         type: string
+    - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
+    - in: query
+      name: WikiDataName
+      description: Show entries associated with this WikiDataName
+      schema:
+        type: string
+    - in: query
+      name: WikidataId
+      description: Show entries associated with this WikidataId
+      schema:
+        type: string
+    - in: query
+      name: UserId
+      description: Show entries associated with this UserId
+      schema:
+        type: integer
+    - in: query
+      name: PlaceRole
+      description: Show entries associated with this PlaceRole
+      schema:
+        type: string
+    - in: query
+      name: broadMatch
+      description: Determine the type of query, if set, a broad search ( LIKE %term%) is processed otherwise the exact term is searched for
+      schema:
+        type: boolean
+    - in: query
+      name: latMin
+      description: Filter by area coordinates, lower latitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
+      schema:
+        type: number
+    - in: query
+      name: latMax
+      description: Filter by area coordinates, upper latitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
+      schema:
+        type: number
+    - in: query
+      name: lngMin
+      description: Filter by area coordinates, lower longitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
+      schema:
+        type: number
+    - in: query
+      name: lngMax
+      description: Filter by area coordinates, upper latitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
+      schema:
+        type: number
   responses:
     200:
       description: Ok

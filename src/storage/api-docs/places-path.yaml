@@ -58,6 +58,26 @@ get:
       description: Determine the type of query, if set, a broad search ( LIKE %term%) is processed otherwise the exact term is searched for
       schema:
         type: boolean
+    - in: query
+      name: latMin
+      description: Filter by area coordinates, lower latitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
+      schema:
+        type: number
+    - in: query
+      name: latMax
+      description: Filter by area coordinates, upper latitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
+      schema:
+        type: number
+    - in: query
+      name: lngMin
+      description: Filter by area coordinates, lower longitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
+      schema:
+        type: number
+    - in: query
+      name: lngMax
+      description: Filter by area coordinates, upper latitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
+      schema:
+        type: number
   responses:
     200:
       description: Ok
