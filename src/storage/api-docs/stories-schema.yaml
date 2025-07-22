@@ -43,12 +43,18 @@ PlaceReferenceSchema:
         - 'null'
       description: Longitude in decimal degrees format
       example: -2.58791
-    Zoom:
+    WikiDataId:
       type:
-        - integer
+        - string
         - 'null'
-      description: Default zoom for displaying in a map
-      example: 10
+      description: Id of the Wikidata entry
+      example: Q10
+    WikiDataName:
+      type:
+        - string
+        - 'null'
+      description: Name of the Wikidata entry
+      example: Berlin
 
 DcElementsReferenceSchema:
   type: object

@@ -47,7 +47,7 @@ return new class extends Migration
             $table->smallInteger('placeZoom')->nullable()->default(10);
             $table->string('PlaceLink', 1000)->nullable();
             $table->string('PlaceComment', 1000)->nullable();
-            // $table->integer('PlaceUserId')->nullable();
+            $table->integer('PlaceUserId')->nullable();
             // $table->integer('OldStoryId')->nullable();
             // $table->text('Summary')->nullable();
             // $table->integer('ParentStory')->nullable();

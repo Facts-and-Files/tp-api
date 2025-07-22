@@ -104,6 +104,8 @@ class ResponseController extends Controller
             }
         }
 
+        $data = $this->filterDataByAreaCoordinates($data, $queries);
+
         $data = $this->filterDataByDateTime($data, $queries);
 
         $data = $this->filterDataByQueries($data, $queries, $initialSortColumn);
@@ -126,6 +128,24 @@ class ResponseController extends Controller
         }
 
         return $data;
+    }
+
+    protected function filterDataByAreaCoordinates(Builder $data, array $queries): Builder
+    {
+        $areaBounds = ['latMin', 'latMax', 'lngMin', 'lngMax'];
+
+        $queries = collect($queries);
+
+        if (!$queries->has($areaBounds)) {
+            return $data;
+        }
+
+        if ($queries->only($areaBounds)->count() !== 4) {
+            return $data;
+        }
+
+        return $data->whereBetween('Latitude', [$queries['latMin'], $queries['latMax']])
+                    ->whereBetween('Longitude', [$queries['lngMin'], $queries['lngMax']]);
     }
 
     protected function filterDataByQueries(

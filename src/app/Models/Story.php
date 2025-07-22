@@ -27,7 +27,8 @@ class Story extends Model
 
     protected $casts = [
         'HasHtr' => 'boolean',
-        'Public' => 'boolean'
+        'Public' => 'boolean',
+        'PlaceUserGenerated' => 'boolean',
     ];
 
     protected $hidden = [
@@ -59,8 +60,6 @@ class Story extends Model
         'dcterms:medium',
         'dcterms:provenance',
         'dcterms:created',
-        'PlaceUserId',
-        'PlaceUserGenerated',
         'Summary',
         'ParentStory',
         'SearchText',
@@ -214,10 +213,13 @@ class Story extends Model
     public function getPlaceAttribute(): array
     {
         return [
-            'Name'      => $this->attributes['PlaceName']      ?? null,
-            'Latitude'  => $this->attributes['PlaceLatitude']  ?? null,
-            'Longitude' => $this->attributes['PlaceLongitude'] ?? null,
-            'Zoom'      => $this->attributes['placeZoom']      ?? null
+            'Name'          => $this->attributes['PlaceName']          ?? null,
+            'Latitude'      => $this->attributes['PlaceLatitude']      ?? null,
+            'Longitude'     => $this->attributes['PlaceLongitude']     ?? null,
+            'WikiDataId'    => $this->attributes['PlaceLink']          ?? null,
+            'WikiDataName'  => $this->attributes['PlaceComment']       ?? null,
+            'UserId'        => $this->attributes['PlaceUserId']        ?? null,
+            'UserGenerated' => $this->attributes['PlaceUserGenerated'] ?? null,
         ];
     }
 }
