@@ -25,8 +25,8 @@ class PlaceDataSeeder extends Seeder
         [
             'PlaceId'       => 2,
             'Name'          => 'TestStadt 2',
-            'Latitude'      => 78,
-            'Longitude'     => 21,
+            'Latitude'      => 80,
+            'Longitude'     => 19,
             'ItemId'        => 1,
             'Link'          => 'link',
             'Comment'       => 'TestComment',
