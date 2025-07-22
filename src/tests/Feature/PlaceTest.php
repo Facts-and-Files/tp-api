@@ -149,11 +149,16 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function test_get_all_places_by_story_id(): void
+    public function test_get_all_places_by_story_id_and_filter(): void
     {
-        $endpoint = '/stories/' . StoryDataSeeder::$data[0]['StoryId'] . '/places';
+        $storyId = StoryDataSeeder::$data[0]['StoryId'];
+        $endpoint = '/stories/' . $storyId . '/places?PlaceRole=StoryPlace';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => PlaceDataSeeder::$data];
+        $awaitedData = ['data' => array_filter(
+            self::$storyPlaces,
+            fn($storyPlace) => $storyPlace['StoryId'] === $storyId
+                            && $storyPlace['PlaceRole'] === 'StoryPlace')
+        ];
 
         $response = $this->get($endpoint);
 
@@ -165,7 +170,8 @@ class PlaceTest extends TestCase
 
     public function test_get_all_places_by_story_id_and_limited(): void
     {
-        $endpoint = '/stories/' . StoryDataSeeder::$data[0]['StoryId'] . '/places?limit=1&page=2';
+        $storyId = StoryDataSeeder::$data[0]['StoryId'];
+        $endpoint = '/stories/' . $storyId . '/places?limit=1&page=3';
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
@@ -177,11 +183,16 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function test_get_all_places_by_project_id(): void
+    public function test_get_all_places_by_project_id_and_filter(): void
     {
-        $endpoint = '/projects/' . ProjectDataSeeder::$data[0]['ProjectId'] . '/places';
+        $projectId = ProjectDataSeeder::$data[0]['ProjectId'];
+        $endpoint = '/projects/' . $projectId . '/places?PlaceRole=StoryPlace';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => PlaceDataSeeder::$data];
+        $awaitedData = ['data' => array_filter(
+            self::$storyPlaces,
+            fn($storyPlace) => $storyPlace['ProjectId'] === $projectId
+                            && $storyPlace['PlaceRole'] === 'StoryPlace')
+        ];
 
         $response = $this->get($endpoint);
 
@@ -193,11 +204,30 @@ class PlaceTest extends TestCase
 
     public function test_get_all_places_by_project_id_and_limited(): void
     {
-        $endpoint = '/projects/' . ProjectDataSeeder::$data[0]['ProjectId'] . '/places?limit=1&page=2';
+        $projectId = ProjectDataSeeder::$data[0]['ProjectId'];
+        $endpoint = '/projects/' . $projectId . '/places?limit=1&page=4';
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
         $response = $this->get($endpoint);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_coords(): void
+    {
+        $latMin = '?latMin=77';
+        $latMax = '&latMax=78';
+        $lngMin = '&lngMin=21';
+        $lngMax = '&lngMax=22';
+        $queryParams = $latMin . $latMax . $lngMin . $lngMax;
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[0]]];
+
+        $response = $this->get(self::$endpoint . $queryParams);
 
         $response
             ->assertOk()
