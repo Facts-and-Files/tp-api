@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Events\PlaceInserted;
 use App\Http\Controllers\ResponseController;
 use App\Http\Resources\PlaceResource;
-use App\Models\Item;
-use App\Models\Story;
-use App\Models\Project;
 use App\Models\Place;
 use App\Models\PlaceCombinedDetails;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +14,13 @@ class PlaceController extends ResponseController
 {
     public function index(Request $request): JsonResponse
     {
+        $request->validate([
+            'latMin' => 'numeric|between:-90,90',
+            'latMax' => 'numeric|between:-90,90',
+            'lngMin' => 'numeric|between:-180,180',
+            'lngMax' => 'numeric|between:-180,180',
+        ]);
+
         $queryColumns = [
             'Name'         => 'Name',
             'WikidataName' => 'WikidataName',
