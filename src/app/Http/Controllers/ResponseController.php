@@ -160,14 +160,15 @@ class ResponseController extends Controller
         $orderBy = $orderBy === 'id' ? $initialSortColumn : $orderBy;
         $orderDir = $queries['orderDir'] ?? 'asc';
         $offset = $limit * ($page - 1);
+        $count = $data->count();
 
         $this->meta = [
             'limit' => (int) $limit,
             'currentPage' => (int) $page,
-            'lastPage' => ceil($data->count() / $limit),
+            'lastPage' => ceil($count / $limit),
             'fromEntry' => ($page - 1) * $limit + 1,
-            'toEntry' => min($page * $limit, $data->count()),
-            'totalEntries' => $data->count()
+            'toEntry' => min($page * $limit, $count),
+            'totalEntries' => $count,
         ];
 
         $filtered = $data
