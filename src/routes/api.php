@@ -144,7 +144,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::put('/persons/{id}', [PersonController::class, 'update']);
     Route::delete('/persons/{id}', [PersonController::class, 'destroy']);
 
-    Route::get('/places', [PlaceController::class, 'index'])->middleware('cacheable:1d');
+    Route::get('/places', [PlaceController::class, 'index']);
     Route::post('/places', [PlaceController::class, 'store']);
     Route::get('/places/{id}', [PlaceController::class, 'show']);
     Route::put('/places/{id}', [PlaceController::class, 'update']);
