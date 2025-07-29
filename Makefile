@@ -36,7 +36,7 @@ stop:
 
 test: serve
 	@clear
-	@bash docker_artisan.sh test --without-tty --colors=always
+	@bash docker_artisan.sh test --without-tty --colors=always --filter "$(FILTER)"
 
 lint: serve
 	@clear
