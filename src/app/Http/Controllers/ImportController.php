@@ -8,10 +8,12 @@ use App\Models\Item;
 use App\Models\Story;
 use App\Models\Project;
 use App\Models\Dataset;
+use App\Services\DeiImportService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ImportController extends ResponseController
 {
@@ -146,10 +148,46 @@ class ImportController extends ResponseController
         return $this->sendResponse($insertedResource, 'Import successfully inserted.');
     }
 
-    public function importFromDei(Request $request): JsonResponse
-    {
-        $imported = [];
-        $importedResource = new ImportResource($imported);
-        return $this->sendResponse($importedResource, 'Data successfully imported.');
+    public function importFromDei(
+        Request $request,
+        int $projectId,
+        DeiImportService $deiImportService,
+    ): JsonResponse {
+        if ($projectId && !Project::find($projectId)) {
+            throw new ModelNotFoundException('Project not found.');
+        }
+
+        $validated = $request->validate([
+            'ImportName' => 'required|string',
+            'DatasetId' => 'sometimes|integer',
+            '@graph' => 'required|array',
+            'iiif_url' => 'sometimes|url',
+        ]);
+
+        $result = $deiImportService->import($validated, $projectId);
+
+        $insertedCount = count($result['inserted'] ?? []);
+        $errorsCount = count($result['failed'] ?? []);
+
+        // partly successful
+        if ($errorsCount > 0 && $insertedCount > 0) {
+            return $this->sendPartlyResponse(
+                $result['inserted'],
+                $result['failed'],
+                'Import could only be partially inserted.',
+            );
+        }
+
+        // no imports, have errors
+        // if ($errorsCount > 0 && $insertedCount === 0) {
+        //     return $this->sendError('Invalid data', $result['failed'], 400);
+        // }
+        //
+        // // no imports, but no errors
+        // if ($errorsCount === 0 && $insertedCount === 0) {
+        //     return $this->sendError('Invalid data', 'Nothing imported.', 400);
+        // }
+
+        return $this->sendResponse($result['inserted'], 'Import successfully inserted.');
     }
 }
