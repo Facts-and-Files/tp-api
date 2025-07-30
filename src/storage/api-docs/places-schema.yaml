@@ -67,6 +67,10 @@ PlacesGetResponseSchema:
           type: integer
           description: ID of the entry
           example: 2
+        ItemTitle:
+          type: string
+          description: Title of the item the place belongs to
+          example: 'Wide Streets Commission Minutes Volume 46 Item 1'
 
 PlacesPostRequestSchema:
   allOf:
