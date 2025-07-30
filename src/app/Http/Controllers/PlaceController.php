@@ -25,25 +25,21 @@ class PlaceController extends ResponseController
         ]);
 
         $queryColumns = [
-            'Name'         => 'Name',
-            'WikidataName' => 'WikidataName',
-            'WikidataId'   => 'WikidataId',
-            'ItemId'       => 'ItemId',
-            'UserId'       => 'UserId',
-            'StoryId'      => 'StoryId',
-            'ProjectId'    => 'ProjectId',
-            'PlaceRole'    => 'PlaceRole',
+            'Name'         => 'Place.Name',
+            'WikidataName' => 'Place.WikidataName',
+            'WikidataId'   => 'Place.WikidataId',
+            'ItemId'       => 'Place.ItemId',
+            'UserId'       => 'Place.UserId',
+            'StoryId'      => 'Item.StoryId',
+            'ProjectId'    => 'Story.ProjectId',
+            'PlaceRole'    => 'Place.PlaceRole',
         ];
 
-        $initialSortColumn = 'PlaceId';
+        $initialSortColumn = 'Place.PlaceId';
 
-        if ($request->hasAny(['ProjectId', 'StoryId', 'ItemId'])) {
-            $query = $this->buildQueryByParentId($request);
-        }
+        $query = $this->buildQueryByParentId($request);
 
-        $queryOrModel = $query ?? new Place();
-
-        $data = $this->getDataByRequest($request, $queryOrModel, $queryColumns, $initialSortColumn);
+        $data = $this->getDataByRequest($request, $query, $queryColumns, $initialSortColumn);
 
         if (!$data) {
             return $this->sendError('Invalid data', $request . ' not valid', 400);
@@ -127,32 +123,28 @@ class PlaceController extends ResponseController
 
     private function buildQueryByParentId(Request $request): Builder
     {
-        $query = Place::query();
+        $query = Place::query()
+            ->join('Item', 'Place.ItemId', '=', 'Item.ItemId')
+            ->select('Place.*', 'Item.Title as ItemTitle');
+
 
         if ($request->has('ProjectId')) {
             $projectId = $request['ProjectId'];
             Project::findOrFail($projectId);
-
-            $query->join('Item', 'Place.ItemId', '=', 'Item.ItemId')
-                   ->join('Story', 'Item.StoryId', '=', 'Story.StoryId')
-                   ->where('Story.ProjectId', $projectId)
-                   ->select('Place.*');
+            $query->join('Story', 'Item.StoryId', '=', 'Story.StoryId')
+                  ->where('Story.ProjectId', '=', $projectId);
         }
 
         if ($request->has('StoryId')) {
             $storyId = $request['StoryId'];
             Story::findOrFail($storyId);
-
-            $query->join('Item', 'Place.ItemId', '=', 'Item.ItemId')
-                  ->where('Item.StoryId', $storyId)
-                  ->select('Place.*');
+            $query->where('Item.StoryId', '=', $storyId);
         }
 
         if ($request->has('ItemId')) {
             $itemId = $request['ItemId'];
             Item::findOrFail($itemId);
-
-            $query->where('ItemId', $itemId);
+            $query->where('Place.ItemId', '=', $itemId);
         }
 
         return $query;
