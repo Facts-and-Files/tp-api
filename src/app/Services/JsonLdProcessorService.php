@@ -196,7 +196,9 @@ class JsonLdProcessorService
 
         $processedData['externalRecordId'] = $item['@id'];
         $parts = explode('/', $item['@id']);
-        $processedData['recordId'] = '/' . end($parts, 2)[0] . '/' . end($parts);
+        $end = end($parts);
+        $secondEnd = prev($parts);
+        $processedData['recordId'] = '/' . $secondEnd . '/' . $end;
     }
 
     private function isValidManifestUrl(string $url): bool
