@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Dataset;
+use App\Models\Story;
 use Illuminate\Validation\ValidationException;
 
 class DeiImportService
@@ -21,7 +22,19 @@ class DeiImportService
         }
 
         $processedData = $this->jsonLdProcessor->processJsonLd($data['@graph']);
-print_r($processedData);
+
+        $storyData = array_merge($processedData['story'], [
+            'ProjectId' => $projectId,
+            'PlaceUserGenerated' => true,
+            'ImportName' => $data['ImportName'] ?? '',
+            'DatasetId' => $data['DatasetId'] ?? null,
+        ]);
+
+print_r($storyData);
+        $existingStory = Story::where('RecordId', $processedData['RecordId'])->first();
+// check RecordId is only generated when ProvidedCHO is existent, see JsonLdProcessorService
+// seems not correct
+print_r($existingStory);
 
         // Store import file
         // $this->importStorage->storeImportFile(
