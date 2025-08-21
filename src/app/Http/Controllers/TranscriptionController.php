@@ -57,10 +57,13 @@ class TranscriptionController extends ResponseController
 
             $data->fill($request->all());
 
+            $data->Text ??= '';
+            $data->TextNoTags ??= '';
+
             $data->CurrentVersion = true;
             $data->save();
 
-            if (is_array($request['Language'])) {
+            if (isset($request['Language']) && is_array($request['Language'])) {
                 $data->language()->sync($request['Language']);
             }
 

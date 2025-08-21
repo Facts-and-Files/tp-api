@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Artisan;
 use Database\Seeders\LanguageDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
 use Database\Seeders\TranscriptionLanguageDataSeeder;
-use JetBrains\PhpStorm\Language;
 use Tests\TestCase;
 
 class TranscriptionTest extends TestCase
@@ -148,6 +147,24 @@ class TranscriptionTest extends TestCase
         $response = $this->post(self::$endpoint, $createData);
 
         $response->assertStatus(400);
+    }
+
+    public function test_create_a_no_text_transcription(): void
+    {
+        $createData = [
+            'UserId' => 3,
+            'ItemId' => 3,
+            'NoText' => true,
+        ];
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => $createData];
+
+        $response = $this->post(self::$endpoint, $createData);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
     }
 
     public function test_create_a_transcription(): void
