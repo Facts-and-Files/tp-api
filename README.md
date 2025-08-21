@@ -15,7 +15,7 @@ There are two docker containers/images required.
 * [TP-MySQL](https://github.com/Facts-and-Files/tp-mysql)
 The MySQL docker container which will provide the database (the dump will be provided on demand).
 * [trenc-php](https://github.com/trenc/trenc-php)
-An custom PHP image. When bulding the image use the name and tag as it is referenced in the docker-compose.yml here (scto-php:8.0).
+An custom PHP image. When bulding the image use the name and tag as it is referenced in the docker-compose.yml here (scto-php:8.1).
 
 ## Development/Helpers
 

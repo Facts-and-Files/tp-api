@@ -20,7 +20,7 @@ class PlaceDataSeeder extends Seeder
             'UserId'        => 1,
             'WikidataName'  => 'Teststadt',
             'WikidataId'    => 'Q777',
-            'PlaceRole'     => 'Other'
+            'PlaceRole'     => 'CreationPlace'
         ],
         [
             'PlaceId'       => 2,

@@ -19,28 +19,6 @@ class PlaceTest extends TestCase
     {
         parent::setUp();
         self::populateTable();
-
-        self::$storyPlaces = [];
-        foreach (StoryDataSeeder::$data as $story) {
-            self::$storyPlaces[] = [
-                'PlaceId' => null,
-                'ItemId' => null,
-                'Name' => $story['PlaceName'],
-                'Latitude' => $story['PlaceLatitude'],
-                'Longitude' => $story['PlaceLongitude'],
-                'WikidataId' => $story['PlaceLink'],
-                'WikidataName' => $story['PlaceComment'],
-                'Link' => null,
-                'Comment' => null,
-                'UserGenerated' => $story['PlaceUserGenerated'],
-                'UserId' => $story['PlaceUserId'],
-                'PlaceRole' => 'StoryPlace',
-                'ItemTitle' => null,
-                'StoryId' => $story['StoryId'],
-                'StoryTitle' => $story['dc:title'],
-                'ProjectId' => $story['ProjectId'],
-            ];
-        }
     }
 
     public static function populateTable (): void
@@ -55,7 +33,6 @@ class PlaceTest extends TestCase
     {
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => PlaceDataSeeder::$data];
-        $awaitedData['data'] = [...self::$storyPlaces, ...$awaitedData['data']];
 
         $response = $this->get(self::$endpoint);
 
@@ -137,11 +114,12 @@ class PlaceTest extends TestCase
 
     public function test_get_all_places_by_item_id_and_limited(): void
     {
-        $endpoint = '/items/' . ItemDataSeeder::$data[0]['ItemId'] . '/places?limit=1&page=2';
+        $endpoint = '/items/' . ItemDataSeeder::$data[0]['ItemId'] . '/places';
+        $queryParams = '?limit=1&page=2';
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
-        $response = $this->get($endpoint);
+        $response = $this->get($endpoint . $queryParams);
 
         $response
             ->assertOk()
@@ -152,15 +130,12 @@ class PlaceTest extends TestCase
     public function test_get_all_places_by_story_id_and_filter(): void
     {
         $storyId = StoryDataSeeder::$data[0]['StoryId'];
-        $endpoint = '/stories/' . $storyId . '/places?PlaceRole=StoryPlace';
+        $queryParams = '?PlaceRole=CreationPlace';
+        $endpoint = '/stories/' . $storyId . '/places';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => array_filter(
-            self::$storyPlaces,
-            fn($storyPlace) => $storyPlace['StoryId'] === $storyId
-                            && $storyPlace['PlaceRole'] === 'StoryPlace')
-        ];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[0]]];
 
-        $response = $this->get($endpoint);
+        $response = $this->get(self::$endpoint . $queryParams);
 
         $response
             ->assertOk()
@@ -171,11 +146,12 @@ class PlaceTest extends TestCase
     public function test_get_all_places_by_story_id_and_limited(): void
     {
         $storyId = StoryDataSeeder::$data[0]['StoryId'];
-        $endpoint = '/stories/' . $storyId . '/places?limit=1&page=3';
+        $endpoint = '/stories/' . $storyId . '/places';
+        $queryParams = '?limit=1&page=1';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[0]]];
 
-        $response = $this->get($endpoint);
+        $response = $this->get($endpoint . $queryParams);
 
         $response
             ->assertOk()
@@ -186,15 +162,12 @@ class PlaceTest extends TestCase
     public function test_get_all_places_by_project_id_and_filter(): void
     {
         $projectId = ProjectDataSeeder::$data[0]['ProjectId'];
-        $endpoint = '/projects/' . $projectId . '/places?PlaceRole=StoryPlace';
+        $endpoint = '/projects/' . $projectId . '/places';
+        $queryParams = '?PlaceRole=CreationPlace';
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => array_filter(
-            self::$storyPlaces,
-            fn($storyPlace) => $storyPlace['ProjectId'] === $projectId
-                            && $storyPlace['PlaceRole'] === 'StoryPlace')
-        ];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[0]]];
 
-        $response = $this->get($endpoint);
+        $response = $this->get($endpoint . $queryParams);
 
         $response
             ->assertOk()
@@ -205,11 +178,12 @@ class PlaceTest extends TestCase
     public function test_get_all_places_by_project_id_and_limited(): void
     {
         $projectId = ProjectDataSeeder::$data[0]['ProjectId'];
-        $endpoint = '/projects/' . $projectId . '/places?limit=1&page=4';
+        $endpoint = '/projects/' . $projectId . '/places';
+        $queryParams = '?limit=1&page=2';
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
-        $response = $this->get($endpoint);
+        $response = $this->get($endpoint . $queryParams);
 
         $response
             ->assertOk()
