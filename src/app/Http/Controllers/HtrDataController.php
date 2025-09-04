@@ -131,8 +131,8 @@ class HtrDataController extends ResponseController
                 'offset'   => 0
             ];
             $data = HtrData::where(['ItemId' => $itemId, 'HtrStatus' => 'FINISHED']);
-            $data = $this->filterDataByQueries($data, $queries, 'LastUpdated');
-            $resource = new HtrDataResource($data[0]);
+            $latest = $this->filterDataByQueries($data, $queries, 'LastUpdated')->first();
+            $resource = new HtrDataResource($latest);
 
             return $this->sendResponse($resource, 'HtrData fetched.');
         } catch (\Exception $exception) {
