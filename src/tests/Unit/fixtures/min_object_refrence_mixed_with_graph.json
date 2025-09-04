@@ -1,0 +1,26 @@
+{
+  "@context": "http://www.europeana.eu/schemas/edm/",
+  "@id": "http://example.org/record/root",
+  "@type": "edm:ProvidedCHO",
+  "dc:title": "Root-Level Object",
+  "edm:hasView": {
+    "@id": "http://example.org/view/root",
+    "@type": "edm:WebResource",
+    "edm:isShownBy": "http://example.org/image_root.jpg"
+  },
+  "edm:related": { "@id": "http://example.org/record/graph1" },
+  "@graph": [
+    {
+      "@id": "http://example.org/record/graph1",
+      "@type": "edm:ProvidedCHO",
+      "dc:title": "Graph-Level Object",
+      "edm:hasView": { "@id": "http://example.org/view/graph1" },
+      "edm:related": { "@id": "http://example.org/record/root" }
+    },
+    {
+      "@id": "http://example.org/view/graph1",
+      "@type": "edm:WebResource",
+      "edm:isShownBy": "http://example.org/image_graph1.jpg"
+    }
+  ]
+}

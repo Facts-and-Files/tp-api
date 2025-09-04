@@ -1,0 +1,96 @@
+{
+  "@context": {
+    "edm": "http://www.europeana.eu/schemas/edm/",
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "ore": "http://www.openarchives.org/ore/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "skos": "http://www.w3.org/2004/02/skos/core#"
+  },
+  "@graph": [
+    {
+      "@id": "http://example.org/cho/12345",
+      "@type": "edm:ProvidedCHO"
+    },
+    {
+      "@id": "http://example.org/proxy/provider/12345",
+      "@type": "ore:Proxy",
+      "ore:proxyFor": "http://example.org/cho/12345",
+      "ore:proxyIn": "http://example.org/aggregation/12345",
+      "edm:europeanaProxy": ["false"],
+      "dc:title": ["Parent Record: A Painting"],
+      "edm:type": "IMAGE",
+      "dcterms:creator": { "@id": "http://example.org/agent/Rembrandt" },
+      "dcterms:hasPart": ["http://example.org/cho/67890"]
+    },
+    {
+      "@id": "http://example.org/agent/Rembrandt",
+      "@type": "edm:Agent",
+      "foaf:name": ["Rembrandt van Rijn"]
+    },
+    {
+      "@id": "https://iiif.example.org/image/12345/full/full/0/default.jpg",
+      "@type": "edm:WebResource",
+      "dc:format": ["image/jpeg"],
+      "edm:rights": ["http://creativecommons.org/publicdomain/zero/1.0/"]
+    },
+    {
+      "@id": "http://example.org/aggregation/12345",
+      "@type": "ore:Aggregation",
+      "edm:aggregatedCHO": "http://example.org/cho/12345",
+      "edm:isShownBy": "https://iiif.example.org/image/12345/full/full/0/default.jpg",
+      "edm:dataProvider": ["Example Museum"],
+      "edm:provider": ["Example Aggregator"]
+    },
+    {
+      "@id": "http://example.org/europeana/aggregation/12345",
+      "@type": "edm:EuropeanaAggregation",
+      "edm:aggregatedCHO": "http://example.org/cho/12345",
+      "edm:collectionName": ["Example Collection"],
+      "edm:country": ["Netherlands"],
+      "edm:language": ["en"],
+      "edm:rights": ["http://creativecommons.org/publicdomain/zero/1.0/"]
+    },
+    {
+      "@id": "http://example.org/cho/67890",
+      "@type": "edm:ProvidedCHO"
+    },
+    {
+      "@id": "http://example.org/proxy/provider/67890",
+      "@type": "ore:Proxy",
+      "ore:proxyFor": "http://example.org/cho/67890",
+      "ore:proxyIn": "http://example.org/aggregation/67890",
+      "edm:europeanaProxy": ["false"],
+      "dc:title": {
+          "@language": "en",
+          "@value": "Child Record: A Detail Shot"
+      },
+      "edm:type": "IMAGE",
+      "dcterms:isPartOf": ["http://example.org/cho/12345"]
+    },
+    {
+      "@id": "https://iiif.example.org/image/67890/full/full/0/default.jpg",
+      "@type": "edm:WebResource",
+      "dc:format": ["image/jpeg"],
+      "edm:rights": ["http://creativecommons.org/publicdomain/zero/1.0/"]
+    },
+    {
+      "@id": "http://example.org/aggregation/67890",
+      "@type": "ore:Aggregation",
+      "edm:aggregatedCHO": "http://example.org/cho/67890",
+      "edm:isShownBy": "https://iiif.example.org/image/67890/full/full/0/default.jpg",
+      "edm:dataProvider": ["Example Museum"],
+      "edm:provider": ["Example Aggregator"]
+    },
+    {
+      "@id": "http://example.org/europeana/aggregation/67890",
+      "@type": "edm:EuropeanaAggregation",
+      "edm:aggregatedCHO": "http://example.org/cho/67890",
+      "edm:collectionName": ["Example Collection"],
+      "edm:country": ["Netherlands"],
+      "edm:language": ["en"],
+      "edm:rights": ["http://creativecommons.org/publicdomain/zero/1.0/"]
+    }
+  ]
+}
