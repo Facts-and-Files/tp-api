@@ -2,7 +2,7 @@ get:
   tags:
     - htrdata
     - items
-  summary: Get the active (latest) HTR data of an item
+  summary: Get the active HtrData of an Item
   parameters:
     - in: path
       name: ItemId

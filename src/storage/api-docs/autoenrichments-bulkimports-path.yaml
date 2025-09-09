@@ -1,7 +1,7 @@
 post:
   tags:
     - autoenrichments
-  summary: Store multiple AutoEnrichments data entry
+  summary: Store multiple AutoEnrichments
   requestBody:
     description: Used to save verified automatically generated enrichments.
     required: true
