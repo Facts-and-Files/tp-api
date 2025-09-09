@@ -2,7 +2,7 @@ get:
   tags:
     - persons
     - items
-  summary: Get stored persons of an item
+  summary: List all Persons of an Item
   parameters:
     - in: path
       name: ItemId
