@@ -125,11 +125,22 @@ class Item extends Model
                 ->htrData()
                 ->with(['htrDataRevision' => function ($query) {
                     $query->latest();
-                }])
+                }, 'language'])
                 ->latest()
                 ->first();
 
-            return $latest ? $latest->htrDataRevision->first() : new HtrData();
+            if ($latest && $latest->htrDataRevision->isNotEmpty()) {
+                $revision = $latest->htrDataRevision->first();
+
+                return [
+                    'UserId' => $revision->UserId,
+                    'TranscriptionText' => $revision->TranscriptionText,
+                    'Text' => $revision->TranscriptionData,
+                    'Language' => $latest->language, // comes from HtrData
+                ];
+            }
+
+            return [];
         }
 
         return [];
