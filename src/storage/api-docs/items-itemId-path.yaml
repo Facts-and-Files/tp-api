@@ -1,7 +1,7 @@
 get:
   tags:
     - items
-  summary: List all Items
+  summary: Get an Item
   description: The returned data is single object
   parameters:
     - in: path
