@@ -71,50 +71,41 @@ class HtrDataController extends ResponseController
 
     public function show($id): JsonResponse
     {
-        try {
-            $data = HtrData::findOrFail($id);
-            $resource = new HtrDataResource($data);
+        $data = HtrData::findOrFail($id);
+        $resource = new HtrDataResource($data);
 
-            return $this->sendResponse($resource, 'HtrData fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        return $this->sendResponse($resource, 'HtrData fetched.');
     }
 
     public function showByItemId(int $itemId, Request $request): JsonResponse
     {
-        try {
-            $queries = $request->query();
-            $data = HtrData::where('ItemId', $itemId);
-            $data = $this->filterDataByQueries($data, $queries, 'LastUpdated');
-            $resource = new HtrDataResource($data);
+        Item::findOrFail($itemId);
 
-            return $this->sendResponseWithMeta($resource, 'HtrData fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        $queries = $request->query();
+        $data = HtrData::where('ItemId', $itemId);
+        $data = $this->filterDataByQueries($data, $queries, 'LastUpdated')->get();
+        $resource = new HtrDataResource($data);
+
+        return $this->sendResponseWithMeta($resource, 'HtrData fetched.');
     }
 
     public function showActiveByItemId(int $itemId): JsonResponse
     {
-        try {
-            $queries = [
-                'limit'    => 1,
-                'page'     => 1,
-                'orderBy'  => 'LastUpdated',
-                'orderDir' => 'desc',
-                'offset'   => 0
-            ];
-            $data = HtrData::where(['ItemId' => $itemId, 'HtrStatus' => 'FINISHED']);
-            $latest = $this->filterDataByQueries($data, $queries, 'LastUpdated')->first();
-            $resource = new HtrDataResource($latest);
+        Item::findOrFail($itemId);
 
-            return $this->sendResponse($resource, 'HtrData fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        $queries = [
+            'limit'    => 1,
+            'page'     => 1,
+            'orderBy'  => 'LastUpdated',
+            'orderDir' => 'desc',
+            'offset'   => 0
+        ];
+        $data = HtrData::where(['ItemId' => $itemId, 'HtrStatus' => 'FINISHED']);
+        $latest = $this->filterDataByQueries($data, $queries, 'LastUpdated')->first();
+        $resource = new HtrDataResource($latest);
+
+        return $this->sendResponse($resource, 'HtrData fetched.');
     }
-
 
     public function update(Request $request, int $id): JsonResponse
     {
