@@ -14,12 +14,6 @@ use App\Http\Resources\HtrDataResource;
 
 class HtrDataController extends ResponseController
 {
-    /**
-     * Display a paginated listing of the resource.
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function index(Request $request): JsonResponse
     {
         $queryColumns = [
@@ -45,12 +39,6 @@ class HtrDataController extends ResponseController
         return $this->sendResponseWithMeta($collection, 'HtrData fetched.');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  Request  $request
-     * @return JsonResponse
-     */
     public function store(Request $request): JsonResponse
     {
         try {
@@ -81,12 +69,6 @@ class HtrDataController extends ResponseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return JsonResponse
-     */
     public function show($id): JsonResponse
     {
         try {
@@ -99,13 +81,6 @@ class HtrDataController extends ResponseController
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int      $userId
-     * @param  Request  $request
-     * @return JsonResponse
-     */
     public function showByItemId(int $itemId, Request $request): JsonResponse
     {
         try {
@@ -141,13 +116,6 @@ class HtrDataController extends ResponseController
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  Request  $request
-     * @param  int      $id
-     * @return JsonResponse
-     */
     public function update(Request $request, int $id): JsonResponse
     {
         try {
@@ -186,12 +154,6 @@ class HtrDataController extends ResponseController
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return JsonResponse
-     */
     public function destroy(int $id): JsonResponse
     {
         try {
