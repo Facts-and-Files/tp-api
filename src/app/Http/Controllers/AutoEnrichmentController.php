@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
 use App\Models\AutoEnrichment;
+use App\Models\Item;
+use App\Models\Story;
 use App\Http\Resources\AutoEnrichmentResource;
 
 class AutoEnrichmentController extends ResponseController
@@ -94,42 +96,34 @@ class AutoEnrichmentController extends ResponseController
 
     public function show(int $id): JsonResponse
     {
-        try {
-            $data = AutoEnrichment::findOrFail($id);
-            $resource = new AutoEnrichmentResource($data);
+        $data = AutoEnrichment::findOrFail($id);
+        $resource = new AutoEnrichmentResource($data);
 
-            return $this->sendResponse($resource, 'Auto Enrichment fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception);
-        }
+        return $this->sendResponse($resource, 'Auto Enrichment fetched.');
     }
 
     public function showByItemId(int $itemId, Request $request): JsonResponse
     {
-        try {
-            $queries = $request->query();
-            $data = AutoEnrichment::where('ItemId', $itemId);
-            $data = $this->filterDataByQueries($data, $queries, 'AutoEnrichmentId');
-            $resource = new AutoEnrichmentResource($data);
+        Item::findOrFail($itemId);
 
-            return $this->sendResponseWithMeta($resource, 'Auto Enrichment fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        $queries = $request->query();
+        $data = AutoEnrichment::where('ItemId', $itemId);
+        $data = $this->filterDataByQueries($data, $queries, 'AutoEnrichmentId')->get();
+        $resource = new AutoEnrichmentResource($data);
+
+        return $this->sendResponseWithMeta($resource, 'Auto Enrichment fetched.');
     }
 
     public function showByStoryId(int $storyId, Request $request): JsonResponse
     {
-        try {
-            $queries = $request->query();
-            $data = AutoEnrichment::where('StoryId', $storyId);
-            $data = $this->filterDataByQueries($data, $queries, 'AutoEnrichmentId');
-            $resource = new AutoEnrichmentResource($data);
+        Story::findOrFail($storyId);
 
-            return $this->sendResponseWithMeta($resource, 'Auto Enrichment fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        $queries = $request->query();
+        $data = AutoEnrichment::where('StoryId', $storyId);
+        $data = $this->filterDataByQueries($data, $queries, 'AutoEnrichmentId')->get();
+        $resource = new AutoEnrichmentResource($data);
+
+        return $this->sendResponseWithMeta($resource, 'Auto Enrichment fetched.');
     }
 
     public function update(Request $request, int $id): JsonResponse
