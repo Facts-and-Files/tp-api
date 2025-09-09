@@ -12,7 +12,7 @@ return new class extends Migration
             $table->bigIncrements('ItemPropertyId');
             $table->integer('ItemId');
             $table->bigInteger('PropertyId');
-            $table->boolean('UserGenerated')->default(false);
+            $table->boolean('UserGenerated')->default(true);
 
             $table->unique(['ItemId','PropertyId']);
 

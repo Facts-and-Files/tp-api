@@ -5,31 +5,41 @@ namespace App\Http\Controllers;
 use App\Events\PlaceInserted;
 use App\Http\Controllers\ResponseController;
 use App\Http\Resources\PlaceResource;
-use App\Models\Story;
 use App\Models\Place;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Models\Project;
+use App\Models\Story;
+use App\Models\Item;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 class PlaceController extends ResponseController
 {
     public function index(Request $request): JsonResponse
     {
+        $request->validate([
+            'latMin' => 'numeric|between:-90,90',
+            'latMax' => 'numeric|between:-90,90',
+            'lngMin' => 'numeric|between:-180,180',
+            'lngMax' => 'numeric|between:-180,180',
+        ]);
+
         $queryColumns = [
-            'Name'         => 'Name',
-            'WikidataName' => 'WikidataName',
-            'WikidataId'   => 'WikidataId',
-            'ItemId'       => 'ItemId',
-            'UserId'       => 'UserId',
-            'PlaceRole'    => 'PlaceRole'
+            'Name'         => 'Place.Name',
+            'WikidataName' => 'Place.WikidataName',
+            'WikidataId'   => 'Place.WikidataId',
+            'ItemId'       => 'Place.ItemId',
+            'UserId'       => 'Place.UserId',
+            'StoryId'      => 'Item.StoryId',
+            'ProjectId'    => 'Story.ProjectId',
+            'PlaceRole'    => 'Place.PlaceRole',
         ];
 
-        $initialSortColumn = 'PlaceId';
+        $initialSortColumn = 'Place.PlaceId';
 
-        $model = new Place();
+        $query = $this->buildQueryByParentId($request);
 
-        $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
+        $data = $this->getDataByRequest($request, $query, $queryColumns, $initialSortColumn);
 
         if (!$data) {
             return $this->sendError('Invalid data', $request . ' not valid', 400);
@@ -42,96 +52,101 @@ class PlaceController extends ResponseController
 
     public function show(int $id): JsonResponse
     {
-        try {
-            $data = Place::findOrFail($id);
-            $resource = new PlaceResource($data);
+        $place = Place::findOrFail($id);
+        $resource = new PlaceResource($place);
 
-            return $this->sendResponse($resource, 'Place fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        return $this->sendResponse($resource, 'Place fetched.');
     }
 
     public function store(Request $request): JsonResponse
     {
-        try {
-            $validatedData = $request->validate([
-                'ItemId'    => 'required',
-                'Longitude' => 'required',
-                'Latitude'  => 'required'
-            ]);
+        $validatedData = $request->validate([
+            'ItemId'    => 'required',
+            'Longitude' => 'required',
+            'Latitude'  => 'required'
+        ]);
 
-            $place = new Place();
-            $place->ItemId = $validatedData['ItemId'];
-            $place->Latitude = $validatedData['Latitude'];
-            $place->Longitude = $validatedData['Longitude'];
-            $place->fill($request->all());
-            $place->save();
+        $place = new Place();
+        $place->ItemId = $validatedData['ItemId'];
+        $place->Latitude = $validatedData['Latitude'];
+        $place->Longitude = $validatedData['Longitude'];
+        $place->fill($request->all());
+        $place->save();
 
-            PlaceInserted::dispatch($place->ItemId);
+        PlaceInserted::dispatch($place->ItemId);
 
-            $resource = new PlaceResource($place);
+        $resource = new PlaceResource($place);
 
-            return $this->sendResponse($resource, 'Place inserted.');
-        } catch (ValidationException $exception) {
-            return $this->sendError('Validation error', $exception->errors(), 422);
-        } catch (\Exception $exception) {
-            return $this->sendError('Invalid data', $exception->getMessage(), 400);
-        }
+        return $this->sendResponse($resource, 'Place inserted.');
     }
 
     public function update(Request $request, int $id): JsonResponse
     {
-        try {
-            $place = Place::findOrfail($id);
-            $place->fill($request->all());
-            $place->save();
+        $place = Place::findOrfail($id);
+        $place->fill($request->all());
+        $place->save();
 
-            $resource = new PlaceResource($place);
+        $resource = new PlaceResource($place);
 
-            return $this->sendResponse($resource, 'Place updated.');
-        } catch(\Exception $exception) {
-            return $this->sendError('Invalid data', $exception->getMessage(), 400);
-        }
+        return $this->sendResponse($resource, 'Place updated.');
     }
 
     public function destroy(int $id): JsonResponse
     {
-        try {
-            $place = Place::findOrfail($id);
-            $resource = new PlaceResource($place->toArray());
-            $place->delete();
+        $place = Place::findOrfail($id);
+        $resource = new PlaceResource($place->toArray());
+        $place->delete();
 
-            return $this->sendResponse($resource, 'Place deleted.');
-        } catch (ModelNotFoundException $exception) {
-            return $this->sendError('Not found', $exception->getMessage(), 404);
-        } catch(\Exception $exception) {
-            return $this->sendError('Invalid data', $exception->getMessage(), 400);
-        }
+        return $this->sendResponse($resource, 'Place deleted.');
     }
 
-    public function showByItemId(int $itemId): JsonResponse
+    public function showByItemId(Request $request, int $itemId): JsonResponse
     {
-        try {
-            $data = Place::where('ItemId', $itemId)->get();
-            $resource = new PlaceResource($data);
+        $request->merge(['ItemId' => $itemId]);
 
-            return $this->sendResponse($resource, 'Places fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
-        }
+        return $this->index($request);
     }
 
-    public function showByStoryId(int $storyId): JsonResponse
+    public function showByStoryId(Request $request, int $storyId): JsonResponse
     {
-        try {
-            $story = Story::with('items.places')->find($storyId);
-            $data = $story->items->pluck('places')->unique();
-            $resource = new PlaceResource($data);
+        $request->merge(['StoryId' => $storyId]);
 
-            return $this->sendResponse($resource, 'Places fetched.');
-        } catch (\Exception $exception) {
-            return $this->sendError('Not found', $exception->getMessage());
+        return $this->index($request);
+    }
+
+    public function showByProjectId(Request $request, int $projectId): JsonResponse
+    {
+        $request->merge(['ProjectId' => $projectId]);
+
+        return $this->index($request);
+    }
+
+    private function buildQueryByParentId(Request $request): Builder
+    {
+        $query = Place::query()
+            ->join('Item', 'Place.ItemId', '=', 'Item.ItemId')
+            ->select('Place.*', 'Item.Title as ItemTitle');
+
+
+        if ($request->has('ProjectId')) {
+            $projectId = $request['ProjectId'];
+            Project::findOrFail($projectId);
+            $query->join('Story', 'Item.StoryId', '=', 'Story.StoryId')
+                  ->where('Story.ProjectId', '=', $projectId);
         }
+
+        if ($request->has('StoryId')) {
+            $storyId = $request['StoryId'];
+            Story::findOrFail($storyId);
+            $query->where('Item.StoryId', '=', $storyId);
+        }
+
+        if ($request->has('ItemId')) {
+            $itemId = $request['ItemId'];
+            Item::findOrFail($itemId);
+            $query->where('Place.ItemId', '=', $itemId);
+        }
+
+        return $query;
     }
 }

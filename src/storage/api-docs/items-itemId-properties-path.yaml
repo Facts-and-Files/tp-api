@@ -2,7 +2,7 @@ post:
   tags:
     - properties
     - items
-  summary: Attach a property to an item
+  summary: Attach a Property to an Item
   parameters:
     - in: path
       name: ItemId

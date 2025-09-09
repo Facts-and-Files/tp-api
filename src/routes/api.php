@@ -133,6 +133,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::get('/projects/{id}', [ProjectController::class, 'show']);
     Route::put('/projects/{id}', [ProjectController::class, 'update']);
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
+    Route::get('/projects/{id}/places', [PlaceController::class, 'showByProjectId']);
 
     Route::get('/statistics', [StatisticsController::class, 'index']);
     Route::get('/statistics/alltime', [StatisticsController::class, 'alltimeIndex']);

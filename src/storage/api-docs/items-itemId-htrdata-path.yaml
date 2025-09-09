@@ -2,7 +2,7 @@ get:
   tags:
     - htrdata
     - items
-  summary: Get stored HTR data of an item
+  summary: List all HTR Data of an Item
   parameters:
     - in: path
       name: ItemId

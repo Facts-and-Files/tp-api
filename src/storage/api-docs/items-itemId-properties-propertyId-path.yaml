@@ -2,7 +2,7 @@ delete:
   tags:
     - properties
     - items
-  summary: Detach a property from an item
+  summary: Detach a Property from an Item
   parameters:
     - in: path
       name: ItemId

@@ -1,9 +1,15 @@
 get:
   tags:
     - places
-  summary: List all Places
-  description: The index endpoint can be used to get all persons. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
+    - projects
+  summary: List all Places of a Project
+  description: List all Places of a Project using ProjectId. The output is limited to 1000 but can be sorted and paginated.
   parameters:
+    - in: path
+      name: ProjectId
+      description: Numeric ID of the project within transcribathon
+      type: integer
+      required: true
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
     - in: query
@@ -14,11 +20,6 @@ get:
         type: string
     - $ref: 'basic-query-parameter.yaml#/SortParameters/orderDir'
     - in: query
-      name: Name
-      description: Show entries associated with this name
-      schema:
-        type: string
-    - in: query
       name: WikiDataName
       description: Show entries associated with this WikiDataName
       schema:
@@ -28,21 +29,6 @@ get:
       description: Show entries associated with this WikidataId
       schema:
         type: string
-    - in: query
-      name: ItemId
-      description: Show entries associated with this ItemId
-      schema:
-        type: integer
-    - in: query
-      name: StoryId
-      description: Show entries associated with this StoryId
-      schema:
-        type: integer
-    - in: query
-      name: ProjectId
-      description: Show entries associated with this ProjectId
-      schema:
-        type: integer
     - in: query
       name: UserId
       description: Show entries associated with this UserId
@@ -93,36 +79,12 @@ get:
                     $ref: 'meta-responses.yaml#/MetaPaginationResponse'
                   data:
                     type: array
-                    description: A place entry objects as array
+                    description: Places data entries as array
                     items:
                       $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
-    401:
-      $ref: 'responses.yaml#/401ErrorResponse'
-post:
-  tags:
-    - places
-  summary: Store a new Place
-  description: Store a new Place
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: 'places-schema.yaml#/PlacesPostRequestSchema'
-  responses:
-    200:
-      description: Ok
-      content:
-        application/json:
-          schema:
-            allOf:
-              - $ref: 'responses.yaml#/BasicSuccessResponse'
-              - properties:
-                  data:
-                    $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
-    401:
-      $ref: 'responses.yaml#/401ErrorResponse'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
-    422:
-      $ref: 'responses.yaml#/422ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'

@@ -2,7 +2,7 @@ get:
   tags:
     - autoenrichments
     - items
-  summary: Get stored automatically generated enrichments data of an item
+  summary: List all AutoEnrichments of an Item
   parameters:
     - in: path
       name: ItemId

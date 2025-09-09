@@ -73,7 +73,7 @@ class ResponseController extends Controller
 
     protected function getDataByRequest(
         Request $request,
-        Model $model,
+        Model|Builder $modelOrBuilder,
         array $queryColumns,
         string $initialSortColumn
     ): Collection
@@ -86,53 +86,76 @@ class ResponseController extends Controller
 
         $sep = $queries['separator'] ?? false;
 
-        $data = $model->query();
+        // Normalize to Builder
+        $query = $modelOrBuilder instanceof Model
+            ? $modelOrBuilder->newQuery()
+            : $modelOrBuilder;
 
         foreach ($queries as $queryName => $queryValue) {
             if (array_key_exists($queryName, $queryColumns)) {
                 if ($sep) {
                     $queryValueArray = array_map('trim', explode($sep, $queryValue));
-                    $data->whereIn($queryColumns[$queryName], $queryValueArray);
+                    $query->whereIn($queryColumns[$queryName], $queryValueArray);
                     continue;
                 }
 
                 if ($broadMatch === false) {
-                    $data->where($queryColumns[$queryName], $queryValue);
+                    $query->where($queryColumns[$queryName], $queryValue);
                 } else {
-                    $data->where($queryColumns[$queryName], 'LIKE', '%' . $queryValue . '%');
+                    $query->where($queryColumns[$queryName], 'LIKE', '%' . $queryValue . '%');
                 }
             }
         }
 
-        $data = $this->filterDataByDateTime($data, $queries);
+        $query = $this->filterDataByAreaCoordinates($query, $queries);
 
-        $data = $this->filterDataByQueries($data, $queries, $initialSortColumn);
+        $query = $this->filterDataByDateTime($query, $queries);
 
-        return $data;
+        $query = $this->filterDataByQueries($query, $queries, $initialSortColumn);
+
+        return $query->get();
     }
 
-    protected function filterDataByDateTime(Builder $data, array $queries): Builder
+    protected function filterDataByDateTime(Builder $query, array $queries): Builder
     {
         $to   = isset($queries['to']) ? Carbon::parse($queries['to']) : null;
         $from = isset($queries['from']) ? Carbon::parse($queries['from']) : null;
         $timeColumn = $queries['timeColumn'] ?? 'Timestamp';
 
         if ($from && $to) {
-            $data->whereBetween($timeColumn, [$from, $to]);
+            $query->whereBetween($timeColumn, [$from, $to]);
         } elseif ($from) {
-            $data->where($timeColumn, '>=', $from);
+            $query->where($timeColumn, '>=', $from);
         } elseif ($to) {
-            $data->where($timeColumn, '<=', $to);
+            $query->where($timeColumn, '<=', $to);
         }
 
-        return $data;
+        return $query;
+    }
+
+    protected function filterDataByAreaCoordinates(Builder $query, array $queries): Builder
+    {
+        $areaBounds = ['latMin', 'latMax', 'lngMin', 'lngMax'];
+
+        $queries = collect($queries);
+
+        if (!$queries->has($areaBounds)) {
+            return $query;
+        }
+
+        if ($queries->only($areaBounds)->count() !== 4) {
+            return $query;
+        }
+
+        return $query->whereBetween('Latitude', [$queries['latMin'], $queries['latMax']])
+                    ->whereBetween('Longitude', [$queries['lngMin'], $queries['lngMax']]);
     }
 
     protected function filterDataByQueries(
-        Builder $data,
+        Builder $query,
         array $queries,
         string $initialSortColumn
-    ): Collection
+    ): Builder
     {
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
@@ -140,21 +163,21 @@ class ResponseController extends Controller
         $orderBy = $orderBy === 'id' ? $initialSortColumn : $orderBy;
         $orderDir = $queries['orderDir'] ?? 'asc';
         $offset = $limit * ($page - 1);
+        $count = $query->count();
 
         $this->meta = [
             'limit' => (int) $limit,
             'currentPage' => (int) $page,
-            'lastPage' => ceil($data->count() / $limit),
+            'lastPage' => ceil($count / $limit),
             'fromEntry' => ($page - 1) * $limit + 1,
-            'toEntry' => min($page * $limit, $data->count()),
-            'totalEntries' => $data->count()
+            'toEntry' => min($page * $limit, $count),
+            'totalEntries' => $count,
         ];
 
-        $filtered = $data
+        $filtered = $query
             ->limit($limit)
             ->offset($offset)
-            ->orderBy($orderBy, $orderDir)
-            ->get();
+            ->orderBy($orderBy, $orderDir);
 
         return $filtered;
     }
