@@ -4,23 +4,28 @@ namespace App\Services;
 
 use App\EDM\Literal;
 use App\EDM\LiteralFactory;
+use Illuminate\Support\Collection;
 
 class EdmJsonLdProcessorService
 {
-    private const EDM_DATABASE_FIELDS = [
-        'dc:title', 'dc:description', 'edm:landingPage', 'dc:creator',
-        'dc:source', 'edm:country', 'edm:dataProvider', 'edm:provider',
-        'edm:rights', 'edm:begin', 'edm:end', 'dc:contributor', 'edm:year',
-        'dc:publisher', 'dc:coverage', 'dc:date', 'dc:type', 'dc:relation',
-        'dcterms:medium', 'edm:datasetName', 'edm:isShownAt', 'dc:rights',
-        'dc:identifier', 'dc:language', 'edm:language', 'edm:agent',
-        'dcterms:provenance', 'dcterms:created',
-    ];
+    // private const EDM_DATABASE_FIELDS = [
+    //     'dc:title', 'dc:description', 'edm:landingPage', 'dc:creator',
+    //     'dc:source', 'edm:country', 'edm:dataProvider', 'edm:provider',
+    //     'edm:rights', 'edm:begin', 'edm:end', 'dc:contributor', 'edm:year',
+    //     'dc:publisher', 'dc:coverage', 'dc:date', 'dc:type', 'dc:relation',
+    //     'dcterms:medium', 'edm:datasetName', 'edm:isShownAt', 'dc:rights',
+    //     'dc:identifier', 'dc:language', 'edm:language', 'edm:agent',
+    //     'dcterms:provenance', 'dcterms:created',
+    // ];
 
     private array $nodeIndex = [];
 
-    public function processJsonLd(array $graphNodes): array
+    private array $mappings = [];
+
+    public function processJsonLd(array $jsonLdData): array
     {
+        $this->mappings = config('edm.mappings');
+
         $processedData = [
             'story' => [],
             'recordId' => '',
@@ -33,20 +38,18 @@ class EdmJsonLdProcessorService
             'placeAdded' => false
         ];
 
-        // first pass: build an index of all nodes by their @id
-        $this->buildNodeIndex($graphNodes);
+        // build an index of all nodes by their @id
+        $this->buildNodeIndex($jsonLdData);
 
-print_r($graphNodes);exit();
-        // second pass: process items with reference resolution
-        foreach ($graphNodes as $nodes) {
-            $this->processJsonLdItem($nodes, $processedData);
-        }
+        $this->extractData($jsonLdData, $processedData);
 
         return $processedData;
     }
 
     private function buildNodeIndex(array $nodes): void
     {
+        // assume @id is not a reference when has @type
+        // so put it in the index
         if (isset($nodes['@id']) && isset($nodes['@type'])) {
             $this->nodeIndex[$nodes['@id']] = $nodes;
         }
@@ -153,17 +156,55 @@ print_r($graphNodes);exit();
         return [];
     }
 
-    private function processJsonLdItem(mixed $node, array &$processedData): void
+    private function extractData(array $jsonLdData, array &$processedData): void
     {
-print_r($node);
-        foreach ($node as $key => $value) {
+        array_walk($processedData, fn(&$value, $key) =>
+            $value = match ($key) {
+                'manifestUrl' => $this->extractManifestUrl($jsonLdData),
+                default => $value,
+            }
+        );
+    }
 
-            match ($key) {
-                // '@type' => $this->processTypeField($item, $value, $processedData),
-                'iiif_url' => $processedData['manifestUrl'] = $value,
-                // default => $this->processRegularField($key, $value, $processedData)
-            };
+    public function extractManifestUrl($jsonLdData): string
+    {
+        $manifestConfig = config('edm.mappings.manifestUrl');
+        $dataCollection = collect($jsonLdData);
+        $graphCollection = collect(data_get($dataCollection, '@graph', $dataCollection));
+
+        foreach ($manifestConfig['paths'] as $path) {
+            // try first extract DEI converted induced iiif_url property
+            $manifestUrl = $this->extractByPathAndType($dataCollection, $path['path']);
+
+            if ($manifestUrl) {
+                break;
+            }
+
+            if (isset($path['type'])) {
+                $manifestUrl = $this->extractByPathAndType($graphCollection, $path['path'], $path['type']);
+
+                if ($manifestUrl) {
+                    break;
+                }
+            }
         }
+
+        return $manifestUrl ?? '';
+    }
+
+    private function extractByPathAndType(
+        Collection $collection,
+        string $path,
+        ?string $type = null,
+    ): mixed {
+        if (!$type) {
+            return data_get($collection, $path);
+        }
+
+        return $collection
+            ->filter(fn($item) => $item['@type'] === $type)
+            ->map(fn($item) => data_get($item, $path))
+            ->first();
     }
 
     // private function processTypeField(array $item, $value, array &$processedData): void

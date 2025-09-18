@@ -21,6 +21,8 @@ class DeiImportService
             );
         }
 
+        // use @graph here, because DEI wronlgy wraps all meta data (even @context)
+        // in @graph root element
         $processedData = $this->jsonLdProcessor->processJsonLd($data['@graph']);
 
         $storyData = array_merge($processedData['story'], [
@@ -30,11 +32,11 @@ class DeiImportService
             'DatasetId' => $data['DatasetId'] ?? null,
         ]);
 
-print_r($storyData);
+// print_r($storyData);
         $existingStory = Story::where('RecordId', $processedData['RecordId'])->first();
 // check RecordId is only generated when ProvidedCHO is existent, see JsonLdProcessorService
 // seems not correct
-print_r($existingStory);
+// print_r($existingStory);
 
         // Store import file
         // $this->importStorage->storeImportFile(

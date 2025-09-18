@@ -121,6 +121,38 @@ class EdmJsonLdProcessorServiceTest extends TestCase
         $this->assertSame([], $literals);
     }
 
+    public function test_extract_converted_manifest_url(): void
+    {
+        $edmObject = [
+            '@graph' => [],
+            'iiif_url' => 'https:///iiif.example.com/manifest',
+        ];
+
+        $result = $this->processor->processJsonLd($edmObject);
+
+        $this->assertSame($result['manifestUrl'], $edmObject['iiif_url']);
+    }
+
+    public function test_extract_original_manifest_url(): void
+    {
+        $edmObject = [
+            '@graph' => [
+                [
+                    '@id' => 'http://example.org/123',
+                    '@type' => "edm:WebResource",
+                    'dcterms:isReferencedBy' => [
+                        '@id' => 'http://example.com/manifest/123',
+                    ],
+                ],
+            ],
+        ];
+
+        $result = $this->processor->processJsonLd($edmObject);
+
+        $this->assertSame($result['manifestUrl'], $edmObject['@graph'][0]['dcterms:isReferencedBy']['@id']);
+    }
+
+
     // /** @test */
     // public function it_processes_place_data_with_coordinates(): void
     // {
