@@ -1,55 +1,85 @@
 <?php
 
+/**
+ * Class EdmJsonLdProcessorService
+ *
+ * Processes EDM JSON-LD data into structured PHP arrays and provides utility methods
+ * for working with literals, entity references, and manifest URLs.
+ *
+ * This service:
+ *  - Builds a node index of all entities in the JSON-LD graph for fast lookup.
+ *  - Resolves values of properties to Literal objects, including references and inline entities.
+ *  - Extracts key fields such as manifest URL, story title, and image links according to configured mappings.
+ *
+ * Public Methods:
+ *
+ *  processJsonLd(array $jsonLdData): array
+ *      Processes the JSON-LD input and returns a normalized array with extracted fields.
+ *
+ *  getLiterals(string $entityId, string $property): array
+ *      Returns an array of Literal objects for a given entity ID and property.
+ *
+ *  resolveProperty(string $property): array
+ *      Aggregates and returns all Literal objects for a given property across all entities in the graph.
+ *
+ *  resolveEntity(string $id): ?array
+ *      Returns the raw JSON-LD array for a given entity ID if it exists in the node index, or null.
+ *
+ *  getNodeIndex(): array
+ *      Returns the full node index built from the JSON-LD data.
+ *
+ *  getNodeIndexKeys(): array
+ *      Returns all entity IDs indexed from the JSON-LD data.
+ *
+ *  canResolve(string $id): bool
+ *      Returns true if the given entity ID exists in the node index, false otherwise.
+ *
+ * Notes:
+ *  - All literal values returned are instances of App\EDM\Literal.
+ *  - The service relies on configuration mappings (edm.mappings) to locate manifest URLs,
+ *    story titles, images, and other key fields.
+ *  - Designed to handle JSON-LD with nested @graph structures, references, and language-tagged literals.
+ */
+
 namespace App\Services;
 
 use App\EDM\Literal;
 use App\EDM\LiteralFactory;
+use App\EDM\LiteralHelper;
+use App\Exceptions\InvalidManifestUrlException;
 use Illuminate\Support\Collection;
 
 class EdmJsonLdProcessorService
 {
-    // private const EDM_DATABASE_FIELDS = [
-    //     'dc:title', 'dc:description', 'edm:landingPage', 'dc:creator',
-    //     'dc:source', 'edm:country', 'edm:dataProvider', 'edm:provider',
-    //     'edm:rights', 'edm:begin', 'edm:end', 'dc:contributor', 'edm:year',
-    //     'dc:publisher', 'dc:coverage', 'dc:date', 'dc:type', 'dc:relation',
-    //     'dcterms:medium', 'edm:datasetName', 'edm:isShownAt', 'dc:rights',
-    //     'dc:identifier', 'dc:language', 'edm:language', 'edm:agent',
-    //     'dcterms:provenance', 'dcterms:created',
-    // ];
-
-    private array $nodeIndex = [];
-
-    private array $mappings = [];
+    protected array $nodeIndex = [];
+    protected array $mappings = [];
 
     public function processJsonLd(array $jsonLdData): array
     {
         $this->mappings = config('edm.mappings');
-
-        $processedData = [
-            'story' => [],
-            'recordId' => '',
-            'externalRecordId' => '',
-            'storyTitle' => '',
-            'manifestUrl' => '',
-            'imageLink' => '',
-            'pdfImage' => '',
-            'imageLinks' => [],
-            'placeAdded' => false
-        ];
-
-        // build an index of all nodes by their @id
         $this->buildNodeIndex($jsonLdData);
 
-        $this->extractData($jsonLdData, $processedData);
+        $processedData = [
+            'story'            => [],
+            'recordId'         => '',
+            'externalRecordId' => '',
+            'storyTitle'       => '',
+            'manifestUrl'      => $this->extractManifestUri('manifestUrl', $jsonLdData),
+            'imageLink'        => '',
+            'pdfImage'         => '',
+            'imageLinks'       => '',
+            'placeAdded'       => false,
+        ];
 
         return $processedData;
     }
 
-    private function buildNodeIndex(array $nodes): void
+    // -------------------------
+    // Node index handling
+    // -------------------------
+
+    protected function buildNodeIndex(array $nodes): void
     {
-        // assume @id is not a reference when has @type
-        // so put it in the index
         if (isset($nodes['@id']) && isset($nodes['@type'])) {
             $this->nodeIndex[$nodes['@id']] = $nodes;
         }
@@ -59,12 +89,34 @@ class EdmJsonLdProcessorService
                 if (isset($node['@id']) && isset($node['@type'])) {
                     $this->nodeIndex[$node['@id']] = $node;
                 }
-
-                // recurse into children
                 $this->buildNodeIndex($node);
             }
         }
     }
+
+    public function getNodeIndexKeys(): array
+    {
+        return array_keys($this->nodeIndex);
+    }
+
+    public function getNodeIndex(): array
+    {
+        return $this->nodeIndex;
+    }
+
+    public function canResolve(string $id): bool
+    {
+        return isset($this->nodeIndex[$id]);
+    }
+
+    public function resolveEntity(string $id): ?array
+    {
+        return $this->nodeIndex[$id] ?? null;
+    }
+
+    // -------------------------
+    // Literal resolution
+    // -------------------------
 
     public function getLiterals(string $entityId, string $property): array
     {
@@ -88,26 +140,7 @@ class EdmJsonLdProcessorService
         return $literals;
     }
 
-    private function collectLiteralsFromEntity(array $entity): array
-    {
-        // EDM often uses these labels for contextual entities
-        $candidates = ['skos:prefLabel', 'foaf:name', 'dc:title'];
-
-        foreach ($candidates as $prop) {
-            if (isset($entity[$prop])) {
-                return LiteralFactory::fromJsonLd($entity[$prop]);
-            }
-        }
-
-        return [];
-    }
-
-    public function resolveEntity(string $id): ?array
-    {
-        return $this->nodeIndex[$id] ?? null;
-    }
-
-    private function resolveValue(mixed $value): array
+    protected function resolveValue(mixed $value): array
     {
         if (is_string($value)) {
             return [new Literal($value)];
@@ -127,6 +160,7 @@ class EdmJsonLdProcessorService
             if (isset($value['@value'])) {
                 return LiteralFactory::fromJsonLd($value);
             }
+
             // reference to another entity
             if (isset($value['@id']) && count($value) === 1) {
                 $refId = $value['@id'];
@@ -143,7 +177,7 @@ class EdmJsonLdProcessorService
         return [];
     }
 
-    private function extractLabelFromEntity(array $entity): array
+    protected function extractLabelFromEntity(array $entity): array
     {
         $candidates = ['skos:prefLabel', 'foaf:name', 'dc:title'];
 
@@ -156,338 +190,119 @@ class EdmJsonLdProcessorService
         return [];
     }
 
-    private function extractData(array $jsonLdData, array &$processedData): void
+    // -------------------------
+    // Field extraction
+    // -------------------------
+
+    public function extractManifestUri(string $name, array $jsonLdData): string
     {
-        array_walk($processedData, fn(&$value, $key) =>
-            $value = match ($key) {
-                'manifestUrl' => $this->extractManifestUrl($jsonLdData),
-                default => $value,
-            }
-        );
+        $manifestUrl = $this->extractFieldValue('manifestUrl', $jsonLdData);
+
+        if (!$this->isValidManifestUrl($manifestUrl)) {
+            throw new InvalidManifestUrlException("Manifest URL is missing or invalid: {$manifestUrl}");
+        }
+
+        return $manifestUrl;
     }
 
-    public function extractManifestUrl($jsonLdData): string
+    private function isValidManifestUrl(?string $url): bool
     {
-        $manifestConfig = config('edm.mappings.manifestUrl');
-        $dataCollection = collect($jsonLdData);
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+    }
+
+    protected function extractFieldValue(string $field, array $jsonLdData): ?string
+    {
+        $config = $this->mappings[$field] ?? null;
+        if (!$config) {
+            return null;
+        }
+
+        $dataCollection  = collect($jsonLdData);
         $graphCollection = collect(data_get($dataCollection, '@graph', $dataCollection));
 
-        foreach ($manifestConfig['paths'] as $path) {
-            // try first extract DEI converted induced iiif_url property
-            $manifestUrl = $this->extractByPathAndType($dataCollection, $path['path']);
-
-            if ($manifestUrl) {
-                break;
+        foreach ($config['paths'] as $path) {
+            // try main collection
+            if ($raw = $this->extractByPathAndType($dataCollection, $path['path'])) {
+                return $this->extractResolvedValue($raw);
             }
 
-            if (isset($path['type'])) {
-                $manifestUrl = $this->extractByPathAndType($graphCollection, $path['path'], $path['type']);
-
-                if ($manifestUrl) {
-                    break;
+            // try graph collection with type
+            if (!empty($path['type'])) {
+                if ($raw = $this->extractByPathAndType($graphCollection, $path['path'], $path['type'])) {
+                    return $this->extractResolvedValue($raw);
                 }
             }
         }
 
-        return $manifestUrl ?? '';
+        return null;
     }
 
-    private function extractByPathAndType(
+    protected function extractFieldValues(string $field, array $jsonLdData): array
+    {
+        $config          = $this->mappings[$field] ?? null;
+        if (!$config) {
+            return [];
+        }
+
+        $dataCollection  = collect($jsonLdData);
+        $graphCollection = collect(data_get($dataCollection, '@graph', $dataCollection));
+        $results         = [];
+
+        foreach ($config['paths'] as $path) {
+            $rawValues = $this->extractAllByPathAndType($dataCollection, $graphCollection, $path);
+
+            foreach ($rawValues as $raw) {
+                $normalized = $this->extractResolvedValue($raw);
+                if ($normalized !== null) {
+                    $results[] = $normalized;
+                }
+            }
+        }
+
+        return array_values(array_unique($results));
+    }
+
+    protected function extractResolvedValue(mixed $raw): ?string
+    {
+        $literals = LiteralFactory::fromJsonLd($raw);
+        return LiteralHelper::toNormalizedString($literals) ?: null;
+    }
+
+    protected function extractByPathAndType(
         Collection $collection,
         string $path,
-        ?string $type = null,
+        ?string $type = null
     ): mixed {
         if (!$type) {
             return data_get($collection, $path);
         }
 
         return $collection
-            ->filter(fn($item) => $item['@type'] === $type)
+            ->filter(fn($item) => isset($item['@type']) && $item['@type'] === $type)
             ->map(fn($item) => data_get($item, $path))
             ->first();
     }
 
-    // private function processTypeField(array $item, $value, array &$processedData): void
-    // {
-    //     $type = is_array($value) ? $value[0] : $value;
-    //
-    //     switch ($type) {
-    //         case 'edm:Place':
-    //             $this->processPlace($item, $processedData);
-    //             break;
-    //         case 'edm:Agent':
-    //             $this->processAgent($item, $processedData);
-    //             break;
-    //         case 'edm:WebResource':
-    //             $this->processWebResource($item, $processedData);
-    //             break;
-    //         case 'edm:ProvidedCHO':
-    //             $this->processProvidedCHO($item, $processedData);
-    //             break;
-    //     }
-    // }
-    //
-    // private function processRegularField(string $key, $value, array &$processedData): void
-    // {
-    //     if (!in_array($key, self::SUPPORTED_FIELDS)) {
-    //         return;
-    //     }
-    //
-    //     // resolve references before processing
-    //     $resolvedValue = $this->resolveValueWithReferences($value);
-    //     $processedValue = $this->extractValue($resolvedValue);
-    //
-    //     if ($key === 'dc:title') {
-    //         $processedData['storyTitle'] = $processedValue;
-    //     }
-    //
-    //     $processedData['story'][$key] = $this->mergeValues(
-    //         $processedData['story'][$key] ?? null,
-    //         $processedValue
-    //     );
-    // }
-    //
-    // private function resolveValueWithReferences(array|string $value): array|string
-    // {
-    //     if (is_array($value)) {
-    //         return array_map([$this, 'resolveValueWithReferences'], $value);
-    //     }
-    //
-    //     if ($this->isIdReference($value)) {
-    //         $resolved = $this->resolveReference($value['@id']);
-    //         if ($resolved) {
-    //             // return the resolved content, preferring @value if available
-    //             return $this->extractMeaningfulContent($resolved);
-    //         }
-    //         // if reference can't be resolved, return the @id as fallback
-    //         return $value['@id'];
-    //     }
-    //
-    //     return $value;
-    // }
-    //
-    // private function extractMeaningfulContent(array $resolvedItem): array
-    // {
-    //     $meaningfulFields = ['@value', 'skos:prefLabel', 'rdfs:label', 'dc:title', 'foaf:name'];
-    //
-    //     foreach ($meaningfulFields as $field) {
-    //         if (isset($resolvedItem[$field])) {
-    //             return [$field => $resolvedItem[$field]];
-    //         }
-    //     }
-    //
-    //     // if no meaningful field found, return the whole item minus @id and @type
-    //     $filtered = array_filter($resolvedItem, function($key) {
-    //         return !in_array($key, ['@id', '@type']);
-    //     }, ARRAY_FILTER_USE_KEY);
-    //
-    //     return $filtered ?: ['@id' => $resolvedItem['@id'] ?? 'unknown'];
-    // }
-    //
-    // private function extractValue(mixed $value): string
-    // {
-    //     if (is_array($value)) {
-    //         return $this->processArrayValue($value);
-    //     }
-    //
-    //     if (is_object($value)) {
-    //         return $this->processObjectValue($value);
-    //     }
-    //
-    //     return $this->cleanValue($value);
-    // }
-    //
-    // private function processArrayValue(array $value): string
-    // {
-    //     $results = [];
-    //     foreach ($value as $item) {
-    //         if (is_object($item)) {
-    //             $results[] = $this->processObjectValue($item);
-    //         } elseif (is_array($item)) {
-    //             $results[] = $this->processArrayValue($item);
-    //         } else {
-    //             $results[] = $this->cleanValue($item);
-    //         }
-    //     }
-    //     return implode(' || ', array_filter($results));
-    // }
-    //
-    // private function processObjectValue(object $value): string
-    // {
-    //     $valueArray = (array) $value;
-    //
-    //     if (isset($valueArray['@value'])) {
-    //         return $this->cleanValue($valueArray['@value']);
-    //     }
-    //
-    //     if (isset($valueArray['@id'])) {
-    //         return $this->cleanValue($valueArray['@id']);
-    //     }
-    //
-    //     // handle other meaningful fields first
-    //     $meaningfulFields = ['skos:prefLabel', 'rdfs:label', 'dc:title', 'foaf:name'];
-    //     foreach ($meaningfulFields as $field) {
-    //         if (isset($valueArray[$field])) {
-    //             return $this->extractValue($valueArray[$field]);
-    //         }
-    //     }
-    //
-    //     return '';
-    // }
-    //
-    // private function cleanValue(mixed $value): string
-    // {
-    //     if (is_null($value)) {
-    //         return '';
-    //     }
-    //
-    //     return trim($value);
-    // }
-    //
-    // private function mergeValues(?string $existing, string $new): string
-    // {
-    //     if ($new === '') {
-    //         return $existing ?? '';
-    //     }
-    //
-    //     if ($existing === null || $existing === '') {
-    //         return $new;
-    //     }
-    //
-    //     // don't fill with redundant values
-    //     if ($existing === $new) {
-    //         return $existing;
-    //     }
-    //
-    //     return $existing . ' || ' . $new;
-    // }
-    //
-    // private function processPlace(array $item, array &$processedData): void
-    // {
-    //     if ($processedData['placeAdded']) return;
-    //
-    //     $coordinates = $this->extractCoordinates($item);
-    //     if ($coordinates) {
-    //         $processedData['story']['PlaceLatitude'] = $coordinates['lat'];
-    //         $processedData['story']['PlaceLongitude'] = $coordinates['lng'];
-    //     }
-    //
-    //     if (isset($item['skos:prefLabel'])) {
-    //         $resolvedLabel = $this->resolveValueWithReferences($item['skos:prefLabel']);
-    //         $processedData['story']['PlaceName'] = $this->extractValue($resolvedLabel);
-    //     }
-    //
-    //     $processedData['placeAdded'] = true;
-    // }
-    //
-    // private function extractCoordinates(array $item): ?array
-    // {
-    //     $coordFields = [
-    //         ['lat' => 'geo:lat', 'lng' => 'geo:long'],
-    //         ['lat' => 'wgs84_pos:lat', 'lng' => 'wgs84_pos:long'],
-    //         ['lat' => 'geo:latitude', 'lng' => 'geo:longitude']
-    //     ];
-    //
-    //     foreach ($coordFields as $fields) {
-    //         if (isset($item[$fields['lat']], $item[$fields['lng']])) {
-    //             $lat = $this->resolveValueWithReferences($item[$fields['lat']]);
-    //             $lng = $this->resolveValueWithReferences($item[$fields['lng']]);
-    //
-    //             return [
-    //                 'lat' => $this->extractNumericValue($lat),
-    //                 'lng' => $this->extractNumericValue($lng)
-    //             ];
-    //         }
-    //     }
-    //
-    //     return null;
-    // }
-    //
-    // private function extractNumericValue($value): ?float
-    // {
-    //     if (is_numeric($value)) {
-    //         return (float) $value;
-    //     }
-    //
-    //     if (is_array($value) && isset($value['@value']) && is_numeric($value['@value'])) {
-    //         return (float) $value['@value'];
-    //     }
-    //
-    //     return null;
-    // }
-    //
-    // private function processAgent(array $item, array &$processedData): void
-    // {
-    //     if (!isset($item['skos:prefLabel'])) return;
-    //
-    //     $resolvedLabel = $this->resolveValueWithReferences($item['skos:prefLabel']);
-    //     $agentData = $this->extractValue($resolvedLabel);
-    //
-    //     if (isset($item['@id'])) {
-    //         $agentData .= ' | ' . $item['@id'];
-    //     }
-    //
-    //     $processedData['story']['edm:agent'] = $this->mergeValues(
-    //         $processedData['story']['edm:agent'] ?? null,
-    //         $agentData
-    //     );
-    // }
-    //
-    // private function processWebResource(array $item, array &$processedData): void
-    // {
-    //     if (isset($item['dcterms:isReferencedBy'])) {
-    //         $manifestRef = $this->resolveValueWithReferences($item['dcterms:isReferencedBy']);
-    //         $manifestUrl = null;
-    //
-    //         if (is_array($manifestRef) && isset($manifestRef['@id'])) {
-    //             $manifestUrl = $manifestRef['@id'];
-    //         } elseif (is_string($manifestRef)) {
-    //             $manifestUrl = $manifestRef;
-    //         }
-    //
-    //         if ($manifestUrl && $this->isValidManifestUrl($manifestUrl)) {
-    //             $processedData['manifestUrl'] = $manifestUrl;
-    //         }
-    //     }
-    //
-    //     if (isset($item['@id'])) {
-    //         if (isset($item['ebucore:hasMimeType']) &&
-    //             str_contains($item['ebucore:hasMimeType'], 'application/pdf')) {
-    //             $processedData['pdfImage'] = $item['@id'];
-    //         } else {
-    //             $processedData['imageLinks'][] = $item['@id'];
-    //         }
-    //     }
-    // }
-    //
-    // private function processProvidedCHO(array $item, array &$processedData): void
-    // {
-    //     if (!isset($item['@id'])) return;
-    //
-    //     $processedData['externalRecordId'] = $item['@id'];
-    //     $parts = explode('/', $item['@id']);
-    //     $end = end($parts);
-    //     $secondEnd = prev($parts);
-    //     $processedData['recordId'] = '/' . $secondEnd . '/' . $end;
-    // }
-    //
-    // private function isValidManifestUrl(string $url): bool
-    // {
-    //     return filter_var($url, FILTER_VALIDATE_URL) !== false;
-    // }
-    //
-    public function getNodeIndexKeys(): array
-    {
-        return array_keys($this->nodeIndex);
-    }
+    protected function extractAllByPathAndType(
+        Collection $dataCollection,
+        Collection $graphCollection,
+        array $pathConfig
+    ): array {
+        $results = [];
 
-    public function getNodeIndex(): array
-    {
-        return $this->nodeIndex;
-    }
+        if ($raw = $this->extractByPathAndType($dataCollection, $pathConfig['path'])) {
+            $results[] = $raw;
+        }
 
-    public function canResolve(string $id): bool
-    {
-        return isset($this->nodeIndex[$id]);
+        if (!empty($pathConfig['type'])) {
+            $graphValues = $graphCollection
+                ->filter(fn($item) => isset($item['@type']) && $item['@type'] === $pathConfig['type'])
+                ->map(fn($item) => data_get($item, $pathConfig['path']))
+                ->all();
+
+            $results = array_merge($results, $graphValues);
+        }
+
+        return $results;
     }
 }

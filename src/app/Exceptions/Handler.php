@@ -64,6 +64,10 @@ class Handler extends ExceptionHandler
             return ResponseController::sendError('Unprocessable Content', $exception->getMessage(), 422);
         }
 
+        if ($exception instanceof InvalidManifestUrlException) {
+            return ResponseController::sendError('Unprocessable Content', $exception->getMessage(), 422);
+        }
+
         if ($exception) {
             return ResponseController::sendError('Internal Server Error', $exception->getMessage(), 500);
         }
