@@ -5,45 +5,34 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | EDM JSON-LD Property Mappings
+    | EDM JSON-LD Property Mappings and their assumed paths
     |--------------------------------------------------------------------------
     |
-    | Each entry maps prefixed JSON-LD property to:
-    |  - type: expected JSON-LD type (literal or ref)
-    |
     */
-
-
-    'default_lookup_class_order' => [
-        'edm:ProvidedCHO',
-        'edm:aggregatedCHO',
-        'ore:Aggregation',
-        'ore:Proxy',
-        'edm:WebResource',
-    ],
-
-    'contextual_classes' => [
-        'edm:Agent', 'edm:Place', 'edm:TimeSpan', 'skos:Concept', 'cc:License',
-    ],
-
     'mappings' => [
         'manifestUrl' => [
             'paths' => [
-                [
-                    'path' => 'iiif_url',
-                ],
-                [
-                    'type' => 'edm:WebResource',
-                    'path' => 'dcterms:isReferencedBy.@id',
-                ],
+                ['path' => 'iiif_url'],
+                ['path' => 'dcterms:isReferencedBy.@id', 'type' => 'edm:WebResource'],
             ],
         ],
-        'dc:title' => [
-            'type' => ['literal'], // literal, ref
-            'lookup_path' => 'default', // default, custom
-            'custom_path' => [],
-            'property' => 'dc:title',
+        'storyTitle' => [
+            'paths' => [
+                ['path' => 'dc:title'],
+            ],
         ],
+        'externalRecordId' => [
+            'paths' => [
+                ['path' => '@id', 'type' => 'edm:ProvidedCHO'],
+            ],
+        ],
+
+        // 'dc:title' => [
+        //     'type' => ['literal'], // literal, ref
+        //     'lookup_path' => 'default', // default, custom
+        //     'custom_path' => [],
+        //     'property' => 'dc:title',
+        // ],
         // 'dc:description'   => [
         //     'type' => ['literal', 'ref'],
         // ],
