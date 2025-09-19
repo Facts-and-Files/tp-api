@@ -22,5 +22,6 @@
       "@type": "edm:WebResource",
       "edm:isShownBy": "http://example.org/image_graph1.jpg"
     }
-  ]
+  ],
+  "iiif_url": "http://example.com/manifest/123"
 }

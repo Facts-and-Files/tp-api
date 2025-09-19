@@ -1,6 +1,6 @@
-{ 
-  "@graph" : [ 
-      { 
+{
+  "@graph" : [
+      {
         "@id" : "http://data.europeana.eu/aggregation/europeana/92004/object_SSG___CODSANG1278_1OG7WID" ,
         "@type" : "edm:EuropeanaAggregation" ,
         "dcterms:created" : "2022-01-26T11:36:07.211Z" ,
@@ -12,12 +12,12 @@
         "edm:landingPage" : {"@id" : "https://www.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID" } ,
         "edm:language" : "mul" ,
         "edm:preview" : {"@id" : "https://api.europeana.eu/thumbnail/v2/url.json?uri=https%3A%2F%2Fimagines.manuscriptorium.com%2Floris%2FECODIC-SSG___CODSANG1278_1OG7WID-en%2Fcsg-1278_e001%2Ffull%2F%21400%2C400%2F0%2Fdefault.jpg&type=TEXT" } ,
-        "dqv:hasQualityAnnotation" : [ 
+        "dqv:hasQualityAnnotation" : [
             { "@id" : "http://data.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID#metadataTier" } ,
             { "@id" : "http://data.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID#contentTier" }
           ]
       } ,
-      { 
+      {
         "@id" : "http://data.europeana.eu/aggregation/provider/92004/object_SSG___CODSANG1278_1OG7WID" ,
         "@type" : "ore:Aggregation" ,
         "edm:aggregatedCHO" : {"@id" : "http://data.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID" } ,
@@ -29,25 +29,25 @@
         "edm:provider" : "Stiftsbibliothek" ,
         "edm:rights" : {"@id" : "http://creativecommons.org/licenses/by-nc/4.0/" }
       } ,
-      { 
+      {
         "@id" : "http://data.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID" ,
         "@type" : "edm:ProvidedCHO"
       } ,
-      { 
+      {
         "@id" : "http://data.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID#contentTier" ,
         "@type" : "dqv:QualityAnnotation" ,
         "dcterms:created" : "2022-01-26T12:33:56.166933Z" ,
         "oa:hasBody" : {"@id" : "http://www.europeana.eu/schemas/epf/contentTier3" } ,
         "oa:hasTarget" : {"@id" : "file:///aggregation/provider/92004/object_SSG___CODSANG1278_1OG7WID" }
       } ,
-      { 
+      {
         "@id" : "http://data.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID#metadataTier" ,
         "@type" : "dqv:QualityAnnotation" ,
         "dcterms:created" : "2022-01-26T12:33:56.167259Z" ,
         "oa:hasBody" : {"@id" : "http://www.europeana.eu/schemas/epf/metadataTier0" } ,
         "oa:hasTarget" : {"@id" : "file:///aggregation/provider/92004/object_SSG___CODSANG1278_1OG7WID" }
       } ,
-      { 
+      {
         "@id" : "http://data.europeana.eu/proxy/europeana/92004/object_SSG___CODSANG1278_1OG7WID" ,
         "@type" : "ore:Proxy" ,
         "dc:identifier" : "http://www.manuscriptorium.com/object/SSG___CODSANG1278_1OG7WID" ,
@@ -58,7 +58,7 @@
         "ore:proxyFor" : {"@id" : "http://data.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID" } ,
         "ore:proxyIn" : {"@id" : "http://data.europeana.eu/aggregation/europeana/92004/object_SSG___CODSANG1278_1OG7WID" }
       } ,
-      { 
+      {
         "@id" : "http://data.europeana.eu/proxy/provider/92004/object_SSG___CODSANG1278_1OG7WID" ,
         "@type" : "ore:Proxy" ,
         "dc:date" : "1701-1705" ,
@@ -67,7 +67,7 @@
         "dc:language" : "deu" ,
         "dc:title" : "St. Gallen, Stiftsbibliothek, Cod. Sang. 1278 : Prose description of Georg Franz Müller\u2019s travel to and stay in the Indonesian archipelago between 1669 und 1682" ,
         "dc:type" : "codex" ,
-        "dcterms:created" : [ 
+        "dcterms:created" : [
             "1701 (Rorschach) / 1705 (St. Gall)" ,
             "1701-1705"
           ] ,
@@ -81,7 +81,7 @@
         "ore:proxyFor" : {"@id" : "http://data.europeana.eu/item/92004/object_SSG___CODSANG1278_1OG7WID" } ,
         "ore:proxyIn" : {"@id" : "http://data.europeana.eu/aggregation/provider/92004/object_SSG___CODSANG1278_1OG7WID" }
       } ,
-      { 
+      {
         "@id" : "http://www.manuscriptorium.com/apps/index.php?direct=record&pid=ECODIC-SSG___CODSANG1278_1OG7WID-en" ,
         "@type" : "edm:WebResource" ,
         "ebucore:fileByteSize" : {
@@ -90,13 +90,13 @@
           } ,
         "ebucore:hasMimeType" : "text/html"
       } ,
-      { 
+      {
         "@id" : "https://imagines.manuscriptorium.com/loris/ECODIC-SSG___CODSANG1278_1OG7WID-en/csg-1278_e001/" ,
         "@type" : "svcs:Service" ,
         "dcterms:conformsTo" : {"@id" : "http://iiif.io/api/image" } ,
         "doap:implements" : {"@id" : "http://iiif.io/api/image/2/level2.json" }
       } ,
-      { 
+      {
         "@id" : "https://imagines.manuscriptorium.com/loris/ECODIC-SSG___CODSANG1278_1OG7WID-en/csg-1278_e001/full/!400,400/0/default.jpg" ,
         "@type" : "edm:WebResource" ,
         "ebucore:fileByteSize" : {
@@ -107,39 +107,39 @@
         "ebucore:height" : 400 ,
         "ebucore:orientation" : "portrait" ,
         "ebucore:width" : 300 ,
-        "edm:componentColor" : [ 
-            { 
+        "edm:componentColor" : [
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#556B2F"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#E9967A"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#C0C0C0"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#FFA07A"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#BC8F8F"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#2F4F4F"
             }
           ] ,
         "edm:hasColorSpace" : "sRGB"
       } ,
-      { 
+      {
         "@id" : "https://imagines.manuscriptorium.com/loris/ECODIC-SSG___CODSANG1278_1OG7WID-en/csg-1278_e001/full/full/0/default.jpg" ,
         "@type" : "edm:WebResource" ,
         "dc:format" : "image/jpg" ,
-        "dc:type" : [ 
+        "dc:type" : [
             "text" ,
             "images"
           ] ,
@@ -154,28 +154,28 @@
         "ebucore:height" : 8176 ,
         "ebucore:orientation" : "portrait" ,
         "ebucore:width" : 6132 ,
-        "edm:componentColor" : [ 
-            { 
+        "edm:componentColor" : [
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#8B4513"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#000000"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#BC8F8F"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#A9A9A9"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#556B2F"
             } ,
-            { 
+            {
               "@type" : "http://www.w3.org/2001/XMLSchema#hexBinary" ,
               "@value" : "#D2691E"
             }

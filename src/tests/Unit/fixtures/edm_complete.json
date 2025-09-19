@@ -92,5 +92,6 @@
       "edm:language": ["en"],
       "edm:rights": ["http://creativecommons.org/publicdomain/zero/1.0/"]
     }
-  ]
+  ],
+    "iiif_url": "http://iiif.example.org/manifest/12345"
 }

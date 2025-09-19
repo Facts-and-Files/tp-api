@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Services\EdmJsonLdProcessorService;
 use App\EDM\Literal;
+use App\Exceptions\InvalidManifestUrlException;
 use Tests\TestCase;
 
 class EdmJsonLdProcessorServiceTest extends TestCase
@@ -125,7 +126,7 @@ class EdmJsonLdProcessorServiceTest extends TestCase
     {
         $edmObject = [
             '@graph' => [],
-            'iiif_url' => 'https:///iiif.example.com/manifest',
+            'iiif_url' => 'https://iiif.example.com/manifest',
         ];
 
         $result = $this->processor->processJsonLd($edmObject);
@@ -149,7 +150,35 @@ class EdmJsonLdProcessorServiceTest extends TestCase
 
         $result = $this->processor->processJsonLd($edmObject);
 
-        $this->assertSame($result['manifestUrl'], $edmObject['@graph'][0]['dcterms:isReferencedBy']['@id']);
+        $this->assertSame(
+            $result['manifestUrl'],
+            $edmObject['@graph'][0]['dcterms:isReferencedBy']['@id'],
+        );
+    }
+
+    public function test_extract_invalid_manifest_url_throws_exception(): void
+    {
+        $edmObject = [
+            '@graph' => [],
+            'iiif_url' => 'example.com/manifest',
+        ];
+
+        $this->expectException(InvalidManifestUrlException::class);
+        $result = $this->processor->processJsonLd($edmObject);
+    }
+
+    public function test_extract_record_id(): void
+    {
+        $edmObject = $this->loadFixture('edm_complete');
+print_r($edmObject);
+
+        $result = $this->processor->processJsonLd($edmObject);
+
+print_r($result);
+        // $this->assertSame(
+        //     $result['manifestUrl'],
+        //     $edmObject['@graph'][0]['dcterms:isReferencedBy']['@id'],
+        // );
     }
 
 
@@ -212,24 +241,6 @@ class EdmJsonLdProcessorServiceTest extends TestCase
     // }
     //
     // /** @test */
-    // public function it_processes_web_resource_with_manifest(): void
-    // {
-    //     $jsonLdData = [
-    //         [
-    //             '@id' => 'http://example.com/image/1',
-    //             '@type' => 'edm:WebResource',
-    //             'dcterms:isReferencedBy' => [
-    //                 '@id' => 'http://example.com/manifest.json'
-    //             ]
-    //         ]
-    //     ];
-    //
-    //     $result = $this->processor->processJsonLd($jsonLdData);
-    //
-    //     $this->assertEquals('http://example.com/manifest.json', $result['manifestUrl']);
-    // }
-    //
-    // /** @test */
     // public function it_processes_web_resource_with_pdf(): void
     // {
     //     $jsonLdData = [
@@ -259,83 +270,6 @@ class EdmJsonLdProcessorServiceTest extends TestCase
     //     $result = $this->processor->processJsonLd($jsonLdData);
     //
     //     $this->assertContains('http://example.com/image.jpg', $result['imageLinks']);
-    // }
-    //
-    // /** @test */
-    // public function it_handles_array_values(): void
-    // {
-    //     $jsonLdData = [
-    //         [
-    //             '@id' => 'http://example.com/item/1',
-    //             '@type' => 'edm:ProvidedCHO',
-    //             'dc:subject' => ['Art', 'History', 'Culture']
-    //         ]
-    //     ];
-    //
-    //     $result = $this->processor->processJsonLd($jsonLdData);
-    //
-    //     $this->assertStringContains('Art', $result['story']['dc:subject']);
-    //     $this->assertStringContains('History', $result['story']['dc:subject']);
-    //     $this->assertStringContains('Culture', $result['story']['dc:subject']);
-    //     $this->assertStringContains(' || ', $result['story']['dc:subject']);
-    // }
-    //
-    // /** @test */
-    // public function it_handles_object_values_with_language(): void
-    // {
-    //     $jsonLdData = [
-    //         [
-    //             '@id' => 'http://example.com/item/1',
-    //             '@type' => 'edm:ProvidedCHO',
-    //             'dc:title' => [
-    //                 ['@value' => 'English Title', '@language' => 'en'],
-    //                 ['@value' => 'Titre Français', '@language' => 'fr']
-    //             ]
-    //         ]
-    //     ];
-    //
-    //     $result = $this->processor->processJsonLd($jsonLdData);
-    //
-    //     $this->assertStringContains('English Title', $result['story']['dc:title']);
-    //     $this->assertStringContains('Titre Français', $result['story']['dc:title']);
-    // }
-    //
-    // /** @test */
-    // public function it_merges_duplicate_fields(): void
-    // {
-    //     $jsonLdData = [
-    //         [
-    //             '@id' => 'http://example.com/item/1',
-    //             '@type' => 'edm:ProvidedCHO',
-    //             'dc:creator' => 'First Creator'
-    //         ],
-    //         [
-    //             '@id' => 'http://example.com/item/1',
-    //             'dc:creator' => 'Second Creator'
-    //         ]
-    //     ];
-    //
-    //     $result = $this->processor->processJsonLd($jsonLdData);
-    //
-    //     $this->assertStringContains('First Creator', $result['story']['dc:creator']);
-    //     $this->assertStringContains('Second Creator', $result['story']['dc:creator']);
-    //     $this->assertStringContains(' || ', $result['story']['dc:creator']);
-    // }
-    //
-    // /** @test */
-    // public function it_handles_iiif_url_field(): void
-    // {
-    //     $jsonLdData = [
-    //         [
-    //             '@id' => 'http://example.com/item/1',
-    //             '@type' => 'edm:ProvidedCHO',
-    //             'iiif_url' => 'http://example.com/iiif/manifest.json'
-    //         ]
-    //     ];
-    //
-    //     $result = $this->processor->processJsonLd($jsonLdData);
-    //
-    //     $this->assertEquals('http://example.com/iiif/manifest.json', $result['manifestUrl']);
     // }
 
     // /** @test */
