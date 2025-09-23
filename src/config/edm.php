@@ -16,14 +16,14 @@ return [
                 ['path' => 'dcterms:isReferencedBy.@id', 'type' => 'edm:WebResource'],
             ],
         ],
-        'storyTitle' => [
-            'paths' => [
-                ['path' => 'dc:title'],
-            ],
-        ],
         'externalRecordId' => [
             'paths' => [
                 ['path' => '@id', 'type' => 'edm:ProvidedCHO'],
+            ],
+        ],
+        'storyTitle' => [
+            'paths' => [
+                ['path' => 'dc:title'],
             ],
         ],
 
