@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\Models\Dataset;
 use App\Models\Story;
+use App\Services\JsonLd\EdmJsonLdProcessor;
+use App\Services\ImportStorageService;
 use Illuminate\Validation\ValidationException;
 
 class DeiImportService
 {
     public function __construct(
-        private JsonLdProcessorService $jsonLdProcessor,
+        private EdmJsonLdProcessor $jsonLdProcessor,
         private ImportStorageService $importStorage,
     ) {}
 
@@ -21,9 +23,7 @@ class DeiImportService
             );
         }
 
-        // use @graph here, because DEI wronlgy wraps all meta data (even @context)
-        // in @graph root element
-        $processedData = $this->jsonLdProcessor->processJsonLd($data['@graph']);
+        $processedData = $this->jsonLdProcessor->processJsonLd($data);
 
         $storyData = array_merge($processedData['story'], [
             'ProjectId' => $projectId,
