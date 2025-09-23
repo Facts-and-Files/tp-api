@@ -21,7 +21,7 @@ class DeiImportTest extends TestCase
         ProjectTest::populateTable();
         DatasetTest::populateTable();
         self::$importData = json_decode(
-            file_get_contents(base_path('tests/data/edm-case-1.json')),
+            file_get_contents(__DIR__ . '/data/edm-complete.json'),
             true,
         );
     }

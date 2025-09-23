@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Unit\JsonLd;
 
 use App\EDM\LiteralFactory;
 use Tests\TestCase;

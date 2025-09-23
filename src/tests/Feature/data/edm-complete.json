@@ -1,0 +1,103 @@
+{
+    "@graph": [
+        {
+            "@id": "http://example.org/aggregation/europeana/test_1",
+            "@type": "edm:EuropeanaAggregation",
+            "dcterms:created": "2025-01-01T00:00:00Z",
+            "dcterms:modified": "2025-01-01T00:00:00Z",
+            "edm:aggregatedCHO": {"@id": "http://example.org/item/test_1"},
+            "edm:completeness": "10",
+            "edm:country": "Testland",
+            "edm:datasetName": "TEST_DATASET_1",
+            "edm:landingPage": {"@id": "https://example.org/item/test_1"},
+            "edm:language": "eng",
+            "edm:preview": {"@id": "https://example.org/thumbnail/test_1.jpg"},
+            "dqv:hasQualityAnnotation": [
+                {"@id": "http://example.org/item/test_1#metadataTier"},
+                {"@id": "http://example.org/item/test_1#contentTier"}
+            ]
+        },
+        {
+            "@id": "http://example.org/aggregation/provider/test_1",
+            "@type": "ore:Aggregation",
+            "edm:aggregatedCHO": {"@id": "http://example.org/item/test_1"},
+            "edm:dataProvider": "Test Provider",
+            "edm:intermediateProvider": "Test Intermediate",
+            "edm:isShownAt": {"@id": "https://provider.example.org/item/test_1"},
+            "edm:isShownBy": {"@id": "https://example.org/image/test_1.jpg"},
+            "edm:object": {"@id": "https://example.org/object/test_1.jpg"},
+            "edm:provider": "Test Library",
+            "edm:rights": {"@id": "http://creativecommons.org/licenses/by/4.0/"}
+        },
+        {
+            "@id": "http://example.org/item/test_1",
+            "@type": "edm:ProvidedCHO",
+            "dc:title": "Test Item Title"
+        },
+        {
+            "@id": "http://example.org/item/test_1#contentTier",
+            "@type": "dqv:QualityAnnotation",
+            "dcterms:created": "2025-01-01T01:00:00Z",
+            "oa:hasBody": {"@id": "http://example.org/schemas/contentTierTest"},
+            "oa:hasTarget": {"@id": "file:///aggregation/provider/test_1"}
+        },
+        {
+            "@id": "http://example.org/item/test_1#metadataTier",
+            "@type": "dqv:QualityAnnotation",
+            "dcterms:created": "2025-01-01T01:00:00Z",
+            "oa:hasBody": {"@id": "http://example.org/schemas/metadataTierTest"},
+            "oa:hasTarget": {"@id": "file:///aggregation/provider/test_1"}
+        },
+        {
+            "@id": "http://example.org/proxy/europeana/test_1",
+            "@type": "ore:Proxy",
+            "dc:identifier": "http://example.org/object/test_1",
+            "dc:language": "eng",
+            "edm:europeanaProxy": "true",
+            "edm:type": "TEXT",
+            "ore:proxyFor": {"@id": "http://example.org/item/test_1"},
+            "ore:proxyIn": {"@id": "http://example.org/aggregation/europeana/test_1"}
+        },
+        {
+            "@id": "http://example.org/proxy/provider/test_1",
+            "@type": "ore:Proxy",
+            "dc:date": "2000-2005",
+            "dc:description": "Test description of item 1.",
+            "dc:identifier": "TEST_ID_1",
+            "dc:language": "eng",
+            "dc:title": "Test Item Full Title",
+            "dc:type": "codex",
+            "dcterms:created": ["2000-2005"],
+            "dcterms:extent": "10 x 20 cm",
+            "dcterms:isReferencedBy": "https://example.org/reference/test_1",
+            "dcterms:medium": "parchment",
+            "dcterms:spatial": "Test Location",
+            "edm:currentLocation": "Test Library",
+            "edm:europeanaProxy": "false",
+            "edm:type": "TEXT",
+            "ore:proxyFor": {"@id": "http://example.org/item/test_1"},
+            "ore:proxyIn": {"@id": "http://example.org/aggregation/provider/test_1"}
+        },
+        {
+            "@id": "http://example.org/webresource/test_1",
+            "@type": "edm:WebResource",
+            "dcterms:isReferencedBy" : {"@id" : "http://example.org/manifest/test_1" } ,
+            "ebucore:hasMimeType": "text/html",
+            "ebucore:fileByteSize": {"@type": "http://www.w3.org/2001/XMLSchema#long","@value":"0"}
+        }
+    ],
+    "@context": {
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "dc": "http://purl.org/dc/elements/1.1/",
+        "dcterms": "http://purl.org/dc/terms/",
+        "edm": "http://www.europeana.eu/schemas/edm/",
+        "owl": "http://www.w3.org/2002/07/owl#",
+        "wgs84_pos": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+        "skos": "http://www.w3.org/2004/02/skos/core#",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "ebucore": "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#",
+        "ore": "http://www.openarchives.org/ore/terms/",
+        "oa": "http://www.w3.org/ns/oa#",
+        "dqv": "http://www.w3.org/ns/dqv#"
+    }
+}
