@@ -81,9 +81,13 @@
         {
             "@id": "http://example.org/webresource/test_1",
             "@type": "edm:WebResource",
-            "dcterms:isReferencedBy" : {"@id" : "http://example.org/manifest/test_1" } ,
             "ebucore:hasMimeType": "text/html",
             "ebucore:fileByteSize": {"@type": "http://www.w3.org/2001/XMLSchema#long","@value":"0"}
+        },
+        {
+            "@id": "http://example.org/webresource/test_2",
+            "@type": "edm:WebResource",
+            "dcterms:isReferencedBy" : {"@id" : "http://example.org/manifest/test_2" }
         }
     ],
     "@context": {

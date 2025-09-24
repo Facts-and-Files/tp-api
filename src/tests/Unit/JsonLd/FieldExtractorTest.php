@@ -3,13 +3,16 @@
 namespace Tests\Unit\JsonLd;
 
 use App\Services\JsonLd\FieldExtractor;
+use App\Services\JsonLd\LiteralResolver;
 use PHPUnit\Framework\TestCase;
 
 class FieldExtractorTest extends TestCase
 {
     public function test_extracts_value_from_configured_property(): void
     {
-        $extractor = new FieldExtractor();
+        $literalResolver = new LiteralResolver();
+        $extractor = new FieldExtractor($literalResolver);
+        $nodeIndex = [];
 
         $data = [
             'iiif_url' => 'https://example.org/manifest.json',
@@ -23,14 +26,16 @@ class FieldExtractorTest extends TestCase
             ]
         ];
 
-        $result = $extractor->resolveFieldValue('manifestUrl', $data, $mappings);
+        $result = $extractor->resolveFieldValue('manifestUrl', $data, $mappings, $nodeIndex);
 
         $this->assertSame('https://example.org/manifest.json', $result);
     }
 
     public function test_extracts_value_from_configured_path(): void
     {
-        $extractor = new FieldExtractor();
+        $literalResolver = new LiteralResolver();
+        $extractor = new FieldExtractor($literalResolver);
+        $nodeIndex = [];
 
         $data = [
             '@graph' => [
@@ -52,7 +57,7 @@ class FieldExtractorTest extends TestCase
             ],
         ];
 
-        $result = $extractor->resolveFieldValue('manifestUrl', $data, $mappings);
+        $result = $extractor->resolveFieldValue('manifestUrl', $data, $mappings, $nodeIndex);
 
         $this->assertSame('https://example.org/manifest.json', $result);
     }

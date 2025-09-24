@@ -7,6 +7,7 @@ use App\Services\JsonLd\NodeIndexer;
 use App\Services\JsonLd\LiteralResolver;
 use App\Services\JsonLd\FieldExtractor;
 use App\Exceptions\InvalidManifestUrlException;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class EdmJsonLdProcessorTest extends TestCase
@@ -17,14 +18,15 @@ class EdmJsonLdProcessorTest extends TestCase
     {
         parent::setUp();
 
+        $literalResolver = new LiteralResolver();
+        $extractor = new FieldExtractor($literalResolver);
 
         $this->processor = new EdmJsonLdProcessor(
             new NodeIndexer(),
-            new LiteralResolver(),
-            new FieldExtractor()
+            $literalResolver,
+            $extractor
         );
     }
-
     protected function loadFixture(): array
     {
         return json_decode(file_get_contents(__DIR__ . '/data/edm-complete.json'), true);
@@ -50,9 +52,12 @@ class EdmJsonLdProcessorTest extends TestCase
     {
         $jsonLdData = $this->loadFixture();
 
+        Http::fake([
+            'http://example.org/*' => Http::response('', 200),
+        ]);
+
         $processedData = $this->processor->processJsonLd($jsonLdData);
 
-        // Assert main keys exist
         $this->assertArrayHasKey('story', $processedData);
         $this->assertArrayHasKey('recordId', $processedData);
         $this->assertArrayHasKey('externalRecordId', $processedData);
@@ -63,9 +68,8 @@ class EdmJsonLdProcessorTest extends TestCase
         $this->assertArrayHasKey('imageLinks', $processedData);
         $this->assertArrayHasKey('placeAdded', $processedData);
 
-        // Assert specific representative values from the fixture
         $this->assertIsArray($processedData['story']);
-        $this->assertSame('http://example.org/manifest/test_1', $processedData['manifestUrl']);
+        $this->assertSame('http://example.org/manifest/test_2', $processedData['manifestUrl']);
         $this->assertSame('http://example.org/item/test_1', $processedData['externalRecordId']);
         $this->assertSame('item/test_1', $processedData['recordId']);
 
