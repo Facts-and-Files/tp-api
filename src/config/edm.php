@@ -2,11 +2,52 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
-    | EDM JSON-LD Property Mappings and their assumed paths
+    | EDM JSON-LD Field Mappings
     |--------------------------------------------------------------------------
+    |
+    | This configuration defines how to extract specific fields from JSON-LD data.
+    | Each field maps to one or more JSON-LD paths, with optional @type filtering
+    | and a separator for multiple values.
+    |
+    | Structure:
+    |
+    | 'fieldName' => [
+    |     'paths' => [
+    |         [
+    |             'path' => 'dot.notation.path', // JSON-LD property path (nested keys supported)
+    |             'type' => 'OptionalType',      // Optional: only consider items with this @type
+    |         ],
+    |         // You can list multiple paths for the same field
+    |     ],
+    |     'separator' => ' | ',                  // Optional: string to join multiple findings (default '|')
+    | ],
+    |
+    | How it works:
+    | 1. Multiple paths: tried in order; first match is used.
+    | 2. Type filtering: if 'type' is provided, only items with matching @type are used.
+    | 3. Separator: joins multiple values into a single string; defaults to '|'.
+    | 4. Internal references (@id): automatically resolved via NodeIndexer.
+    | 5. Normalization: handled by LiteralResolver and LiteralHelper; deduplicates values
+    |    and appends language tags if needed (e.g., "Title [en] | Titel [de]").
+    |
+    | Example:
+    |
+    | 'manifestUrl' => [
+    |     'paths' => [
+    |         ['path' => 'iiif_url', 'type' => 'edm:Manifest'],
+    |         ['path' => 'dcterms:isReferencedBy.@id', 'type' => 'edm:WebResource'],
+    |     ],
+    |     'separator' => ' | ',
+    | ],
+    |
+    | 'externalRecordId' => [
+    |     'paths' => [
+    |         ['path' => 'externalId', 'type' => null],
+    |     ],
+    |     'separator' => ', ',
+    | ],
     |
     */
     'mappings' => [
@@ -22,6 +63,7 @@ return [
             ],
         ],
         'storyTitle' => [
+            'separator' => ' | ',
             'paths' => [
                 ['path' => 'dc:title'],
             ],
