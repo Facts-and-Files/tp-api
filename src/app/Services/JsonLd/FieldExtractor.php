@@ -2,50 +2,100 @@
 
 namespace App\Services\JsonLd;
 
-use App\EDM\LiteralFactory;
 use App\EDM\LiteralHelper;
-use Illuminate\Support\Collection;
 
 class FieldExtractor
 {
-    public function resolveFieldValue(string $field, array $jsonLdData, array $mappings): ?string
-    {
-        $config = $mappings[$field] ?? null;
-        if (!$config) return null;
+    protected LiteralResolver $resolver;
 
-        $dataCollection  = collect($jsonLdData);
-        $graphCollection = collect(data_get($dataCollection, '@graph', $dataCollection));
+    public function __construct(LiteralResolver $resolver)
+    {
+        $this->resolver = $resolver;
+    }
+
+    public function resolveFieldValue(
+        string $field,
+        array $jsonLdData,
+        array $mappings,
+        array $nodeIndex,
+    ): ?string {
+        $config = $mappings[$field] ?? null;
+
+        if (!$config) {
+            return null;
+        }
+
+        $separator = $config['separator'] ?? ' | ';
+        $graph = $jsonLdData['@graph'] ?? [];
+        $graphCollection = $this->ensureIterable($graph);
+        $dataCollection  = $this->ensureIterable($jsonLdData);
+
+        $allLiterals = [];
 
         foreach ($config['paths'] as $path) {
-            if ($raw = $this->extractByPathAndType($dataCollection, $path['path'])) {
-                return $this->normalize($raw);
+            $type = $path['type'] ?? null;
+            $collection = $type ? $graphCollection : $dataCollection;
+
+            $rawValues = $this->extractAllByPathAndType($collection, $path['path'], $type);
+
+            foreach ($rawValues as $raw) {
+                $allLiterals = array_merge(
+                    $allLiterals, $this->resolver->resolve($raw, $nodeIndex)
+                );
+            }
+        }
+
+        $string = LiteralHelper::toNormalizedString($allLiterals, $separator);
+
+        return $string !== '' ? $string : null;
+    }
+
+    private function extractAllByPathAndType(
+        array $collection,
+        string $path,
+        ?string $type = null,
+    ): array {
+        $values = [];
+
+        foreach ($collection as $item) {
+            if (!is_array($item)) continue;
+
+            // type filtering
+            if ($type !== null && (!isset($item['@type']) || $item['@type'] !== $type)) {
+                continue;
             }
 
-            if (!empty($path['type'])) {
-                if ($raw = $this->extractByPathAndType($graphCollection, $path['path'], $path['type'])) {
-                    return $this->normalize($raw);
+            $value = $this->getValueByDotPath($item, $path);
+
+            if ($value !== null) {
+                if (is_array($value)) {
+                    $values = array_merge($values, $value);
+                } else {
+                    $values[] = $value;
                 }
             }
         }
 
-        return null;
+        return $values;
     }
 
-    private function normalize(mixed $raw): ?string
+    private function getValueByDotPath(array $array, string $path)
     {
-        $literals = LiteralFactory::fromJsonLd($raw);
-        return LiteralHelper::toNormalizedString($literals) ?: null;
-    }
+        $keys = explode('.', $path);
+        $value = $array;
 
-    private function extractByPathAndType(Collection $collection, string $path, ?string $type = null): mixed
-    {
-        if (!$type) {
-            return data_get($collection, $path);
+        foreach ($keys as $key) {
+            if (!is_array($value) || !array_key_exists($key, $value)) {
+                return null;
+            }
+            $value = $value[$key];
         }
 
-        return $collection
-            ->filter(fn($item) => isset($item['@type']) && $item['@type'] === $type)
-            ->map(fn($item) => data_get($item, $path))
-            ->first();
+        return $value;
+    }
+
+    private function ensureIterable(array $data): array
+    {
+        return array_is_list($data) ? $data : [$data];
     }
 }
