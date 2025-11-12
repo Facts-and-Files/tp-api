@@ -32,7 +32,6 @@ jobs:
       - name: Setup VPN config
         run: |
           echo "${{ secrets.CLIENT_OVPN }}" > client.ovpn
-          echo "${{ secrets.CLIENT_P12 }}" | base64 --decode > client.p12
           echo "${{ secrets.CLIENT_PASS }}" > client.pass
 
       - name: Connect VPN
