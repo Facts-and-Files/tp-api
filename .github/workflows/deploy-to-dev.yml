@@ -24,25 +24,17 @@ jobs:
           echo "remote_path=$REMOTE_PATH" >> $GITHUB_ENV
           echo "local_path=$LOCAL_PATH" >> $GITHUB_ENV
 
-      - name: Install OpenVPN
-        run: |
-          sudo apt-get update
-          sudo apt-get --assume-yes --no-install-recommends install openvpn
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Setup VPN config
-        run: |
-          echo "${{ secrets.CLIENT_OVPN }}" > client.ovpn
-          echo "${{ secrets.CLIENT_PASS }}" > client.pass
-
-      - name: Connect VPN
-        run: sudo openvpn --config "client.ovpn" --log "vpn.log" --daemon
+      - name: Set up WireGuard Connection
+        uses: niklaskeerl/easy-wireguard-action@v2
+        with:
+          WG_CONFIG_FILE: ${{ secrets.WG_CONFIG }}
 
       - name: Wait for a VPN connection
         timeout-minutes: 1
         run: until timeout 1 bash -c "</dev/tcp/$HOST/$PORT" 2>/dev/null; do sleep 2; done
-
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Prepare files
         env:
@@ -90,4 +82,4 @@ jobs:
       - name: Kill VPN connection
         if: always()
         run: |
-          sudo killall openvpn
+          sudo wg-quick down ./wg0.conf
