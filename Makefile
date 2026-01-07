@@ -13,9 +13,9 @@ distclean:
 	@rm -rf ./src/vendor ./src/composer.lock
 
 serve:
-	@cd $(TP_API_DB) && sudo docker compose up --detach
-	@cd $(SOLR) && sudo docker compose up --detach
-	@cd $(PWD) && sudo docker compose up --detach
+	@cd $(TP_API_DB) && docker compose up --detach
+	@cd $(SOLR) && docker compose up --detach
+	@cd $(PWD) && docker compose up --detach
 	@echo
 	@echo "API database running on tp_mysql:3306"
 	@echo "SOLR is available on tp_solr:8983"
@@ -27,9 +27,9 @@ serve:
 stop:
 	@echo
 	@echo "Stopping all containers..."
-	@cd $(SOLR) && sudo docker compose down
-	@cd $(TP_API_DB) && sudo docker compose down
-	@cd $(PWD) && sudo docker compose down
+	@cd $(SOLR) && docker compose down
+	@cd $(TP_API_DB) && docker compose down
+	@cd $(PWD) && docker compose down
 	@echo
 	@echo "...mischief managed."
 	@echo
