@@ -6,7 +6,7 @@ info:
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
   contact:
-    email: schmucker@factsandfiles.com
+    email: schmucker@ffdigitalservices.com
   license:
     name: European Union Public License 1.2
     url: https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
