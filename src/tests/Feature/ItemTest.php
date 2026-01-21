@@ -80,9 +80,6 @@ class ItemTest extends TestCase
     {
         $queryParams = '/' . ItemDataSeeder::$data[0]['ItemId'];
         $awaitedSuccess = ['success' => true];
-        $itemProperties = array_filter(ItemPropertyDataSeeder::$data, function($property) {
-            return $property['ItemId'] === ItemDataSeeder::$data[0]['ItemId'];
-        });
         $awaitedData = [
             'data' => [
                 'Properties' => array_values(array_filter(
@@ -96,6 +93,32 @@ class ItemTest extends TestCase
                     ))
                 ))
             ]
+        ];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_transcription_within_a_single_item(): void
+    {
+        $itemId = ItemDataSeeder::$data[0]['ItemId'];
+        $queryParams = '/' . $itemId;
+        $awaitedSuccess = ['success' => true];
+        $transcription = array_filter(TranscriptionDataSeeder::$data, fn($t) => $t['ItemId'] === $itemId && $t['CurrentVersion'] === true)[0];
+        $awaitedData = [
+            'data' => [
+                'Transcription' => [
+                    'UserId' => $transcription['UserId'],
+                    'TranscriptionText' => $transcription['TextNoTags'],
+                    'Text' => $transcription['Text'],
+                    'CurrentVersion' => $transcription['CurrentVersion'],
+                    'NoText' => $transcription['NoText'],
+                ],
+            ],
         ];
 
         $response = $this->get(self::$endpoint . $queryParams);
