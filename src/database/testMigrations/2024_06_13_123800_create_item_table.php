@@ -25,6 +25,7 @@ return new class extends Migration
             $table->integer('OrderIndex');
             $table->dateTime('LastUpdated')->useCurrent();
             $table->dateTime('Timestamp')->useCurrent();
+            $table->enum('TranscriptionSource', ['manual','htr','occam'])->default('manual');
         });
     }
 
