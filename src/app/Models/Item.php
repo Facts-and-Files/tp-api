@@ -113,6 +113,7 @@ class Item extends Model
                     'TranscriptionText' => $manualTranscription->TextNoTags,
                     'Text' => $manualTranscription->Text,
                     'CurrentVersion' => $manualTranscription->CurrentVersion,
+                    'NoText' => $manualTranscription->NoText,
                     'Language' => $manualTranscription->language,
                 ]
                 : new Transcription();

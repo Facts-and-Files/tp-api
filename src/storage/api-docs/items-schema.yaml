@@ -130,6 +130,10 @@ TranscriptionReference:
       type: boolean
       description: determine if this is the current/active transcription (only if transcription is manual)
       example: 1
+    NoText:
+      type: boolean
+      description: determine if the transcription source had no text (only if transcription is manual)
+      example: 1
     HtrDataId:
       type: integer
       description: ID of the HTR data entry (only if HTR data)

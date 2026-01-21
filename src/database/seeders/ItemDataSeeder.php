@@ -15,7 +15,8 @@ class ItemDataSeeder extends Seeder
             'TranscriptionStatusId' => 1,
             'LocationStatusId'      => 1,
             'OrderIndex'            => 1,
-            'ImageLink'             => 'Imagelink Item 1'
+            'ImageLink'             => 'Imagelink Item 1',
+            'TranscriptionSource'   => 'manual',
         ],
         [
             'ItemId'                => 2,
@@ -24,7 +25,8 @@ class ItemDataSeeder extends Seeder
             'TranscriptionStatusId' => 1,
             'LocaionStatusId'       => 1,
             'OrderIndex'            => 1,
-            'ImageLink'             => 'Imagelink Item 2'
+            'ImageLink'             => 'Imagelink Item 2',
+            'TranscriptionSource'   => 'manual',
         ],
         [
             'ItemId'                => 3,
@@ -33,7 +35,8 @@ class ItemDataSeeder extends Seeder
             'TranscriptionStatusId' => 1,
             'LocaionStatusId'       => 1,
             'OrderIndex'            => 1,
-            'ImageLink'             => 'Imagelink Item 3'
+            'ImageLink'             => 'Imagelink Item 3',
+            'TranscriptionSource'   => 'manual',
         ],
         [
             'ItemId'                => 5,
@@ -42,7 +45,8 @@ class ItemDataSeeder extends Seeder
             'TranscriptionStatusId' => 1,
             'LocaionStatusId'       => 1,
             'OrderIndex'            => 1,
-            'ImageLink'             => 'Imagelink Item 5'
+            'ImageLink'             => 'Imagelink Item 5',
+            'TranscriptionSource'   => 'manual',
         ]
     ];
 
