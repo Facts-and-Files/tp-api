@@ -60,6 +60,8 @@ tags:
     description: Operations related to imports
   - name: solr
     description: Operations related to the Solr index
+  - name: exports
+    description: Operations related to exports
 
 paths:
   /import:
@@ -201,6 +203,8 @@ paths:
     $ref: 'stories-storyId-path.yaml'
   /stories/{StoryId}/add-campaigns:
     $ref: 'stories-storyId-add-campaigns-path.yaml'
+  /stories/{StoryId}/items/export/{format}:
+    $ref: 'stories-storyId-items-export-format-path.yaml'
 
 components:
   securitySchemes:
