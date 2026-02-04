@@ -18,6 +18,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\SolrController;
 use App\Http\Controllers\StoryController;
 use App\Http\Controllers\StoryStatsController;
+use App\Http\Controllers\StoryItemExportController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TeamStatsController;
 use App\Http\Controllers\UserController;
@@ -86,6 +87,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::put('/stories/{id}/campaigns', [StoryController::class, 'updateCampaigns']);
     Route::put('/stories/{id}/add-campaigns', [StoryController::class, 'addCampaigns']);
     Route::get('/stories/{id}/statistics', [StoryStatsController::class, 'show']);
+    Route::get('/stories/{id}/items/export/{format}', [StoryItemExportController::class, 'export']);
 
     Route::get('/autoenrichments', [AutoEnrichmentController::class, 'index']);
     Route::post('/autoenrichments', [AutoEnrichmentController::class, 'store']);
