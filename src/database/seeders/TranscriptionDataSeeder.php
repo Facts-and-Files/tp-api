@@ -41,6 +41,17 @@ class TranscriptionDataSeeder extends Seeder
             'EuropeanaAnnotationId' => null,
             'Timestamp' => '2025-01-15T12:00:00.000000Z'
         ],
+        [
+            'TranscriptionId' => 4,
+            'Text' => '<b>Example Text</b>',
+            'TextNoTags' => 'Example Text',
+            'UserId' => 3,
+            'ItemId' => 3,
+            'NoText' => false,
+            'CurrentVersion' => true,
+            'EuropeanaAnnotationId' => null,
+            'Timestamp' => '2025-01-15T12:00:00.000000Z'
+        ],
     ];
 
     public function run(): void

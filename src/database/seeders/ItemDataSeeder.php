@@ -26,7 +26,7 @@ class ItemDataSeeder extends Seeder
             'LocaionStatusId'       => 1,
             'OrderIndex'            => 1,
             'TranscriptionSource'   => 'manual',
-            'ImageLink'             => 'Imagelink Item 2',
+            'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
         ],
         [
             'ItemId'                => 3,
@@ -36,7 +36,7 @@ class ItemDataSeeder extends Seeder
             'LocaionStatusId'       => 1,
             'OrderIndex'            => 1,
             'TranscriptionSource'   => 'manual',
-            'ImageLink'             => 'Imagelink Item 3',
+            'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
         ],
         [
             'ItemId'                => 5,
@@ -46,7 +46,7 @@ class ItemDataSeeder extends Seeder
             'LocaionStatusId'       => 1,
             'OrderIndex'            => 1,
             'TranscriptionSource'   => 'manual',
-            'ImageLink'             => 'Imagelink Item 5',
+            'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
         ]
     ];
 
