@@ -60,6 +60,29 @@ class ModelTransformer
         return $items;
     }
 
+    private function transformTranscriptionLanguage(Collection $languages): string
+    {
+        return implode(', ', $languages->pluck('NameEnglish')->toArray());
+    }
+
+    private function transformTranscription(Collection $transcription): array
+    {
+        $hiddenElements = [
+            'UserId',
+            'Text',
+            'NoText',
+            'CurrentVersion',
+        ];
+
+        $transcription->forget($hiddenElements);
+
+        $transcription['Language'] = $this->transformTranscriptionLanguage(
+            collect($transcription['Language'])
+        );
+
+        return $transcription->toArray();
+    }
+
     private function transformItem(Item $item): array
     {
         $hiddenElements = [
@@ -89,19 +112,15 @@ class ModelTransformer
             ? $itemArray['DescriptionLang']
             : '';
 
-        // reassign only name/text of CompletionStatus
+        // reassign/cast values for readability and access
         $itemArray['CompletionStatus'] = $itemArray['CompletionStatus']['Name'];
-
         $itemArray['ImageLink'] = $this->extractImageLink($itemArray['ImageLink']);
+        $itemArray['Transcription'] = $this->transformTranscription(
+            collect($itemArray['Transcription'])
+        );
 
-        // remove other nested attribute
-        Arr::forget($itemArray, [
-            'Transcription.UserId',
-            'Transcription.Text',
-            'Transcription.NoText',
-            'Transcription.CurrentVersion',
-            'DescriptionLang',
-        ]);
+        // remove other nested attributes
+        Arr::forget($itemArray, ['DescriptionLang']);
 
         return $itemArray;
     }
