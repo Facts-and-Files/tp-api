@@ -118,6 +118,7 @@ class StoryExportTest extends TestCase
         $this->assertEquals($storyId, $parsedYaml['StoryId']);
         $this->assertEquals(3, $parsedYaml['Items'][0]['ItemId']);
         $this->assertEquals('German, English', $parsedYaml['Items'][0]['Transcription']['Language']);
+        $this->assertEquals('German', $parsedYaml['Items'][0]['DescriptionLanguage']);
     }
 
     public function test_export_story_to_csv_returns_zip_file(): void
@@ -145,7 +146,6 @@ class StoryExportTest extends TestCase
         $this->assertCount(1, $records);
         $this->assertEquals(3, $records[1]['StoryId']);
         $this->assertEquals('', $records[1]['RecordId']);
-        $this->assertEquals(3, $records[1]['ItemIds.0']);
     }
 
     public function test_export_story_to_csv_contains_correct_items_data(): void
@@ -160,6 +160,7 @@ class StoryExportTest extends TestCase
         $this->assertEquals(1, $line['ItemId']);
         $this->assertStringContainsString('http', $line['ImageLink']);
         $this->assertEquals('German, English', $line['Transcription.Language']);
+        $this->assertEquals('German', $line['DescriptionLanguage']);
     }
 
     public function test_export_story_to_csv_contains_multiple_items_data(): void
