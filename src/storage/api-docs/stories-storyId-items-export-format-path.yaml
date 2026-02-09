@@ -3,7 +3,7 @@ get:
     - stories
     - items
     - exports
-  description: Export story data and basic item data to various formats.
+  description: Export story data and basic item data to various formats. Exporting to CSV creates a zip file containing a CSV with story meta data and a CSV with item data.
   summary: Export story items
   parameters:
     - in: path
@@ -24,7 +24,7 @@ get:
     200:
       description: Ok
       content:
-      text,/csv:
+      application/zip:
         schema:
           type: string
           format: binary
