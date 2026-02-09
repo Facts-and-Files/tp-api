@@ -30,6 +30,7 @@ class ModelTransformer
             'LastUpdated',
             'Timestamp',
             'CompletionStatus',
+            'ItemIds',
         ];
 
         // just enhance current story model's hidden attribute
@@ -60,29 +61,6 @@ class ModelTransformer
         return $items;
     }
 
-    private function transformTranscriptionLanguage(Collection $languages): string
-    {
-        return implode(', ', $languages->pluck('NameEnglish')->toArray());
-    }
-
-    private function transformTranscription(Collection $transcription): array
-    {
-        $hiddenElements = [
-            'UserId',
-            'Text',
-            'NoText',
-            'CurrentVersion',
-        ];
-
-        $transcription->forget($hiddenElements);
-
-        $transcription['Language'] = $this->transformTranscriptionLanguage(
-            collect($transcription['Language'])
-        );
-
-        return $transcription->toArray();
-    }
-
     private function transformItem(Item $item): array
     {
         $hiddenElements = [
@@ -108,9 +86,9 @@ class ModelTransformer
         // just enhance current item model's hidden attribute and cast as array
         $itemArray = $item->makeHidden($hiddenElements)->toArray();
 
-        $itemArray['DescriptionLanguage'] = !empty($itemArray['DescriptionLang'])
-            ? $itemArray['DescriptionLang']
-            : '';
+        $itemArray['DescriptionLanguage'] = $this->transformLanguage(collect(
+            [$itemArray['DescriptionLang']])
+        );
 
         // reassign/cast values for readability and access
         $itemArray['CompletionStatus'] = $itemArray['CompletionStatus']['Name'];
@@ -123,6 +101,29 @@ class ModelTransformer
         Arr::forget($itemArray, ['DescriptionLang']);
 
         return $itemArray;
+    }
+
+    private function transformLanguage(Collection $languages): string
+    {
+        return implode(', ', $languages->pluck('NameEnglish')->toArray());
+    }
+
+    private function transformTranscription(Collection $transcription): array
+    {
+        $hiddenElements = [
+            'UserId',
+            'Text',
+            'NoText',
+            'CurrentVersion',
+        ];
+
+        $transcription->forget($hiddenElements);
+
+        $transcription['Language'] = $this->transformLanguage(
+            collect($transcription['Language'])
+        );
+
+        return $transcription->toArray();
     }
 
     private function extractImageLink(string $imageDataCollection): string
