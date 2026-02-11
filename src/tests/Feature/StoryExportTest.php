@@ -11,6 +11,7 @@ use Database\Seeders\StoryDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
 use Database\Seeders\TranscriptionLanguageDataSeeder;
 use Database\Seeders\PropertyDataSeeder;
+use Database\Seeders\PropertyTypeDataSeeder;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\ItemPropertyDataSeeder;
 use Tests\TestCase;
@@ -31,54 +32,8 @@ class StoryExportTest extends TestCase
         Artisan::call('db:seed', ['--class' => TranscriptionLanguageDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PropertyDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => PropertyTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemPropertyDataSeeder::class]);
-    }
-
-    private function getZipContentFromResponse($response): string
-    {
-        ob_start();
-        $response->sendContent();
-        return ob_get_clean();
-    }
-
-    private function createTempZipFile(string $content): string
-    {
-        $tempZip = tempnam(sys_get_temp_dir(), 'test_zip_');
-        file_put_contents($tempZip, $content);
-        return $tempZip;
-    }
-
-    private function extractFileFromZip($response, int $index): string
-    {
-        $zipContent = $this->getZipContentFromResponse($response);
-        $tempZip = $this->createTempZipFile($zipContent);
-
-        $zip = new ZipArchive();
-        $zip->open($tempZip);
-        $content = $zip->getFromIndex($index);
-        $zip->close();
-        unlink($tempZip);
-
-        return $content;
-    }
-
-    private function parseCsv(string $csvContent): array
-    {
-        $reader = Reader::fromString($csvContent);
-        $reader->setHeaderOffset(0);
-        return iterator_to_array($reader->getRecords());
-    }
-
-    public function test_get_a_non_existent_story_for_export_returns_404(): void
-    {
-        $awaitedSuccess = ['success' => false];
-        $endpoint = '/stories/999999999999/items/export/txt';
-
-        $response = $this->get($endpoint);
-
-        $response
-            ->assertNotFound()
-            ->assertJson($awaitedSuccess);
     }
 
     public function test_invalid_export_format_returns_422(): void
@@ -93,7 +48,7 @@ class StoryExportTest extends TestCase
             ->assertJson($awaitedSuccess);
     }
 
-    public function test_export_story_to_yml_returns_application_yaml(): void
+    public function test_export_story_to_yaml_returns_application_yaml(): void
     {
         $storyId = 1;
         $endpoint = "/stories/{$storyId}/items/export/yml";
@@ -106,7 +61,7 @@ class StoryExportTest extends TestCase
         $this->assertStringContainsString(".yml", $disposition);
     }
 
-    public function test_export_story_to_yaml_has_content(): void
+    public function test_export_story_to_yaml_returns_correct_story_data(): void
     {
         $storyId = 3;
         $endpoint = "/stories/{$storyId}/items/export/yml";
@@ -116,9 +71,50 @@ class StoryExportTest extends TestCase
         $parsedYaml = Yaml::parse($content);
 
         $this->assertEquals($storyId, $parsedYaml['StoryId']);
+        $this->assertEquals('', $parsedYaml['RecordId']);
+    }
+
+    public function test_export_story_to_yaml_returns_correct_items_data(): void
+    {
+        $storyId = 3;
+        $endpoint = "/stories/{$storyId}/items/export/yml";
+
+        $response = $this->get($endpoint);
+        $content = $response->streamedContent();
+        $parsedYaml = Yaml::parse($content);
+
         $this->assertEquals(3, $parsedYaml['Items'][0]['ItemId']);
-        $this->assertEquals('German, English', $parsedYaml['Items'][0]['Transcription']['Language']);
         $this->assertEquals('German', $parsedYaml['Items'][0]['DescriptionLanguage']);
+    }
+
+    public function test_export_story_to_yaml_return_correct_transcriptions_data(): void
+    {
+        $storyId = 3;
+        $endpoint = "/stories/{$storyId}/items/export/yml";
+
+        $response = $this->get($endpoint);
+        $content = $response->streamedContent();
+        $parsedYaml = Yaml::parse($content);
+
+        $this->assertEquals(
+            'German, English',
+            $parsedYaml['Items'][0]['Transcription']['Language'],
+        );
+    }
+
+    public function test_export_story_to_yaml_returns_correct_properties_data(): void
+    {
+        $storyId = 3;
+        $endpoint = "/stories/{$storyId}/items/export/yml";
+
+        $response = $this->get($endpoint);
+        $content = $response->streamedContent();
+        $parsedYaml = Yaml::parse($content);
+        $property = $parsedYaml['Items'][0]['Properties'][0];
+
+        $this->assertEquals('Language', $property['Type']);
+        $this->assertEquals('German', $property['Name']);
+        $this->assertEquals('Description for Test Property 1', $property['Description']);
     }
 
     public function test_export_story_to_csv_returns_zip_file(): void
@@ -173,5 +169,52 @@ class StoryExportTest extends TestCase
         $this->assertCount(2, $records);
         $this->assertEquals(3, $records[1]['ItemId']);
         $this->assertEquals(5, $records[2]['ItemId']);
+    }
+
+    private function getZipContentFromResponse($response): string
+    {
+        ob_start();
+        $response->sendContent();
+        return ob_get_clean();
+    }
+
+    private function createTempZipFile(string $content): string
+    {
+        $tempZip = tempnam(sys_get_temp_dir(), 'test_zip_');
+        file_put_contents($tempZip, $content);
+        return $tempZip;
+    }
+
+    private function extractFileFromZip($response, int $index): string
+    {
+        $zipContent = $this->getZipContentFromResponse($response);
+        $tempZip = $this->createTempZipFile($zipContent);
+
+        $zip = new ZipArchive();
+        $zip->open($tempZip);
+        $content = $zip->getFromIndex($index);
+        $zip->close();
+        unlink($tempZip);
+
+        return $content;
+    }
+
+    private function parseCsv(string $csvContent): array
+    {
+        $reader = Reader::fromString($csvContent);
+        $reader->setHeaderOffset(0);
+        return iterator_to_array($reader->getRecords());
+    }
+
+    public function test_get_a_non_existent_story_for_export_returns_404(): void
+    {
+        $awaitedSuccess = ['success' => false];
+        $endpoint = '/stories/999999999999/items/export/txt';
+
+        $response = $this->get($endpoint);
+
+        $response
+            ->assertNotFound()
+            ->assertJson($awaitedSuccess);
     }
 }
