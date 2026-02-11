@@ -149,11 +149,7 @@ class Item extends Model
 
     public function getPropertiesAttribute(): Collection
     {
-        $properties = $this
-            ->properties()
-            ->get(['Property.PropertyId', 'Value', 'Description', 'PropertyTypeId']);
-
-        return $properties ?: [];
+        return $this->properties()->get() ?: [];
     }
 
     public function getPersonsAttribute(): Collection
