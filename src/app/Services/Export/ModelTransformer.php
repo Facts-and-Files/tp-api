@@ -4,6 +4,7 @@ namespace App\Services\Export;
 
 use App\Models\Story;
 use App\Models\Item;
+use App\Models\PropertyType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
@@ -72,7 +73,6 @@ class ModelTransformer
             'OrderIndex',
             'LastUpdated',
             'Timestamp',
-            'Properties',
             'DescriptionStatusId',
             'AutomaticEnrichmentStatusId',
             'Manifest',
@@ -97,10 +97,35 @@ class ModelTransformer
             collect($itemArray['Transcription'])
         );
 
+        $itemArray['Properties'] = $this->transformProperties(
+            collect($itemArray['Properties'])
+        );
+
         // remove other nested attributes
         Arr::forget($itemArray, ['DescriptionLang']);
 
         return $itemArray;
+    }
+
+    private function transformProperties(Collection $properties): array
+    {
+        $hiddenElements = [
+            'PropertyId',
+            'PropertyTypeId',
+            'PropertyTypeName',
+            'Value',
+        ];
+
+        return $properties
+            ->map(function (array $property) use ($hiddenElements) {
+                $property['Name'] = $property['Value'];
+                $property['Type'] = $property['PropertyTypeName'];
+
+                Arr::forget($property, $hiddenElements);
+
+                return $property;
+            })
+            ->toArray();
     }
 
     private function transformLanguage(Collection $languages): string
