@@ -37,7 +37,7 @@ class YamlStoryExporter implements StoryExporterInterface
             ...$this->modelTransformer->addItemData($story->ItemIds),
         ];
         $yaml = Yaml::dump(
-            $data, 4, 2,
+            $data, 5, 2,
             Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK,
             // enable with newer version ^7.4
             /* Yaml::DUMP_NULL_AS_EMPTY, */
