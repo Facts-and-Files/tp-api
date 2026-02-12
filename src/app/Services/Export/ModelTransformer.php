@@ -4,7 +4,6 @@ namespace App\Services\Export;
 
 use App\Models\Story;
 use App\Models\Item;
-use App\Models\PropertyType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
@@ -86,13 +85,16 @@ class ModelTransformer
         // just enhance current item model's hidden attribute and cast as array
         $itemArray = $item->makeHidden($hiddenElements)->toArray();
 
-        $itemArray['DescriptionLanguage'] = $this->transformLanguage(collect(
-            [$itemArray['DescriptionLang']])
-        );
 
         // reassign/cast values for readability and access
         $itemArray['CompletionStatus'] = $itemArray['CompletionStatus']['Name'];
         $itemArray['ImageLink'] = $this->extractImageLink($itemArray['ImageLink']);
+
+        $itemArray['Description'] = [
+            'Text' => $itemArray['Description'],
+            'Language' => $this->transformLanguage(collect([$itemArray['DescriptionLang']])),
+        ];
+
         $itemArray['Transcription'] = $this->transformTranscription(
             collect($itemArray['Transcription'])
         );
