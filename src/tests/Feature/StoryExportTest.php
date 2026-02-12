@@ -84,7 +84,20 @@ class StoryExportTest extends TestCase
         $parsedYaml = Yaml::parse($content);
 
         $this->assertEquals(3, $parsedYaml['Items'][0]['ItemId']);
-        $this->assertEquals('German', $parsedYaml['Items'][0]['DescriptionLanguage']);
+        /* $this->assertEquals('German', $parsedYaml['Items'][0]['DescriptionLanguage']); */
+    }
+
+    public function test_export_story_to_yaml_returns_correct_item_description_data(): void
+    {
+        $storyId = 3;
+        $endpoint = "/stories/{$storyId}/items/export/yml";
+
+        $response = $this->get($endpoint);
+        $content = $response->streamedContent();
+        $parsedYaml = Yaml::parse($content);
+
+        $this->assertEquals('German', $parsedYaml['Items'][0]['Description']['Language']);
+        $this->assertEquals(ItemDataSeeder::$data[2]['Description'], $parsedYaml['Items'][0]['Description']['Text']);
     }
 
     public function test_export_story_to_yaml_return_correct_transcriptions_data(): void
@@ -156,7 +169,8 @@ class StoryExportTest extends TestCase
         $this->assertEquals(1, $line['ItemId']);
         $this->assertStringContainsString('http', $line['ImageLink']);
         $this->assertEquals('German, English', $line['Transcription.Language']);
-        $this->assertEquals('German', $line['DescriptionLanguage']);
+        $this->assertEquals('German', $line['Description.Language']);
+        $this->assertEquals(ItemDataSeeder::$data[0]['Description'], $line['Description.Text']);
     }
 
     public function test_export_story_to_csv_contains_multiple_items_data(): void
@@ -169,6 +183,12 @@ class StoryExportTest extends TestCase
         $this->assertCount(2, $records);
         $this->assertEquals(3, $records[1]['ItemId']);
         $this->assertEquals(5, $records[2]['ItemId']);
+
+        // what about properties CSV
+        // add property data extra and add it to items instead of getting it directly from model
+        // similar to modelTransformer->addItemData()
+        /* print_r($records); */
+        $this->assertEquals('German', $records[2]['Properties'[1]['Name']]);
     }
 
     private function getZipContentFromResponse($response): string
