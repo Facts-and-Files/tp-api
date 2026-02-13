@@ -23,6 +23,21 @@ class TranscriptionLanguageDataSeeder extends Seeder
             'TranscriptionId' => 3,
             'LanguageId' => 1,
         ],
+        [
+            'TranscriptionLanguageId' => 4,
+            'TranscriptionId' => 1,
+            'LanguageId' => 2,
+        ],
+        [
+            'TranscriptionLanguageId' => 5,
+            'TranscriptionId' => 4,
+            'LanguageId' => 1,
+        ],
+        [
+            'TranscriptionLanguageId' => 6,
+            'TranscriptionId' => 4,
+            'LanguageId' => 2,
+        ],
     ];
 
     public function run(): void

@@ -18,6 +18,21 @@ class ItemPropertyDataSeeder extends Seeder
             'PropertyId' => 2,
             'ItemId' => 1,
         ],
+        [
+            'ItemPropertyId' => 3,
+            'PropertyId' => 1,
+            'ItemId' => 3,
+        ],
+        [
+            'ItemPropertyId' => 4,
+            'PropertyId' => 1,
+            'ItemId' => 5,
+        ],
+        [
+            'ItemPropertyId' => 5,
+            'PropertyId' => 2,
+            'ItemId' => 5,
+        ],
     ];
 
     public function run(): void

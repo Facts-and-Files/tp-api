@@ -1,7 +1,7 @@
 get:
   tags:
     - stories
-  summary: Get all stored story entries
+  summary: List all stories
   description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier \(as RecordId\).
   parameters:
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'

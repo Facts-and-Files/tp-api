@@ -1,0 +1,42 @@
+get:
+  tags:
+    - stories
+    - items
+    - exports
+  description: Export story data and basic item data to various formats. Exporting to CSV creates a zip file containing a CSV with story meta data and a CSV with item data.
+  summary: Export story items
+  parameters:
+    - in: path
+      name: StoryId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+    - in: path
+      name: format
+      description: Type of exported format
+      schema:
+        type: string
+        enum:
+          - yml
+          - csv
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+      application/zip:
+        schema:
+          type: string
+          format: binary
+      application/yaml:
+        schema:
+          type: string
+          format: binary
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
+    422:
+      $ref: 'responses.yaml#/422ErrorResponse'

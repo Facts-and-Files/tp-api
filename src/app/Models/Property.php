@@ -24,6 +24,8 @@ class Property extends Model
         'pivot',
     ];
 
+    protected $appends = ['PropertyTypeName'];
+
     public static function createRules(): array
     {
         return [
@@ -41,5 +43,10 @@ class Property extends Model
     public function propertyType(): BelongsTo
     {
         return $this->belongsTo(PropertyType::class, 'PropertyTypeId');
+    }
+
+    public function getPropertyTypeNameAttribute(): string
+    {
+        return $this->propertyType()->first('Name')?->Name ?? '';
     }
 }

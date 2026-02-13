@@ -27,7 +27,7 @@ class UserItemsTest extends TestCase
         Artisan::call('db:seed', ['--class' => ScoreDataSeeder::class]);
     }
 
-    public function testNonExistentUserReturnsEmpty(): void
+    public function test_non_existent_user_returns_empty(): void
     {
         $userId = 0;
         $endpoint = '/users/' . $userId . '/items';
@@ -42,7 +42,7 @@ class UserItemsTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetLatestItemsOfAnUser(): void
+    public function test_get_latest_items_of_an_user(): void
     {
         $userId = 1;
         $endpoint = '/users/' . $userId . '/items';
@@ -55,7 +55,7 @@ class UserItemsTest extends TestCase
                     [
                         'ItemId' => 1,
                         'ItemTitle' => '',
-                        'ItemImageLink' => 'Imagelink Item 1',
+                        'ItemImageLink' => ItemDataSeeder::$data[0]['ImageLink'],
                         'CompletionStatus' => 'Not Started',
                         'LastEdit' => '2023-02-01T12:00:00.000000Z',
                         'Scores' => [
@@ -77,7 +77,7 @@ class UserItemsTest extends TestCase
                     [
                         'ItemId' => 5,
                         'ItemTitle' => '',
-                        'ItemImageLink' => 'Imagelink Item 5',
+                        'ItemImageLink' => ItemDataSeeder::$data[3]['ImageLink'],
                         'CompletionStatus' => 'Not Started',
                         'LastEdit' => '2023-03-01T12:00:00.000000Z',
                         'Scores' => [
@@ -90,7 +90,7 @@ class UserItemsTest extends TestCase
                     [
                         'ItemId' => 3,
                         'ItemTitle' => '',
-                        'ItemImageLink' => 'Imagelink Item 3',
+                        'ItemImageLink' => ItemDataSeeder::$data[2]['ImageLink'],
                         'CompletionStatus' => 'Not Started',
                         'LastEdit' => '2022-02-01T12:00:00.000000Z',
                         'Scores' => [
@@ -112,7 +112,7 @@ class UserItemsTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    public function testGetLatestItemsOfAnUserLimited(): void
+    public function test_get_latest_items_of_an_user_limited(): void
     {
         $userId = 1;
         $endpoint = '/users/' . $userId . '/items';
@@ -129,7 +129,7 @@ class UserItemsTest extends TestCase
                     [
                         'ItemId' => 3,
                         'ItemTitle' => '',
-                        'ItemImageLink' => 'Imagelink Item 3',
+                        'ItemImageLink' => ItemDataSeeder::$data[2]['ImageLink'],
                         'CompletionStatus' => 'Not Started',
                         'LastEdit' => '2022-02-01T12:00:00.000000Z',
                         'Scores' => [

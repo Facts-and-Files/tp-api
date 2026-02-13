@@ -8,6 +8,7 @@ use Database\Seeders\StoryDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
 use Database\Seeders\TranscriptionLanguageDataSeeder;
 use Database\Seeders\PropertyDataSeeder;
+use Database\Seeders\PropertyTypeDataSeeder;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\ItemPropertyDataSeeder;
 use Tests\TestCase;
@@ -30,6 +31,7 @@ class ItemTest extends TestCase
         Artisan::call('db:seed', ['--class' => TranscriptionLanguageDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PropertyDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => PropertyTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemPropertyDataSeeder::class]);
     }
 
@@ -67,6 +69,7 @@ class ItemTest extends TestCase
         $awaitedSuccess = ['success' => true];
         $awaitedData = ItemDataSeeder::$data[0];
         unset($awaitedData['CompletionStatusId']);
+        unset($awaitedData['DescriptionLanguage']);
 
         $response = $this->get(self::$endpoint . $queryParams);
 
@@ -118,6 +121,27 @@ class ItemTest extends TestCase
                     'CurrentVersion' => $transcription['CurrentVersion'],
                     'NoText' => $transcription['NoText'],
                 ],
+            ],
+        ];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_description_language_within_a_single_item(): void
+    {
+        $itemId = ItemDataSeeder::$data[0]['ItemId'];
+        $languageId = ItemDataSeeder::$data[0]['DescriptionLanguage'];
+        $queryParams = '/' . $itemId;
+        $awaitedSuccess = ['success' => true];
+        $language = collect(LanguageDataSeeder::$data)->firstWhere('LanguageId', $languageId);
+        $awaitedData = [
+            'data' => [
+                'DescriptionLang' => $language,
             ],
         ];
 

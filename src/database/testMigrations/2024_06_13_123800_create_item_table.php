@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('Title', 1000)->nullable();
             $table->string('ProjectItemId', 1000)->nullable();
             $table->text('Description')->nullable();
+            $table->smallInteger('DescriptionLanguage')->nullable();
             $table->text('ImageLink');
             $table->integer('OrderIndex');
             $table->dateTime('LastUpdated')->useCurrent();

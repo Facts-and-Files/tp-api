@@ -7,6 +7,7 @@ use Solarium\Core\Client\Adapter\Curl;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use App\Models\Story;
 use App\Observers\StoryObserver;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,5 +39,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Story::observe(StoryObserver::class);
+
+        if ($this->app->environment('local')) {
+            Model::preventLazyLoading();
+        }
     }
 }
