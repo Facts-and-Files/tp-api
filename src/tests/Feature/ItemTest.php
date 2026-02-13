@@ -8,6 +8,7 @@ use Database\Seeders\StoryDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
 use Database\Seeders\TranscriptionLanguageDataSeeder;
 use Database\Seeders\PropertyDataSeeder;
+use Database\Seeders\PropertyTypeDataSeeder;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\ItemPropertyDataSeeder;
 use Tests\TestCase;
@@ -30,6 +31,7 @@ class ItemTest extends TestCase
         Artisan::call('db:seed', ['--class' => TranscriptionLanguageDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PropertyDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => PropertyTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemPropertyDataSeeder::class]);
     }
 
