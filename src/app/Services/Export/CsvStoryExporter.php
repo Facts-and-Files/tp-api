@@ -51,7 +51,7 @@ class CsvStoryExporter implements StoryExporterInterface
     private function formatStoryItemsAsCsv(Story $story): string
     {
         $storyItemsData = $this->modelTransformer->addItemData($story->ItemIds);
-        return $this->buildCsvFromMultipleRecord($storyItemsData['Items']);
+        return $this->buildCsvFromMultipleRecords($storyItemsData['Items']);
     }
 
     private function buildCsvFromSingleRecord(array $array): string
@@ -69,20 +69,37 @@ class CsvStoryExporter implements StoryExporterInterface
         return $csv->toString();
     }
 
-    private function buildCsvFromMultipleRecord(array $array): string
+    private function buildCsvFromMultipleRecords(array $records): string
     {
-        if (empty($array)) {
+        if (empty($records)) {
             return '';
         }
 
-        // dot notate array keys
-        $rows = collect($array)->map(fn($item) => Arr::dot($item));
-        // merge unique keys to prevent incomplete headers
-        $headers = $rows->flatMap(fn($row) => array_keys($row))->unique()->values()->all();
+        $csvData = $this->buildHeaderAndRows($records);
 
+        return $this->writeCsv($csvData['headers'], $csvData['rows']->toArray());
+    }
+
+    private function buildHeaderAndRows(array $data): array
+    {
+        $csvData = [];
+        // dot notate array keys
+        $csvData['rows'] = collect($data)->map(fn($item) => Arr::dot($item));
+        // merge unique keys to prevent incomplete headers
+        $csvData['headers'] = $csvData['rows']
+            ->flatMap(fn($row) => array_keys($row))
+            ->unique()
+            ->values()
+            ->all();
+
+        return $csvData;
+    }
+
+    private function writeCsv(array $headers, array $rows): string
+    {
         $csv = Writer::fromString();
         $csv->insertOne($headers);
-        $csv->insertAll($rows->toArray());
+        $csv->insertAll($rows);
 
         return $csv->toString();
     }
