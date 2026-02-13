@@ -11,28 +11,36 @@ use ZipStream\ZipStream;
 class CsvStoryExporter implements StoryExporterInterface
 {
     public function __construct(
-        private ModelTransformer $modelTransformer,
-    ) {
-    }
+        private CsvTransformer $csvTransformer
+    ) {}
 
     public function export(Story $story): StreamedResponse
     {
-        $storyId = $story['StoryId'] ?? 'unknown';
+        $storyId = $story->StoryId;
         $baseStoryFilename = "story-{$storyId}-" . now()->format('Ymd-His');
         $baseItemsFilename = "story-items-{$storyId}-" . now()->format('Ymd-His');
+        $basePropertiesFilename = "story-properties-{$storyId}-" . now()->format('Ymd-His');
         $zipName = $baseStoryFilename . '.zip';
 
         return response()->streamDownload(
-            callback: function () use ($baseItemsFilename, $baseStoryFilename, $story, $zipName) {
+            callback: function () use (
+                $baseItemsFilename,
+                $baseStoryFilename,
+                $basePropertiesFilename,
+                $story,
+                $zipName,
+            ) {
                 $zip = new ZipStream(
                     outputName: $zipName,
                     defaultEnableZeroHeader: true,
                     contentType: 'application/octet-stream',
                 );
+
                 $zip->addFile("{$baseStoryFilename}.csv", $this->formatStoryAsCsv($story));
                 $zip->addFile("{$baseItemsFilename}.csv", $this->formatStoryItemsAsCsv($story));
-                $zip->finish();
+                $zip->addFile("{$basePropertiesFilename}.csv", $this->formatItemPropertiesAsCsv($story));
 
+                $zip->finish();
             },
             name: $zipName,
             headers: [
@@ -44,14 +52,25 @@ class CsvStoryExporter implements StoryExporterInterface
 
     private function formatStoryAsCsv(Story $story): string
     {
-        $storyData = $this->modelTransformer->transformStory($story, []);
+        $storyData = $this->csvTransformer->transformStory($story, []);
         return $this->buildCsvFromSingleRecord($storyData);
     }
 
     private function formatStoryItemsAsCsv(Story $story): string
     {
-        $storyItemsData = $this->modelTransformer->addItemData($story->ItemIds);
+        $storyItemsData = $this->csvTransformer->transformItems($story->ItemIds);
         return $this->buildCsvFromMultipleRecords($storyItemsData['Items']);
+    }
+
+    private function formatItemPropertiesAsCsv(Story $story): string
+    {
+        $properties = $this->csvTransformer->transformItemProperties($story->ItemIds);
+
+        if (empty($properties)) {
+            return '';
+        }
+
+        return $this->buildCsvFromMultipleRecords($properties);
     }
 
     private function buildCsvFromSingleRecord(array $array): string
@@ -61,7 +80,6 @@ class CsvStoryExporter implements StoryExporterInterface
         }
 
         $flattenedData = Arr::dot($array);
-
         $csv = Writer::fromString();
         $csv->insertOne(array_keys($flattenedData));
         $csv->insertOne(array_values($flattenedData));
@@ -76,16 +94,13 @@ class CsvStoryExporter implements StoryExporterInterface
         }
 
         $csvData = $this->buildHeaderAndRows($records);
-
         return $this->writeCsv($csvData['headers'], $csvData['rows']->toArray());
     }
 
     private function buildHeaderAndRows(array $data): array
     {
         $csvData = [];
-        // dot notate array keys
         $csvData['rows'] = collect($data)->map(fn($item) => Arr::dot($item));
-        // merge unique keys to prevent incomplete headers
         $csvData['headers'] = $csvData['rows']
             ->flatMap(fn($row) => array_keys($row))
             ->unique()

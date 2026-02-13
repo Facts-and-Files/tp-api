@@ -9,7 +9,7 @@ use Symfony\Component\Yaml\Yaml;
 class YamlStoryExporter implements StoryExporterInterface
 {
     public function __construct(
-        private ModelTransformer $modelTransformer,
+        private YamlTransformer $yamlTransformer,
     ) {
     }
 
@@ -33,8 +33,8 @@ class YamlStoryExporter implements StoryExporterInterface
     private function formatStoryAsYaml(Story $story): string
     {
         $data = [
-            ...$this->modelTransformer->transformStory($story, ['ItemIds']),
-            ...$this->modelTransformer->addItemData($story->ItemIds),
+            ...$this->yamlTransformer->transformStory($story, ['ItemIds']),
+            ...$this->yamlTransformer->transformItems($story->ItemIds),
         ];
         $yaml = Yaml::dump(
             $data, 5, 2,
