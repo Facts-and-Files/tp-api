@@ -30,6 +30,11 @@ return [
 
     'disks' => [
 
+        'export_cache' => [
+            'driver' => 'local',
+            'root' => storage_path('export_cache'),
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
