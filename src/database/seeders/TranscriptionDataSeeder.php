@@ -43,14 +43,14 @@ class TranscriptionDataSeeder extends Seeder
         ],
         [
             'TranscriptionId' => 4,
-            'Text' => '<b>Example Text</b>',
+            'Text' => '<p><b>Example<i>Text</i></b></p>',
             'TextNoTags' => 'Example Text',
             'UserId' => 3,
             'ItemId' => 3,
             'NoText' => false,
             'CurrentVersion' => true,
             'EuropeanaAnnotationId' => null,
-            'Timestamp' => '2025-01-15T12:00:00.000000Z'
+            'Timestamp' => '2025-01-16T12:00:00.000000Z'
         ],
     ];
 
