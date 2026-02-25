@@ -4,8 +4,10 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Services\Export\AltoItemExporter;
+use App\Services\Export\FileExportCache;
 use App\Models\Item;
 use App\Models\CacheExport;
+use App\Models\Transcription;
 use App\Services\Converter\HtmlToAltoConverter;
 use Illuminate\Support\Facades\Storage;
 use DOMDocument;
@@ -13,7 +15,6 @@ use DOMDocument;
 class AltoItemExporterTest extends TestCase
 {
     private AltoItemExporter $service;
-    private HtmlToAltoConverter $htmlToAltoConverter;
 
     protected function setUp(): void
     {
@@ -22,8 +23,10 @@ class AltoItemExporterTest extends TestCase
 
         Storage::fake('export_cache');
 
-        $this->htmlToAltoConverter = new HtmlToAltoConverter;
-        $this->service = new AltoItemExporter($this->htmlToAltoConverter);
+        $this->service = new AltoItemExporter(
+            new HtmlToAltoConverter,
+            new FileExportCache
+        );
     }
 
     public function test_creates_missing_cache_file()
@@ -60,7 +63,7 @@ class AltoItemExporterTest extends TestCase
 
         $result = $this->service->exportToAlto($item);
 
-        $this->assertStringContainsString('alto', $result);
+        $this->assertStringContainsString('<alto xmlns=', $result);
         $this->assertStringContainsString('PrintSpace', $result);
         $this->assertStringContainsString('HEIGHT="5000"', $result);
         $this->assertStringContainsString('WIDTH="3533"', $result);
@@ -88,7 +91,7 @@ class AltoItemExporterTest extends TestCase
 
         $result = $this->service->exportToAlto($item);
 
-        $this->assertStringContainsString('alto', $result);
+        $this->assertStringContainsString('<alto xmlns=', $result);
         $this->assertStringContainsString('PrintSpace', $result);
         $this->assertStringContainsString('HEIGHT="5000"', $result);
         $this->assertStringContainsString('WIDTH="3533"', $result);
@@ -99,62 +102,19 @@ class AltoItemExporterTest extends TestCase
         $this->assertEquals(0, $dom->getElementsByTagName('String')->length);
     }
 
-
-/**
-    public function it_generates_alto_from_page_xml()
+    public function test_creates_alto_from_page_xml_transcription()
     {
-        $pageXml = <<<XML
-<?xml version="1.0" encoding="UTF-8"?>
-<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
-    <Page imageFilename="test.jpg" imageWidth="1000" imageHeight="1500">
-        <TextRegion id="region_1">
-            <Coords points="100,100 900,100 900,200 100,200"/>
-            <TextLine id="line_1">
-                <Coords points="100,100 900,100 900,150 100,150"/>
-                <TextEquiv>
-                    <Unicode>Test transcription line</Unicode>
-                </TextEquiv>
-            </TextLine>
-        </TextRegion>
-    </Page>
-</PcGts>
-XML;
-
-        $item = Item::factory()->create([
-            'page_xml' => $pageXml,
-            'html_transcription' => null,
-        ]);
+        $item = Item::find(7);
 
         $result = $this->service->exportToAlto($item);
 
-        $this->assertStringContainsString('alto', $result);
-        $this->assertStringContainsString('Test transcription line', $result);
-        $this->assertStringContainsString('WIDTH="800"', $result);
-        $this->assertStringContainsString('HEIGHT="1500"', $result);
+        $this->assertStringContainsString('<alto xmlns=', $result);
+        $this->assertStringContainsString('CONTENT="TestDescription"', $result);
     }
 
-    public function it_caches_generated_alto()
+    public function test_returns_cached_alto_when_valid()
     {
-        $item = Item::factory()->create([
-            'html_transcription' => '<p>Test content</p>',
-        ]);
-
-        $this->service->exportToAlto($item);
-
-        $this->assertDatabaseHas('CacheExport', [
-            'ItemId' => $item->ItemId,
-            'Format' => 'alto',
-        ]);
-
-        $cache = CacheExport::where('ItemId', $item->ItemId)->first();
-        $this->assertTrue(Storage::disk('export_cache')->exists($cache->FilePath));
-    }
-
-    public function it_returns_cached_alto_when_valid()
-    {
-        $item = Item::factory()->create([
-            'html_transcription' => '<p>Original content</p>',
-        ]);
+        $item = Item::find(3);
 
         $firstResult = $this->service->exportToAlto($item);
 
@@ -165,23 +125,33 @@ XML;
         $this->assertEquals(1, CacheExport::count());
     }
 
-    public function it_invalidates_cache_when_item_updated()
+    public function test_invalidates_cache_when_item_transcription_updated()
     {
-        $item = Item::factory()->create([
-            'html_transcription' => '<p>Original content</p>',
-        ]);
+        $item = Item::find(3);
 
         $firstResult = $this->service->exportToAlto($item);
 
-        // Update item
-        $item->html_transcription = '<p>Updated content</p>';
-        $item->save();
+        // Update transcription
+        $transcription = new Transcription();
+        $transcription->UserId = 1;
+        $transcription->ItemId = $item->ItemId;
+        $transcription->Text = '<p>Updated content</p>';
+        $transcription->TextNoTags = 'Updated content';
+        $transcription->CurrentVersion = true;
+        $transcription->Timestamp = now()->addSecond(); // change time at all
+        $transcription->save();
+
+        Transcription::where('ItemId', $item->ItemId)
+            ->where('CurrentVersion', '=', true)
+            ->where('TranscriptionId', '!=', $transcription->TranscriptionId)
+            ->update(['CurrentVersion' => false]);
+
         $item->refresh();
 
         $secondResult = $this->service->exportToAlto($item);
 
         $this->assertNotEquals($firstResult, $secondResult);
-        $this->assertStringContainsString('Updated content', $secondResult);
+        $this->assertStringContainsString('Updated', $secondResult);
+        $this->assertStringContainsString('content', $secondResult);
     }
-**/
 }

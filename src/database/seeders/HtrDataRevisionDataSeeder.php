@@ -42,11 +42,11 @@ class HtrDataRevisionDataSeeder extends Seeder
                 <Word id="tr_1_tl_1_w1" custom="readingOrder {index:0;}">
                     <Coords points="1060,344 1060,404 1092,404 1092,344"/>
                     <TextEquiv>
-                        <Unicode>X</Unicode>
+                        <Unicode>TestDescription</Unicode>
                     </TextEquiv>
                 </Word>
                 <TextEquiv>
-                    <Unicode>X</Unicode>
+                    <Unicode>TestDescription</Unicode>
                 </TextEquiv>
             </TextLine>
             <TextEquiv>
