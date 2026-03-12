@@ -4,271 +4,276 @@ namespace Tests\Feature;
 
 use App\Models\Campaign;
 use App\Models\Story;
-use Tests\TestCase;
-use Tests\Feature\ProjectTest;
-use Tests\Feature\DatasetTest;
 use Database\Seeders\CampaignDataSeeder;
 use Illuminate\Support\Facades\Artisan;
+use Tests\TestCase;
 
 class ImportTest extends TestCase
 {
-    private static $endpoint = 'import';
+    private static string $endpoint = '/import';
 
-    private static $importData = [
-        [
-            'Story' => [
-                'ExternalRecordId' => null,
-                'RecordId' => 'RecordId1',
-                'Manifest' => 'http://example.com/manifest/Record1.json',
-                'PlaceName' => '',
-                'PlaceLatitude' => '',
-                'PlaceLongitude' => '',
-                'placeZoom' => '',
-                'PlaceUserGenerated' => 1,
-                'Public' => 1,
-                'ImportName' => '',
-                'ProjectId' => 1,
-                'PreviewImage' => '',
-                'DatasetId' => 1,
-                'StoryLanguage' => '',
-                'PlaceLink' => '',
-                'PlaceComment' => '',
-                'Dc' => [
-                    'Title' => 'TestTitle1',
-                    'Description' => '',
-                    'Creator' => '',
-                    'Source' => '',
-                    'Contributor' => '',
-                    'Publisher' => '',
-                    'Coverage' => '',
-                    'Date' => '',
-                    'Type' => '',
-                    'Relation' => '',
-                    'Rights' => '',
-                    'Language' => '',
-                    'Identifier' => ''
-                ],
-                'Dcterms' => [
-                    'Medium' => '',
-                    'Provenance' => '',
-                    'Created' => ''
-                ],
-                'Edm' => [
-                    'LandingPage' => '',
-                    'Country' => '',
-                    'DataProvider' => '',
-                    'Provider' => '',
-                    'Rights' => '',
-                    'Year' => '',
-                    'DatasetName' => '',
-                    'Begin' => '',
-                    'End' => '',
-                    'IsShownAt' => '',
-                    'Language' => '',
-                    'Agent' => ''
-                ]
-            ],
-            'Items' => [
-                [
-                    'ProjectItemId' => 'ExternalId1',
-                    'Title' => 'Test Story 1 Item 1',
-                    'ImageLink' => 'ImageLink 1',
-                    'OrderIndex' => 1
-                ],
-                [
-                    'ProjectItemId' => 'ExternalId2',
-                    'Title' => 'Test Story 1 Item 2',
-                    'ImageLink' => 'ImageLink 2',
-                    'OrderIndex' => 2
-                ]
-            ]
-        ],
-        [
-            'Story' => [
-                'ExternalRecordId' => null,
-                'RecordId' => 'TestRecordId2',
-                'Manifest' => 'http://example.com/manifest/Record1.json',
-                'PlaceName' => '',
-                'PlaceLatitude' => '',
-                'PlaceLongitude' => '',
-                'placeZoom' => '',
-                'PlaceUserGenerated' => 1,
-                'Public' => 1,
-                'ImportName' => '',
-                'ProjectId' => 1,
-                'PreviewImage' => '',
-                'DatasetId' => 1,
-                'StoryLanguage' => '',
-                'PlaceLink' => '',
-                'PlaceComment' => '',
-                'Dc' => [
-                    'Title' => 'TestTitle2',
-                    'Description' => '',
-                    'Creator' => '',
-                    'Source' => '',
-                    'Contributor' => '',
-                    'Publisher' => '',
-                    'Coverage' => '',
-                    'Date' => '',
-                    'Type' => '',
-                    'Relation' => '',
-                    'Rights' => '',
-                    'Language' => '',
-                    'Identifier' => ''
-                ],
-                'Dcterms' => [
-                    'Medium' => '',
-                    'Provenance' => '',
-                    'Created' => ''
-                ],
-                'Edm' => [
-                    'LandingPage' => '',
-                    'Country' => '',
-                    'DataProvider' => '',
-                    'Provider' => '',
-                    'Rights' => '',
-                    'Year' => '',
-                    'DatasetName' => '',
-                    'Begin' => '',
-                    'End' => '',
-                    'IsShownAt' => '',
-                    'Language' => '',
-                    'Agent' => ''
-                ]
-            ],
-            'Items' => [
-                [
-                    'ProjectItemId' => 'ExternalId12',
-                    'Title' => 'Test Story 2 Item 1',
-                    'ImageLink' => 'Image Link',
-                    'OrderIndex' => 1
-                ]
-            ]
-        ]
+    private static array $storyDefaults = [
+        'RecordId'         => 'RecordId1',
+        'Manifest'         => 'http://example.com/manifest/Record1.json',
+        'ProjectId'        => 1,
+        'DatasetId'        => 1,
+        'Public'           => 1,
+        'Dc'               => ['Title' => 'TestTitle1'],
+        'Dcterms'          => [],
+        'Edm'              => [],
     ];
 
-    public function setUp(): void
+    private static array $itemDefaults = [
+        ['ProjectItemId' => 'ExternalId1', 'Title' => 'Item 1', 'ImageLink' => 'http://img.example.com/1.jpg', 'OrderIndex' => 1],
+        ['ProjectItemId' => 'ExternalId2', 'Title' => 'Item 2', 'ImageLink' => 'http://img.example.com/2.jpg', 'OrderIndex' => 2],
+    ];
+
+    protected function setUp(): void
     {
         parent::setUp();
         ProjectTest::populateTable();
         DatasetTest::populateTable();
         Artisan::call('db:seed', ['--class' => CampaignDataSeeder::class]);
-
     }
 
-    public function test_import(): void
+    private function makeImport(array $storyOverrides = [], ?array $items = null): array
     {
-        $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' =>
-            [
-                [
-                    'StoryId' => 1,
-                    'ExternalRecordId' => self::$importData[0]['Story']['ExternalRecordId'],
-                    'RecordId' => self::$importData[0]['Story']['RecordId'],
-                    'dc:title' => self::$importData[0]['Story']['Dc']['Title'],
-                ],
-                [
-                    'StoryId' => 2,
-                    'ExternalRecordId' => self::$importData[1]['Story']['ExternalRecordId'],
-                    'RecordId' => self::$importData[1]['Story']['RecordId'],
-                    'dc:title' => self::$importData[1]['Story']['Dc']['Title'],
-                ]
-            ]
+        return [
+            'Story' => array_merge(self::$storyDefaults, $storyOverrides),
+            'Items' => $items ?? self::$itemDefaults,
+        ];
+    }
+
+    public function test_import_two_stories_returns_200(): void
+    {
+        $payload = [
+            $this->makeImport([
+                'RecordId' => 'RecordId1',
+                'Dc' => ['Title' => 'Title1'],
+            ]),
+            $this->makeImport([
+                'RecordId' => 'RecordId2',
+                'Dc' => ['Title' => 'Title2']
+            ]),
         ];
 
-        $response = $this->post(self::$endpoint, self::$importData);
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response->assertOk()
+            ->assertJson(['success' => true])
+            ->assertJsonCount(2, 'data');
+    }
+
+    public function test_import_persists_stories_and_items_to_database(): void
+    {
+        $payload = [$this->makeImport()];
+
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response->assertOk();
+        $this->assertDatabaseCount('Story', 1);
+        $this->assertDatabaseHas('Story', ['RecordId' => 'RecordId1']);
+        $this->assertDatabaseCount('Item', count(self::$itemDefaults));
+    }
+
+    public function test_story_with_no_items_imports_successfully(): void
+    {
+        $payload = [$this->makeImport([], [])];
+
+        $response = $this->post(self::$endpoint, $payload);
 
         $response
             ->assertOk()
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson(['success' => true]);
+
+        $this->assertDatabaseCount('Story', 1);
+        $this->assertDatabaseCount('Item', 0);
     }
 
     public function test_story_is_assigned_to_campaign(): void
     {
-        $response = $this->post(self::$endpoint, [self::$importData[1]]);
+        $payload = [$this->makeImport()];
+
+        $response = $this->post(self::$endpoint, $payload);
+
         $response->assertOk();
 
-        $story = Story::where('RecordId', self::$importData[1]['Story']['RecordId'])->first();
-        $this->assertNotNull($story, 'Story was not created');
-
+        $story = Story::where('RecordId', 'RecordId1')->firstOrFail();
         $campaigns = Campaign::where('DatasetId', $story->DatasetId)->get();
-        $this->assertNotEmpty($campaigns, 'No matching campaigns found');
+        $this->assertNotEmpty($campaigns);
 
-        $linked = $campaigns->contains(function ($campaign) use ($story) {
-            return $campaign->stories()->whereKey($story->StoryId)->exists();
-        });
+        $linked = $campaigns->contains(
+            fn($campaign) => $campaign->stories()->whereKey($story->StoryId)->exists()
+        );
         $this->assertTrue($linked, 'Story was not linked to any campaign');
     }
 
-    public function test_partial_successful_story_import(): void
+    public function test_empty_payload_returns_400(): void
     {
-        $partialImportData = self::$importData;
-        $partialImportData[1]['Story']['Dc']['Title'] = null;
-        $awaitedSuccess = ['success' => true];
-        $awaitedData = [
-            'data' => [
-                [
-                    'StoryId' => 1,
-                    'ExternalRecordId' => self::$importData[0]['Story']['ExternalRecordId'],
-                    'RecordId' => self::$importData[0]['Story']['RecordId'],
-                    'dc:title' => self::$importData[0]['Story']['Dc']['Title'],
-                ],
-            ],
-            'error' => [
-                [
-                    'ExternalRecordId' => $partialImportData[1]['Story']['ExternalRecordId'],
-                    'RecordId' => $partialImportData[1]['Story']['RecordId'],
-                    'dc:title' => $partialImportData[1]['Story']['Dc']['Title'],
-                    'error'    => []
-                ]
-            ]
-        ];
-
-        $response = $this->post(self::$endpoint, $partialImportData);
-
-        $response
-            ->assertStatus(207)
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+        $this->post(self::$endpoint, [])
+            ->assertStatus(400);
     }
 
-    public function test_partial_successful_item_import(): void
+    public function test_non_list_payload_returns_400(): void
     {
-        $partialImportData = self::$importData;
-        $partialImportData[0]['Items'][1]['ImageLink'] = null;
-        $awaitedSuccess = ['success' => true];
-        $awaitedData = [
-            'data' => [
-                [
-                    'StoryId' => 1,
-                    'ExternalRecordId' => self::$importData[0]['Story']['ExternalRecordId'],
-                    'RecordId' => self::$importData[0]['Story']['RecordId'],
-                    'dc:title' => self::$importData[0]['Story']['Dc']['Title'],
-                ],
-                [
-                    'StoryId' => 2,
-                    'ExternalRecordId' => self::$importData[1]['Story']['ExternalRecordId'],
-                    'RecordId' => self::$importData[1]['Story']['RecordId'],
-                    'dc:title' => self::$importData[1]['Story']['Dc']['Title'],
-                ],
-            ],
-            'error' => [
-                [
-                    'ExternalRecordId' => $partialImportData[0]['Story']['ExternalRecordId'],
-                    'RecordId' => $partialImportData[0]['Story']['RecordId'],
-                    'ProjectItemId' => $partialImportData[0]['Items'][1]['ProjectItemId'],
-                    'ItemOrderIndex' => $partialImportData[0]['Items'][1]['OrderIndex'],
-                    'error'    => []
-                ]
-            ]
+        $this->post(self::$endpoint, $this->makeImport())
+            ->assertStatus(400);
+    }
+
+    public function test_missing_dc_title_returns_error(): void
+    {
+        $payload = [$this->makeImport(['Dc' => ['Title' => null]])];
+
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson(['success' => false]);
+
+        $this->assertDatabaseCount('Story', 0);
+    }
+
+    public function test_missing_record_id_returns_error(): void
+    {
+        $payload = [$this->makeImport(['RecordId' => null])];
+
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson(['success' => false]);
+    }
+
+    public function test_invalid_project_id_returns_error(): void
+    {
+        $payload = [$this->makeImport(['ProjectId' => 99999])];
+
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonPath('data.0.error.ProjectId.0', __('ProjectId does not exist'));
+
+        $this->assertDatabaseCount('Story', 0);
+    }
+
+    public function test_invalid_dataset_id_returns_error(): void
+    {
+        $payload = [$this->makeImport(['DatasetId' => 99999])];
+
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response
+            ->assertStatus(400)
+            ->assertJsonPath('data.0.error.DatasetId.0', __('DatasetId does not exist'));
+
+        $this->assertDatabaseCount('Story', 0);
+    }
+
+    public function test_all_stories_fail_returns_400(): void
+    {
+        $payload = [
+            $this->makeImport(['Dc' => ['Title' => null]]),
+            $this->makeImport(['RecordId' => null]),
         ];
 
-        $response = $this->post(self::$endpoint, $partialImportData);
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson(['success' => false]);
+
+        $this->assertDatabaseCount('Story', 0);
+    }
+
+    public function test_missing_item_image_link_rolls_back_story(): void
+    {
+        $items = [
+            [
+                'ProjectItemId' => 'Ext1',
+                'Title' => 'Item 1',
+                'ImageLink' => null,
+                'OrderIndex' => 1],
+        ];
+        $payload = [$this->makeImport([], $items)];
+
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson(['success' => false]);
+
+        $this->assertDatabaseCount('Story', 0);
+        $this->assertDatabaseCount('Item', 0);
+    }
+
+    public function test_missing_item_title_rolls_back_story(): void
+    {
+        $items = [
+            [
+                'ProjectItemId' => 'Ext1',
+                'Title' => null,
+                'ImageLink' => 'http://img.example.com/1.jpg',
+                'OrderIndex' => 1
+            ],
+        ];
+        $payload = [$this->makeImport([], $items)];
+
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response->assertStatus(400);
+
+        $this->assertDatabaseCount('Story', 0);
+        $this->assertDatabaseCount('Item', 0);
+    }
+
+    public function test_partial_import_one_story_fails_returns_207(): void
+    {
+        $payload = [
+            $this->makeImport([
+                'RecordId' => 'RecordId1',
+                'ExternalRecordId' => 'ExtId1',
+                'Dc' => ['Title' => 'Title1']
+            ]),
+            $this->makeImport([
+                'RecordId' => 'RecordId2',
+                'ExternalRecordId' => 'ExtId2',
+                'Dc' => ['Title' => null]
+            ]),
+        ];
+
+        $response = $this->post(self::$endpoint, $payload);
 
         $response
             ->assertStatus(207)
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson(['success' => true])
+            ->assertJsonCount(1, 'data')
+            ->assertJsonCount(1, 'error');
+
+        $this->assertDatabaseCount('Story', 1);
+    }
+
+    public function test_partial_import_one_story_has_invalid_project_id_returns_207(): void
+    {
+        $payload = [
+            $this->makeImport([
+                'RecordId' => 'RecordId1',
+                'ExternalRecordId' => 'ExtId1'
+            ]),
+            $this->makeImport([
+                'RecordId' => 'RecordId2',
+                'ExternalRecordId' => 'ExtId2',
+                'ProjectId' => 99999
+            ]),
+        ];
+
+        $response = $this->post(self::$endpoint, $payload);
+
+        $response
+            ->assertStatus(207)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonCount(1, 'error');
+
+        $this->assertDatabaseCount('Story', 1);
     }
 }

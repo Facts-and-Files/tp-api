@@ -17,6 +17,7 @@
         "symfony/yaml": "^6.4"
     },
     "require-dev": {
+        "beyondcode/laravel-dump-server": "^2.1",
         "laravel/pint": "^1.1",
         "laravel/telescope": "^5.5",
         "mockery/mockery": "^1.4.4",
