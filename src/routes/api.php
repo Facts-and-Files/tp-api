@@ -168,7 +168,7 @@ Route::middleware(['auth:api'])->group(function() {
     Route::post('/transcriptions', [TranscriptionController::class, 'store']);
     Route::get('/transcriptions/{id}', [TranscriptionController::class, 'show']);
 
-    Route::post('/import', [ImportController::class, 'store']);
+    Route::post('/import', [ImportController::class, 'import']);
 
     Route::post('/update-solr', [SolrController::class, 'update']);
     Route::get('/update-solr', [SolrController::class, 'update']);
