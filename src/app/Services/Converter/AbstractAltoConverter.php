@@ -8,7 +8,7 @@ use DOMDocument;
 abstract class AbstractAltoConverter implements AltoConverterInterface
 {
     private const ALTO_NAMESPACE = 'http://www.loc.gov/standards/alto/ns-v4#';
-    private const ALTO_SCHEMA_LOCATION = 'http://www.loc.gov/standards/alto/v4/alto-4-4.xsd';
+    private const ALTO_SCHEMA_LOCATION = 'http://www.loc.gov/standards/alto/v4/alto-4-2.xsd';
 
     protected string $measurementUnit = 'pixel';
 
