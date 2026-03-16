@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Export;
+namespace App\Services\ExportCache;
 
 use App\Models\Item;
 

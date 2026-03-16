@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Export;
+namespace App\Services\ExportCache;
 
 use App\Models\CacheExport;
 use App\Models\Item;
@@ -67,16 +67,11 @@ class FileExportCache implements ExportCacheInterface
 
     private function buildFilePath(Item $item, string $format): string
     {
-        $extensions = [
-            'alto' => 'xml',
-        ];
-
         return sprintf(
-            '%s/item_%s.%s.%s',
+            '%s/item_%s.%s',
             $format,
             $item->ItemId,
-            $format,
-            $extensions[$format]
+            config("exports.formats.{$format}.extension"),
         );
     }
 
