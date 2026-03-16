@@ -115,6 +115,7 @@ class Item extends Model
                     'CurrentVersion' => $manualTranscription->CurrentVersion,
                     'NoText' => $manualTranscription->NoText,
                     'Language' => $manualTranscription->language,
+                    'Timestamp' => $manualTranscription->Timestamp,
                 ]
                 : new Transcription();
 
@@ -138,6 +139,7 @@ class Item extends Model
                     'TranscriptionText' => $revision->TranscriptionText,
                     'Text' => $revision->TranscriptionData,
                     'Language' => $latest->language, // comes from HtrData
+                    'Timestamp' => $revision->Timestamp,
                 ];
             }
 

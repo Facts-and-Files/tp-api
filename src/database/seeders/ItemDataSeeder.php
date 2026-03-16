@@ -55,7 +55,31 @@ class ItemDataSeeder extends Seeder
             'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 5',
-        ]
+        ],
+        [
+            'ItemId'                => 6,
+            'StoryId'               => 2,
+            'CompletionStatusId'    => 1,
+            'TranscriptionStatusId' => 1,
+            'LocaionStatusId'       => 1,
+            'OrderIndex'            => 1,
+            'TranscriptionSource'   => 'htr',
+            'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
+            'DescriptionLanguage'   => 2,
+            'Description'           => 'Test Description Item 6',
+        ],
+        [
+            'ItemId'                => 7,
+            'StoryId'               => 2,
+            'CompletionStatusId'    => 1,
+            'TranscriptionStatusId' => 1,
+            'LocaionStatusId'       => 1,
+            'OrderIndex'            => 1,
+            'TranscriptionSource'   => 'htr',
+            'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
+            'DescriptionLanguage'   => 2,
+            'Description'           => 'Test Description Item 7',
+        ],
     ];
 
     public function run(): void

@@ -1,0 +1,36 @@
+get:
+  tags:
+    - items
+    - exports
+  description: Export an item to various formats.
+  summary: Export an item
+  parameters:
+    - in: path
+      name: ItemId
+      description: Numeric ID of the entry
+      type: integer
+      required: true
+    - in: path
+      name: format
+      description: Type of exported format
+      schema:
+        type: string
+        enum:
+          - alto
+      required: true
+  responses:
+    200:
+      description: Ok
+      content:
+      application/xml:
+        schema:
+          type: string
+          format: binary
+    400:
+      $ref: 'responses.yaml#/400ErrorResponse'
+    401:
+      $ref: 'responses.yaml#/401ErrorResponse'
+    404:
+      $ref: 'responses.yaml#/404ErrorResponse'
+    422:
+      $ref: 'responses.yaml#/422ErrorResponse'

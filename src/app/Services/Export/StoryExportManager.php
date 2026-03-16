@@ -4,7 +4,7 @@ namespace App\Services\Export;
 
 use App\Models\Story;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use ZipStream\ZipStream;
 
 class StoryExportManager
 {
@@ -14,14 +14,18 @@ class StoryExportManager
     ) {
     }
 
-    public function export(Story $story, string $format): StreamedResponse
+    public function export(Story $story, string $format): mixed
     {
         return match ($format) {
             'yml' => $this->yamlStoryExporter->export($story),
-            'csv' => $this->csvStoryExporter->export($story),
             default => throw ValidationException::withMessages(
                 ["Export format {$format} is not supported."]
             ),
         };
+    }
+
+    public function exportZip(Story $story): ZipStream
+    {
+        return $this->csvStoryExporter->export($story);
     }
 }

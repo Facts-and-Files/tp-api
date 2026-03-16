@@ -3,51 +3,41 @@
 namespace App\Services\Export;
 
 use App\Models\Story;
+use App\Traits\BuildExportFilename;
 use Illuminate\Support\Arr;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use League\Csv\Writer;
 use ZipStream\ZipStream;
 
 class CsvStoryExporter implements StoryExporterInterface
 {
+    use BuildExportFilename;
+
     public function __construct(
         private CsvTransformer $csvTransformer
     ) {}
 
-    public function export(Story $story): StreamedResponse
+    public function export(Story $story): ZipStream
     {
         $storyId = $story->StoryId;
-        $baseStoryFilename = "story-{$storyId}-" . now()->format('Ymd-His');
-        $baseItemsFilename = "story-items-{$storyId}-" . now()->format('Ymd-His');
-        $basePropertiesFilename = "story-properties-{$storyId}-" . now()->format('Ymd-His');
-        $zipName = $baseStoryFilename . '.zip';
 
-        return response()->streamDownload(
-            callback: function () use (
-                $baseItemsFilename,
-                $baseStoryFilename,
-                $basePropertiesFilename,
-                $story,
-                $zipName,
-            ) {
-                $zip = new ZipStream(
-                    outputName: $zipName,
-                    defaultEnableZeroHeader: true,
-                    contentType: 'application/octet-stream',
-                );
+        $zipName = $this->buildExportFilename($storyId, null, null, 'zip');
+        $baseStoryFilename = $this->buildExportFilename($storyId, null, null, 'csv');
+        $baseItemsFilename = $this->buildExportFilename($storyId, 'all', null, 'csv');
+        $basePropertiesFilename = $this->buildExportFilename($storyId, 'all', 'properties', 'csv');
 
-                $zip->addFile("{$baseStoryFilename}.csv", $this->formatStoryAsCsv($story));
-                $zip->addFile("{$baseItemsFilename}.csv", $this->formatStoryItemsAsCsv($story));
-                $zip->addFile("{$basePropertiesFilename}.csv", $this->formatItemPropertiesAsCsv($story));
-
-                $zip->finish();
-            },
-            name: $zipName,
-            headers: [
-                'Content-Type' => 'application/zip; charset=utf-8',
-                'Content-Disposition' => 'attachment; filename="'.$zipName.'"',
-            ]
+        $zip = new ZipStream(
+            outputName: $zipName,
+            defaultEnableZeroHeader: true,
+            contentType: 'application/octet-stream',
         );
+
+        $zip->addFile($baseStoryFilename, $this->formatStoryAsCsv($story));
+        $zip->addFile($baseItemsFilename, $this->formatStoryItemsAsCsv($story));
+        $zip->addFile("{$basePropertiesFilename}.csv", $this->formatItemPropertiesAsCsv($story));
+
+        $zip->finish();
+
+        return $zip;
     }
 
     private function formatStoryAsCsv(Story $story): string

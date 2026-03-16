@@ -7,6 +7,7 @@ PWD := $(shell pwd)
 TP_API_DB := ../tp-mysql
 SOLR := ../tp-solr
 ADMINER := ../../databases.ffdigitalservices.com/
+PAGE2ALTO := ../../kali/page-to-alto
 
 all: test
 
@@ -18,11 +19,13 @@ serve:
 	@cd $(SOLR) && docker compose up --detach
 	@cd $(PWD) && docker compose up --detach
 	@cd $(ADMINER) && docker compose up --detach
+	@cd $(PAGE2ALTO) && docker compose up --detach
 	@echo
 	@echo "API database running on tp_mysql:3306"
 	@echo "SOLR is available on tp_solr:8983"
 	@echo "Webserver running on https://api.transcribathon.eu.local:4443/v2/"
 	@echo "Adminer running on https://localhost:1443/"
+	@echo "Page2Alto converter running on http://localhost:9000/"
 	@echo
 	@echo "I'm up to no good..."
 	@echo
@@ -34,6 +37,7 @@ stop:
 	@cd $(TP_API_DB) && docker compose down
 	@cd $(PWD) && docker compose down
 	@cd $(ADMINER) && docker compose down
+	@cd $(PAGE2ALTO) && docker compose down
 	@echo
 	@echo "...mischief managed."
 	@echo
