@@ -57,7 +57,7 @@ class StoryExportTest extends TestCase
         $disposition = $response->headers->get('Content-Disposition');
 
         $response->assertOk()->assertHeader('Content-Type', 'application/yaml; charset=utf-8');
-        $this->assertStringContainsString("filename=story-{$storyId}-", $disposition);
+        $this->assertStringContainsString("filename=transcribathon_story-{$storyId}_", $disposition);
         $this->assertStringContainsString(".yml", $disposition);
     }
 
@@ -140,9 +140,9 @@ class StoryExportTest extends TestCase
         $this->assertTrue($zip->open($tempZip));
         $this->assertEquals(3, $zip->numFiles);
 
-        $this->assertStringContainsString("story-{$storyId}-", $zip->getNameIndex(0));
-        $this->assertStringContainsString("story-items-{$storyId}-", $zip->getNameIndex(1));
-        $this->assertStringContainsString("story-properties-{$storyId}-", $zip->getNameIndex(2));
+        $this->assertStringContainsString("story-{$storyId}_", $zip->getNameIndex(0));
+        $this->assertStringContainsString("story-{$storyId}_item-all_", $zip->getNameIndex(1));
+        $this->assertStringContainsString("story-{$storyId}_item-all_properties_", $zip->getNameIndex(2));
 
         $zip->close();
         unlink($tempZip);
