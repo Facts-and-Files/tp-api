@@ -5,6 +5,7 @@ namespace App\Services\Export;
 use App\Models\Item;
 use App\Services\Converter\AltoConverterInterface;
 use App\Services\Converter\DTO\AltoPageData;
+use App\Services\ExportCache\FileExportCache;
 use DOMDocument;
 
 class AltoItemExporter
@@ -12,25 +13,26 @@ class AltoItemExporter
     private const EXPORT_FORMAT = 'alto';
 
     public function __construct(
-        private readonly AltoConverterInterface $converter,
         private readonly FileExportCache $cache,
     ) {}
 
-    public function exportToAlto(Item $item): string
+    public function exportWithConverter(Item $item, AltoConverterInterface $converter): string
     {
         if ($cached = $this->cache->getCached($item, self::EXPORT_FORMAT)) {
             return $cached;
         }
 
-        $altoXml = $this->generateAlto($item)->saveXML();
+        $altoXml = $this->generateAlto($item, $converter)->saveXML();
         $this->cache->put($item, self::EXPORT_FORMAT, $altoXml);
 
         return $altoXml;
     }
 
-    private function generateAlto(Item $item): DOMDocument
+    private function generateAlto(Item $item, AltoConverterInterface $converter): DOMDocument
     {
-        $iiifImageInfo = json_decode($item->ImageLink, true);
+        // some included JSON strings needs cleaning
+        $iiifImageInfoClean = str_replace('\"', '"', $item->ImageLink);
+        $iiifImageInfo = json_decode($iiifImageInfoClean, true);
 
         $pageData = new AltoPageData(
             id: $item->ItemId,
@@ -43,7 +45,7 @@ class AltoItemExporter
 
         $dataToConvert = $item->Transcription['Text'] ?? '';
 
-        return $this->converter->convert($dataToConvert, $pageData);
+        return $converter->convert($dataToConvert, $pageData);
     }
 
     private function extractIiifImageLink(array $imageData): string
