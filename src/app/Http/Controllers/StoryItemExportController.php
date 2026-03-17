@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Models\Story;
 use App\Services\Export\StoryExportManager;
 use App\Traits\BuildExportFilename;
@@ -68,7 +67,7 @@ class StoryItemExportController extends ResponseController
             headers: [
                 'Content-Type' => $contentType,
                 'Content-Disposition' => "attachment; filename={$filename}",
-            ]
+            ],
         );
     }
 }

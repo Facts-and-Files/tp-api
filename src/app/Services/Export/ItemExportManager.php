@@ -12,15 +12,14 @@ class ItemExportManager
     public function __construct(
         private AltoItemExporter $altoItemExporter,
         private HtmlToAltoConverter $htmlConverter,
-    ) {
-    }
+    ) {}
 
     public function export(Item $item, string $format): string
     {
         return match ($format) {
             'alto' => $this->exportToAlto($item),
             default => throw ValidationException::withMessages(
-                ["Export format {$format} is not supported."]
+                ["Export format {$format} is not supported."],
             ),
         };
     }

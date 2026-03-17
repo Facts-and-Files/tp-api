@@ -74,7 +74,7 @@ class HtmlToAltoConverterTest extends TestCase
 
         $this->assertEquals(
             'pixel',
-            (string) $xml->xpath('//alto:MeasurementUnit')[0]
+            (string) $xml->xpath('//alto:MeasurementUnit')[0],
         );
     }
 
@@ -88,11 +88,11 @@ class HtmlToAltoConverterTest extends TestCase
 
         $this->assertEquals(
             $this->pageData->fileName,
-            (string) $xml->xpath('//alto:fileName')[0]
+            (string) $xml->xpath('//alto:fileName')[0],
         );
         $this->assertEquals(
             $this->pageData->fileIdentifier,
-            (string) $xml->xpath('//alto:fileIdentifier')[0]
+            (string) $xml->xpath('//alto:fileIdentifier')[0],
         );
     }
 

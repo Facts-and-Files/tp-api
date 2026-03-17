@@ -21,8 +21,10 @@ abstract class AbstractAltoConverter implements AltoConverterInterface
 
         $root = $dom->createElementNS(self::ALTO_NAMESPACE, 'alto');
         $root->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
-        $root->setAttribute('xsi:schemaLocation',
-            self::ALTO_NAMESPACE . ' ' . self::ALTO_SCHEMA_LOCATION);
+        $root->setAttribute(
+            'xsi:schemaLocation',
+            self::ALTO_NAMESPACE . ' ' . self::ALTO_SCHEMA_LOCATION,
+        );
 
         $description = $dom->createElement('Description');
         $measurementUnit = $dom->createElement('MeasurementUnit');

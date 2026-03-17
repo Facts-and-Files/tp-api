@@ -102,11 +102,11 @@ class YamlTransformer implements TransformerInterface
         ];
 
         $itemArray['Transcription'] = $this->transformTranscription(
-            collect($itemArray['Transcription'])
+            collect($itemArray['Transcription']),
         );
 
         $itemArray['Properties'] = $this->transformProperties(
-            collect($itemArray['Properties'])
+            collect($itemArray['Properties']),
         );
 
         Arr::forget($itemArray, ['DescriptionLang']);
@@ -135,7 +135,7 @@ class YamlTransformer implements TransformerInterface
     {
         $transcription->forget($this->transcriptionHiddenElements);
         $transcription['Language'] = $this->transformLanguage(
-            collect($transcription['Language'])
+            collect($transcription['Language']),
         );
 
         return $transcription->toArray();

@@ -25,7 +25,7 @@ class PageXmlToAltoConverterTest extends TestCase
                 </alto>
                 XML,
                 200,
-                ['Content-Type' => 'application/xml']
+                ['Content-Type' => 'application/xml'],
             ),
         ]);
 
@@ -79,7 +79,7 @@ class PageXmlToAltoConverterTest extends TestCase
                 </alto>
                 XML,
                 200,
-                ['Content-Type' => 'application/xml']
+                ['Content-Type' => 'application/xml'],
             ),
         ]);
 
@@ -100,15 +100,15 @@ class PageXmlToAltoConverterTest extends TestCase
 
         $this->assertSame(
             'pixel',
-            (string) $xml->xpath('//alto:Description/alto:MeasurementUnit')[0]
+            (string) $xml->xpath('//alto:Description/alto:MeasurementUnit')[0],
         );
         $this->assertSame(
             $pageData->fileName,
-            (string) $xml->xpath('//alto:Description/alto:sourceImageInformation/alto:fileName')[0]
+            (string) $xml->xpath('//alto:Description/alto:sourceImageInformation/alto:fileName')[0],
         );
         $this->assertSame(
             (string) $pageData->id,
-            (string) $xml->xpath('//alto:Layout/alto:Page/@ID')[0]
+            (string) $xml->xpath('//alto:Layout/alto:Page/@ID')[0],
         );
     }
 

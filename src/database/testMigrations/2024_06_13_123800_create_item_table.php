@@ -15,6 +15,7 @@ return new class extends Migration
             $table->increments('ItemId');
             $table->integer('StoryId');
             $table->smallInteger('CompletionStatusId')->default(1);
+            $table->smallInteger('DescriptionStatusId')->default(1);
             $table->smallInteger('TranscriptionStatusId')->default(1);
             $table->smallInteger('TaggingStatusId')->default(1);
             $table->smallInteger('LocationStatusId')->default(1);

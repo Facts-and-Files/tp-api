@@ -13,19 +13,29 @@ class ImportTest extends TestCase
     private static string $endpoint = '/import';
 
     private static array $storyDefaults = [
-        'RecordId'         => 'RecordId1',
-        'Manifest'         => 'http://example.com/manifest/Record1.json',
-        'ProjectId'        => 1,
-        'DatasetId'        => 1,
-        'Public'           => 1,
-        'Dc'               => ['Title' => 'TestTitle1'],
-        'Dcterms'          => [],
-        'Edm'              => [],
+        'RecordId' => 'RecordId1',
+        'Manifest'  => 'http://example.com/manifest/Record1.json',
+        'ProjectId' => 1,
+        'DatasetId' => 1,
+        'Public' => 1,
+        'Dc' => ['Title' => 'TestTitle1'],
+        'Dcterms' => [],
+        'Edm' => [],
     ];
 
     private static array $itemDefaults = [
-        ['ProjectItemId' => 'ExternalId1', 'Title' => 'Item 1', 'ImageLink' => 'http://img.example.com/1.jpg', 'OrderIndex' => 1],
-        ['ProjectItemId' => 'ExternalId2', 'Title' => 'Item 2', 'ImageLink' => 'http://img.example.com/2.jpg', 'OrderIndex' => 2],
+        [
+            'ProjectItemId' => 'ExternalId1',
+            'Title' => 'Item 1',
+            'ImageLink' => 'http://img.example.com/1.jpg',
+            'OrderIndex' => 1,
+        ],
+        [
+            'ProjectItemId' => 'ExternalId2',
+            'Title' => 'Item 2',
+            'ImageLink' => 'http://img.example.com/2.jpg',
+            'OrderIndex' => 2,
+        ],
     ];
 
     protected function setUp(): void
@@ -53,7 +63,7 @@ class ImportTest extends TestCase
             ]),
             $this->makeImport([
                 'RecordId' => 'RecordId2',
-                'Dc' => ['Title' => 'Title2']
+                'Dc' => ['Title' => 'Title2'],
             ]),
         ];
 
@@ -103,7 +113,7 @@ class ImportTest extends TestCase
         $this->assertNotEmpty($campaigns);
 
         $linked = $campaigns->contains(
-            fn($campaign) => $campaign->stories()->whereKey($story->StoryId)->exists()
+            fn($campaign) => $campaign->stories()->whereKey($story->StoryId)->exists(),
         );
         $this->assertTrue($linked, 'Story was not linked to any campaign');
     }
@@ -214,7 +224,7 @@ class ImportTest extends TestCase
                 'ProjectItemId' => 'Ext1',
                 'Title' => null,
                 'ImageLink' => 'http://img.example.com/1.jpg',
-                'OrderIndex' => 1
+                'OrderIndex' => 1,
             ],
         ];
         $payload = [$this->makeImport([], $items)];
@@ -233,12 +243,12 @@ class ImportTest extends TestCase
             $this->makeImport([
                 'RecordId' => 'RecordId1',
                 'ExternalRecordId' => 'ExtId1',
-                'Dc' => ['Title' => 'Title1']
+                'Dc' => ['Title' => 'Title1'],
             ]),
             $this->makeImport([
                 'RecordId' => 'RecordId2',
                 'ExternalRecordId' => 'ExtId2',
-                'Dc' => ['Title' => null]
+                'Dc' => ['Title' => null],
             ]),
         ];
 
@@ -258,12 +268,12 @@ class ImportTest extends TestCase
         $payload = [
             $this->makeImport([
                 'RecordId' => 'RecordId1',
-                'ExternalRecordId' => 'ExtId1'
+                'ExternalRecordId' => 'ExtId1',
             ]),
             $this->makeImport([
                 'RecordId' => 'RecordId2',
                 'ExternalRecordId' => 'ExtId2',
-                'ProjectId' => 99999
+                'ProjectId' => 99999,
             ]),
         ];
 

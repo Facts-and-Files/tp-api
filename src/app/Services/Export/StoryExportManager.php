@@ -11,15 +11,14 @@ class StoryExportManager
     public function __construct(
         private YamlStoryExporter $yamlStoryExporter,
         private CsvStoryExporter $csvStoryExporter,
-    ) {
-    }
+    ) {}
 
     public function export(Story $story, string $format): mixed
     {
         return match ($format) {
             'yml' => $this->yamlStoryExporter->export($story),
             default => throw ValidationException::withMessages(
-                ["Export format {$format} is not supported."]
+                ["Export format {$format} is not supported."],
             ),
         };
     }

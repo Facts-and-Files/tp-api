@@ -23,7 +23,7 @@ class ItemTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => LanguageDataSeeder::class]);
@@ -90,12 +90,12 @@ class ItemTest extends TestCase
                     fn($p) => in_array($p['PropertyId'], array_column(
                         array_filter(
                             ItemPropertyDataSeeder::$data,
-                            fn($ip) => $ip['ItemId'] === ItemDataSeeder::$data[0]['ItemId']
+                            fn($ip) => $ip['ItemId'] === ItemDataSeeder::$data[0]['ItemId'],
                         ),
-                        'PropertyId'
-                    ))
-                ))
-            ]
+                        'PropertyId',
+                    )),
+                )),
+            ],
         ];
 
         $response = $this->get(self::$endpoint . $queryParams);
@@ -186,7 +186,7 @@ class ItemTest extends TestCase
         $queryParams = '/' . ItemDataSeeder::$data[0]['ItemId'] . '/properties';
         $propertyId = PropertyDataSeeder::$data[2]['PropertyId'];
         $updateData = ['PropertyId' => $propertyId];
-        foreach(PropertyDataSeeder::$data as $property) {
+        foreach (PropertyDataSeeder::$data as $property) {
             if ($property['PropertyId'] === $propertyId) {
                 $awaitedProperty = $property;
             }
@@ -232,7 +232,7 @@ class ItemTest extends TestCase
         $propertyId = PropertyDataSeeder::$data[1]['PropertyId'];
         $queryParams = '/' . ItemDataSeeder::$data[0]['ItemId'] . '/properties/' . $propertyId;
         $awaitedSuccess = ['success' => true];
-        foreach(PropertyDataSeeder::$data as $property) {
+        foreach (PropertyDataSeeder::$data as $property) {
             if ($property['PropertyId'] === $propertyId) {
                 $notAwaitedProperty = $property;
             }

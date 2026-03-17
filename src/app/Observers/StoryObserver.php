@@ -2,11 +2,10 @@
 
 namespace App\Observers;
 
-use App\Events\StoryInserted;
 use App\Events\StoryDeleted;
+use App\Events\StoryInserted;
 use App\Models\Story;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
 
 class StoryObserver implements ShouldQueue
 {

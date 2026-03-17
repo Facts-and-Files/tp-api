@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Models\Item;
 use App\Services\Export\ItemExportManager;
 use App\Traits\BuildExportFilename;
@@ -44,7 +43,7 @@ class ItemExportController extends ResponseController
             headers: [
                 'Content-Type' => $contentType,
                 'Content-Disposition' => "attachment; filename={$filename}",
-            ]
+            ],
         );
     }
 }

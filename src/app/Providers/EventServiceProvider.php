@@ -8,19 +8,19 @@ class EventServiceProvider extends ServiceProvider
 {
     protected $listen = [
         \App\Events\ScoreTableUpdated::class => [
-            \App\Listeners\InsertDataWhenScoreTableIsUpdated::class
+            \App\Listeners\InsertDataWhenScoreTableIsUpdated::class,
         ],
         \App\Events\PersonInserted::class => [
-            \App\Listeners\UpdateItemStatusWhenPersonIsInserted::class
+            \App\Listeners\UpdateItemStatusWhenPersonIsInserted::class,
         ],
         \App\Events\PlaceInserted::class => [
-            \App\Listeners\UpdateItemStatusWhenPlaceIsInserted::class
+            \App\Listeners\UpdateItemStatusWhenPlaceIsInserted::class,
         ],
         \App\Events\StoryInserted::class => [
-            \App\Listeners\UpdateStoryCampaignWhenStoryIsInserted::class
+            \App\Listeners\UpdateStoryCampaignWhenStoryIsInserted::class,
         ],
         \App\Events\StoryDeleted::class => [
-            \App\Listeners\DeleteFromSolrWhenStoryIsDeleted::class
+            \App\Listeners\DeleteFromSolrWhenStoryIsDeleted::class,
         ],
     ];
 

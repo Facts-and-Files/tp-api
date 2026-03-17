@@ -104,12 +104,12 @@ class CsvTransformer implements TransformerInterface
 
         $itemArray['Description.Text'] = $itemArray['Description'];
         $itemArray['Description.Language'] = $this->transformLanguage(
-            collect([$itemArray['DescriptionLang']])
+            collect([$itemArray['DescriptionLang']]),
         );
 
         $transcription = collect($itemArray['Transcription']);
         $itemArray['Transcription.Language'] = $this->transformLanguage(
-            collect($transcription['Language'] ?? [])
+            collect($transcription['Language'] ?? []),
         );
 
         foreach ($transcription as $key => $value) {
