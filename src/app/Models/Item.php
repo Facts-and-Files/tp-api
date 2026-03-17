@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CompletionStatus as ItemCompletionStatus;
 use App\Models\Language;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -35,6 +36,14 @@ class Item extends Model
         'CompletionStatus',
         'Transcription',
         'Properties'
+    ];
+
+    protected $casts = [
+        'TranscriptionStatusId' => ItemCompletionStatus::class,
+        'DescriptionStatusId' => ItemCompletionStatus::class,
+        'LocationStatusId' => ItemCompletionStatus::class,
+        'TaggingStatusId' => ItemCompletionStatus::class,
+        'CompletionStatusId' => ItemCompletionStatus::class,
     ];
 
 // declare relationships

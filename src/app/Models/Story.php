@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\CompletionStatus as StoryCompletionStatus;
+use App\Models\CompletionStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
-use App\Models\CompletionStatus;
 
 class Story extends Model
 {
@@ -29,6 +30,7 @@ class Story extends Model
         'HasHtr' => 'boolean',
         'Public' => 'boolean',
         'PlaceUserGenerated' => 'boolean',
+        'CompletionStatusId' => StoryCompletionStatus::class,
     ];
 
     protected $hidden = [
