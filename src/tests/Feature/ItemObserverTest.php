@@ -2,29 +2,29 @@
 
 namespace Tests\Feature;
 
+use App\Enums\CompletionStatus;
 use App\Models\Item;
 use App\Models\Story;
-use App\Enums\CompletionStatus;
-use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\ItemDataSeeder;
+use Database\Seeders\ItemPropertyDataSeeder;
 use Database\Seeders\LanguageDataSeeder;
+use Database\Seeders\PropertyDataSeeder;
+use Database\Seeders\PropertyTypeDataSeeder;
 use Database\Seeders\StoryDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
 use Database\Seeders\TranscriptionLanguageDataSeeder;
-use Database\Seeders\PropertyDataSeeder;
-use Database\Seeders\PropertyTypeDataSeeder;
-use Database\Seeders\ItemDataSeeder;
-use Database\Seeders\ItemPropertyDataSeeder;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class ItemObserverTest extends TestCase
 {
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    protected static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => LanguageDataSeeder::class]);

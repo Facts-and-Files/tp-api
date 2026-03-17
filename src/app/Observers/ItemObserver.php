@@ -2,10 +2,9 @@
 
 namespace App\Observers;
 
+use App\Enums\CompletionStatus;
 use App\Models\Item;
 use App\Models\Story;
-use App\Enums\CompletionStatus;
-
 
 class ItemObserver
 {
@@ -14,10 +13,9 @@ class ItemObserver
         $this->applyCompletionStatus($item);
     }
 
-
     public function updated(Item $item): void
     {
-        if (!$item->wasChanged('CompletionStatusId')) {
+        if (! $item->wasChanged('CompletionStatusId')) {
             return;
         }
 
@@ -37,6 +35,7 @@ class ItemObserver
         if ($this->allItemsInStoryAreComplete($item->StoryId)) {
             $story->CompletionStatusId = CompletionStatus::Completed;
             $story->save();
+
             return;
         }
 
@@ -46,6 +45,7 @@ class ItemObserver
         ) {
             $story->CompletionStatusId = CompletionStatus::Review;
             $story->save();
+
             return;
         }
 
@@ -69,6 +69,7 @@ class ItemObserver
     {
         if ($item->TranscriptionStatusId !== CompletionStatus::Completed) {
             $item->CompletionStatusId = $item->TranscriptionStatusId;
+
             return;
         }
 
@@ -76,6 +77,7 @@ class ItemObserver
             if ($item->CompletionStatusId !== CompletionStatus::Completed) {
                 $item->CompletionStatusId = CompletionStatus::Completed;
             }
+
             return;
         }
 

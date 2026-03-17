@@ -11,7 +11,7 @@ trait BuildExportFilename
         mixed $itemId,
         ?string $property,
         string $extension,
-        ?DateTimeInterface $now = null
+        ?DateTimeInterface $now = null,
     ): string {
         $now ??= now();
 

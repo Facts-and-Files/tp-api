@@ -15,7 +15,7 @@ class ImportService
     public function importAll(array $data): array
     {
         $inserted = [];
-        $errors   = [];
+        $errors = [];
 
         // pre-fetch valid IDs to avoid N+1 queries in the loop
         $projectIds = collect($data)
@@ -28,7 +28,6 @@ class ImportService
 
         $validProjectIds = Project::whereIn('ProjectId', $projectIds)->pluck('ProjectId');
         $validDatasetIds = Dataset::whereIn('DatasetId', $datasetIds)->pluck('DatasetId');
-
 
         foreach ($data as $import) {
             $result = $this->importStory($import, $validProjectIds, $validDatasetIds);
@@ -46,9 +45,9 @@ class ImportService
     private function importStory(array $import, $validProjectIds, $validDatasetIds): array
     {
         $validator = Validator::make($import, [
-            'Story.Dc.Title'         => 'required',
-            'Story.RecordId'         => 'required',
-            'Items'                  => 'array',
+            'Story.Dc.Title' => 'required',
+            'Story.RecordId' => 'required',
+            'Items' => 'array',
         ]);
 
         if ($validator->fails()) {
@@ -56,7 +55,7 @@ class ImportService
                 $import['Story']['ExternalRecordId'] ?? null,
                 $import['Story']['RecordId'] ?? null,
                 $import['Story']['Dc']['Title'] ?? null,
-                $validator->errors()->all()
+                $validator->errors()->all(),
             )];
         }
 
@@ -72,10 +71,10 @@ class ImportService
 
                 return [
                     'inserted' => [
-                        'StoryId'          => $story->StoryId,
+                        'StoryId' => $story->StoryId,
                         'ExternalRecordId' => $story->ExternalRecordId,
-                        'RecordId'         => $story->RecordId,
-                        'dc:title'         => $story->Dc['Title'] ?? null,
+                        'RecordId' => $story->RecordId,
+                        'dc:title' => $story->Dc['Title'] ?? null,
                     ],
                 ];
             });
@@ -84,14 +83,14 @@ class ImportService
                 $import['Story']['ExternalRecordId'] ?? null,
                 $import['Story']['RecordId'] ?? null,
                 $import['Story']['Dc']['Title'] ?? null,
-                $ve->errors()
+                $ve->errors(),
             )];
         } catch (\Exception $e) {
             return ['error' => $this->storyError(
                 $import['Story']['ExternalRecordId'] ?? null,
                 $import['Story']['RecordId'] ?? null,
                 $import['Story']['Dc']['Title'] ?? null,
-                [$e->getMessage()]
+                [$e->getMessage()],
             )];
         }
     }
@@ -101,10 +100,10 @@ class ImportService
         $story = new Story();
         $story->fill($storyData);
         $story->ExternalRecordId = $storyData['ExternalRecordId'] ?? null;
-        $story->RecordId         = $storyData['RecordId'] ?? null;
-        $story->dc               = $storyData['Dc'] ?? [];
-        $story->dcterms          = $storyData['Dcterms'] ?? [];
-        $story->edm              = $storyData['Edm'] ?? [];
+        $story->RecordId = $storyData['RecordId'] ?? null;
+        $story->dc = $storyData['Dc'] ?? [];
+        $story->dcterms = $storyData['Dcterms'] ?? [];
+        $story->edm = $storyData['Edm'] ?? [];
 
         return $story;
     }
@@ -124,8 +123,8 @@ class ImportService
     {
         foreach ($items as $itemData) {
             $validator = Validator::make($itemData, [
-                'Title'      => 'required',
-                'ImageLink'  => 'required',
+                'Title' => 'required',
+                'ImageLink' => 'required',
                 'OrderIndex' => 'integer',
             ]);
 
@@ -137,7 +136,7 @@ class ImportService
 
             $item = new Item();
             $item->fill($itemData);
-            $item->StoryId       = $story->StoryId;
+            $item->StoryId = $story->StoryId;
             $item->ProjectItemId = $itemData['ProjectItemId'] ?? null;
             $item->save();
         }
@@ -147,14 +146,14 @@ class ImportService
         ?string $externalRecordId,
         ?string $recordId,
         ?string $title,
-        array|object $error
+        array|object $error,
     ): array {
         return [
-            'source'           => 'Story',
+            'source' => 'Story',
             'ExternalRecordId' => $externalRecordId,
-            'RecordId'         => $recordId,
-            'dc:title'         => $title,
-            'error'            => $error,
+            'RecordId' => $recordId,
+            'dc:title' => $title,
+            'error' => $error,
         ];
     }
 }

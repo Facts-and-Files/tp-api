@@ -12,9 +12,7 @@ class CsvStoryExporter implements StoryExporterInterface
 {
     use BuildExportFilename;
 
-    public function __construct(
-        private CsvTransformer $csvTransformer
-    ) {}
+    public function __construct(private CsvTransformer $csvTransformer) {}
 
     public function export(Story $story): ZipStream
     {

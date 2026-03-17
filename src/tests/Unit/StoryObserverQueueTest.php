@@ -27,7 +27,7 @@ class StoryObserverQueueTest extends TestCase
                 return $job->class === 'App\Observers\StoryObserver' &&
                        $job->method === 'created' &&
                        isset($job->data[0]) && $job->data[0]->is($story);
-            }
+            },
         );
     }
 
@@ -50,7 +50,7 @@ class StoryObserverQueueTest extends TestCase
                 return $job->class === 'App\Observers\StoryObserver' &&
                        $job->method === 'deleted' &&
                        isset($job->data[0]) && $job->data[0]->is($story);
-            }
+            },
         );
     }
 }

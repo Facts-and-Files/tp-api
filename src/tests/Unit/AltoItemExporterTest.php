@@ -25,7 +25,7 @@ class AltoItemExporterTest extends TestCase
         Storage::fake('export_cache');
 
         $this->service = new AltoItemExporter(
-            new FileExportCache
+            new FileExportCache(),
         );
 
         $this->converter = new HtmlToAltoConverter();

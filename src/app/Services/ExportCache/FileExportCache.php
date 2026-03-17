@@ -52,7 +52,7 @@ class FileExportCache implements ExportCacheInterface
                 'GeneratedAt' => now(),
                 'SourceUpdatedAt' => $this->getLatestSourceUpdateTimestamp($item),
                 'FilePath' => $filePath,
-            ]
+            ],
         );
     }
 
