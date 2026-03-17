@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Item;
 use Solarium\Client;
 use Solarium\Core\Client\Adapter\Curl;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use App\Models\Story;
+use App\Observers\ItemObserver;
 use App\Observers\StoryObserver;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
@@ -39,6 +41,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Story::observe(StoryObserver::class);
+
+        Item::observe(ItemObserver::class);
 
         if ($this->app->environment('local')) {
             Model::preventLazyLoading();
