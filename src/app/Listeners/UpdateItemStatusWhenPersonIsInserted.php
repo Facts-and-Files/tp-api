@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use App\Enums\CompletionStatus;
 use App\Events\PersonInserted;
 use App\Models\Item;
 
@@ -11,17 +12,12 @@ class UpdateItemStatusWhenPersonIsInserted
     {
         $item = Item::find($event->itemId);
 
-        if ($item->CompletionStatusId === 1) {
-            $item->CompletionStatusId = 2;
-
-            // because of the current MySQL trigger we also need to set the
-            // TranscriptionStatusId otherwise it will reset the CompletionStatusId
-            // can/should be removed when removing or changing the MySQL trigger
-            $item->TranscriptionStatusId = 2;
+        if ($item->CompletionStatusId === CompletionStatus::NotStarted) {
+            $item->CompletionStatusId = CompletionStatus::Edit;
         }
 
-        if ($item->TaggingStatusId === 1) {
-            $item->TaggingStatusId = 2;
+        if ($item->TaggingStatusId === CompletionStatus::NotStarted) {
+            $item->TaggingStatusId = CompletionStatus::Edit;
         }
 
         $item->save();
