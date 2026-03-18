@@ -55,7 +55,7 @@ class PageXmlToAltoConverter extends AbstractAltoConverter
             $remoteRoot->setAttribute($attr->nodeName, $attr->nodeValue);
         }
 
-        // --- Description: MeasurementUnit + sourceImageInformation ---
+        // Description: MeasurementUnit + sourceImageInformation
         $baseDescription = $this->findFirstChildByLocalName($baseRoot, 'Description');
         $remoteDescription = $this->findFirstChildByLocalName($remoteRoot, 'Description');
 
@@ -84,7 +84,7 @@ class PageXmlToAltoConverter extends AbstractAltoConverter
             }
         }
 
-        // --- Page + PrintSpace attributes from base ---
+        // Page + PrintSpace attributes from base
         $baseLayout = $this->findFirstChildByLocalName($baseRoot, 'Layout');
         $remoteLayout = $this->findFirstChildByLocalName($remoteRoot, 'Layout');
 
