@@ -3,6 +3,7 @@
 namespace App\Services\Export;
 
 use App\Models\Story;
+use App\Services\Converter\CsvConverter;
 use App\Traits\BuildExportFilename;
 use Illuminate\Support\Arr;
 use League\Csv\Writer;
@@ -12,7 +13,7 @@ class CsvStoryExporter implements StoryExporterInterface
 {
     use BuildExportFilename;
 
-    public function __construct(private CsvTransformer $csvTransformer) {}
+    public function __construct(private CsvConverter $csvConverter) {}
 
     public function export(Story $story): ZipStream
     {
@@ -40,19 +41,19 @@ class CsvStoryExporter implements StoryExporterInterface
 
     private function formatStoryAsCsv(Story $story): string
     {
-        $storyData = $this->csvTransformer->transformStory($story, []);
+        $storyData = $this->csvConverter->convertStory($story, []);
         return $this->buildCsvFromSingleRecord($storyData);
     }
 
     private function formatStoryItemsAsCsv(Story $story): string
     {
-        $storyItemsData = $this->csvTransformer->transformItems($story->ItemIds);
+        $storyItemsData = $this->csvConverter->convertItems($story->ItemIds);
         return $this->buildCsvFromMultipleRecords($storyItemsData['Items']);
     }
 
     private function formatItemPropertiesAsCsv(Story $story): string
     {
-        $properties = $this->csvTransformer->transformItemProperties($story->ItemIds);
+        $properties = $this->csvConverter->convertItemProperties($story->ItemIds);
 
         if (empty($properties)) {
             return '';

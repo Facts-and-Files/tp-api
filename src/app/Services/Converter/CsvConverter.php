@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Export;
+namespace App\Services\Converter;
 
 use App\Models\Item;
 use App\Models\Story;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-class YamlTransformer implements TransformerInterface
+class CsvConverter implements ConverterInterface
 {
     private array $storyHiddenElements = [
         'placeZoom',
@@ -46,23 +46,10 @@ class YamlTransformer implements TransformerInterface
         'DateStartDisplay',
         'DateEndDisplay',
         'DateRole',
+        'Properties',
     ];
 
-    private array $propertyHiddenElements = [
-        'PropertyId',
-        'PropertyTypeId',
-        'PropertyTypeName',
-        'Value',
-    ];
-
-    private array $transcriptionHiddenElements = [
-        'UserId',
-        'Text',
-        'NoText',
-        'CurrentVersion',
-    ];
-
-    public function transformStory(Story $story, array $exclude = []): array
+    public function convertStory(Story $story, array $exclude = []): array
     {
         $completionStatus = $story->CompletionStatus->Name;
 
@@ -77,68 +64,72 @@ class YamlTransformer implements TransformerInterface
         return $data;
     }
 
-    public function transformItems(Collection $itemIds, array $exclude = []): array
+    public function convertItems(Collection $itemIds, array $exclude = []): array
     {
         $items = [];
         $itemsCollection = Item::whereIn('ItemId', $itemIds)->orderBy('OrderIndex')->get();
 
         foreach ($itemsCollection as $itemCollection) {
-            $items['Items'][] = $this->transformItem($itemCollection, $exclude);
+            $items['Items'][] = $this->convertItem($itemCollection, $exclude);
         }
 
         return $items;
     }
 
-    private function transformItem(Item $item, array $exclude = []): array
+    public function convertItemProperties(Collection $itemIds): array
+    {
+        $properties = [];
+        $itemsCollection = Item::whereIn('ItemId', $itemIds)->orderBy('OrderIndex')->get();
+
+        foreach ($itemsCollection as $item) {
+            foreach ($item->Properties as $property) {
+                $properties[] = [
+                    'ItemId' => $item->ItemId,
+                    'Type' => $property['PropertyTypeName'],
+                    'Name' => $property['Value'],
+                    'Description' => $property['Description'] ?? '',
+                ];
+            }
+        }
+
+        return $properties;
+    }
+
+    private function convertItem(Item $item, array $exclude = []): array
     {
         $itemArray = $item->makeHidden([...$this->itemHiddenElements, ...$exclude])->toArray();
 
         $itemArray['CompletionStatus'] = $itemArray['CompletionStatus']['Name'];
         $itemArray['ImageLink'] = $this->extractImageLink($itemArray['ImageLink']);
 
-        $itemArray['Description'] = [
-            'Text' => $itemArray['Description'],
-            'Language' => $this->transformLanguage(collect([$itemArray['DescriptionLang']])),
-        ];
-
-        $itemArray['Transcription'] = $this->transformTranscription(
-            collect($itemArray['Transcription']),
+        $itemArray['Description.Text'] = $itemArray['Description'];
+        $itemArray['Description.Language'] = $this->convertLanguage(
+            collect([$itemArray['DescriptionLang']]),
         );
 
-        $itemArray['Properties'] = $this->transformProperties(
-            collect($itemArray['Properties']),
+        $transcription = collect($itemArray['Transcription']);
+        $itemArray['Transcription.Language'] = $this->convertLanguage(
+            collect($transcription['Language'] ?? []),
         );
 
-        Arr::forget($itemArray, ['DescriptionLang']);
+        foreach ($transcription as $key => $value) {
+            if (!in_array($key, ['UserId', 'Text', 'NoText', 'CurrentVersion', 'Language'])) {
+                $itemArray["Transcription.{$key}"] = $value;
+            }
+        }
+
+        Arr::forget($itemArray, [
+            'Description',
+            'DescriptionLang',
+            'Transcription',
+        ]);
 
         return $itemArray;
     }
 
-    private function transformProperties(Collection $properties): array
+    private function convertLanguage(Collection $languages): string
     {
-        return $properties
-            ->map(function (array $property) {
-                $property['Name'] = $property['Value'];
-                $property['Type'] = $property['PropertyTypeName'];
-                Arr::forget($property, $this->propertyHiddenElements);
-                return $property;
-            })
-            ->toArray();
-    }
-
-    private function transformLanguage(Collection $languages): array
-    {
-        return $languages->pluck('NameEnglish')->toArray();
-    }
-
-    private function transformTranscription(Collection $transcription): array
-    {
-        $transcription->forget($this->transcriptionHiddenElements);
-        $transcription['Language'] = $this->transformLanguage(
-            collect($transcription['Language']),
-        );
-
-        return $transcription->toArray();
+        return implode(', ', $languages->pluck('NameEnglish')->toArray());
     }
 
     private function extractImageLink(string $imageDataCollection): string
