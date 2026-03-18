@@ -7,7 +7,8 @@ use Illuminate\Queue\SerializesModels;
 
 class StoryInserted
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable;
+    use SerializesModels;
 
     public $storyId;
     public $datasetId;

@@ -7,7 +7,8 @@ use Illuminate\Queue\SerializesModels;
 
 class PlaceInserted
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable;
+    use SerializesModels;
 
     public $itemId;
 
