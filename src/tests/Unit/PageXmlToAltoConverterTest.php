@@ -15,7 +15,7 @@ class PageXmlToAltoConverterTest extends TestCase
     private string $endpoint = 'https://page2alto.example.com/convert';
     private string $apiKey   = 'test-api-key';
 
-   private function makeConverter(): PageXmlToAltoConverter
+    private function makeConverter(): PageXmlToAltoConverter
     {
         return new PageXmlToAltoConverter(
             page2AltoApiClient: new Page2AltoApiClient(
