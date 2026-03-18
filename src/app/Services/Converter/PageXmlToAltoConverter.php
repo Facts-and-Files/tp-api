@@ -52,7 +52,7 @@ class PageXmlToAltoConverter extends AbstractAltoConverter
         }
 
         $this->mergeRootAttributes($baseRoot, $remoteRoot);
-        $this->mergeDescription($baseDom, $remoteDom, $baseRoot, $remoteRoot);
+        $this->mergeDescription($remoteDom, $baseRoot, $remoteRoot);
         $this->mergeLayoutAttributes($baseRoot, $remoteRoot);
     }
 
@@ -64,7 +64,6 @@ class PageXmlToAltoConverter extends AbstractAltoConverter
     }
 
     private function mergeDescription(
-        DOMDocument $baseDom,
         DOMDocument $remoteDom,
         DOMElement $baseRoot,
         DOMElement $remoteRoot,
