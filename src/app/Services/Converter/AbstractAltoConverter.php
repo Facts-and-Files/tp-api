@@ -28,16 +28,16 @@ abstract class AbstractAltoConverter implements AltoConverterInterface
 
         $description = $dom->createElement('Description');
         $measurementUnit = $dom->createElement('MeasurementUnit');
-        $measurementUnit->nodeValue = $this->measurementUnit;
+        $measurementUnit->appendChild($dom->createTextNode($this->measurementUnit));
         $description->appendChild($measurementUnit);
 
         $sourceImageInformation = $dom->createElement('sourceImageInformation');
         $fileName = $dom->createElement('fileName');
-        $fileName->nodeValue = $pageData->fileName;
+        $fileName->appendChild($dom->createTextNode($pageData->fileName));
         $sourceImageInformation->appendChild($fileName);
 
         $fileIdentifier = $dom->createElement('fileIdentifier');
-        $fileIdentifier->nodeValue = $pageData->fileIdentifier;
+        $fileIdentifier->appendChild($dom->createTextNode($pageData->fileIdentifier));
         $sourceImageInformation->appendChild($fileIdentifier);
         $description->appendChild($sourceImageInformation);
 
