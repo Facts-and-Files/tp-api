@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use App\Services\Page2AltoApiClient;
 use App\Services\Converter\PageXmlToAltoConverter;
 use App\Services\Converter\DTO\AltoPageData;
 use Illuminate\Http\Client\RequestException;
@@ -12,6 +13,17 @@ use DOMDocument;
 class PageXmlToAltoConverterTest extends TestCase
 {
     private string $endpoint = 'https://page2alto.example.com/convert';
+    private string $apiKey   = 'test-api-key';
+
+   private function makeConverter(): PageXmlToAltoConverter
+    {
+        return new PageXmlToAltoConverter(
+            page2AltoApiClient: new Page2AltoApiClient(
+                apiKey: $this->apiKey,
+                endpoint: $this->endpoint,
+            ),
+        );
+    }
 
     public function test_posts_page_xml_and_returns_alto_dom(): void
     {
@@ -29,7 +41,7 @@ class PageXmlToAltoConverterTest extends TestCase
             ),
         ]);
 
-        $converter = new PageXmlToAltoConverter($this->endpoint);
+        $converter = $this->makeConverter();
 
         $pageData = new AltoPageData(
             id: 1,
@@ -92,7 +104,7 @@ class PageXmlToAltoConverterTest extends TestCase
             height: 500,
         );
 
-        $converter = new PageXmlToAltoConverter($this->endpoint, 'token');
+        $converter = $this->makeConverter();
         $dom = $converter->convert('<PcGts><Page/></PcGts>', $pageData);
 
         $xml = simplexml_load_string($dom->saveXML());
@@ -118,7 +130,7 @@ class PageXmlToAltoConverterTest extends TestCase
             $this->endpoint => Http::response('Error', 500),
         ]);
 
-        $converter = new PageXmlToAltoConverter($this->endpoint);
+        $converter = $this->makeConverter();
 
         $pageData = new AltoPageData(
             id: 1,
@@ -140,7 +152,7 @@ class PageXmlToAltoConverterTest extends TestCase
             $this->endpoint => Http::response('not-xml-at-all', 200),
         ]);
 
-        $converter = new PageXmlToAltoConverter($this->endpoint);
+        $converter = $this->makeConverter();
 
         $pageData = new AltoPageData(
             id: 1,

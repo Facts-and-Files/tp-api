@@ -3,7 +3,7 @@
 namespace App\Services\Converter;
 
 use App\Services\Converter\DTO\AltoPageData;
-use Illuminate\Support\Facades\Http;
+use App\Services\Page2AltoApiClient;
 use DOMDocument;
 use DOMElement;
 use RuntimeException;
@@ -11,23 +11,12 @@ use RuntimeException;
 class PageXmlToAltoConverter extends AbstractAltoConverter
 {
     public function __construct(
-        private readonly string $endpoint,
-        private readonly ?string $apiKey = null,
+        private readonly Page2AltoApiClient $page2AltoApiClient,
     ) {}
 
     public function convert(string $pageXml, AltoPageData $pageData): DOMDocument
     {
-        $response = Http::withHeaders([
-            'Accept' => 'application/xml',
-            'Content-Type' => 'application/xml',
-            'Authorization' => "Bearer {$this->apiKey}",
-        ])
-        ->withBody($pageXml, 'application/xml')
-        ->post($this->endpoint);
-
-        $response->throw();
-
-        $altoXml = $response->body();
+        $altoXml = $this->page2AltoApiClient->convert($pageXml);
 
         $remoteDom = new DOMDocument('1.0', 'UTF-8');
         if (!@$remoteDom->loadXML($altoXml)) {
