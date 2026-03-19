@@ -36,7 +36,7 @@ class StoryItemExportController extends ResponseController
             );
 
             return response()->streamDownload(
-                function () use ($story, $format, $extension) {
+                function () use ($story, $extension) {
                     $this->storyExportManager->exportZip($story, $extension);
                 },
                 $filename,
