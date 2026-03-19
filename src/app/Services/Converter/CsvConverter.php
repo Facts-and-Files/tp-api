@@ -28,17 +28,16 @@ class CsvConverter extends AbstractDataConverter
         'Properties',
     ];
 
-    public function convertItemProperties(Collection $itemIds): array
+    public function convertItemProperties(Collection $items): array
     {
         $properties = [];
-        $itemsCollection = Item::whereIn('ItemId', $itemIds)->orderBy('OrderIndex')->get();
 
-        foreach ($itemsCollection as $item) {
+        foreach ($items as $item) {
             foreach ($item->Properties as $property) {
                 $properties[] = [
-                    'ItemId'      => $item->ItemId,
-                    'Type'        => $property['PropertyTypeName'],
-                    'Name'        => $property['Value'],
+                    'ItemId' => $item->ItemId,
+                    'Type' => $property['PropertyTypeName'],
+                    'Name' => $property['Value'],
                     'Description' => $property['Description'] ?? '',
                 ];
             }
@@ -51,10 +50,10 @@ class CsvConverter extends AbstractDataConverter
     {
         $itemArray = $item->makeHidden([...$this->itemHiddenElements, ...$exclude])->toArray();
 
-        $itemArray['CompletionStatus']      = $itemArray['CompletionStatus']['Name'];
-        $itemArray['ImageLink']             = $this->extractIiifImageLink($itemArray['ImageLink']);
-        $itemArray['Description.Text']      = $itemArray['Description'];
-        $itemArray['Description.Language']  = $this->convertLanguage(collect([$itemArray['DescriptionLang']]));
+        $itemArray['CompletionStatus'] = $itemArray['CompletionStatus']['Name'];
+        $itemArray['ImageLink'] = $this->extractIiifImageLink($itemArray['ImageLink']);
+        $itemArray['Description.Text'] = $itemArray['Description'];
+        $itemArray['Description.Language'] = $this->convertLanguage(collect([$itemArray['DescriptionLang']]));
 
         $transcription = collect($itemArray['Transcription']);
         $itemArray['Transcription.Language'] = $this->convertLanguage(collect($transcription['Language'] ?? []));

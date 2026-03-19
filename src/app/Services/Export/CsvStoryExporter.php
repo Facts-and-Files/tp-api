@@ -2,6 +2,7 @@
 
 namespace App\Services\Export;
 
+use App\Models\Item;
 use App\Models\Story;
 use App\Services\Converter\CsvConverter;
 use App\Traits\BuildExportFilename;
@@ -47,13 +48,16 @@ class CsvStoryExporter implements StoryExporterInterface
 
     private function formatStoryItemsAsCsv(Story $story): string
     {
-        $storyItemsData = $this->csvConverter->convertItems($story->ItemIds);
+        $items = Item::whereIn('ItemId', $story->ItemIds)->orderBy('OrderIndex')->get();
+        $storyItemsData = $this->csvConverter->convertItems($items);
         return $this->buildCsvFromMultipleRecords($storyItemsData['Items']);
     }
 
     private function formatItemPropertiesAsCsv(Story $story): string
     {
-        $properties = $this->csvConverter->convertItemProperties($story->ItemIds);
+        $items = Item::whereIn('ItemId', $story->ItemIds)->orderBy('OrderIndex')->get();
+
+        $properties = $this->csvConverter->convertItemProperties($items);
 
         if (empty($properties)) {
             return '';

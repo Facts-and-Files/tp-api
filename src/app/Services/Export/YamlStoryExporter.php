@@ -2,6 +2,7 @@
 
 namespace App\Services\Export;
 
+use App\Models\Item;
 use App\Models\Story;
 use App\Services\Converter\YamlConverter;
 use App\Traits\BuildExportFilename;
@@ -17,10 +18,13 @@ class YamlStoryExporter implements StoryExporterInterface
 
     public function export(Story $story): string
     {
+        $items = Item::whereIn('ItemId', $story->ItemIds)->orderBy('OrderIndex')->get();
+
         $data = [
             ...$this->yamlConverter->convertStory($story, ['ItemIds']),
-            ...$this->yamlConverter->convertItems($story->ItemIds),
+            ...$this->yamlConverter->convertItems($items),
         ];
+
         $yaml = Yaml::dump(
             $data,
             5,

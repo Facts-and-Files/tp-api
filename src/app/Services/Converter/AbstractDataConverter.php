@@ -47,16 +47,15 @@ abstract class AbstractDataConverter implements ConverterInterface
         return $data;
     }
 
-    public function convertItems(Collection $itemIds, array $exclude = []): array
+    public function convertItems(Collection $items, array $exclude = []): array
     {
-        $items = [];
-        $itemsCollection = Item::whereIn('ItemId', $itemIds)->orderBy('OrderIndex')->get();
+        $result = [];
 
-        foreach ($itemsCollection as $item) {
-            $items['Items'][] = $this->convertItem($item, $exclude);
+        foreach ($items as $item) {
+            $result['Items'][] = $this->convertItem($item, $exclude);
         }
 
-        return $items;
+        return $result;
     }
 
     abstract protected function convertItem(Item $item, array $exclude = []): array;
