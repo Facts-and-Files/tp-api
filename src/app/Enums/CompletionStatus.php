@@ -11,7 +11,7 @@ enum CompletionStatus: int
 
     public function label(): string
     {
-        return match($this) {
+        return match ($this) {
             self::NotStarted => 'Not Started',
             self::Edit => 'Edit',
             self::Review => 'Revi1ew',

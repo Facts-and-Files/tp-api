@@ -5,6 +5,7 @@ namespace App\Services\Export;
 use App\Models\Item;
 use App\Services\Converter\HtmlToAltoConverter;
 use App\Services\Converter\PageXmlToAltoConverter;
+use App\Services\Page2AltoApiClient;
 use Illuminate\Validation\ValidationException;
 
 class ItemExportManager
@@ -30,9 +31,13 @@ class ItemExportManager
             return $this->altoItemExporter->exportWithConverter($item, $this->htmlConverter);
         }
 
-        $pageConverter = new PageXmlToAltoConverter(
+        $page2AltoApiClient = new Page2AltoApiClient(
             endpoint: config('apis.page2alto.api_url'),
             apiKey: config('apis.page2alto.api_token'),
+        );
+
+        $pageConverter = new PageXmlToAltoConverter(
+            page2AltoApiClient: $page2AltoApiClient,
         );
 
         return $this->altoItemExporter->exportWithConverter($item, $pageConverter);

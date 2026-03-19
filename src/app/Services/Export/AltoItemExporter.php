@@ -6,10 +6,13 @@ use App\Models\Item;
 use App\Services\Converter\AltoConverterInterface;
 use App\Services\Converter\DTO\AltoPageData;
 use App\Services\ExportCache\FileExportCache;
+use App\Traits\ExtractIiifImageLink;
 use DOMDocument;
 
 class AltoItemExporter
 {
+    use ExtractIiifImageLink;
+
     private const EXPORT_FORMAT = 'alto';
 
     public function __construct(
@@ -36,7 +39,7 @@ class AltoItemExporter
 
         $pageData = new AltoPageData(
             id: $item->ItemId,
-            fileIdentifier: $this->extractIiifImageLink($iiifImageInfo),
+            fileIdentifier: $this->extractIiifImageLinkFromArray($iiifImageInfo),
             fileName: $iiifImageInfo['service']['@id'] ?? '',
             order: $item->OrderIndex,
             width: $iiifImageInfo['width'] ?? 0,
@@ -46,14 +49,5 @@ class AltoItemExporter
         $dataToConvert = $item->Transcription['Text'] ?? '';
 
         return $converter->convert($dataToConvert, $pageData);
-    }
-
-    private function extractIiifImageLink(array $imageData): string
-    {
-        $link = $imageData['@id'] ?? '';
-
-        return ($link !== '' && !str_starts_with($link, 'http'))
-            ? "https://{$link}"
-            : $link;
     }
 }

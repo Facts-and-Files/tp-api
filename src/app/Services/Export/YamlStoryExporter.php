@@ -2,7 +2,9 @@
 
 namespace App\Services\Export;
 
+use App\Models\Item;
 use App\Models\Story;
+use App\Services\Converter\YamlConverter;
 use App\Traits\BuildExportFilename;
 use Symfony\Component\Yaml\Yaml;
 
@@ -11,15 +13,18 @@ class YamlStoryExporter implements StoryExporterInterface
     use BuildExportFilename;
 
     public function __construct(
-        private YamlTransformer $yamlTransformer,
+        private YamlConverter $yamlConverter,
     ) {}
 
     public function export(Story $story): string
     {
+        $items = Item::whereIn('ItemId', $story->ItemIds)->orderBy('OrderIndex')->get();
+
         $data = [
-            ...$this->yamlTransformer->transformStory($story, ['ItemIds']),
-            ...$this->yamlTransformer->transformItems($story->ItemIds),
+            ...$this->yamlConverter->convertStory($story, ['ItemIds']),
+            ...$this->yamlConverter->convertItems($items),
         ];
+
         $yaml = Yaml::dump(
             $data,
             5,

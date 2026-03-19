@@ -21,7 +21,9 @@ class HtmlToAltoConverter extends AbstractAltoConverter
         $printSpace = $alto->getElementsByTagName('PrintSpace')->item(0);
 
         $dom = new DOMDocument();
-        @$dom->loadHTML('<?xml encoding="UTF-8">' . $html);
+        libxml_use_internal_errors(true);
+        $dom->loadHTML('<?xml encoding="UTF-8">' . $html);
+        libxml_clear_errors();
         $body = $dom->getElementsByTagName('body')->item(0);
 
         if ($body) {
