@@ -84,7 +84,7 @@ class StoryExportTest extends TestCase
         $parsedYaml = Yaml::parse($content);
 
         $this->assertEquals(3, $parsedYaml['Items'][0]['ItemId']);
-        /* $this->assertEquals('German', $parsedYaml['Items'][0]['DescriptionLanguage']); */
+        $this->assertEquals('German', $parsedYaml['Items'][0]['Description']['Language'][0]);
     }
 
     public function test_export_story_to_yaml_returns_correct_item_description_data(): void
