@@ -17,8 +17,9 @@ get:
       schema:
         type: string
         enum:
-          - yml
           - csv
+          - mets
+          - yml
       required: true
   responses:
     200:
