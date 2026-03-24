@@ -16,7 +16,7 @@ class StoryItemExportController extends ResponseController
 
     public function export(int $id, string $format): StreamedResponse|JsonResponse
     {
-        $story = Story::findOrFail($id);
+        $story = Story::findOrFail($id)->makeHidden('project')->append('ProjectName');
 
         $config = config("exports.formats.{$format}");
 
