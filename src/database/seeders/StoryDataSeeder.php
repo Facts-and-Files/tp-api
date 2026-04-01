@@ -10,7 +10,7 @@ class StoryDataSeeder extends Seeder
     public static $data = [
         [
             'StoryId' => 1,
-            'Manifest' => 'http://example.com/manifest1.json',
+            'Manifest' => '',
             'ExternalRecordId' => '',
             'PlaceName' => 'TestPlaceName',
             'PlaceLatitude' => 0.01,
