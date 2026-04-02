@@ -4,8 +4,12 @@ namespace App\Traits;
 
 trait ExtractIiifImageLink
 {
-    protected function extractIiifImageLink(array|string $iiifImageData): string
+    protected function extractIiifImageLink(mixed $iiifImageData): string
     {
+        if (!$iiifImageData) {
+            return '';
+        }
+
         $imageData = is_array($iiifImageData)
             ? $iiifImageData
             : json_decode(str_replace('\"', '"', $iiifImageData), true);
