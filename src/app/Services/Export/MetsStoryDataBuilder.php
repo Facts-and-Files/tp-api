@@ -7,6 +7,7 @@ use App\Models\Story;
 use App\Services\Converter\DTO\MetsStoryData;
 use App\Services\Converter\DTO\MetsItemData;
 use App\Traits\ExtractIiifImageLink;
+use App\Exceptions\AltoNotPreparedException;
 
 class MetsStoryDataBuilder
 {
@@ -23,8 +24,14 @@ class MetsStoryDataBuilder
         $manifest = $story->Manifest ?: $items->first()?->Manifest;
         $previewImage = $this->extractIiifImageLink($story->PreviewImage);
 
-        $itemData = $items->map(function (Item $item) {
-            $altoXml  = $this->itemExportManager->export($item, 'alto');
+        $itemData = $items->map(function (Item $item) use ($story) {
+            /* $altoXml  = $this->itemExportManager->export($item, 'alto'); */
+            $altoXml = $this->itemExportManager->getCachedAlto($item);
+
+            if ($altoXml === null) {
+                throw new AltoNotPreparedException($story->StoryId);
+            }
+
             $imageLink = $this->extractIiifImageLink($item->ImageLink);
 
             return new MetsItemData(
