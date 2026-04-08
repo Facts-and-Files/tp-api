@@ -2,9 +2,6 @@
 
 namespace Tests\Feature;
 
-use ZipArchive;
-use Symfony\Component\Yaml\Yaml;
-use League\Csv\Reader;
 use Illuminate\Support\Facades\Artisan;
 use Database\Seeders\LanguageDataSeeder;
 use Database\Seeders\StoryDataSeeder;
@@ -24,7 +21,7 @@ class StoryExportTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => LanguageDataSeeder::class]);
