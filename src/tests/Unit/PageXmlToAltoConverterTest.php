@@ -30,7 +30,7 @@ class PageXmlToAltoConverterTest extends TestCase
     {
         Http::fake([
             $this->endpoint => Http::response(
-                <<<'XML'
+                <<<XML
                 <alto xmlStringlns="http://www.loc.gov/standards/alto/ns-v4#">
                   <Layout>
                     <Page ID="p1" WIDTH="1000" HEIGHT="500" />
@@ -75,7 +75,7 @@ class PageXmlToAltoConverterTest extends TestCase
         Http::fake([
             $this->endpoint => Http::response(
                 // ALTO with remote metadata that should be overridden
-                <<<'XML'
+                <<<XML
                 <alto xmlns="http://www.loc.gov/standards/alto/ns-v4#">
                   <Description>
                     <MeasurementUnit>mm10</MeasurementUnit>
