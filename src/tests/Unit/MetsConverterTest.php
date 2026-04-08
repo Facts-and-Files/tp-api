@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
-use App\Services\Converter\MetsConverter;
 use App\Services\Converter\DTO\MetsItemData;
 use App\Services\Converter\DTO\MetsStoryData;
+use App\Services\Converter\MetsConverter;
 use DateTimeImmutable;
 use DateTimeZone;
 use DOMDocument;
@@ -14,6 +14,7 @@ use Tests\TestCase;
 class MetsConverterTest extends TestCase
 {
     private MetsConverter $converter;
+
     private MetsStoryData $storyData;
 
     protected function setUp(): void
@@ -203,7 +204,7 @@ class MetsConverterTest extends TestCase
 
     public function test_md_sec_skips_empty_edm_fields(): void
     {
-        $data  = $this->storyDataFixture()->with(['edm' => array_merge($this->storyDataFixture()->edm, ['Country' => ''])]);
+        $data = $this->storyDataFixture()->with(['edm' => array_merge($this->storyDataFixture()->edm, ['Country' => ''])]);
         $xpath = $this->buildXPath($this->converter->convert($data)->saveXML());
 
         $this->assertSame('', $xpath->evaluate('string(//mets:xmlData/edm:country)'));
@@ -305,7 +306,7 @@ class MetsConverterTest extends TestCase
 
     public function test_file_sec_is_absent_when_no_preview_and_no_items(): void
     {
-        $data  = $this->storyDataFixture()->with(['previewImage' => null, 'items' => []]);
+        $data = $this->storyDataFixture()->with(['previewImage' => null, 'items' => []]);
         $xpath = $this->buildXPath($this->converter->convert($data)->saveXML());
 
         $this->assertSame(0, $xpath->query('//mets:fileSec')->length);
@@ -320,7 +321,7 @@ class MetsConverterTest extends TestCase
         $this->assertStringContainsString('ND-0001.tif/full/full/0/default.jpg', $locref);
     }
 
-    public function test_file_sec_preview_image_fileGrp_has_use_access(): void
+    public function test_file_sec_preview_image_file_grp_has_use_access(): void
     {
         $xpath = $this->buildXPath($this->converter->convert($this->storyData)->saveXML());
 
@@ -338,7 +339,7 @@ class MetsConverterTest extends TestCase
         $this->assertSame('https://example.org/iiif/page1/full/full/0/default.jpg', $locref);
     }
 
-    public function test_file_sec_item_images_fileGrp_has_use_access(): void
+    public function test_file_sec_item_images_file_grp_has_use_access(): void
     {
         $xpath = $this->buildXPath($this->converter->convert($this->storyData)->saveXML());
 
@@ -356,7 +357,7 @@ class MetsConverterTest extends TestCase
         );
     }
 
-    public function test_file_sec_alto_fileGrp_has_use_alto(): void
+    public function test_file_sec_alto_file_grp_has_use_alto(): void
     {
         $xpath = $this->buildXPath($this->converter->convert($this->storyData)->saveXML());
 
@@ -407,7 +408,7 @@ class MetsConverterTest extends TestCase
     public function test_struct_map_story_div_has_mdid_references(): void
     {
         $xpath = $this->buildXPath($this->converter->convert($this->storyData)->saveXML());
-        $mdid  = $xpath->evaluate('string(//mets:structMap/mets:div/@MDID)');
+        $mdid = $xpath->evaluate('string(//mets:structMap/mets:div/@MDID)');
 
         $this->assertStringContainsString('MD_DC', $mdid);
         $this->assertStringContainsString('MD_IIIF_MANIFEST', $mdid);
@@ -447,7 +448,7 @@ class MetsConverterTest extends TestCase
         $this->assertSame('ALTO_253', $xpath->evaluate('string(//mets:structMap/mets:div/mets:div[1]/mets:fptr[2]/@FILEID)'));
     }
 
-    public function test_struct_map_fptr_fileids_match_fileSec_ids(): void
+    public function test_struct_map_fptr_fileids_match_file_sec_ids(): void
     {
         $dom = $this->converter->convert($this->storyData);
         $xml = $dom->saveXML();
@@ -463,7 +464,7 @@ class MetsConverterTest extends TestCase
 
     public function test_struct_map_no_item_divs_when_items_empty(): void
     {
-        $data  = $this->storyDataFixture()->with(['items' => []]);
+        $data = $this->storyDataFixture()->with(['items' => []]);
         $xpath = $this->buildXPath($this->converter->convert($data)->saveXML());
 
         $this->assertSame(0, $xpath->query('//mets:structMap/mets:div/mets:div[@TYPE="item"]')->length);
@@ -496,31 +497,31 @@ class MetsConverterTest extends TestCase
             timestamp: '2022-02-23 09:57:03',
             lastUpdated: '2022-02-23 09:57:03',
             dc: [
-                'Title'       => 'Neues Deutschland - Ausgaben zwischen dem 27.10. und 30.11.1989',
+                'Title' => 'Neues Deutschland - Ausgaben zwischen dem 27.10. und 30.11.1989',
                 'Description' => 'Europeana 1989 - Berlin, 12-13.09.2014',
-                'Creator'     => 'Jack Bates',
-                'Source'      => 'Universitätsbibliothek Heidelberg',
-                'Rights'      => 'Public Domain',
-                'Language'    => 'Latin',
+                'Creator' => 'Jack Bates',
+                'Source' => 'Universitätsbibliothek Heidelberg',
+                'Rights' => 'Public Domain',
+                'Language' => 'Latin',
             ],
             dcterms: [
-                'Medium'     => 'Parchment',
-                'Created'    => '2014-11-10T12:05:42.172Z',
+                'Medium' => 'Parchment',
+                'Created' => '2014-11-10T12:05:42.172Z',
                 'Provenance' => 'CHA01',
             ],
             edm: [
-                'LandingPage'  => 'https://www.europeana.eu/portal/record/135/_nnVvTts.html',
-                'Country'      => 'Germany',
+                'LandingPage' => 'https://www.europeana.eu/portal/record/135/_nnVvTts.html',
+                'Country' => 'Germany',
                 'DataProvider' => 'Universitätsbibliothek Heidelberg',
-                'Provider'     => 'Universitätsbibliothek Heidelberg',
-                'Rights'       => 'http://creativecommons.org/licenses/by-sa/3.0/de',
-                'Year'         => '1916',
-                'DatasetName'  => '07931_L_DE_UniLibHeidelberg_druckschriften_IIIF',
-                'Begin'        => 'Thu Jan 01 00:19:32 CET 1903',
-                'End'          => 'Thu Dec 31 00:19:32 CET 1903',
-                'IsShownAt'    => 'http://digi.ub.uni-heidelberg.de/diglit/matrikelregister2',
-                'Language'     => 'de',
-                'Agent'        => 'Zvonimir Stipanović',
+                'Provider' => 'Universitätsbibliothek Heidelberg',
+                'Rights' => 'http://creativecommons.org/licenses/by-sa/3.0/de',
+                'Year' => '1916',
+                'DatasetName' => '07931_L_DE_UniLibHeidelberg_druckschriften_IIIF',
+                'Begin' => 'Thu Jan 01 00:19:32 CET 1903',
+                'End' => 'Thu Dec 31 00:19:32 CET 1903',
+                'IsShownAt' => 'http://digi.ub.uni-heidelberg.de/diglit/matrikelregister2',
+                'Language' => 'de',
+                'Agent' => 'Zvonimir Stipanović',
             ],
             items: [
                 $this->itemDataFixture('253', 1),

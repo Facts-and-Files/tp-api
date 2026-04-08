@@ -2,18 +2,19 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\Page2AltoApiClient;
-use App\Services\Converter\PageXmlToAltoConverter;
 use App\Services\Converter\DTO\AltoPageData;
+use App\Services\Converter\PageXmlToAltoConverter;
+use App\Services\Page2AltoApiClient;
+use DOMDocument;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
-use DOMDocument;
+use Tests\TestCase;
 
 class PageXmlToAltoConverterTest extends TestCase
 {
     private string $endpoint = 'https://page2alto.example.com/convert';
-    private string $apiKey   = 'test-api-key';
+
+    private string $apiKey = 'test-api-key';
 
     private function makeConverter(): PageXmlToAltoConverter
     {
@@ -29,8 +30,8 @@ class PageXmlToAltoConverterTest extends TestCase
     {
         Http::fake([
             $this->endpoint => Http::response(
-                <<<XML
-                <alto xmlns="http://www.loc.gov/standards/alto/ns-v4#">
+                <<<'XML'
+                <alto xmlStringlns="http://www.loc.gov/standards/alto/ns-v4#">
                   <Layout>
                     <Page ID="p1" WIDTH="1000" HEIGHT="500" />
                   </Layout>
@@ -74,7 +75,7 @@ class PageXmlToAltoConverterTest extends TestCase
         Http::fake([
             $this->endpoint => Http::response(
                 // ALTO with remote metadata that should be overridden
-                <<<XML
+                <<<'XML'
                 <alto xmlns="http://www.loc.gov/standards/alto/ns-v4#">
                   <Description>
                     <MeasurementUnit>mm10</MeasurementUnit>
