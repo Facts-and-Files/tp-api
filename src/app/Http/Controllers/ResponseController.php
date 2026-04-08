@@ -26,15 +26,18 @@ class ResponseController extends Controller
         return response()->json($response, 200);
     }
 
-    public static function sendResponse(JsonResource $result, string $message): JsonResponse
-    {
+    public static function sendResponse(
+        JsonResource|array $result,
+        string $message,
+        int $status = 200,
+    ): JsonResponse {
         $response = [
             'success' => true,
             'data'    => $result,
             'message' => $message
         ];
 
-        return response()->json($response, 200);
+        return response()->json($response, $status);
     }
 
     public static function sendPartlyResponse(
