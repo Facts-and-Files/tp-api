@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Export;
 
+use App\Services\ExportCache\FileExportCache;
+use App\Models\CacheExport;
+use App\Models\Item;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\ItemPropertyDataSeeder;
 use Database\Seeders\LanguageDataSeeder;
@@ -12,14 +15,15 @@ use Database\Seeders\StoryDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
 use Database\Seeders\TranscriptionLanguageDataSeeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 use DOMDocument;
 use DOMXPath;
 use Tests\TestCase;
 
 class StoryExportMetsTest extends TestCase
 {
-    private const STORY_ID   = 1;
-    private const ENDPOINT   = '/stories/' . self::STORY_ID . '/items/export/mets';
+    private const STORY_ID = 1;
+    private const ENDPOINT = '/stories/' . self::STORY_ID . '/items/export/mets';
 
     protected function setUp(): void
     {
@@ -34,6 +38,10 @@ class StoryExportMetsTest extends TestCase
         Artisan::call('db:seed', ['--class' => PropertyDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PropertyTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemPropertyDataSeeder::class]);
+
+        Storage::fake('export_cache');
+
+        $this->warmAltoCacheForStory(self::STORY_ID);
     }
 
     public function test_export_returns_http_ok(): void
@@ -107,6 +115,22 @@ class StoryExportMetsTest extends TestCase
         $this->assertSame('http://example.com/manifest1fromItem.json', $locref);
     }
 
+    public function test_export_returns_409_when_alto_is_not_cached(): void
+    {
+        $this->clearAltoCacheForStory(self::STORY_ID);
+
+        $response = $this->get(self::ENDPOINT);
+
+        $response
+            ->assertStatus(409)
+            ->assertJson(['success' => false]);
+
+        $this->assertStringContainsString(
+            '/stories/1/items/export/mets',
+            $response['data']['prepare_post_url'],
+        );
+    }
+
     public function test_file_sec_contains_at_least_one_item_alto_xml(): void
     {
         $xpath = $this->buildXPath($this->get(self::ENDPOINT)->streamedContent());
@@ -146,7 +170,7 @@ class StoryExportMetsTest extends TestCase
             $this->assertContains(
                 $node->value,
                 $declaredIds,
-                "structMap fptr FILEID '{$node->value}' has no matching file in fileSec"
+                "structMap fptr FILEID '{$node->value}' has no matching file in fileSec",
             );
         }
     }
@@ -162,13 +186,60 @@ class StoryExportMetsTest extends TestCase
         $dom->loadXML($xml);
 
         $xpath = new DOMXPath($dom);
-        $xpath->registerNamespace('mets',    'http://www.loc.gov/METS/v2');
-        $xpath->registerNamespace('dc',      'http://purl.org/dc/elements/1.1/');
+        $xpath->registerNamespace('mets', 'http://www.loc.gov/METS/v2');
+        $xpath->registerNamespace('dc', 'http://purl.org/dc/elements/1.1/');
         $xpath->registerNamespace('dcterms', 'http://purl.org/dc/terms/');
-        $xpath->registerNamespace('edm',     'http://www.europeana.eu/schemas/edm/');
-        $xpath->registerNamespace('premis',  'http://www.loc.gov/premis/v3');
-        $xpath->registerNamespace('alto',    'http://www.loc.gov/standards/alto/ns-v4#');
+        $xpath->registerNamespace('edm', 'http://www.europeana.eu/schemas/edm/');
+        $xpath->registerNamespace('premis', 'http://www.loc.gov/premis/v3');
+        $xpath->registerNamespace('alto', 'http://www.loc.gov/standards/alto/ns-v4#');
 
         return $xpath;
+    }
+
+    private function warmAltoCacheForStory(int $storyId): void
+    {
+        $cache = app(FileExportCache::class);
+
+        $items = Item::where('StoryId', $storyId)
+            ->orderBy('OrderIndex')
+            ->get();
+
+        foreach ($items as $item) {
+            $cache->put(
+                $item,
+                'alto',
+                <<<XML
+    <alto xmlns="http://www.loc.gov/standards/alto/ns-v4#">
+      <Description>
+        <MeasurementUnit>pixel</MeasurementUnit>
+        <sourceImageInformation>
+          <fileName>test-image</fileName>
+        </sourceImageInformation>
+      </Description>
+      <Layout>
+        <Page WIDTH="1000" HEIGHT="2000">
+          <PrintSpace HPOS="0" VPOS="0" WIDTH="1000" HEIGHT="2000"/>
+        </Page>
+      </Layout>
+    </alto>
+    XML,
+            );
+        }
+    }
+
+    private function clearAltoCacheForStory(int $storyId): void
+    {
+        $items = Item::where('StoryId', $storyId)->get();
+
+        foreach ($items as $item) {
+            $cache = CacheExport::where('ItemId', $item->ItemId)
+                ->where('Format', 'alto')
+                ->first();
+
+            if ($cache) {
+                Storage::disk('export_cache')->delete($cache->FilePath);
+                $cache->delete();
+            }
+        }
     }
 }
