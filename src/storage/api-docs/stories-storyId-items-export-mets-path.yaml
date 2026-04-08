@@ -1,0 +1,72 @@
+post:
+  tags:
+    - stories
+    - items
+    - exports
+  summary: Prepare METS export
+  description: >-
+    Prepares a METS export for a story by checking whether all required ALTO
+    exports are already cached. If all ALTO files are ready, the response
+    returns a ready state with a download URL. If ALTO is missing for one or
+    more items, a batch is created and the response returns a processing state
+    with a batch ID and status URL.
+  parameters:
+    - in: path
+      name: StoryId
+      description: Numeric ID of the story
+      schema:
+        type: integer
+      required: true
+  responses:
+    '200':
+      description: METS export is ready for download
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: 'exports-schema.yml#/MetsPreparationReadyDataSchema'
+          examples:
+            ready:
+              value:
+                success: true
+                message: METS export is ready.
+                data:
+                  status: ready
+                  download_url: /v2/stories/1/items/export/mets
+    '202':
+      description: METS preparation started and ALTO export jobs were batched
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: 'exports-schema.yml#/MetsPreparationProcessingDataSchema'
+          examples:
+            processing:
+              value:
+                success: true
+                message: METS preparation started.
+                data:
+                  status: processing
+                  batch_id: 9f7d7d4d-0d5b-4bc6-9310-7b0a51b7e9f2
+                  status_url: /v2/stories/1/items/export/mets/status/9f7d7d4d-0d5b-4bc6-9310-7b0a51b7e9f2
+                  download_url: /v2/stories/1/items/export/mets
+                  totals:
+                    pages: 12
+                    cached: 7
+                    missing: 5
+    '400':
+      $ref: 'responses.yaml#/400ErrorResponse'
+    '401':
+      $ref: 'responses.yaml#/401ErrorResponse'
+    '404':
+      $ref: 'responses.yaml#/404ErrorResponse'
+    '422':
+      $ref: 'responses.yaml#/422ErrorResponse'
