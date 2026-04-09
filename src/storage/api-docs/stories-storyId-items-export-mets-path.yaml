@@ -9,7 +9,8 @@ post:
     exports are already cached. If all ALTO files are ready, the response
     returns a ready state with a download URL. If ALTO is missing for one or
     more items, a batch is created and the response returns a processing state
-    with a batch ID and status URL.
+    with a batch ID and status URL. An optional notificationEmail can be in the
+    requestBody.
   parameters:
     - in: path
       name: StoryId
@@ -17,6 +18,17 @@ post:
       schema:
         type: integer
       required: true
+  requestBody:
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            notificationEmail:
+              type: string
+              format: email
+              description: Optional email for notification when METS export is ready
+              example: name@example.com
   responses:
     '200':
       description: METS export is ready for download
