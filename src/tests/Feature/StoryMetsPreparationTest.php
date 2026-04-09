@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Mail\MetsReadyMail;
 use App\Models\Item;
+use App\Models\Story;
 use App\Services\ExportCache\FileExportCache;
+use App\Services\SendMetsReadyNotification;
 use Database\Seeders\LanguageDataSeeder;
 use Database\Seeders\StoryDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
@@ -14,6 +17,7 @@ use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\ItemPropertyDataSeeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -92,6 +96,49 @@ class StoryMetsPreparationTest extends TestCase
         $this->postJson('/stories/999999/items/export/mets')
             ->assertNotFound()
             ->assertJson(['success' => false]);
+    }
+
+    public function test_notification_service_sends_mail_when_email_exists(): void
+    {
+        Mail::fake();
+
+        $story = Story::findOrFail(self::STORY_ID);
+
+        app(SendMetsReadyNotification::class)->send('dev@example.com', $story);
+
+        Mail::assertQueued(
+            MetsReadyMail::class,
+            fn (MetsReadyMail $mail) => $mail->hasTo('dev@example.com'),
+        );
+    }
+
+    public function test_prepare_queues_mail_immediately_when_mets_is_already_ready(): void
+    {
+        Mail::fake();
+
+        $this->warmAltoCacheForStory(self::STORY_ID);
+
+        $this->postJson(self::ENDPOINT, [
+            'notificationEmail' => 'dev@example.com',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'ready');
+
+        Mail::assertQueued(MetsReadyMail::class, function (MetsReadyMail $mail) {
+            return $mail->hasTo('dev@example.com');
+        });
+    }
+
+    public function test_prepare_does_not_queue_mail_when_email_is_missing(): void
+    {
+        Mail::fake();
+
+        $this->warmAltoCacheForStory(self::STORY_ID);
+
+        $this->postJson(self::ENDPOINT, [])
+            ->assertOk();
+
+        Mail::assertNothingQueued();
     }
 
     private function warmAltoCacheForStory(int $storyId): void
