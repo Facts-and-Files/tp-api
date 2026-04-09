@@ -1,0 +1,77 @@
+get:
+  tags:
+    - stories
+    - items
+    - exports
+  summary: Get METS preparation status
+  description: >-
+    Returns the progress state of a previously started METS preparation batch.
+    The response can represent processing, ready, cancelled, or failed states.
+  parameters:
+    - in: path
+      name: StoryId
+      description: Numeric ID of the story
+      schema:
+        type: integer
+      required: true
+    - in: path
+      name: batchId
+      description: Identifier of the queued batch created during preparation
+      schema:
+        type: string
+      required: true
+  responses:
+    '200':
+      description: Batch status returned successfully
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: 'exports-schema.yml#/MetsPreparationStatusDataSchema'
+          examples:
+            processing:
+              value:
+                success: true
+                message: METS preparation status fetched.
+                data:
+                  status: processing
+                  progress:
+                    total: 5
+                    processed: 2
+                    failed: 0
+                    percent: 40
+                  download_url: null
+            ready:
+              value:
+                success: true
+                message: METS preparation status fetched.
+                data:
+                  status: ready
+                  progress:
+                    total: 5
+                    processed: 5
+                    failed: 0
+                    percent: 100
+                  download_url: /v2/stories/1/items/export/mets
+            cancelled:
+              value:
+                success: true
+                message: METS preparation status fetched.
+                data:
+                  status: cancelled
+                  progress:
+                    total: 5
+                    processed: 1
+                    failed: 0
+                    percent: 20
+                  download_url: null
+    '400':
+      $ref: 'responses.yaml#/400ErrorResponse'
+    '401':
+      $ref: 'responses.yaml#/401ErrorResponse'
+    '404':
+      $ref: 'responses.yaml#/404ErrorResponse'

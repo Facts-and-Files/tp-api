@@ -24,6 +24,7 @@ return new class extends Migration
             $table->text('Description')->nullable();
             $table->smallInteger('DescriptionLanguage')->nullable();
             $table->text('ImageLink');
+            $table->text('Manifest')->nullable();
             $table->integer('OrderIndex');
             $table->dateTime('LastUpdated')->useCurrent();
             $table->dateTime('Timestamp')->useCurrent();

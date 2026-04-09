@@ -3,13 +3,19 @@ get:
     - stories
     - items
     - exports
-  description: Export story data and basic item data to various formats. Exporting to CSV creates a zip file containing a CSV with story meta data and a CSV with item data.
   summary: Export story items
+  description: >-
+    Export story data and basic item data to various formats. Exporting to CSV
+    creates a zip file containing a CSV with story metadata and a CSV with item
+    data. Exporting to METS returns an XML file when all required ALTO exports
+    are already prepared. If METS is requested before ALTO preparation has
+    completed, the endpoint returns a conflict response with a preparation URL.
   parameters:
     - in: path
       name: StoryId
       description: Numeric ID of the entry
-      type: integer
+      schema:
+        type: integer
       required: true
     - in: path
       name: format
@@ -17,26 +23,60 @@ get:
       schema:
         type: string
         enum:
-          - yml
           - csv
+          - mets
+          - yml
       required: true
   responses:
-    200:
-      description: Ok
+    '200':
+      description: Export created successfully
       content:
-      application/zip:
-        schema:
-          type: string
-          format: binary
-      application/yaml:
-        schema:
-          type: string
-          format: binary
-    400:
+        application/zip:
+          schema:
+            type: string
+            format: binary
+        application/yaml:
+          schema:
+            type: string
+            format: binary
+        application/xml:
+          schema:
+            type: string
+            format: binary
+          examples:
+            mets:
+              summary: METS export download
+              value: |
+                <?xml version="1.0" encoding="UTF-8"?>
+                <mets:mets xmlns:mets="http://www.loc.gov/METS/v2"></mets:mets>
+    '400':
       $ref: 'responses.yaml#/400ErrorResponse'
-    401:
+    '401':
       $ref: 'responses.yaml#/401ErrorResponse'
-    404:
+    '404':
       $ref: 'responses.yaml#/404ErrorResponse'
-    422:
+    '409':
+      description: METS export is not ready yet because ALTO preparation is still required or in progress
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicErrorResponse'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      prepare_post_url:
+                        type: string
+                        description: URL that starts or resumes METS preparation.
+                        example: /v2/stories/1/items/export/mets
+          examples:
+            metsNotReady:
+              value:
+                success: false
+                message: The ALTO export has not been prepared.
+                data:
+                  prepare_post_url: /v2/stories/1/items/export/mets
+    '422':
       $ref: 'responses.yaml#/422ErrorResponse'

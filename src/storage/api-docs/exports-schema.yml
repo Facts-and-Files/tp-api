@@ -1,0 +1,120 @@
+MetsPreparationTotalsSchema:
+  type: object
+  description: Summary of ALTO preparation coverage for the requested story export.
+  properties:
+    pages:
+      type: integer
+      description: Total number of story items/pages considered for the METS export.
+      example: 12
+    cached:
+      type: integer
+      description: Number of story items/pages that already had cached ALTO.
+      example: 7
+    missing:
+      type: integer
+      description: Number of story items/pages that required ALTO preparation.
+      example: 5
+  required:
+    - pages
+    - cached
+    - missing
+
+MetsPreparationReadyDataSchema:
+  type: object
+  description: Payload returned when the METS export is already ready for download.
+  properties:
+    status:
+      type: string
+      enum:
+        - ready
+      example: ready
+    download_url:
+      type: string
+      description: URL where the final METS export can be downloaded.
+      example: /v2/stories/1/items/export/mets
+  required:
+    - status
+    - download_url
+
+MetsPreparationProcessingDataSchema:
+  type: object
+  description: Payload returned when ALTO preparation jobs were started for the METS export.
+  properties:
+    status:
+      type: string
+      enum:
+        - processing
+      example: processing
+    batch_id:
+      type: string
+      description: Identifier of the Laravel job batch used to prepare missing ALTO exports.
+      example: 9f7d7d4d-0d5b-4bc6-9310-7b0a51b7e9f2
+    status_url:
+      type: string
+      description: URL that can be polled to inspect batch progress.
+      example: /v2/stories/1/items/export/mets/status/9f7d7d4d-0d5b-4bc6-9310-7b0a51b7e9f2
+    download_url:
+      type: string
+      description: URL where the final METS export can be downloaded once preparation is complete.
+      example: /v2/stories/1/items/export/mets
+    totals:
+      $ref: '#/MetsPreparationTotalsSchema'
+  required:
+    - status
+    - batch_id
+    - status_url
+    - download_url
+    - totals
+
+MetsPreparationProgressSchema:
+  type: object
+  description: Progress details for a METS preparation batch.
+  properties:
+    total:
+      type: integer
+      description: Total number of queued ALTO preparation jobs in the batch.
+      example: 5
+    processed:
+      type: integer
+      description: Number of jobs already processed.
+      example: 2
+    failed:
+      type: integer
+      description: Number of jobs that failed.
+      example: 0
+    percent:
+      type: integer
+      description: Integer progress percentage derived from processed and total jobs.
+      minimum: 0
+      maximum: 100
+      example: 40
+  required:
+    - total
+    - processed
+    - failed
+    - percent
+
+MetsPreparationStatusDataSchema:
+  type: object
+  description: Payload returned by the METS preparation status endpoint.
+  properties:
+    status:
+      type: string
+      enum:
+        - processing
+        - ready
+        - cancelled
+        - failed
+      example: processing
+    progress:
+      $ref: '#/MetsPreparationProgressSchema'
+    download_url:
+      oneOf:
+        - type: string
+        - type: 'null'
+      description: Download URL when the METS export is ready; otherwise null.
+      example: /v2/stories/1/items/export/mets
+  required:
+    - status
+    - progress
+    - download_url

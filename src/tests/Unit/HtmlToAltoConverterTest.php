@@ -2,9 +2,9 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\Converter\HtmlToAltoConverter;
 use App\Services\Converter\DTO\AltoPageData;
+use App\Services\Converter\HtmlToAltoConverter;
+use Tests\TestCase;
 
 class HtmlToAltoConverterTest extends TestCase
 {
@@ -252,8 +252,8 @@ class HtmlToAltoConverterTest extends TestCase
     {
         $html = '<p>Deterministic output</p>';
 
-        $first  = $this->converter->convert($html, $this->pageData);
-        $second  = $this->converter->convert($html, $this->pageData);
+        $first = $this->converter->convert($html, $this->pageData);
+        $second = $this->converter->convert($html, $this->pageData);
 
         $this->assertSame($first, $second);
     }

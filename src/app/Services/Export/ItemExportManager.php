@@ -25,6 +25,16 @@ class ItemExportManager
         };
     }
 
+    public function getCachedAlto(Item $item): ?string
+    {
+        return $this->altoItemExporter->getCached($item);
+    }
+
+    public function hasCachedAlto(Item $item): bool
+    {
+        return $this->altoItemExporter->hasCached($item);
+    }
+
     protected function exportToAlto(Item $item): string
     {
         if ($item->TranscriptionSource === 'manual') {

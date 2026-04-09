@@ -21,6 +21,7 @@ class ItemDataSeeder extends Seeder
             'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 1',
+            'Manifest'              => 'http://example.com/manifest1fromItem.json',
         ],
         [
             'ItemId'                => 2,
@@ -35,6 +36,7 @@ class ItemDataSeeder extends Seeder
             'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 2',
+            'Manifest'              => '',
         ],
         [
             'ItemId'                => 3,
@@ -49,6 +51,7 @@ class ItemDataSeeder extends Seeder
             'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 3',
+            'Manifest'              => '',
         ],
         [
             'ItemId'                => 5,
@@ -63,6 +66,7 @@ class ItemDataSeeder extends Seeder
             'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 5',
+            'Manifest'              => '',
         ],
         [
             'ItemId'                => 6,
@@ -77,6 +81,7 @@ class ItemDataSeeder extends Seeder
             'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
             'DescriptionLanguage'   => 2,
             'Description'           => 'Test Description Item 6',
+            'Manifest'              => '',
         ],
         [
             'ItemId'                => 7,
@@ -91,6 +96,7 @@ class ItemDataSeeder extends Seeder
             'ImageLink'             => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
             'DescriptionLanguage'   => 2,
             'Description'           => 'Test Description Item 7',
+            'Manifest'              => '',
         ],
     ];
 

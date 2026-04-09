@@ -2,19 +2,20 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Services\Export\AltoItemExporter;
-use App\Services\ExportCache\FileExportCache;
-use App\Models\Item;
 use App\Models\CacheExport;
+use App\Models\Item;
 use App\Models\Transcription;
 use App\Services\Converter\AltoConverterInterface;
-use App\Services\Converter\HtmlToAltoConverter; // should work with PageXmlToAltoConverter too
-use Illuminate\Support\Facades\Storage;
+use App\Services\Converter\HtmlToAltoConverter;
+use App\Services\Export\AltoItemExporter;
+use App\Services\ExportCache\FileExportCache;
+use Illuminate\Support\Facades\Storage; // should work with PageXmlToAltoConverter too
+use Tests\TestCase;
 
 class AltoItemExporterTest extends TestCase
 {
     private AltoItemExporter $service;
+
     private AltoConverterInterface $converter;
 
     protected function setUp(): void

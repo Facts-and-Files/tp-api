@@ -70,7 +70,7 @@ class Story extends Model
         'OrderIndex',
         'ImportName',
         'CompletionStatusId',
-        'OldStoryId'
+        'OldStoryId',
     ];
 
     protected $appends = [
@@ -79,7 +79,7 @@ class Story extends Model
         'Dc',
         'Edm',
         'Place',
-        'CompletionStatus'
+        'CompletionStatus',
     ];
 
 // define relations
@@ -99,7 +99,7 @@ class Story extends Model
         return $this->belongsTo(CompletionStatus::class, 'CompletionStatusId');
     }
 
-    public function project()
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'ProjectId');
     }
@@ -223,5 +223,10 @@ class Story extends Model
             'UserId'        => $this->attributes['PlaceUserId']        ?? null,
             'UserGenerated' => $this->attributes['PlaceUserGenerated'] ?? null,
         ];
+    }
+
+    public function getProjectNameAttribute(): ?string
+    {
+        return $this->project?->Name;
     }
 }

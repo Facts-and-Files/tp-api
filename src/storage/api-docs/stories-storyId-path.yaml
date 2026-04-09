@@ -1,7 +1,7 @@
 get:
   tags:
     - stories
-  summary: Get stored story data of an entry
+  summary: Get a Story
   description: The returned data is single object
   parameters:
     - in: path
@@ -15,11 +15,13 @@ get:
       content:
         application/json:
           schema:
-            $ref: 'responses.yaml#/BasicSuccessResponse'
-            properties:
-              data:
-                type: object
-                $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    type: object
+                    $ref: 'stories-schema.yaml#/StoriesGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
@@ -29,7 +31,7 @@ get:
 put:
   tags:
     - stories
-  summary: Updates data of a story
+  summary: Update a Story
   parameters:
     - in: path
       name: StoryId
@@ -66,7 +68,7 @@ put:
 delete:
   tags:
     - stories
-  summary: delete a story data entry
+  summary: Delete a Story
   parameters:
     - in: path
       name: StoryId

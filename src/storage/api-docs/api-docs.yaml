@@ -1,7 +1,7 @@
 openapi: 3.1.1
 
 info:
-  version: 1.71.3
+  version: 1.72.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -207,6 +207,10 @@ paths:
     $ref: 'stories-storyId-add-campaigns-path.yaml'
   /stories/{StoryId}/items/export/{format}:
     $ref: 'stories-storyId-items-export-format-path.yaml'
+  /stories/{StoryId}/items/export/mets:
+    $ref: 'stories-storyId-items-export-mets-path.yaml'
+  /stories/{StoryId}/items/export/mets/status/{batchId}:
+    $ref: 'stories-storyId-items-export-mets-status-batchId-path.yaml'
 
 components:
   securitySchemes:
@@ -251,6 +255,16 @@ components:
       $ref: 'languages-schema.yaml#/LanguagesGetResponseSchema'
     MetaPaginationResponse:
       $ref: 'meta-responses.yaml#/MetaPaginationResponse'
+    MetsPreparationTotalsSchema:
+      $ref: 'exports-schema.yml#/MetsPreparationTotalsSchema'
+    MetsPreparationReadyDataSchema:
+      $ref: 'exports-schema.yml#/MetsPreparationReadyDataSchema'
+    MetsPreparationProcessingDataSchema:
+      $ref: 'exports-schema.yml#/MetsPreparationProcessingDataSchema'
+    MetsPreparationProgressSchema:
+      $ref: 'exports-schema.yml#/MetsPreparationProgressSchema'
+    MetsPreparationStatusDataSchema:
+      $ref: 'exports-schema.yml#/MetsPreparationStatusDataSchema'
     PlacesGetResponseSchema:
       $ref: 'places-schema.yaml#/PlacesGetResponseSchema'
     PlacesPostRequestSchema:
