@@ -21,11 +21,10 @@ class MetsStoryDataBuilder
             ->orderBy('OrderIndex')
             ->get();
 
-        $manifest = $story->Manifest ?: $items->first()?->Manifest;
+        $manifest = $story->Manifest ?: $items->first()?->Manifest ?: '';
         $previewImage = $this->extractIiifImageLink($story->PreviewImage);
 
         $itemData = $items->map(function (Item $item) use ($story) {
-            /* $altoXml  = $this->itemExportManager->export($item, 'alto'); */
             $altoXml = $this->itemExportManager->getCachedAlto($item);
 
             if ($altoXml === null) {
