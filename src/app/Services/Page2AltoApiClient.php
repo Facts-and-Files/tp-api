@@ -13,13 +13,9 @@ class Page2AltoApiClient
 
     public function convert(string $pageXml): string
     {
-        $response = Http::withHeaders([
-            'Accept' => 'application/xml',
-            'Content-Type' => 'application/xml',
-            'Authorization' => "Bearer {$this->apiKey}",
-        ])
-        ->withBody($pageXml, 'application/xml')
-        ->post($this->endpoint);
+        $response = Http::withToken($this->apiKey)
+            ->attach('file', $pageXml, 'page.xml')
+            ->post($this->endpoint);
 
         $response->throw();
 
