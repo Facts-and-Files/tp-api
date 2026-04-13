@@ -33,7 +33,7 @@ class StoryMetsPreparationController extends ResponseController
         ])['notificationEmail'] ?? null;
 
         if ($this->metsStoryReadiness->isReady($story)) {
-            $this->sendMetsReadyNotification->send($notificationEmail, $story);
+            $this->sendMetsReadyNotification->send($notificationEmail, $story, 'ready', null);
             return $this->sendResponse([
                 'status' => 'ready',
                 'download_url' => url("/stories/{$id}/items/export/mets"),
@@ -50,8 +50,9 @@ class StoryMetsPreparationController extends ResponseController
         $batch = Bus::batch($jobs)
             ->name("mets-story-{$id}")
             ->allowFailures()
-            ->then(function (Batch $batch) use ($notificationEmail, $story) {
-                $this->sendMetsReadyNotification->send($notificationEmail, $story);
+            ->finally(function (Batch $batch) use ($notificationEmail, $story) {
+                $status = $this->resolveFinalBatchStatus($batch);
+                $this->sendMetsReadyNotification->send($notificationEmail, $story, $status, $batch);
             })
             ->dispatch();
 
@@ -78,12 +79,7 @@ class StoryMetsPreparationController extends ResponseController
             return $this->sendError('Not Found', 'Batch not found.', 404);
         }
 
-        $status = match (true) {
-            $batch->finished() => 'ready',
-            $batch->cancelled() => 'cancelled',
-            $batch->hasFailures() && $batch->finished() => 'failed',
-            default => 'processing',
-        };
+        $status = $this->resolveVisibleBatchStatus($batch);
 
         return $this->sendResponse([
             'status' => $status,
@@ -99,5 +95,25 @@ class StoryMetsPreparationController extends ResponseController
                 ? url("/stories/{$id}/items/export/mets")
                 : null,
         ], $status, 200);
+    }
+
+    private function resolveFinalBatchStatus(Batch $batch): string
+    {
+        return match (true) {
+            $batch->cancelled() => 'cancelled',
+            $batch->hasFailures() => 'finished_with_failures',
+            $batch->finished() => 'ready',
+            default => 'failed',
+        };
+    }
+
+    private function resolveVisibleBatchStatus(Batch $batch): string
+    {
+        return match (true) {
+            $batch->cancelled() => 'cancelled',
+            $batch->hasFailures() && $batch->finished() => 'finished_with_failures',
+            $batch->finished() => 'ready',
+            default => 'processing',
+        };
     }
 }
