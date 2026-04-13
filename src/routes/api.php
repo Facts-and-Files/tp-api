@@ -55,7 +55,9 @@ Route::get('/documentation/{filename}', function ($filename) {
     }
 });
 
+// public routes
 Route::get('/health', [HealthController::class, 'check']);
+Route::get('/stories/{id}/items/export/{format}', [StoryItemExportController::class, 'export']);
 
 Route::middleware(['auth:api'])->group(function() {
     Route::get('/htrdata', [HtrDataController::class, 'index']);
@@ -90,8 +92,6 @@ Route::middleware(['auth:api'])->group(function() {
     Route::put('/stories/{id}/campaigns', [StoryController::class, 'updateCampaigns']);
     Route::put('/stories/{id}/add-campaigns', [StoryController::class, 'addCampaigns']);
     Route::get('/stories/{id}/statistics', [StoryStatsController::class, 'show']);
-    Route::get('/stories/{id}/items/export/{format}', [StoryItemExportController::class, 'export']);
-
     Route::post('/stories/{id}/items/export/mets', [StoryMetsPreparationController::class, 'store']);
     Route::get('/stories/{id}/items/export/mets/status/{batchId}', [StoryMetsPreparationController::class, 'show']);
 
