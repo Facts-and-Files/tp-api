@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\ResponseController;
@@ -8,20 +7,33 @@ use App\Jobs\PrepareItemAltoJob;
 use App\Models\Item;
 use App\Models\Story;
 use App\Services\Export\MetsStoryReadiness;
+use App\Services\SendMetsReadyNotification;
+use Illuminate\Bus\Batch;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Http\Request;
 
 class StoryMetsPreparationController extends ResponseController
 {
     public function __construct(
         private readonly MetsStoryReadiness $metsStoryReadiness,
+        private readonly SendMetsReadyNotification $sendMetsReadyNotification,
     ) {}
 
-    public function store(int $id): JsonResponse
+    public function store(int $id, Request $request): JsonResponse
     {
         $story = Story::findOrFail($id);
 
+        $rule = app()->environment('local')
+            ? 'nullable|email:rfc'
+            : 'nullable|email:rfc,dns';
+
+        $notificationEmail = $request->validate([
+            'notificationEmail' => $rule,
+        ])['notificationEmail'] ?? null;
+
         if ($this->metsStoryReadiness->isReady($story)) {
+            $this->sendMetsReadyNotification->send($notificationEmail, $story, 'ready', null);
             return $this->sendResponse([
                 'status' => 'ready',
                 'download_url' => url("/stories/{$id}/items/export/mets"),
@@ -36,8 +48,12 @@ class StoryMetsPreparationController extends ResponseController
             ->all();
 
         $batch = Bus::batch($jobs)
-            ->name("Prepare ALTO for METS story {$id}")
+            ->name("mets-story-{$id}")
             ->allowFailures()
+            ->finally(function (Batch $batch) use ($notificationEmail, $story) {
+                $status = $this->resolveFinalBatchStatus($batch);
+                $this->sendMetsReadyNotification->send($notificationEmail, $story, $status, $batch);
+            })
             ->dispatch();
 
         return $this->sendResponse([
@@ -63,12 +79,7 @@ class StoryMetsPreparationController extends ResponseController
             return $this->sendError('Not Found', 'Batch not found.', 404);
         }
 
-        $status = match (true) {
-            $batch->finished() => 'ready',
-            $batch->cancelled() => 'cancelled',
-            $batch->hasFailures() && $batch->finished() => 'failed',
-            default => 'processing',
-        };
+        $status = $this->resolveVisibleBatchStatus($batch);
 
         return $this->sendResponse([
             'status' => $status,
@@ -84,5 +95,25 @@ class StoryMetsPreparationController extends ResponseController
                 ? url("/stories/{$id}/items/export/mets")
                 : null,
         ], $status, 200);
+    }
+
+    private function resolveFinalBatchStatus(Batch $batch): string
+    {
+        return match (true) {
+            $batch->cancelled() => 'cancelled',
+            $batch->hasFailures() => 'finished_with_failures',
+            $batch->finished() => 'ready',
+            default => 'failed',
+        };
+    }
+
+    private function resolveVisibleBatchStatus(Batch $batch): string
+    {
+        return match (true) {
+            $batch->cancelled() => 'cancelled',
+            $batch->hasFailures() && $batch->finished() => 'finished_with_failures',
+            $batch->finished() => 'ready',
+            default => 'processing',
+        };
     }
 }
