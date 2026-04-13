@@ -14,7 +14,12 @@ class Page2AltoApiClient
     public function convert(string $pageXml): string
     {
         $response = Http::withToken($this->apiKey)
-            ->attach('file', $pageXml, 'page.xml')
+            ->accept('application/xml')
+            ->attach(
+                name: 'file',
+                contents: $pageXml,
+                filename: 'page.xml',
+            )
             ->post($this->endpoint);
 
         $response->throw();
