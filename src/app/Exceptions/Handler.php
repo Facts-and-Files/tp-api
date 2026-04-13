@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Exceptions\AltoNotPreparedException;
 use App\Http\Controllers\ResponseController;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
@@ -9,6 +10,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 
@@ -20,7 +22,7 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<Throwable>>
      */
     protected $dontReport = [
-        //
+        AltoNotPreparedException::class,
     ];
 
     /**
@@ -46,7 +48,7 @@ class Handler extends ExceptionHandler
         return ResponseController::sendError($exception->getMessage(), '', 401);
     }
 
-    public function render($request, Throwable $exception): JsonResponse
+    public function render($request, Throwable $exception): Response
     {
         if ($exception instanceof AuthenticationException) {
             return ResponseController::sendError($exception->getMessage(), '', 401);
