@@ -66,20 +66,23 @@ class PageXmlToAltoConverterTest extends TestCase
         $this->assertInstanceOf(DOMDocument::class, $dom);
         $xmlString = $dom->saveXML();
         $this->assertIsString($xmlString);
-        $this->assertStringContainsString('<alto', $xmlString);
+        $this->assertStringContainsString('http://www.loc.gov/standards/alto/ns-v4#', $xmlString);
 
         Http::assertSent(function ($request) use ($pageXml) {
             $contentType = $request->header('Content-Type')[0] ?? '';
+            $authorization = $request->header('Authorization')[0] ?? '';
+            $accept = $request->header('Accept')[0] ?? '';
             $body = $request->body();
 
             return $request->url() === $this->endpoint
                 && $request->method() === 'POST'
+                && $request->isMultipart()
                 && str_contains($contentType, 'multipart/form-data')
+                && $authorization === 'Bearer ' . $this->apiKey
+                && $accept === 'application/xml'
                 && str_contains($body, 'name="file"')
                 && str_contains($body, 'filename="page.xml"')
-                && str_contains($body, $pageXml)
-                && $request->hasHeader('Authorization')
-                && $request->header('Authorization')[0] === 'Bearer ' . $this->apiKey;
+                && str_contains($body, $pageXml);
         });
     }
 
