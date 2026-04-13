@@ -1,16 +1,26 @@
 <x-mail::message>
-# METS export ready
+# METS export
 
-The METS/ALTO export for **{{ $storyTitle }}** is now ready.
+{{ $introText }}
 
-You have to be logged in into Transcribathon to download the the METS XML.
+**Story:** {{ $storyTitle }}<br>
+**Story ID:** {{ $storyId }}<br>
+**Export Status:** {{ $status }}
 
+@if($total > 0)
+<x-mail::panel>
+Pages total: {{ $total ?? 0 }}
+Processed: {{ $processed ?? 0 }}
+Failed: {{ $failed ?? 0 }}
+</x-mail::panel>
+@endif
+
+@if($downloadUrl && $status === 'ready')
 <x-mail::button :url="$downloadUrl">
 Download METS XML
 </x-mail::button>
-
-If you did not request this export, you can ignore this email.
+@endif
 
 Thanks,<br>
-Transcribathon Team
+Transcribathon
 </x-mail::message>
