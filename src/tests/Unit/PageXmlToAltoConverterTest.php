@@ -26,12 +26,13 @@ class PageXmlToAltoConverterTest extends TestCase
         );
     }
 
-    public function test_posts_page_xml_and_returns_alto_dom(): void
+    public function test_uploads_page_xml_file_and_returns_alto_dom(): void
     {
         Http::fake([
             $this->endpoint => Http::response(
                 <<<XML
-                <alto xmlStringlns="http://www.loc.gov/standards/alto/ns-v4#">
+                <?xml version="1.0" encoding="UTF-8"?>
+                <alto xmlns="http://www.loc.gov/standards/alto/ns-v4#">
                   <Layout>
                     <Page ID="p1" WIDTH="1000" HEIGHT="500" />
                   </Layout>
@@ -53,7 +54,12 @@ class PageXmlToAltoConverterTest extends TestCase
             height: 500,
         );
 
-        $pageXml = '<PcGts><Page/></PcGts>';
+        $pageXml = <<<'XML'
+            <?xml version="1.0" encoding="UTF-8"?>
+            <PcGts>
+                <Page imageWidth="1000" imageHeight="500" />
+            </PcGts>
+            XML;
 
         $dom = $converter->convert($pageXml, $pageData);
 
@@ -63,10 +69,17 @@ class PageXmlToAltoConverterTest extends TestCase
         $this->assertStringContainsString('<alto', $xmlString);
 
         Http::assertSent(function ($request) use ($pageXml) {
+            $contentType = $request->header('Content-Type')[0] ?? '';
+            $body = $request->body();
+
             return $request->url() === $this->endpoint
                 && $request->method() === 'POST'
-                && $request->body() === $pageXml
-                && $request->header('Accept')[0] === 'application/xml';
+                && str_contains($contentType, 'multipart/form-data')
+                && str_contains($body, 'name="file"')
+                && str_contains($body, 'filename="page.xml"')
+                && str_contains($body, $pageXml)
+                && $request->hasHeader('Authorization')
+                && $request->header('Authorization')[0] === 'Bearer ' . $this->apiKey;
         });
     }
 
