@@ -10,7 +10,7 @@ Version 2 of the Transcribathon platform API (tp-api) as PHP Laravel stack.
 
 ## Requirements for development
 
-There are two docker containers/images required.
+For basic operations there are at least two docker containers/images required.
 
 * [TP-MySQL](https://github.com/Facts-and-Files/tp-mysql)
 The MySQL docker container which will provide the database (the dump will be provided on demand).
@@ -41,14 +41,16 @@ Also the you can make use of the docker container internal compose with the prov
 
 To access the API routes a valid token is required. The token can be generated via
 
-    $ ./docker_artisan.sh make:token
+    $ ./docker_artisan.sh auth:generate-token
 
 It will be stored in the `api_clients` table as hash. The token can be applied by the client as as bearer token in the header `Authorization: Bearer <api_token>`
+
+For full documentation (for granular access tokens) see: [api_auth.md(api_auth.md)]
 
 ## Development
 
 For deployment see Makefile.
-Head to https://laravel.com/docs/9.x/deployment#main-content for server requirements. Probably the PHP DOM extension is missing by default.
+Head to https://laravel.com/docs/10.x/deployment#main-content for server requirements. Probably the PHP DOM extension is missing by default.
 
     $ sudo apt upate && sudo apt install php8.0-xml
 
@@ -56,14 +58,22 @@ If needed (on initial install) connect to the deploy server and run the
 
     $ php artisan migrate
 
-manually to alter the database.
+manually to update the database.
 
 ## API routes
 
 There is an OpenAPI console available. It can be accessed via:
 
+### Swagger UI
+
 * local docker container: https://api.transcribathon.eu.local:4443/v2/documentation
-* VPN server: https://api.transcribathon.local/v2/documentation
+* LIVE server: https://api.transcribathon.local/v2/documentation
 * DEV server: https://api.fresenia-dev.man.poznan.pl/v2/documentation
+
+### Elements UI
+
+* local docker container: https://api.transcribathon.eu.local:4443/v2/elements
+* LIVE server: https://api.transcribathon.local/v2/elements
+* DEV server: https://api.fresenia-dev.man.poznan.pl/v2/elements
 
 Access to all routes require a bearer token.
