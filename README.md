@@ -45,7 +45,7 @@ To access the API routes a valid token is required. The token can be generated v
 
 It will be stored in the `api_clients` table as hash. The token can be applied by the client as as bearer token in the header `Authorization: Bearer <api_token>`
 
-For full documentation (for granular access tokens) see: [api_auth.md](api_auth.md)
+For full documentation (for granular access tokens) see: api_auth.md
 
 ## Development
 
