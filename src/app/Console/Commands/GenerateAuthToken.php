@@ -8,37 +8,45 @@ use Illuminate\Support\Str;
 
 class GenerateAuthToken extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'make:token';
+    protected $signature = 'auth:generate-token
+        {--description= : A human-readable label for this token}
+        {--permissions=* : Abilities e.g. --permissions=read --permissions=items:write}
+        {--ro : Shorthand for read-only}
+        {--rw : Shorthand for full access}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Generates an api client auth token for api usage';
+        protected $description = 'Generates an api client auth token for api usage';
 
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
-    public function handle()
+    public function handle(): int
     {
         $token = Str::random(60);
 
-        /* DB::table('api_clients')->whereNotnull('api_token')->delete(); */
+        $permissions = $this->resolvePermissions();
 
         DB::table('api_clients')->insert([
-            'api_token' => hash('sha256', $token),
+            'api_token'   => hash('sha256', $token),
+            'permissions' => json_encode($permissions),
+            'description' => $this->option('description'),
         ]);
 
-        $this->info($token);
+        $this->info("Token : {$token}");
+        $this->info("Permissions: " . implode(', ', $permissions));
+        $this->info("Description: " . ($this->option('description') ?? '—'));
 
         return 0;
+    }
+
+    private function resolvePermissions(): array
+    {
+        if ($this->option('ro')) {
+            return ['read'];
+        }
+
+        if ($this->option('rw')) {
+            return ['*'];
+        }
+
+        $permissions = $this->option('permissions');
+
+        return empty($permissions) ? ['*'] : $permissions;
     }
 }
