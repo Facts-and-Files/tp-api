@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -64,6 +65,10 @@ class Handler extends ExceptionHandler
 
         if ($exception instanceof ValidationException) {
             return ResponseController::sendError('Unprocessable Content', $exception->getMessage(), 422);
+        }
+        // catches abort(401), abort(403), abort(404), etc.
+        if ($exception instanceof HttpException) {
+            return ResponseController::sendError($exception->getMessage(), '', $exception->getStatusCode());
         }
 
         return parent::render($request, $exception);
