@@ -135,6 +135,7 @@ Route::middleware(['api.permission'])->group(function() {
     Route::get('/datasets/{id}', [DatasetController::class, 'show']);
     Route::put('/datasets/{id}', [DatasetController::class, 'update']);
     Route::delete('/datasets/{id}', [DatasetController::class, 'destroy']);
+    Route::get('/datasets/{datasetId}/places', [PlaceController::class, 'showByDatasetId']);
 
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::post('/projects', [ProjectController::class, 'store']);

@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Events\PlaceInserted;
 use App\Http\Controllers\ResponseController;
 use App\Http\Resources\PlaceResource;
+use App\Models\Dataset;
+use App\Models\Item;
 use App\Models\Place;
 use App\Models\Project;
 use App\Models\Story;
-use App\Models\Item;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,14 +26,15 @@ class PlaceController extends ResponseController
         ]);
 
         $queryColumns = [
-            'Name'         => 'Place.Name',
+            'Name' => 'Place.Name',
             'WikidataName' => 'Place.WikidataName',
-            'WikidataId'   => 'Place.WikidataId',
-            'ItemId'       => 'Place.ItemId',
-            'UserId'       => 'Place.UserId',
-            'StoryId'      => 'Item.StoryId',
-            'ProjectId'    => 'Story.ProjectId',
-            'PlaceRole'    => 'Place.PlaceRole',
+            'WikidataId' => 'Place.WikidataId',
+            'ItemId' => 'Place.ItemId',
+            'UserId' => 'Place.UserId',
+            'StoryId' => 'Item.StoryId',
+            'ProjectId' => 'Story.ProjectId',
+            'DatasetId' => 'Story.DatasetId',
+            'PlaceRole' => 'Place.PlaceRole',
         ];
 
         $initialSortColumn = 'Place.PlaceId';
@@ -121,6 +123,13 @@ class PlaceController extends ResponseController
         return $this->index($request);
     }
 
+    public function showByDatasetId(Request $request, int $datasetId): JsonResponse
+    {
+        $request->merge(['DatasetId' => $datasetId]);
+
+        return $this->index($request);
+    }
+
     private function buildQueryByParentId(Request $request): Builder
     {
         $query = Place::query()
@@ -131,6 +140,7 @@ class PlaceController extends ResponseController
         if ($request->has('ProjectId')) {
             $projectId = $request['ProjectId'];
             Project::findOrFail($projectId);
+
             $query->join('Story', 'Item.StoryId', '=', 'Story.StoryId')
                   ->where('Story.ProjectId', '=', $projectId);
         }
@@ -138,13 +148,23 @@ class PlaceController extends ResponseController
         if ($request->has('StoryId')) {
             $storyId = $request['StoryId'];
             Story::findOrFail($storyId);
+
             $query->where('Item.StoryId', '=', $storyId);
         }
 
         if ($request->has('ItemId')) {
             $itemId = $request['ItemId'];
             Item::findOrFail($itemId);
+
             $query->where('Place.ItemId', '=', $itemId);
+        }
+
+        if ($request->has('DatasetId')) {
+            $datasetId = $request['DatasetId'];
+            Dataset::findOrFail($datasetId);
+
+            $query->join('Story', 'Item.StoryId', '=', 'Story.StoryId')
+                  ->where('Story.DatasetId', '=', $datasetId);
         }
 
         return $query;
