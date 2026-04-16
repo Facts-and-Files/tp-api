@@ -171,6 +171,8 @@ paths:
     $ref: 'datasets-path.yaml'
   /datasets/{DatasetId}:
     $ref: 'datasets-datasetId-path.yaml'
+  /datasets/{DatasetId}/places:
+    $ref: 'datasets-datasetId-places-path.yaml'
 
   /projects:
     $ref: 'projects-path.yaml'
