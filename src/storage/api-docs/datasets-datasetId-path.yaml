@@ -1,7 +1,7 @@
 get:
   tags:
     - datasets
-  summary: Get stored datasets data of an entry
+  summary: Get a Datasets
   description: The returned data is single object
   parameters:
     - in: path
@@ -29,7 +29,7 @@ get:
 put:
   tags:
     - datasets
-  summary: Updates data of a dataset
+  summary: Update a Dataset
   parameters:
     - in: path
       name: DatasetId
@@ -65,7 +65,7 @@ put:
 delete:
   tags:
     - datasets
-  summary: delete a dataset data entry
+  summary: Delete a Dataset
   parameters:
     - in: path
       name: DatasetId

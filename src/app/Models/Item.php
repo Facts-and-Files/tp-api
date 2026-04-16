@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\CompletionStatus as ItemCompletionStatus;
-use App\Models\Language;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,16 +45,16 @@ class Item extends Model
         'CompletionStatusId' => ItemCompletionStatus::class,
     ];
 
-// declare relationships
+    // declare relationships
+
+    public function completionStatus(): BelongsTo
+    {
+        return $this->belongsTo(CompletionStatus::class, 'CompletionStatusId');
+    }
 
     public function htrData(): HasMany
     {
         return $this->hasMany(HtrData::class, 'ItemId');
-    }
-
-    public function transcriptions(): HasMany
-    {
-        return $this->hasMany(Transcription::class, 'ItemId');
     }
 
     public function language(): BelongsTo
@@ -63,9 +62,9 @@ class Item extends Model
         return $this->belongsTo(Language::class, 'DescriptionLanguage');
     }
 
-    public function completionStatus(): BelongsTo
+    public function persons(): BelongsToMany
     {
-        return $this->belongsTo(CompletionStatus::class, 'CompletionStatusId');
+        return $this->belongsToMany(Person::class, 'ItemPerson', 'ItemId', 'PersonId');
     }
 
     public function places(): HasMany
@@ -73,22 +72,23 @@ class Item extends Model
         return $this->hasMany(Place::class, 'ItemId');
     }
 
-    public function persons(): BelongsToMany
-    {
-        return $this->belongsToMany(Person::class, 'ItemPerson', 'ItemId', 'PersonId');
-    }
-
     public function properties(): BelongsToMany
     {
         return $this->belongsToMany(Property::class, 'ItemProperty', 'ItemId', 'PropertyId');
     }
 
-    public function story()
+    public function story(): BelongsTo
     {
         return $this->belongsTo(Story::class, 'StoryId');
     }
-// to harmonize the API regarding the existent database schema
-// we make use some custom accessors and mutators
+
+    public function transcriptions(): HasMany
+    {
+        return $this->hasMany(Transcription::class, 'ItemId');
+    }
+
+    // to harmonize the API regarding the existent database schema
+    // we make use some custom accessors and mutators
 
     public function getDescriptionLangAttribute(): Language
     {

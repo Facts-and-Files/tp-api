@@ -82,16 +82,11 @@ class Story extends Model
         'CompletionStatus',
     ];
 
-// define relations
+    // define relations
 
     public function campaigns(): BelongsToMany
     {
         return $this->belongsToMany(Campaign::class, 'StoryCampaign', 'StoryId', 'CampaignId');
-    }
-
-    public function items(): HasMany
-    {
-        return $this->hasMany(Item::class, 'StoryId')->orderBy('OrderIndex');
     }
 
     public function completionStatus(): BelongsTo
@@ -99,13 +94,23 @@ class Story extends Model
         return $this->belongsTo(CompletionStatus::class, 'CompletionStatusId');
     }
 
+    public function dataset(): BelongsTo
+    {
+        return $this->belongsTo(Dataset::class, 'DatasetId', 'DatasetId');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class, 'StoryId')->orderBy('OrderIndex');
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'ProjectId');
     }
 
-// to harmonize the API regarding the existent database schema
-// we make use some custom accessors and mutators
+    // to harmonize the API regarding the existent database schema
+    // we make use some custom accessors and mutators
 
     public function getItemIdsAttribute(): Collection
     {
