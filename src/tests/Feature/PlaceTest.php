@@ -2,12 +2,13 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Support\Facades\Artisan;
-use Database\Seeders\ProjectDataSeeder;
-use Database\Seeders\StoryDataSeeder;
+use Database\Seeders\DatasetDataSeeder;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\PlaceDataSeeder;
+use Database\Seeders\ProjectDataSeeder;
+use Database\Seeders\StoryDataSeeder;
+use Illuminate\Support\Facades\Artisan;
+use Tests\TestCase;
 
 class PlaceTest extends TestCase
 {
@@ -24,6 +25,7 @@ class PlaceTest extends TestCase
     public static function populateTable (): void
     {
         Artisan::call('db:seed', ['--class' => ProjectDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => DatasetDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PlaceDataSeeder::class]);
@@ -273,6 +275,71 @@ class PlaceTest extends TestCase
         $awaitedData = ['data' => PlaceDataSeeder::$data[1]];
 
         $response = $this->delete(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_dataset_id(): void
+    {
+        $datasetId = StoryDataSeeder::$data[0]['DatasetId'];
+        $endpoint  = '/datasets/' . $datasetId . '/places';
+
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => PlaceDataSeeder::$data];
+
+        $response = $this->get($endpoint);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_dataset_id_and_limited(): void
+    {
+        $datasetId = StoryDataSeeder::$data[0]['DatasetId'];
+        $endpoint  = '/datasets/' . $datasetId . '/places';
+        $queryParams = '?limit=1&page=2';
+
+        $awaitedSuccess = ['success' => true];
+        $awaitedData    = ['data' => [PlaceDataSeeder::$data[1]]];
+
+        $response = $this->get($endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_dataset_filter(): void
+    {
+        $datasetId   = StoryDataSeeder::$data[0]['DatasetId'];
+        $queryParams = '?DatasetId=' . $datasetId;
+
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => PlaceDataSeeder::$data];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_dataset_filter_and_role(): void
+    {
+        $datasetId   = StoryDataSeeder::$data[0]['DatasetId'];
+        $queryParams = '?DatasetId=' . $datasetId . '&PlaceRole=CreationPlace';
+
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [PlaceDataSeeder::$data[0]]];
+
+        $response = $this->get(self::$endpoint . $queryParams);
 
         $response
             ->assertOk()
