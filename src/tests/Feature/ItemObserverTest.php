@@ -8,6 +8,7 @@ use App\Models\Story;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\ItemPropertyDataSeeder;
 use Database\Seeders\LanguageDataSeeder;
+use Database\Seeders\ProjectDataSeeder;
 use Database\Seeders\PropertyDataSeeder;
 use Database\Seeders\PropertyTypeDataSeeder;
 use Database\Seeders\StoryDataSeeder;
@@ -21,11 +22,8 @@ class ItemObserverTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        self::populateTable();
-    }
 
-    protected static function populateTable(): void
-    {
+        Artisan::call('db:seed', ['--class' => ProjectDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => LanguageDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => TranscriptionDataSeeder::class]);
@@ -34,17 +32,6 @@ class ItemObserverTest extends TestCase
         Artisan::call('db:seed', ['--class' => PropertyDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PropertyTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemPropertyDataSeeder::class]);
-    }
-
-    public function test_completion_status_mirrors_transcription_when_not_complete(): void
-    {
-        $item = Item::find(ItemDataSeeder::$data[0]['ItemId']);
-        $item->TranscriptionStatusId = CompletionStatus::Edit;
-        $item->save();
-
-        $item->refresh();
-
-        $this->assertSame(CompletionStatus::Edit, $item->CompletionStatusId);
     }
 
     public function test_completion_status_becomes_complete_when_all_statuses_are_complete(): void
@@ -61,11 +48,53 @@ class ItemObserverTest extends TestCase
         $this->assertSame(CompletionStatus::Completed, $item->CompletionStatusId);
     }
 
-    public function test_completion_status_becomes_review_when_transcription_complete_but_others_are_not(): void
+    public function test_completion_status_becomes_review_when_all_statuses_are_review(): void
+    {
+        $item = Item::find(ItemDataSeeder::$data[0]['ItemId']);
+        $item->TranscriptionStatusId = CompletionStatus::Review;
+        $item->DescriptionStatusId = CompletionStatus::Review;
+        $item->LocationStatusId = CompletionStatus::Review;
+        $item->TaggingStatusId = CompletionStatus::Review;
+        $item->save();
+
+        $item->refresh();
+
+        $this->assertSame(CompletionStatus::Review, $item->CompletionStatusId);
+    }
+
+    public function test_completion_status_becomes_edit_when_all_statuses_are_edit(): void
+    {
+        $item = Item::find(ItemDataSeeder::$data[0]['ItemId']);
+        $item->TranscriptionStatusId = CompletionStatus::Edit;
+        $item->DescriptionStatusId = CompletionStatus::Edit;
+        $item->LocationStatusId = CompletionStatus::Edit;
+        $item->TaggingStatusId = CompletionStatus::Edit;
+        $item->save();
+
+        $item->refresh();
+
+        $this->assertSame(CompletionStatus::Edit, $item->CompletionStatusId);
+    }
+
+    public function test_completion_status_becomes_edit_when_any_status_is_edit(): void
     {
         $item = Item::find(ItemDataSeeder::$data[0]['ItemId']);
         $item->TranscriptionStatusId = CompletionStatus::Completed;
-        $item->DescriptionStatusId = CompletionStatus::Edit;
+        $item->DescriptionStatusId = CompletionStatus::Review;
+        $item->LocationStatusId = CompletionStatus::Edit;
+        $item->TaggingStatusId = CompletionStatus::NotStarted;
+        $item->save();
+
+        $item->refresh();
+
+        $this->assertSame(CompletionStatus::Edit, $item->CompletionStatusId);
+    }
+
+    public function test_completion_status_becomes_review_when_any_status_is_review_and_none_are_edit(): void
+    {
+        $item = Item::find(ItemDataSeeder::$data[0]['ItemId']);
+        $item->TranscriptionStatusId = CompletionStatus::Completed;
+        $item->DescriptionStatusId = CompletionStatus::Review;
         $item->LocationStatusId = CompletionStatus::NotStarted;
         $item->TaggingStatusId = CompletionStatus::NotStarted;
         $item->save();
@@ -75,9 +104,36 @@ class ItemObserverTest extends TestCase
         $this->assertSame(CompletionStatus::Review, $item->CompletionStatusId);
     }
 
+    public function test_completion_status_becomes_review_when_any_status_is_completed_and_others_are_not_started(): void
+    {
+        $item = Item::find(ItemDataSeeder::$data[0]['ItemId']);
+        $item->TranscriptionStatusId = CompletionStatus::Completed;
+        $item->DescriptionStatusId = CompletionStatus::NotStarted;
+        $item->LocationStatusId = CompletionStatus::NotStarted;
+        $item->TaggingStatusId = CompletionStatus::NotStarted;
+        $item->save();
+
+        $item->refresh();
+
+        $this->assertSame(CompletionStatus::Review, $item->CompletionStatusId);
+    }
+
+    public function test_completion_status_remains_not_started_when_all_statuses_are_not_started(): void
+    {
+        $item = Item::find(ItemDataSeeder::$data[0]['ItemId']);
+        $item->TranscriptionStatusId = CompletionStatus::NotStarted;
+        $item->DescriptionStatusId = CompletionStatus::NotStarted;
+        $item->LocationStatusId = CompletionStatus::NotStarted;
+        $item->TaggingStatusId = CompletionStatus::NotStarted;
+        $item->save();
+
+        $item->refresh();
+
+        $this->assertSame(CompletionStatus::NotStarted, $item->CompletionStatusId);
+    }
+
     public function test_completion_status_does_not_change_to_complete_if_already_complete(): void
     {
-
         $item = Item::find(ItemDataSeeder::$data[0]['ItemId']);
         $item->TranscriptionStatusId = CompletionStatus::Completed;
         $item->DescriptionStatusId = CompletionStatus::Completed;
@@ -115,12 +171,18 @@ class ItemObserverTest extends TestCase
         $items = Item::where('StoryId', $story->StoryId)->get();
 
         $items->take($items->count() - 1)->each(function (Item $item) {
-            $item->CompletionStatusId = CompletionStatus::Completed;
+            $item->TranscriptionStatusId = CompletionStatus::Completed;
+            $item->DescriptionStatusId = CompletionStatus::Completed;
+            $item->LocationStatusId = CompletionStatus::Completed;
+            $item->TaggingStatusId = CompletionStatus::Completed;
             $item->save();
         });
 
         $lastItem = $items->last();
-        $lastItem->CompletionStatusId = CompletionStatus::Edit;
+        $lastItem->TranscriptionStatusId = CompletionStatus::Edit;
+        $lastItem->DescriptionStatusId = CompletionStatus::NotStarted;
+        $lastItem->LocationStatusId = CompletionStatus::NotStarted;
+        $lastItem->TaggingStatusId = CompletionStatus::NotStarted;
         $lastItem->save();
 
         $story->refresh();
@@ -134,18 +196,12 @@ class ItemObserverTest extends TestCase
         $story->CompletionStatusId = CompletionStatus::Edit;
         $story->saveQuietly();
 
-        // keep other items non-complete so the complete-branch is skipped
-        Item::where('StoryId', $story->StoryId)->skip(1)
-            ->each(function (Item $item) {
-                $item->saveQuietly();
-            });
-
         $item = Item::where('StoryId', $story->StoryId)->first();
-        $item->TranscriptionStatusId = CompletionStatus::Completed; // needed so applyCompletionStatus doesn't override
-        $item->DescriptionStatusId = CompletionStatus::Edit;
+        $item->TranscriptionStatusId = CompletionStatus::Completed;
+        $item->DescriptionStatusId = CompletionStatus::Review;
         $item->LocationStatusId = CompletionStatus::NotStarted;
         $item->TaggingStatusId = CompletionStatus::NotStarted;
-        $item->save(); // CompletionStatusId will be set to Review by applyCompletionStatus
+        $item->save();
 
         $story->refresh();
 
@@ -163,6 +219,7 @@ class ItemObserverTest extends TestCase
         $item->save();
 
         $story->refresh();
+
         $this->assertSame(CompletionStatus::Completed, $story->CompletionStatusId);
     }
 
@@ -177,9 +234,10 @@ class ItemObserverTest extends TestCase
         $item->DescriptionStatusId = CompletionStatus::NotStarted;
         $item->LocationStatusId = CompletionStatus::NotStarted;
         $item->TaggingStatusId = CompletionStatus::NotStarted;
-        $item->save(); // CompletionStatusId will be set to Edit by applyCompletionStatus
+        $item->save();
 
         $story->refresh();
+
         $this->assertSame(CompletionStatus::Edit, $story->CompletionStatusId);
     }
 
@@ -189,12 +247,12 @@ class ItemObserverTest extends TestCase
         $story->CompletionStatusId = CompletionStatus::NotStarted;
         $story->saveQuietly();
 
-        // Save item without changing CompletionStatusId
         $item = Item::where('StoryId', $story->StoryId)->first();
         $item->Title = 'Updated Title';
         $item->save();
 
         $story->refresh();
+
         $this->assertSame(CompletionStatus::NotStarted, $story->CompletionStatusId);
     }
 

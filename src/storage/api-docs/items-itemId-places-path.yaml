@@ -64,6 +64,11 @@ get:
       description: Filter by area coordinates, upper latitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
       schema:
         type: number
+    - in: query
+      name: LinkProvider
+      description: Show entries associated with this link provider
+      schema:
+        type: string
   responses:
     200:
       description: Ok

@@ -12,10 +12,6 @@ class UpdateItemStatusWhenPlaceIsInserted
     {
         $item = Item::find($event->itemId);
 
-        if ($item->CompletionStatusId === CompletionStatus::NotStarted) {
-            $item->CompletionStatusId = CompletionStatus::Edit;
-        }
-
         if ($item->LocationStatusId === CompletionStatus::NotStarted) {
             $item->LocationStatusId = CompletionStatus::Edit;
         }

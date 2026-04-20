@@ -45,6 +45,13 @@ put:
       application/json:
         schema:
           $ref: 'places-schema.yaml#/PlacesPutRequestSchema'
+        example:
+          Name: Updated place name
+          Comment: Updated comment
+          PlaceRole: Other
+          Links:
+            - Provider: Google Maps
+              Url: https://www.google.com/maps/place/Berlin,+Deutschland
   responses:
     200:
       description: Ok

@@ -18,11 +18,6 @@ PlaceMinimalReferenceSchema:
       type: integer
       description: Id of the item which was enriched with this place
       example: 434384
-    Link:
-      type:
-        - string
-        - 'null'
-      description: A link (unclear, probably not used)
     Comment:
       type:
         - string
@@ -56,6 +51,21 @@ PlaceMinimalReferenceSchema:
       enum: ['CreationPlace', 'Other']
       description: Indicates the role of the place in this item/document. On list view there is an additional string 'StoryPlace' returned, that indicates that the place is coming from the Story meta data.
       example: Other
+    Links:
+      type: array
+      description: External links associated with this place
+      items:
+        type: object
+        properties:
+          Provider:
+            type: string
+            description: Host or provider name of the external link
+            example: Google Maps
+          Url:
+            type: string
+            format: uri
+            description: External URL associated with this place
+            example: https://www.google.com/maps/place/Berlin,+Deutschland
 
 PlacesGetResponseSchema:
   allOf:

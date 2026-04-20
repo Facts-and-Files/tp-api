@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Place;
 use Illuminate\Support\Facades\Artisan;
 use Database\Seeders\LanguageDataSeeder;
 use Database\Seeders\StoryDataSeeder;
 use Database\Seeders\TranscriptionDataSeeder;
 use Database\Seeders\TranscriptionLanguageDataSeeder;
+use Database\Seeders\PlaceDataSeeder;
+use Database\Seeders\PlaceLinkDataSeeder;
 use Database\Seeders\PropertyDataSeeder;
 use Database\Seeders\PropertyTypeDataSeeder;
 use Database\Seeders\ItemDataSeeder;
@@ -33,6 +36,8 @@ class ItemTest extends TestCase
         Artisan::call('db:seed', ['--class' => PropertyDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PropertyTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemPropertyDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => PlaceDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => PlaceLinkDataSeeder::class]);
     }
 
     public function test_get_all_items(): void
@@ -244,5 +249,29 @@ class ItemTest extends TestCase
             ->assertOk()
             ->assertJson($awaitedSuccess)
             ->assertJsonMissing($notAwaitedProperty);
+    }
+
+    public function test_get_places_of_item_filtered_by_link_provider(): void
+    {
+        $itemId = ItemDataSeeder::$data[0]['ItemId'];
+
+        $place = Place::where('ItemId', $itemId)->first();
+        $place->links()->create([
+            'Provider' => 'wikidata.org',
+            'Url' => 'https://www.wikidata.org/wiki/Q998856',
+        ]);
+
+        $endpoint = '/items/' . $itemId . '/places';
+        $queryParams = '?LinkProvider=wikidata.org';
+        $awaitedSuccess = ['success' => true];
+
+        $response = $this->get($endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJsonFragment([
+                'PlaceId' => $place->PlaceId,
+            ]);
     }
 }

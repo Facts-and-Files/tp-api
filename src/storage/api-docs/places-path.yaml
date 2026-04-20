@@ -83,6 +83,11 @@ get:
       description: Filter by area coordinates, upper latitude bounds. All 4 parameter (latMin, latMax, lngMin, lngMax) must be used.
       schema:
         type: number
+    - in: query
+      name: LinkProvider
+      description: Show entries associated with this link provider
+      schema:
+        type: string
   responses:
     200:
       description: Ok
@@ -114,6 +119,22 @@ post:
       application/json:
         schema:
           $ref: 'places-schema.yaml#/PlacesPostRequestSchema'
+        example:
+          Name: Grenzübergang, Bösebrücke, Bornholmer Str., Berlin, Germany
+          Latitude: 52.5547
+          Longitude: 13.398
+          ItemId: 434384
+          Comment: Grenzübergang Bornhomer Str.
+          UserGenerated: true
+          UserId: 42
+          WikidataName: Bihucourt
+          WikidataId: Q998856
+          PlaceRole: CreationPlace
+          Links:
+            - Provider: Google Maps
+              Url: https://www.google.com/maps/place/Berlin,+Deutschland
+            - Provider: wikidata.org
+              Url: https://www.wikidata.org/wiki/Q998856
   responses:
     200:
       description: Ok
