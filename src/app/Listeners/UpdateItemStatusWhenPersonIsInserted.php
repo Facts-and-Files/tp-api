@@ -12,10 +12,6 @@ class UpdateItemStatusWhenPersonIsInserted
     {
         $item = Item::find($event->itemId);
 
-        if ($item->CompletionStatusId === CompletionStatus::NotStarted) {
-            $item->CompletionStatusId = CompletionStatus::Edit;
-        }
-
         if ($item->TaggingStatusId === CompletionStatus::NotStarted) {
             $item->TaggingStatusId = CompletionStatus::Edit;
         }

@@ -67,28 +67,74 @@ class ItemObserver
 
     private function applyCompletionStatus(Item $item): void
     {
-        if ($item->TranscriptionStatusId !== CompletionStatus::Completed) {
-            $item->CompletionStatusId = $item->TranscriptionStatusId;
+        $statuses = [
+            $item->TranscriptionStatusId,
+            $item->DescriptionStatusId,
+            $item->LocationStatusId,
+            $item->TaggingStatusId,
+        ];
 
-            return;
-        }
+        $allCompleted = true;
+        $allReview = true;
+        $allEdit = true;
 
-        if ($this->allStatusesCompleted($item)) {
-            if ($item->CompletionStatusId !== CompletionStatus::Completed) {
-                $item->CompletionStatusId = CompletionStatus::Completed;
+        $hasCompleted = false;
+        $hasReview = false;
+        $hasEdit = false;
+
+        foreach ($statuses as $status) {
+            if ($status !== CompletionStatus::Completed) {
+                $allCompleted = false;
+            } else {
+                $hasCompleted = true;
             }
 
+            if ($status !== CompletionStatus::Review) {
+                $allReview = false;
+            } else {
+                $hasReview = true;
+            }
+
+            if ($status !== CompletionStatus::Edit) {
+                $allEdit = false;
+            } else {
+                $hasEdit = true;
+            }
+        }
+
+        if ($allCompleted) {
+            $item->CompletionStatusId = CompletionStatus::Completed;
             return;
         }
 
-        $item->CompletionStatusId = CompletionStatus::Review;
-    }
+        if ($allReview) {
+            $item->CompletionStatusId = CompletionStatus::Review;
+            return;
+        }
 
-    private function allStatusesCompleted(Item $item): bool
-    {
-        return $item->TranscriptionStatusId === CompletionStatus::Completed
-            && $item->DescriptionStatusId === CompletionStatus::Completed
-            && $item->LocationStatusId === CompletionStatus::Completed
-            && $item->TaggingStatusId === CompletionStatus::Completed;
+        if ($allEdit) {
+            $item->CompletionStatusId = CompletionStatus::Edit;
+            return;
+        }
+
+        // one status is still in edit, so item too
+        if ($hasEdit) {
+            $item->CompletionStatusId = CompletionStatus::Edit;
+            return;
+        }
+
+        // one status is still in review (other are complete or not started), so item too
+        if ($hasReview) {
+            $item->CompletionStatusId = CompletionStatus::Review;
+            return;
+        }
+
+        // one status is complete (others are not started), so item set to review
+        if ($hasCompleted) {
+            $item->CompletionStatusId = CompletionStatus::Review;
+            return;
+        }
+
+        $item->CompletionStatusId = CompletionStatus::NotStarted;
     }
 }
