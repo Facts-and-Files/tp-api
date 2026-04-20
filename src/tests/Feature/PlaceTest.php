@@ -2,12 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Models\Place;
+use App\Enums\CompletionStatus;
 use Database\Seeders\DatasetDataSeeder;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\PlaceDataSeeder;
+use Database\Seeders\PlaceLinkDataSeeder;
 use Database\Seeders\ProjectDataSeeder;
 use Database\Seeders\StoryDataSeeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class PlaceTest extends TestCase
@@ -29,6 +33,7 @@ class PlaceTest extends TestCase
         Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PlaceDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => PlaceLinkDataSeeder::class]);
     }
 
     public function test_get_all_places(): void
@@ -211,6 +216,21 @@ class PlaceTest extends TestCase
             ->assertJson($awaitedData);
     }
 
+    public function test_show_a_place_with_links(): void
+    {
+        $placeId = PlaceDataSeeder::$data[0]['PlaceId'];
+
+        $response = $this->get(self::$endpoint . '/' . $placeId);
+
+        $response
+            ->assertOk()
+            ->assertJson(['success' => true])
+            ->assertJsonPath('data.PlaceId', $placeId)
+            ->assertJsonPath('data.Name', PlaceDataSeeder::$data[0]['Name'])
+            ->assertJsonPath('data.Links.0.Provider', 'Wikidata')
+            ->assertJsonPath('data.Links.1.Provider', 'Wikipedia');
+    }
+
     public function test_creating_a_place_with_missing_fields_returs_422(): void
     {
         $createData = [
@@ -228,58 +248,288 @@ class PlaceTest extends TestCase
     public function test_create_a_place(): void
     {
         $createData = [
-            'Name'      => 'TestStadt 2',
-            'ItemId'    => 1,
+            'Name' => 'TestStadt 3',
+            'ItemId' => 1,
             'Longitude' => 0.0,
-            'Latitude'  => 0.0
+            'Latitude' => 0.0,
+            'Links' => [
+                [
+                    'Provider' => 'Wikidata',
+                    'Url' => 'https://www.wikidata.org/wiki/Q999',
+                ],
+                [
+                    'Provider' => 'Wikipedia',
+                    'Url' => 'https://en.wikipedia.org/wiki/TestStadt_3',
+                ],
+            ],
         ];
-        $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => $createData];
 
         $response = $this->post(self::$endpoint, $createData);
 
         $response
             ->assertOk()
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson(['success' => true])
+            ->assertJsonPath('data.Name', 'TestStadt 3')
+            ->assertJsonPath('data.Links.0.Provider', 'Wikidata')
+            ->assertJsonPath('data.Links.0.Url', 'https://www.wikidata.org/wiki/Q999')
+            ->assertJsonPath('data.Links.1.Provider', 'Wikipedia')
+            ->assertJsonPath('data.Links.1.Url', 'https://en.wikipedia.org/wiki/TestStadt_3');
+
+        $placeId = $response->json('data.PlaceId');
+
+        $this->assertDatabaseHas('PlaceLink', [
+            'PlaceId' => $placeId,
+            'Provider' => 'Wikidata',
+            'Url' => 'https://www.wikidata.org/wiki/Q999',
+        ]);
+
+        $this->assertDatabaseHas('PlaceLink', [
+            'PlaceId' => $placeId,
+            'Provider' => 'Wikipedia',
+            'Url' => 'https://en.wikipedia.org/wiki/TestStadt_3',
+        ]);
+    }
+
+    public function test_create_a_place_with_multiple_links(): void
+    {
+        $createData = [
+            'Name' => 'TestStadt 2',
+            'ItemId' => 1,
+            'Longitude' => 0.0,
+            'Latitude' => 0.0,
+            'Links' => [
+                [
+                    'Provider' => 'Wikidata',
+                    'Url' => 'https://www.wikidata.org/wiki/Q42',
+                ],
+                [
+                    'Provider' => 'Wikipedia',
+                    'Url' => 'https://en.wikipedia.org/wiki/Douglas_Adams',
+                ],
+            ],
+        ];
+
+        $response = $this->post(self::$endpoint, $createData);
+
+        $response
+            ->assertOk()
+            ->assertJson(['success' => true])
+            ->assertJsonPath('data.Name', 'TestStadt 2')
+            ->assertJsonPath('data.Links.0.Provider', 'Wikidata')
+            ->assertJsonPath('data.Links.1.Provider', 'Wikipedia');
+
+        $this->assertDatabaseHas('PlaceLink', [
+            'Provider' => 'Wikidata',
+            'Url' => 'https://www.wikidata.org/wiki/Q42',
+        ]);
+
+        $this->assertDatabaseHas('PlaceLink', [
+            'Provider' => 'Wikipedia',
+            'Url' => 'https://en.wikipedia.org/wiki/Douglas_Adams',
+        ]);
+    }
+
+    public function test_update_a_place_and_replace_links(): void
+    {
+        $placeId = PlaceDataSeeder::$data[0]['PlaceId'];
+
+        // Seed initial links here or create them directly before request
+
+        $updateData = [
+            'Links' => [
+                [
+                    'Provider' => 'Google Maps',
+                    'Url' => 'https://maps.google.com/?q=1,1',
+                ],
+            ],
+        ];
+
+        $response = $this->put(self::$endpoint . '/' . $placeId, $updateData);
+
+        $response
+            ->assertOk()
+            ->assertJson(['success' => true])
+            ->assertJsonPath('data.Links.0.Provider', 'Google Maps');
+
+        $this->assertDatabaseHas('PlaceLink', [
+            'PlaceId' => $placeId,
+            'Provider' => 'Google Maps',
+            'Url' => 'https://maps.google.com/?q=1,1',
+        ]);
+    }
+
+    public function test_create_a_place_with_invalid_link_url_returns_422(): void
+    {
+        $createData = [
+            'Name' => 'Test',
+            'ItemId' => 1,
+            'Longitude' => 0.0,
+            'Latitude' => 0.0,
+            'Links' => [
+                [
+                    'Provider' => 'Wikidata',
+                    'Url' => 'not-a-valid-url',
+                ],
+            ],
+        ];
+
+        $response = $this->post(self::$endpoint, $createData);
+
+        $response
+            ->assertStatus(422)
+            ->assertJson(['success' => false]);
     }
 
     public function test_update_item_status_when_place_is_inserted(): void
     {
-        $this->markTestSkipped('must be revisited.');
-    }
+        $itemId = ItemDataSeeder::$data[0]['ItemId'];
 
-    public function test_update_a_place(): void
-    {
-        $updateData = [
-            'Name' => 'Teststadt 4'
+        DB::table('Item')
+            ->where('ItemId', $itemId)
+            ->update([
+                'CompletionStatusId' => CompletionStatus::NotStarted,
+                'LocationStatusId' => CompletionStatus::NotStarted,
+            ]);
+
+        $createData = [
+            'Name' => 'Place status test',
+            'ItemId' => $itemId,
+            'Longitude' => 10.123456,
+            'Latitude' => 20.123456,
         ];
-        $placeId = PlaceDataSeeder::$data[1]['PlaceId'];
-        $queryParams = '/' . $placeId;
-        $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => $updateData];
 
-        $response = $this->put(self::$endpoint . $queryParams, $updateData);
+        $response = $this->post(self::$endpoint, $createData);
 
         $response
             ->assertOk()
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson(['success' => true]);
+
+        $this->assertDatabaseHas('Item', [
+            'ItemId' => $itemId,
+            'CompletionStatusId' => CompletionStatus::Edit,
+            'LocationStatusId' => CompletionStatus::Edit,
+        ]);
+    }
+
+    public function test_place_insert_does_not_overwrite_existing_item_statuses(): void
+    {
+        $itemId = ItemDataSeeder::$data[0]['ItemId'];
+
+        DB::table('Item')
+            ->where('ItemId', $itemId)
+            ->update([
+                'CompletionStatusId' => CompletionStatus::Completed,
+                'LocationStatusId' => CompletionStatus::Edit,
+            ]);
+
+        $response = $this->post(self::$endpoint, [
+            'Name' => 'Place status guard test',
+            'ItemId' => $itemId,
+            'Longitude' => 10.123456,
+            'Latitude' => 20.123456,
+        ]);
+
+        $response->assertOk();
+
+        $this->assertDatabaseHas('Item', [
+            'ItemId' => $itemId,
+            'CompletionStatusId' => CompletionStatus::Completed,
+            'LocationStatusId' => CompletionStatus::Edit,
+        ]);
+    }
+    /* public function test_update_item_status_when_place_is_inserted(): void */
+    /* { */
+    /*     $this->markTestSkipped('must be revisited.'); */
+    /* } */
+
+    public function test_update_a_place(): void
+    {
+        $placeId = PlaceDataSeeder::$data[1]['PlaceId'];
+
+        $updateData = [
+            'Name' => 'Teststadt 4',
+            'Links' => [
+                [
+                    'Provider' => 'Google Maps',
+                    'Url' => 'https://maps.google.com/?q=1,1',
+                ],
+                [
+                    'Provider' => 'OpenStreetMap',
+                    'Url' => 'https://www.openstreetmap.org/?mlat=1&mlon=1',
+                ],
+            ],
+        ];
+
+        $response = $this->put(self::$endpoint . '/' . $placeId, $updateData);
+
+        $response
+            ->assertOk()
+            ->assertJson(['success' => true])
+            ->assertJsonPath('data.Name', 'Teststadt 4')
+            ->assertJsonPath('data.Links.0.Provider', 'Google Maps')
+            ->assertJsonPath('data.Links.1.Provider', 'OpenStreetMap');
+
+        $this->assertDatabaseHas('PlaceLink', [
+            'PlaceId' => $placeId,
+            'Provider' => 'Google Maps',
+            'Url' => 'https://maps.google.com/?q=1,1',
+        ]);
+
+        $this->assertDatabaseHas('PlaceLink', [
+            'PlaceId' => $placeId,
+            'Provider' => 'OpenStreetMap',
+            'Url' => 'https://www.openstreetmap.org/?mlat=1&mlon=1',
+        ]);
+
+        $this->assertDatabaseMissing('PlaceLink', [
+            'PlaceId' => $placeId,
+            'Provider' => 'Wikidata',
+            'Url' => 'https://www.wikidata.org/wiki/Q778',
+        ]);
+    }
+
+    public function test_update_a_place_with_empty_links_array_removes_all_links(): void
+    {
+        $placeId = PlaceDataSeeder::$data[0]['PlaceId'];
+
+        $response = $this->put(self::$endpoint . '/' . $placeId, [
+            'Links' => [],
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertJson(['success' => true])
+            ->assertJsonCount(0, 'data.Links');
+
+        $this->assertDatabaseMissing('PlaceLink', [
+            'PlaceId' => $placeId,
+            'Provider' => 'Wikidata',
+        ]);
+
+        $this->assertDatabaseMissing('PlaceLink', [
+            'PlaceId' => $placeId,
+            'Provider' => 'Wikipedia',
+        ]);
     }
 
     public function test_delete_a_place(): void
     {
         $placeId = PlaceDataSeeder::$data[1]['PlaceId'];
         $queryParams = '/' . $placeId;
-        $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => PlaceDataSeeder::$data[1]];
 
         $response = $this->delete(self::$endpoint . $queryParams);
 
         $response
             ->assertOk()
-            ->assertJson($awaitedSuccess)
-            ->assertJson($awaitedData);
+            ->assertJson(['success' => true]);
+
+        $this->assertDatabaseMissing('Place', [
+            'PlaceId' => $placeId,
+        ]);
+
+        $this->assertDatabaseMissing('PlaceLink', [
+            'PlaceId' => $placeId,
+        ]);
     }
 
     public function test_get_all_places_by_dataset_id(): void
@@ -345,5 +595,32 @@ class PlaceTest extends TestCase
             ->assertOk()
             ->assertJson($awaitedSuccess)
             ->assertJson($awaitedData);
+    }
+
+    public function test_get_all_places_by_link_provider(): void
+    {
+        $placeId = PlaceDataSeeder::$data[0]['PlaceId'];
+
+        $place = Place::find($placeId);
+        $place->links()->create([
+            'Provider' => 'wikidata.org',
+            'Url' => 'https://www.wikidata.org/wiki/Q998856',
+        ]);
+
+        $queryParams = '?LinkProvider=wikidata.org';
+        $awaitedSuccess = ['success' => true];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJsonFragment([
+                'PlaceId' => $placeId,
+            ]);
+
+        $response->assertJsonMissing([
+            'PlaceId' => PlaceDataSeeder::$data[1]['PlaceId'],
+        ]);
     }
 }
