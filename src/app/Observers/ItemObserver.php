@@ -15,7 +15,7 @@ class ItemObserver
 
     public function updated(Item $item): void
     {
-        if (! $item->wasChanged('CompletionStatusId')) {
+        if (!$item->wasChanged('CompletionStatusId')) {
             return;
         }
 
