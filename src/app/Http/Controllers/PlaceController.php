@@ -13,6 +13,7 @@ use App\Models\Story;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PlaceController extends ResponseController
 {
@@ -39,7 +40,7 @@ class PlaceController extends ResponseController
 
         $initialSortColumn = 'Place.PlaceId';
 
-        $query = $this->buildQueryByParentId($request);
+        $query = $this->buildQueryByParentId($request)->with('links');;
 
         $data = $this->getDataByRequest($request, $query, $queryColumns, $initialSortColumn);
 
@@ -54,7 +55,7 @@ class PlaceController extends ResponseController
 
     public function show(int $id): JsonResponse
     {
-        $place = Place::findOrFail($id);
+        $place = Place::with('links')->findOrFail($id);
         $resource = new PlaceResource($place);
 
         return $this->sendResponse($resource, 'Place fetched.');
@@ -62,41 +63,46 @@ class PlaceController extends ResponseController
 
     public function store(Request $request): JsonResponse
     {
-        $validatedData = $request->validate([
-            'ItemId'    => 'required',
-            'Longitude' => 'required',
-            'Latitude'  => 'required'
-        ]);
+        $validatedData = $this->validatePlaceRequest($request, true);
 
-        $place = new Place();
-        $place->ItemId = $validatedData['ItemId'];
-        $place->Latitude = $validatedData['Latitude'];
-        $place->Longitude = $validatedData['Longitude'];
-        $place->fill($request->all());
-        $place->save();
+        $place = DB::transaction(function () use ($request, $validatedData) {
+            $place = new Place();
+            $place->fill($request->except('Links'));
+            $place->save();
+
+            $this->syncLinks($place, $validatedData['Links'] ?? []);
+
+            return $place->load('links');
+        });
 
         PlaceInserted::dispatch($place->ItemId);
 
-        $resource = new PlaceResource($place);
-
-        return $this->sendResponse($resource, 'Place inserted.');
+        return $this->sendResponse(new PlaceResource($place), 'Place inserted.');
     }
 
     public function update(Request $request, int $id): JsonResponse
     {
-        $place = Place::findOrfail($id);
-        $place->fill($request->all());
-        $place->save();
+        $validatedData = $this->validatePlaceRequest($request, false);
 
-        $resource = new PlaceResource($place);
+        $place = DB::transaction(function () use ($request, $validatedData, $id) {
+            $place = Place::findOrFail($id);
+            $place->fill($request->except('Links'));
+            $place->save();
 
-        return $this->sendResponse($resource, 'Place updated.');
+            if ($request->has('Links')) {
+                $this->syncLinks($place, $validatedData['Links'] ?? []);
+            }
+
+            return $place->load('links');
+        });
+
+        return $this->sendResponse(new PlaceResource($place), 'Place updated.');
     }
 
     public function destroy(int $id): JsonResponse
     {
-        $place = Place::findOrfail($id);
-        $resource = new PlaceResource($place->toArray());
+        $place = Place::with('links')->findOrFail($id);
+        $resource = new PlaceResource($place);
         $place->delete();
 
         return $this->sendResponse($resource, 'Place deleted.');
@@ -128,6 +134,23 @@ class PlaceController extends ResponseController
         $request->merge(['DatasetId' => $datasetId]);
 
         return $this->index($request);
+    }
+
+    private function validatePlaceRequest(Request $request, bool $isCreate): array
+    {
+        $rules = [
+            'Links' => 'sometimes|array',
+            'Links.*.Provider' => 'required_with:Links|string|max:255',
+            'Links.*.Url' => 'required_with:Links|url|max:1000',
+        ];
+
+        if ($isCreate) {
+            $rules['ItemId'] = 'required';
+            $rules['Longitude'] = 'required';
+            $rules['Latitude'] = 'required';
+        }
+
+        return $request->validate($rules);
     }
 
     private function buildQueryByParentId(Request $request): Builder
@@ -167,6 +190,29 @@ class PlaceController extends ResponseController
                   ->where('Story.DatasetId', '=', $datasetId);
         }
 
+        if ($request->has('LinkProvider')) {
+            $provider = $request->get('LinkProvider');
+
+            $query->whereExists(function ($sub) use ($provider) {
+                $sub->from('PlaceLink')
+                    ->whereColumn('PlaceLink.PlaceId', 'Place.PlaceId')
+                    ->where('PlaceLink.Provider', '=', $provider);
+            });
+        }
+
         return $query;
     }
+
+    private function syncLinks(Place $place, array $links = []): void
+    {
+        $place->links()->delete();
+
+        foreach ($links as $link) {
+            $place->links()->create([
+                'Provider' => $link['Provider'],
+                'Url' => $link['Url'],
+            ]);
+        }
+    }
+
 }
