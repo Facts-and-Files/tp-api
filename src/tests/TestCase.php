@@ -42,6 +42,7 @@ abstract class TestCase extends BaseTestCase
             '2026_04_08_080753_create_job_batches_table.php',
             '2026_04_15_101800_add_permissions_and_description_to_personal_access_tokens_table.php',
             '2026_04_20_094300_create_place_link_table.php',
+            '2026_04_21_103700_change_format_to_varchar_in_export_cache_table.php',
         ];
 
         foreach ($additionalMigrations as $migration) {
