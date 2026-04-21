@@ -1,7 +1,7 @@
 get:
   tags:
     - transcriptions
-  summary: Get stored transcription data of an entry
+  summary: Get a Transcription
   description: The returned data is single object
   parameters:
     - in: path

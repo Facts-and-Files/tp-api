@@ -17,6 +17,7 @@ get:
         type: string
         enum:
           - alto
+          - pagexml
       required: true
   responses:
     200:

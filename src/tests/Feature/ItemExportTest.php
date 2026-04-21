@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use Database\Seeders\HtrDataDataSeeder;
+use Database\Seeders\HtrDataRevisionDataSeeder;
 use Database\Seeders\ItemDataSeeder;
 use Database\Seeders\ItemPropertyDataSeeder;
 use Database\Seeders\LanguageDataSeeder;
@@ -31,6 +33,8 @@ class ItemExportTest extends TestCase
         Artisan::call('db:seed', ['--class' => PropertyDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PropertyTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ItemPropertyDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => HtrDataDataSeeder::class]);
+        Artisan::call('db:seed', ['--class' => HtrDataRevisionDataSeeder::class]);
     }
 
     public function test_export_item_to_alto_returns_xml_with_filename(): void
@@ -94,5 +98,67 @@ class ItemExportTest extends TestCase
         $attributes = $page[0]->attributes();
         $this->assertGreaterThan(0, (int) $attributes['WIDTH']);
         $this->assertGreaterThan(0, (int) $attributes['HEIGHT']);
+    }
+
+    public function test_export_item_to_pagexml_returns_converted_pagexml(): void
+    {
+        $itemId = 1;
+        $endpoint = "/items/{$itemId}/export/pagexml";
+
+        $response = $this->get($endpoint);
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/xml; charset=utf-8');
+
+        $xmlString = $response->streamedContent();
+
+        $this->assertNotEmpty($xmlString);
+        $this->assertStringContainsString('<PcGts', $xmlString);
+
+        $xml = simplexml_load_string($xmlString);
+        $this->assertNotFalse($xml, 'Result is not valid XML');
+
+        $xml->registerXPathNamespace(
+            'page',
+            'http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15'
+        );
+
+        $creator = $xml->xpath('//page:Metadata/page:Creator');
+        $page = $xml->xpath('//page:Page');
+
+        $this->assertNotEmpty($page);
+        $this->assertNotEmpty($creator);
+        $this->assertSame('Transcribathon API Exporter', (string) $creator[0]);
+    }
+
+    public function test_export_item_to_pagexml_returns_existing_htr_pagexml(): void
+    {
+        $itemId = 7;
+        $endpoint = "/items/{$itemId}/export/pagexml";
+
+        $response = $this->get($endpoint);
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/xml; charset=utf-8');
+
+        $xmlString = $response->streamedContent();
+
+        $this->assertNotEmpty($xmlString);
+        $this->assertStringContainsString('<PcGts', $xmlString);
+
+        $xml = simplexml_load_string($xmlString);
+        $this->assertNotFalse($xml, 'Result is not valid XML');
+
+        $xml->registerXPathNamespace(
+            'page',
+            'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'
+        );
+
+        $creator = $xml->xpath('//page:Metadata/page:Creator');
+        $page = $xml->xpath('//page:Page');
+
+        $this->assertNotEmpty($page);
+        $this->assertNotEmpty($creator);
+        $this->assertSame('Transkribus Processing API', (string) $creator[0]);
     }
 }
