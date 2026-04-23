@@ -6,6 +6,7 @@ use App\Models\Dataset;
 use App\Models\Item;
 use App\Models\Project;
 use App\Models\Story;
+use App\Services\Import\DTO\ParsedJsonLdData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -15,6 +16,8 @@ class Importer
 {
     public function __construct(
         private readonly IiifManifestClient $manifestClient,
+        private readonly DeiStoryDataMapper $deiStoryDataMapper,
+        private readonly DeiItemFactory $deiItemFactory,
     ) {}
 
     public function importAll(array $data): array
@@ -48,33 +51,40 @@ class Importer
     }
 
     public function importFromJsonLd(
-        array  $parsed,
-        int    $projectId,
-        int    $datasetId,
+        ParsedJsonLdData $parsed,
+        int $projectId,
+        int $datasetId,
         string $importName,
         string $rawBody,
     ): string {
-        $recordId = $parsed['recordId'];
+        $recordId = $parsed->recordId;
 
         DB::transaction(function () use ($parsed, $projectId, $datasetId, $importName) {
-            $existing = Story::where('RecordId', $parsed['recordId'])->first();
+            $existing = Story::where('RecordId', $parsed->recordId)->first();
 
-            $storyData = $this->parsedToStoryData($parsed, $projectId, $datasetId, $importName);
+            $storyData = $this->deiStoryDataMapper->map(
+                parsed: $parsed,
+                projectId: $projectId,
+                datasetId: $datasetId,
+                importName: $importName,
+            );
 
             if ($existing === null) {
                 $story = $this->buildStory($storyData);
                 $story->save();
-                $this->importItemsFromJsonLd($story, $parsed);
-            } else {
-                // Java behaviour: update Story only, leave existing Items untouched
-                $story = $this->buildStory($storyData, $existing);
-                $story->save();
+                $this->importItems($this->deiItemFactory->make($story, $parsed), $story);
+
+                return;
             }
+
+            // Java behaviour: update Story only, leave existing Items untouched
+            $story = $this->buildStory($storyData, $existing);
+            $story->save();
         });
 
         $this->saveRawImport($importName, $recordId, $rawBody);
 
-        return $parsed['externalRecordId'];
+        return $parsed->externalRecordId;
     }
 
     private function importStory(array $import, $validProjectIds, $validDatasetIds): array
@@ -191,111 +201,6 @@ class Importer
             'dc:title'         => $title,
             'error'            => $error,
         ];
-    }
-
-    // =========================================================================
-    // New private helpers for the JSON-LD path
-    // =========================================================================
-
-    /**
-     * Convert the flat parser output into the same storyData shape
-     * that buildStory() already expects.
-     */
-    private function parsedToStoryData(
-        array  $parsed,
-        int    $projectId,
-        int    $datasetId,
-        string $importName,
-    ): array {
-        $f = $parsed['fields'];
-
-        return [
-            'ExternalRecordId' => $parsed['externalRecordId'],
-            'RecordId'         => $parsed['recordId'],
-            'ImportName'       => $importName,
-            'DatasetId'        => $datasetId,
-            'ProjectId'        => $projectId,
-            'PlaceUserGenerated' => true,
-            'PlaceName'        => $f['PlaceName']      ?? null,
-            'PlaceLatitude'    => $f['PlaceLatitude']  ?? null,
-            'PlaceLongitude'   => $f['PlaceLongitude'] ?? null,
-            'Dc' => [
-                'Title'       => $f['dc:title']       ?? null,
-                'Description' => $f['dc:description'] ?? null,
-                'Creator'     => $f['dc:creator']     ?? null,
-                'Source'      => $f['dc:source']      ?? null,
-                'Contributor' => $f['dc:contributor'] ?? null,
-                'Publisher'   => $f['dc:publisher']   ?? null,
-                'Coverage'    => $f['dc:coverage']    ?? null,
-                'Date'        => $f['dc:date']        ?? null,
-                'Type'        => $f['dc:type']        ?? null,
-                'Relation'    => $f['dc:relation']    ?? null,
-                'Rights'      => $f['dc:rights']      ?? null,
-                'Language'    => $f['dc:language']    ?? null,
-                'Identifier'  => $f['dc:identifier']  ?? null,
-            ],
-            'Dcterms' => [
-                'Medium'     => $f['dcterms:medium']     ?? null,
-                'Created'    => $f['dcterms:created']    ?? null,
-                'Provenance' => $f['dcterms:provenance'] ?? null,
-            ],
-            'Edm' => [
-                'LandingPage'  => $f['edm:landingPage']  ?? null,
-                'Country'      => $f['edm:country']      ?? null,
-                'DataProvider' => $f['edm:dataProvider'] ?? null,
-                'Provider'     => $f['edm:provider']     ?? null,
-                'Rights'       => $f['edm:rights']       ?? null,
-                'Year'         => $f['edm:year']         ?? null,
-                'DatasetName'  => $f['edm:datasetName']  ?? null,
-                'Begin'        => $f['edm:begin']        ?? null,
-                'End'          => $f['edm:end']          ?? null,
-                'IsShownAt'    => $f['edm:isShownAt']    ?? null,
-                'Language'     => $f['edm:language']     ?? null,
-                'Agent'        => $f['edm:agent']        ?? null,
-            ],
-        ];
-    }
-
-    private function importItemsFromJsonLd(Story $story, array $parsed): void
-    {
-        $storyTitle        = $parsed['fields']['dc:title'] ?? '';
-        $manifestUrl       = $parsed['manifestUrl'];
-        $manifestConverted = $parsed['manifestConverted'];
-        $pdfImage          = $parsed['pdfImage'];
-
-        if ($manifestUrl === '') {
-            $this->importItems([[
-                'Title'      => trim($storyTitle) . ' Item 1',
-                'ImageLink'  => '',
-                'OrderIndex' => 1,
-                'Manifest'   => '',
-            ]], $story);
-            return;
-        }
-
-        $manifest   = $this->manifestClient->fetch($manifestUrl, $manifestConverted, $pdfImage);
-        $canvases   = $manifest['canvases'];
-        $imageLinks = $manifest['imageLinks'];
-
-        $items = [];
-        foreach ($canvases as $index => $canvas) {
-            $imageLink = data_get($canvas, 'images.0.resource', '');
-
-            $items[] = [
-                'Title'           => trim($storyTitle) . ' Item ' . ($index + 1),
-                'ImageLink'       => json_encode($imageLink),
-                'OrderIndex'      => $index + 1,
-                'Manifest'        => $manifestUrl,
-                'edm:WebResource' => $imageLinks[$index] ?? '',
-            ];
-
-            if ($index === 0) {
-                $story->PreviewImage = $imageLink;
-                $story->save();
-            }
-        }
-
-        $this->importItems($items, $story);
     }
 
     private function saveRawImport(string $importName, string $recordId, string $rawBody): void

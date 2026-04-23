@@ -54,11 +54,11 @@ class ImportController extends ResponseController
             'iiif_url' => ['nullable', 'string', 'url'],
         ]);
 
-        $importName = $request->query('importName');
-        $datasetId  = $request->query('datasetId');
-        $projectId  = $request->query('projectId');
+        $importName = (string) $request->query('importName', '');
+        $datasetId = (int) $request->query('datasetId');
+        $projectId = (int) $request->query('projectId');
 
-        if (empty($importName) || empty($datasetId) || empty($projectId)) {
+        if ($importName === '' || $datasetId === 0 || $projectId === 0) {
             return $this->sendError(
                 'Invalid data',
                 'projectId, importName and datasetId query parameters are required.',
@@ -87,7 +87,7 @@ class ImportController extends ResponseController
             $request->input('iiif_url') ?? null,
         );
 
-        if (empty($parsed['recordId'])) {
+        if (!$parsed->hasRecordId()) {
             return $this->sendError(
                 'Invalid data',
                 'Could not extract RecordId from payload.',
@@ -99,9 +99,9 @@ class ImportController extends ResponseController
             $externalRecordId = $this->importer->importFromJsonLd(
                 parsed: $parsed,
                 projectId: $projectId,
-                datasetId:  (int) $datasetId,
+                datasetId: $datasetId,
                 importName: $importName,
-                rawBody: json_encode($request->all()),
+                rawBody: (string) json_encode($request->all()),
             );
         } catch (RuntimeException $e) {
             return $this->sendError('Import failed', $e->getMessage(), 400);

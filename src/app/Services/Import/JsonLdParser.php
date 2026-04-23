@@ -2,6 +2,8 @@
 
 namespace App\Services\Import;
 
+use App\Services\Import\DTO\ParsedJsonLdData;
+
 class JsonLdParser
 {
     /** DC / DCterms / EDM fields that map 1-to-1 onto Story columns */
@@ -15,17 +17,15 @@ class JsonLdParser
         'dcterms:medium', 'dcterms:provenance', 'dcterms:created',
     ];
 
-    public function parse(array $graph, ?string $topLevelIiifUrl): array
+    public function parse(array $graph, ?string $iiifUrl = null): ParsedJsonLdData
     {
-        $fields     = [];
+        $fields = [];
+        $manifestUrl = $iiifUrl ?? '';
+        $manifestConverted = $iiifUrl !== null;
+        $pdfImage = '';
         $imageLinks = [];
-        $manifestUrl = $topLevelIiifUrl ?? '';
-        // Node-level iiif_url and dcterms:isReferencedBy both leave this false,
-        // meaning the manifest client will follow a redirect if one is returned.
-        $manifestConverted = $topLevelIiifUrl !== null && $topLevelIiifUrl !== '';
-        $pdfImage   = '';
         $externalRecordId = '';
-        $recordId   = '';
+        $recordId = '';
 
         foreach ($graph as $node) {
             $type = $node['@type'] ?? null;
@@ -93,15 +93,15 @@ class JsonLdParser
             }
         }
 
-        return [
-            'fields'            => $fields,
-            'manifestUrl'       => $manifestUrl,
-            'manifestConverted' => $manifestConverted,
-            'pdfImage'          => $pdfImage,
-            'imageLinks'        => $imageLinks,
-            'externalRecordId'  => $externalRecordId,
-            'recordId'          => $recordId,
-        ];
+        return new ParsedJsonLdData(
+            fields: $fields,
+            manifestUrl: $manifestUrl,
+            manifestConverted: $manifestConverted,
+            pdfImage: $pdfImage,
+            imageLinks: $imageLinks,
+            externalRecordId: $externalRecordId,
+            recordId: $recordId,
+        );
     }
 
     private function extractValue(mixed $value): ?string
