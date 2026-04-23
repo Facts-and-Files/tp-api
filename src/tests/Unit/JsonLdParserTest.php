@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Services\Import\JsonLdParser;
+use App\Services\Import\DTO\ParsedJsonLdData;
 use Tests\TestCase;
 
 class JsonLdParserTest extends TestCase
@@ -28,8 +29,9 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('http://data.europeana.eu/item/123/abc', $result['externalRecordId']);
-        $this->assertSame('/123/abc', $result['recordId']);
+        $this->assertInstanceOf(ParsedJsonLdData::class, $result);
+        $this->assertSame('http://data.europeana.eu/item/123/abc', $result->externalRecordId);
+        $this->assertSame('/123/abc', $result->recordId);
     }
 
     // ── Scalar metadata fields ─────────────────────────────────────────────
@@ -45,7 +47,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('My Title', $result['fields']['dc:title']);
+        $this->assertSame('My Title', $result->fields['dc:title']);
     }
 
     public function test_extracts_dc_title_from_json_ld_value_object(): void
@@ -59,7 +61,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('Value Object Title', $result['fields']['dc:title']);
+        $this->assertSame('Value Object Title', $result->fields['dc:title']);
     }
 
     public function test_extracts_dc_title_from_json_ld_id_object(): void
@@ -73,7 +75,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('http://example.com/title', $result['fields']['dc:title']);
+        $this->assertSame('http://example.com/title', $result->fields['dc:title']);
     }
 
     // ── Multi-value concatenation ──────────────────────────────────────────
@@ -92,7 +94,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('First || Second', $result['fields']['dc:title']);
+        $this->assertSame('First || Second', $result->fields['dc:title']);
     }
 
     public function test_prefers_english_value_from_language_tagged_array(): void
@@ -108,7 +110,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('English Title', $result['fields']['dc:title']);
+        $this->assertSame('English Title', $result->fields['dc:title']);
     }
 
     // ── Description sanitisation ───────────────────────────────────────────
@@ -123,10 +125,10 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertStringNotContainsString('"', $result['fields']['dc:description']);
-        $this->assertStringNotContainsString('{', $result['fields']['dc:description']);
-        $this->assertStringNotContainsString('[', $result['fields']['dc:description']);
-        $this->assertSame('Some description', $result['fields']['dc:description']);
+        $this->assertStringNotContainsString('"', $result->fields['dc:description']);
+        $this->assertStringNotContainsString('{', $result->fields['dc:description']);
+        $this->assertStringNotContainsString('[', $result->fields['dc:description']);
+        $this->assertSame('Some description', $result->fields['dc:description']);
     }
 
     // ── Place extraction ───────────────────────────────────────────────────
@@ -143,8 +145,8 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('52.5200', $result['fields']['PlaceLatitude']);
-        $this->assertSame('13.4050', $result['fields']['PlaceLongitude']);
+        $this->assertSame('52.5200', $result->fields['PlaceLatitude']);
+        $this->assertSame('13.4050', $result->fields['PlaceLongitude']);
     }
 
     public function test_extracts_place_lat_lon_from_wgs84_namespace(): void
@@ -159,8 +161,8 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('48.8566', $result['fields']['PlaceLatitude']);
-        $this->assertSame('2.3522', $result['fields']['PlaceLongitude']);
+        $this->assertSame('48.8566', $result->fields['PlaceLatitude']);
+        $this->assertSame('2.3522', $result->fields['PlaceLongitude']);
     }
 
     public function test_extracts_place_name_from_scalar_skos_pref_label(): void
@@ -174,7 +176,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('Berlin', $result['fields']['PlaceName']);
+        $this->assertSame('Berlin', $result->fields['PlaceName']);
     }
 
     public function test_only_first_place_node_is_used(): void
@@ -194,7 +196,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('52.00', $result['fields']['PlaceLatitude']);
+        $this->assertSame('52.00', $result->fields['PlaceLatitude']);
     }
 
     // ── edm:WebResource / image links ─────────────────────────────────────
@@ -214,8 +216,8 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertCount(2, $result['imageLinks']);
-        $this->assertContains('https://example.com/image1.jpg', $result['imageLinks']);
+        $this->assertCount(2, $result->imageLinks);
+        $this->assertContains('https://example.com/image1.jpg', $result->imageLinks);
     }
 
     public function test_separates_pdf_image_from_regular_image_links(): void
@@ -234,9 +236,9 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('https://example.com/doc.pdf', $result['pdfImage']);
-        $this->assertCount(1, $result['imageLinks']);
-        $this->assertNotContains('https://example.com/doc.pdf', $result['imageLinks']);
+        $this->assertSame('https://example.com/doc.pdf', $result->pdfImage);
+        $this->assertCount(1, $result->imageLinks);
+        $this->assertNotContains('https://example.com/doc.pdf', $result->imageLinks);
     }
 
     // ── Manifest URL resolution ────────────────────────────────────────────
@@ -245,7 +247,7 @@ class JsonLdParserTest extends TestCase
     {
         $result = $this->parser->parse([], 'https://example.com/manifest.json');
 
-        $this->assertSame('https://example.com/manifest.json', $result['manifestUrl']);
+        $this->assertSame('https://example.com/manifest.json', $result->manifestUrl);
     }
 
     public function test_dcterms_is_referenced_by_used_as_manifest_url_when_no_top_level_url(): void
@@ -260,7 +262,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertSame('https://example.com/iiif/manifest', $result['manifestUrl']);
+        $this->assertSame('https://example.com/iiif/manifest', $result->manifestUrl);
     }
 
     public function test_top_level_iiif_url_takes_priority_over_dcterms_reference(): void
@@ -275,7 +277,7 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, 'https://example.com/iiif/top-level');
 
-        $this->assertSame('https://example.com/iiif/top-level', $result['manifestUrl']);
+        $this->assertSame('https://example.com/iiif/top-level', $result->manifestUrl);
     }
 
     // ── Empty / minimal payloads ───────────────────────────────────────────
@@ -284,8 +286,8 @@ class JsonLdParserTest extends TestCase
     {
         $result = $this->parser->parse([], null);
 
-        $this->assertSame('', $result['externalRecordId']);
-        $this->assertSame('', $result['recordId']);
+        $this->assertSame('', $result->externalRecordId);
+        $this->assertSame('', $result->recordId);
     }
 
     public function test_unknown_nodes_are_ignored_without_errors(): void
@@ -299,6 +301,6 @@ class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph, null);
 
-        $this->assertEmpty($result['fields']);
+        $this->assertEmpty($result->fields);
     }
 }
