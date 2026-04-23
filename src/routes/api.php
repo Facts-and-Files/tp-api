@@ -176,6 +176,7 @@ Route::middleware(['api.permission'])->group(function() {
     Route::get('/transcriptions/{id}', [TranscriptionController::class, 'show']);
 
     Route::post('/import', [ImportController::class, 'import']);
+    Route::post('/import/dei', [ImportController::class, 'importFromDei']);
 
     Route::post('/update-solr', [SolrController::class, 'update']);
     Route::get('/update-solr', [SolrController::class, 'update']);

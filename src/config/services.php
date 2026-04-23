@@ -37,5 +37,9 @@ return [
         'path' => env('SOLR_PATH', ''),
         'core' => env('SOLR_CORE', 'merged_core'),
     ],
-
+    'europena_iiif' => [
+        'sso_url' => env('ENRICH_EUROPEANA_IIIF_SSO_URL', 'https://sso.apps.paas-dev.psnc.pl/auth/realms/EnrichEuropeana/protocol/openid-connect/token'),
+        'client_secret' => env('ENRICH_EUROPEANA_IIIF_CLIENT_SECRET'),
+        'client_id' => env('ENRICH_EUROPEANA_IIIF_CLIENT_ID', 'tp-api-client'),
+    ],
 ];

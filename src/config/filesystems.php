@@ -35,6 +35,11 @@ return [
             'root' => storage_path('export_cache'),
         ],
 
+        'imports' => [
+            'driver' => 'local',
+            'root' => storage_path('imports'),
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
