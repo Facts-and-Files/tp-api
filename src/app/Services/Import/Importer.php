@@ -50,43 +50,6 @@ class Importer
         return [$inserted, $errors];
     }
 
-    public function importFromJsonLd(
-        ParsedJsonLdData $parsed,
-        int $projectId,
-        int $datasetId,
-        string $importName,
-        string $rawBody,
-    ): string {
-        $recordId = $parsed->recordId;
-
-        DB::transaction(function () use ($parsed, $projectId, $datasetId, $importName) {
-            $existing = Story::where('RecordId', $parsed->recordId)->first();
-
-            $storyData = $this->deiStoryDataMapper->map(
-                parsed: $parsed,
-                projectId: $projectId,
-                datasetId: $datasetId,
-                importName: $importName,
-            );
-
-            if ($existing === null) {
-                $story = $this->buildStory($storyData);
-                $story->save();
-                $this->importItems($this->deiItemFactory->make($story, $parsed), $story);
-
-                return;
-            }
-
-            // Java behaviour: update Story only, leave existing Items untouched
-            $story = $this->buildStory($storyData, $existing);
-            $story->save();
-        });
-
-        $this->saveRawImport($importName, $recordId, $rawBody);
-
-        return $parsed->externalRecordId;
-    }
-
     private function importStory(array $import, $validProjectIds, $validDatasetIds): array
     {
         $validator = Validator::make($import, [
@@ -201,12 +164,5 @@ class Importer
             'dc:title'         => $title,
             'error'            => $error,
         ];
-    }
-
-    private function saveRawImport(string $importName, string $recordId, string $rawBody): void
-    {
-        $safeRecord = str_replace('/', '_', ltrim($recordId, '/'));
-        $path = "{$importName}/{$safeRecord}.json";
-        Storage::disk('imports')->put($path, $rawBody);
     }
 }

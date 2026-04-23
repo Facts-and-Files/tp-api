@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DeiImportRequest;
+use App\Http\Resources\ImportResource;
 use App\Models\Dataset;
 use App\Models\Project;
-use App\Http\Resources\ImportResource;
 use App\Services\Import\Importer;
+use App\Services\Import\DeiImporter;
 use App\Services\Import\JsonLdParser;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -14,8 +16,9 @@ use RuntimeException;
 class ImportController extends ResponseController
 {
     public function __construct(
+        private readonly Importer $importer,
         private readonly JsonLdParser $parser,
-        private Importer $importer,
+        private readonly DeiImporter $deiImporter,
     ) {}
 
     public function import(Request $request): JsonResponse
@@ -47,44 +50,11 @@ class ImportController extends ResponseController
         return $this->sendResponse($insertedResource, 'Import successfully inserted.');
     }
 
-    public function importFromDei(Request $request): JsonResponse
+    public function importFromDei(DeiImportRequest $request): JsonResponse
     {
-        $request->validate([
-            '@graph' => ['required', 'array', 'min:1'],
-            'iiif_url' => ['nullable', 'string', 'url'],
-        ]);
-
-        $importName = (string) $request->query('importName', '');
-        $datasetId = (int) $request->query('datasetId');
-        $projectId = (int) $request->query('projectId');
-
-        if ($importName === '' || $datasetId === 0 || $projectId === 0) {
-            return $this->sendError(
-                'Invalid data',
-                'projectId, importName and datasetId query parameters are required.',
-                422,
-            );
-        }
-
-        if (!Project::find($projectId)) {
-            return $this->sendError(
-                'Invalid data',
-                'The selected projectId is invalid.',
-                422,
-            );
-        }
-
-        if (!Dataset::find($datasetId)) {
-            return $this->sendError(
-                'Invalid data',
-                'The selected datasetId is invalid.',
-                422,
-            );
-        }
-
         $parsed = $this->parser->parse(
             $request->input('@graph'),
-            $request->input('iiif_url') ?? null,
+            $request->input('iiif_url')
         );
 
         if (!$parsed->hasRecordId()) {
@@ -96,18 +66,20 @@ class ImportController extends ResponseController
         }
 
         try {
-            $externalRecordId = $this->importer->importFromJsonLd(
+            $externalRecordId = $this->deiImporter->import(
                 parsed: $parsed,
-                projectId: $projectId,
-                datasetId: $datasetId,
-                importName: $importName,
+                projectId: (int) $request->input('projectId'),
+                datasetId: (int) $request->input('datasetId'),
+                importName: (string) $request->input('importName'),
                 rawBody: (string) json_encode($request->all()),
             );
         } catch (RuntimeException $e) {
             return $this->sendError('Import failed', $e->getMessage(), 400);
         }
 
-        $resource = new ImportResource(['ExternalRecordId' => $externalRecordId]);
+        $resource = new ImportResource([
+            'ExternalRecordId' => $externalRecordId,
+        ]);
 
         return $this->sendResponse($resource, 'Story imported successfully.');
     }
