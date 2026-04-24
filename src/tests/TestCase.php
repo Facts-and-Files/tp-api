@@ -38,11 +38,10 @@ abstract class TestCase extends BaseTestCase
             '2024_07_31_094900_add_manifest_to_story_table.php',
             '2024_09_19_115300_create_transcription_provider_table.php',
             '2025_07_21_125300_create_place_details_view.php',
-            '2026_02_16_130200_create_export_cache_table.php',
             '2026_04_08_080753_create_job_batches_table.php',
             '2026_04_15_101800_add_permissions_and_description_to_personal_access_tokens_table.php',
             '2026_04_20_094300_create_place_link_table.php',
-            '2026_04_21_103700_change_format_to_varchar_in_export_cache_table.php',
+            '2026_04_24_100100_create_export_cache_table.php',
         ];
 
         foreach ($additionalMigrations as $migration) {
