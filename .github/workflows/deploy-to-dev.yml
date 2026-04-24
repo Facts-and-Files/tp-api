@@ -66,12 +66,12 @@ jobs:
             tar -xf ${{ env.deployfile }}
             chcon -t httpd_user_rw_content_t -R ${{ env.remote_folder}}.${{ env.now }}
             cd ${{ env.remote_folder}}.${{ env.now }}
-            php81 composer.phar install --optimize-autoloader --no-dev
-            php81 artisan optimize:clear
-            php81 artisan config:cache
-            php81 artisan route:cache
-            php81 artisan view:cache
-            php81 artisan migrate --force --no-interaction
+            php83 composer.phar install --optimize-autoloader --no-dev
+            php83 artisan optimize:clear
+            php83 artisan config:cache
+            php83 artisan route:cache
+            php83 artisan view:cache
+            php83 artisan migrate --force --no-interaction
             cd ${{ env.remote_path }}
             unlink ${{ env.remote_folder }}
             ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
