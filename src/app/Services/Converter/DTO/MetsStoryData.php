@@ -2,20 +2,20 @@
 
 namespace App\Services\Converter\DTO;
 
-class MetsStoryData
+readonly class MetsStoryData
 {
     public function __construct(
-        public readonly string $storyId,
-        public readonly array $dc,
-        public readonly array $dcterms,
-        public readonly array $edm,
-        public readonly string $manifest,
-        public readonly ?string $previewImage,
-        public readonly string $projectName,
-        public readonly string $recordId,
-        public readonly string $timestamp,
-        public readonly string $lastUpdated,
-        public readonly array $items,
+        public string $storyId,
+        public array $dc,
+        public array $dcterms,
+        public array $edm,
+        public string $manifest,
+        public ?string $previewImage,
+        public string $projectName,
+        public string $recordId,
+        public string $timestamp,
+        public string $lastUpdated,
+        public array $items,
     ) {}
 
     public function with(array $overrides): self

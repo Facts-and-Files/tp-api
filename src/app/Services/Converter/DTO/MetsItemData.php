@@ -2,12 +2,12 @@
 
 namespace App\Services\Converter\DTO;
 
-class MetsItemData
+readonly class MetsItemData
 {
     public function __construct(
-        public readonly string $itemId,
-        public readonly int $order,
-        public readonly string $imageLink,
-        public readonly string $altoXml,
+        public string $itemId,
+        public int $order,
+        public string $imageLink,
+        public string $altoXml,
     ) {}
 }

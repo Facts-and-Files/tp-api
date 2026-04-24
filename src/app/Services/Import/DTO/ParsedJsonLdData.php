@@ -1,19 +1,17 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Services\Import\DTO;
 
-final class ParsedJsonLdData
+final readonly class ParsedJsonLdData
 {
     public function __construct(
-        readonly public array $fields,
-        readonly public string $manifestUrl,
-        readonly public bool $manifestConverted,
-        readonly public string $pdfImage,
-        readonly public array $imageLinks,
-        readonly public string $externalRecordId,
-        readonly public string $recordId,
+        public array $fields,
+        public string $manifestUrl,
+        public bool $manifestConverted,
+        public string $pdfImage,
+        public array $imageLinks,
+        public string $externalRecordId,
+        public string $recordId,
     ) {
     }
 
