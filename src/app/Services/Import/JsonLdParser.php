@@ -211,7 +211,6 @@ class JsonLdParser
 
     private function isValidManifestUrl(string $url): bool
     {
-        return filter_var($url, FILTER_VALIDATE_URL) !== false
-            && (str_contains($url, 'manifest') || str_contains($url, 'iiif'));
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
 }
