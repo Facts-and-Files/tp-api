@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -66,7 +67,7 @@ class HealthController extends ResponseController
 
             $data['conected'] = 'Ok' ;
             $data['time'] = round(($end - $start) * 1000);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $data['conected'] = 'Failed';
             $data['time'] = 0;
         }
@@ -82,7 +83,7 @@ class HealthController extends ResponseController
             $end = microtime(true);
 
             return round(($end - $start) * 1000);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return 0;
         }
     }
