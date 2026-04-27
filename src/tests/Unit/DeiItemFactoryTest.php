@@ -19,7 +19,6 @@ class DeiItemFactoryTest extends TestCase
         $parsed = new ParsedJsonLdData(
             fields: ['dc:title' => 'Title'],
             manifestUrl: '',
-            manifestConverted: false,
             pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/1/test',
             recordId: '/1/test',
@@ -46,7 +45,6 @@ class DeiItemFactoryTest extends TestCase
         $parsed = new ParsedJsonLdData(
             fields: ['dc:title' => 'Title'],
             manifestUrl: 'https://example.com/iiif/manifest',
-            manifestConverted: false,
             pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/1/test',
             recordId: '/1/test',
@@ -66,7 +64,6 @@ class DeiItemFactoryTest extends TestCase
         $parsed = new ParsedJsonLdData(
             fields: ['dc:title' => 'Manifest Story'],
             manifestUrl: 'https://example.com/iiif/manifest',
-            manifestConverted: false,
             pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/2/test',
             recordId: '/2/test',
@@ -119,7 +116,6 @@ class DeiItemFactoryTest extends TestCase
         $parsed = new ParsedJsonLdData(
             fields: ['dc:title' => 'Manifest Story'],
             manifestUrl: 'https://example.com/iiif/manifest',
-            manifestConverted: false,
             pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/2/test',
             recordId: '/2/test',
