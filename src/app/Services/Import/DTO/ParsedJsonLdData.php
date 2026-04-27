@@ -7,10 +7,10 @@ final readonly class ParsedJsonLdData
     public function __construct(
         public array $fields,
         public string $manifestUrl,
-        public bool $manifestConverted,
         public string $pdfImage,
         public string $externalRecordId,
         public string $recordId,
+        public string $manifestAuthMode = 'public',
     ) {
     }
 

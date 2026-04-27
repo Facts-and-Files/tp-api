@@ -20,8 +20,8 @@ final class DeiItemFactory
 
         $manifest = $this->manifestClient->fetch(
             $parsed->manifestUrl,
-            $parsed->manifestConverted,
             $parsed->pdfImage,
+            $parsed->manifestAuthMode,
         );
 
         $canvases = $manifest['canvases'] ?? [];

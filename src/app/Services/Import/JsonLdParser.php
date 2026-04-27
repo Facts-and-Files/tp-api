@@ -21,7 +21,7 @@ class JsonLdParser
     {
         $fields = [];
         $manifestUrl = $iiifUrl ?? '';
-        $manifestConverted = $iiifUrl !== null;
+        $manifestAuthMode = $iiifUrl ? 'token' : 'public';
         $pdfImage = '';
         $externalRecordId = '';
         $recordId = '';
@@ -52,6 +52,7 @@ class JsonLdParser
             // ── Inline iiif_url on node ────────────────────────────────────
             if (isset($node['iiif_url']) && $manifestUrl === '') {
                 $manifestUrl = $node['iiif_url'];
+                $manifestAuthMode = 'token';
             }
 
             // ── edm:Place ──────────────────────────────────────────────────
@@ -74,6 +75,7 @@ class JsonLdParser
                     && $manifestUrl === ''
                 ) {
                     $manifestUrl = $node['dcterms:isReferencedBy']['@id'];
+                    $manifestAuthMode = 'public';
                 }
 
                 $mimeType = $node['ebucore:hasMimeType'] ?? '';
@@ -93,10 +95,10 @@ class JsonLdParser
         return new ParsedJsonLdData(
             fields: $fields,
             manifestUrl: $manifestUrl,
-            manifestConverted: $manifestConverted,
             pdfImage: $pdfImage,
             externalRecordId: $externalRecordId,
             recordId: $recordId,
+            manifestAuthMode: $manifestAuthMode,
         );
     }
 

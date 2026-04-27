@@ -18,10 +18,14 @@ class IiifManifestClient
         $this->clientId = config('services.europena_iiif.client_id', 'tp-api-client');
     }
 
-    public function fetch(string $manifestUrl, bool $converted, string $pdfImage = ''): array
-    {
-        $accessToken = $this->getAccessToken();
-        $manifest = $this->getManifest($manifestUrl, $accessToken, $converted);
+    public function fetch(
+        string $manifestUrl,
+        string $pdfImage = '',
+        string $authMode = 'public',
+    ): array {
+        $manifest = $authMode === 'token'
+            ? $this->getManifestWithToken($manifestUrl)
+            : $this->getManifestPublic($manifestUrl);
 
         $canvases = data_get($manifest, 'sequences.0.canvases', []);
         $imageLinks = $this->extractImageLinks($canvases, $pdfImage);
@@ -30,6 +34,34 @@ class IiifManifestClient
             'canvases' => $canvases,
             'imageLinks' => $imageLinks,
         ];
+    }
+
+    private function getManifestWithToken(string $url): array
+    {
+        $accessToken = $this->getAccessToken();
+
+        $response = Http::withToken($accessToken)->get($url);
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'IIIF manifest not reachable. Status: ' . $response->status()
+            );
+        }
+
+        return $response->json();
+    }
+
+    private function getManifestPublic(string $url): array
+    {
+        $response = Http::get($url);
+
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'IIIF manifest not reachable. Status: ' . $response->status()
+            );
+        }
+
+        return $response->json();
     }
 
     private function getAccessToken(): string
