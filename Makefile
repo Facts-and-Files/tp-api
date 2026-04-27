@@ -48,7 +48,7 @@ test: serve
 
 stan: serve
 	@clear
-	./src/vendor/bin/phpstan analyze src/app --level "$(LEVEL)"
+	./src/vendor/bin/phpstan analyze src/app src/database src/config src/routes --level "$(LEVEL)"
 
 lint: serve
 	@clear
