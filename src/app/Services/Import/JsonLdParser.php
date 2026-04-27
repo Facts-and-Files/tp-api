@@ -23,7 +23,6 @@ class JsonLdParser
         $manifestUrl = $iiifUrl ?? '';
         $manifestConverted = $iiifUrl !== null;
         $pdfImage = '';
-        $imageLinks = [];
         $externalRecordId = '';
         $recordId = '';
 

@@ -71,10 +71,15 @@ class Importer
 
             if ($existing === null) {
                 $story = $this->buildStory($storyData);
-                $story->save();
 
-                $items = $this->itemFactory->makeFromManifest($story, $parsed, $manifest);
-                $this->importItems($items, $story);
+                $itemResult = $this->itemFactory->makeFromManifest($parsed, $manifest);
+                $story->PreviewImage = $itemResult['previewImage'] !== null
+                    ? json_encode($itemResult['previewImage'])
+                    : null;
+
+                $story->save();
+                $this->importItems($itemResult['items'], $story);
+
                 return;
             }
 

@@ -35,7 +35,6 @@ final class DeiItemFactory
     }
 
     public function makeFromManifest(
-        Story $story,
         ParsedJsonLdData $parsed,
         array $manifest,
     ): array {
@@ -47,25 +46,28 @@ final class DeiItemFactory
         }
 
         $items = [];
+        $previewImage = null;
 
         foreach ($canvases as $index => $canvas) {
-            $imageLink = data_get($canvas, 'images.0.resource', '');
+            $imageResource = data_get($canvas, 'images.0.resource', '');
+
+            if ($index === 0) {
+                $previewImage = $imageResource;
+            }
 
             $items[] = [
                 'Title' => $this->itemTitle($parsed->storyTitle(), $index + 1),
-                'ImageLink' => json_encode($imageLink),
+                'ImageLink' => json_encode($imageResource),
                 'OrderIndex' => $index + 1,
                 'Manifest' => $parsed->manifestUrl,
                 'edm:WebResource' => $imageLinks[$index] ?? '',
             ];
-
-            if ($index === 0) {
-                $story->PreviewImage = $imageLink;
-                $story->save();
-            }
         }
 
-        return $items;
+        return [
+            'previewImage' => $previewImage,
+            'items' => $items,
+        ];
     }
 
     private function itemTitle(string $storyTitle, int $index): string
