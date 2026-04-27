@@ -2,22 +2,22 @@
 
 namespace App\Services\Import;
 
+use Exception;
 use App\Models\Dataset;
 use App\Models\Item;
 use App\Models\Project;
 use App\Models\Story;
 use App\Services\Import\DTO\ParsedJsonLdData;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class Importer
 {
     public function __construct(
-        private readonly IiifManifestClient $manifestClient,
-        private readonly DeiStoryDataMapper $deiStoryDataMapper,
-        private readonly DeiItemFactory $deiItemFactory,
+        private readonly DeiStoryDataMapper $storyDataMapper,
+        private readonly DeiItemFactory $itemFactory,
+        private readonly RawImportStorage $rawImportStorage,
     ) {}
 
     public function importAll(array $data): array
@@ -48,6 +48,33 @@ class Importer
         }
 
         return [$inserted, $errors];
+    }
+
+    public function importFromJsonLd(
+        ParsedJsonLdData $parsed,
+        int $projectId,
+        int $datasetId,
+        string $importName,
+        string $rawBody,
+    ): string {
+        DB::transaction(function () use ($parsed, $projectId, $datasetId, $importName) {
+            $existing  = Story::where('RecordId', $parsed->recordId)->first();
+            $storyData = $this->storyDataMapper->map($parsed, $projectId, $datasetId, $importName);
+
+            if ($existing === null) {
+                $story = $this->buildStory($storyData);
+                $story->save();
+                $this->importItems($this->itemFactory->make($story, $parsed), $story);
+                return;
+            }
+
+            $story = $this->buildStory($storyData, $existing);
+            $story->save();
+        });
+
+        $this->rawImportStorage->store($importName, $parsed->recordId, $rawBody);
+
+        return $parsed->externalRecordId;
     }
 
     private function importStory(array $import, $validProjectIds, $validDatasetIds): array
@@ -93,7 +120,7 @@ class Importer
                 $import['Story']['Dc']['Title'] ?? null,
                 $ve->errors(),
             )];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['error' => $this->storyError(
                 $import['Story']['ExternalRecordId'] ?? null,
                 $import['Story']['RecordId'] ?? null,

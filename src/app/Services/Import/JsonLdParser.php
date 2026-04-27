@@ -80,8 +80,6 @@ class JsonLdParser
                 $mimeType = $node['ebucore:hasMimeType'] ?? '';
                 if (str_contains((string) $mimeType, 'application/pdf')) {
                     $pdfImage = $node['@id'] ?? '';
-                } else {
-                    $imageLinks[] = $node['@id'] ?? '';
                 }
             }
 
@@ -98,7 +96,6 @@ class JsonLdParser
             manifestUrl: $manifestUrl,
             manifestConverted: $manifestConverted,
             pdfImage: $pdfImage,
-            imageLinks: $imageLinks,
             externalRecordId: $externalRecordId,
             recordId: $recordId,
         );

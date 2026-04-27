@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DeiImportRequest;
 use App\Http\Resources\ImportResource;
-use App\Models\Dataset;
-use App\Models\Project;
 use App\Services\Import\Importer;
-use App\Services\Import\DeiImporter;
+/* use App\Services\Import\DeiImporter; */
 use App\Services\Import\JsonLdParser;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -18,7 +16,6 @@ class ImportController extends ResponseController
     public function __construct(
         private readonly Importer $importer,
         private readonly JsonLdParser $parser,
-        private readonly DeiImporter $deiImporter,
     ) {}
 
     public function import(Request $request): JsonResponse
@@ -66,7 +63,7 @@ class ImportController extends ResponseController
         }
 
         try {
-            $externalRecordId = $this->deiImporter->import(
+            $externalRecordId = $this->importer->importFromJsonLd(
                 parsed: $parsed,
                 projectId: (int) $request->input('projectId'),
                 datasetId: (int) $request->input('datasetId'),

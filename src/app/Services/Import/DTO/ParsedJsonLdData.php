@@ -9,7 +9,6 @@ final readonly class ParsedJsonLdData
         public string $manifestUrl,
         public bool $manifestConverted,
         public string $pdfImage,
-        public array $imageLinks,
         public string $externalRecordId,
         public string $recordId,
     ) {
