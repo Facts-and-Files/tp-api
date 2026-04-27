@@ -46,6 +46,10 @@ test: serve
 	@clear
 	@bash docker_artisan.sh test --without-tty --colors=always --filter "$(FILTER)"
 
+stan: serve
+	@clear
+	./src/vendor/bin/phpstan analyze src/app --level "$(LEVEL)"
+
 lint: serve
 	@clear
 	./src/vendor/bin/pint --test -v src/app src/tests src/routes --preset per
