@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\ResponseController;
@@ -48,7 +49,7 @@ class AutoEnrichmentController extends ResponseController
             $resource = new AutoEnrichmentResource($data);
 
             return $this->sendResponse($resource, 'Auto Enrichment inserted.');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -76,22 +77,23 @@ class AutoEnrichmentController extends ResponseController
         }
 
         $instertedResource = new AutoEnrichmentResource($inserted);
-        $errorResource = new AutoEnrichmentResource($errors);
 
         $insertedCount = count($inserted);
         $errorsCount = count($errors);
 
-        if ($insertedCount === 0 && $errorsCount > 0) {
+        if ($errorsCount > 0 && $insertedCount > 0) {
+            return $this->sendPartlyResponse($instertedResource, $errors, 'Some Auto Enrichments inserted.');
+        }
+
+        if ($errorsCount > 0) {
             return $this->sendError('Invalid data', $errors, 400);
         }
 
-        if ($insertedCount > 0 && $errorsCount === 0) {
-            return $this->sendResponse($instertedResource, 'All Auto Enrichments inserted.');
+        if ($insertedCount === 0) {
+            return $this->sendError('Invalid data', 'Nothing imported.', 400);
         }
 
-        if ($insertedCount > 0 && $errorsCount > 0) {
-            return $this->sendPartlyResponse($instertedResource, $errorResource, 'Some Auto Enrichments inserted.');
-        }
+        return $this->sendResponse($instertedResource, 'All Auto Enrichments inserted.');
     }
 
     public function show(int $id): JsonResponse
