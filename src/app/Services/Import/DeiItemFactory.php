@@ -4,22 +4,19 @@ namespace App\Services\Import;
 
 use App\Models\Story;
 use App\Services\Import\DTO\ParsedJsonLdData;
+use RuntimeException;
 
 final class DeiItemFactory
 {
-    public function __construct(private readonly IiifManifestClient $manifestClient)
-    {
+    public function __construct(
+        private readonly IiifManifestClient $manifestClient,
+    ) {
     }
 
-    public function make(Story $story, ParsedJsonLdData $parsed): array
+    public function fetchRequiredManifest(ParsedJsonLdData $parsed): array
     {
         if ($parsed->manifestUrl === '') {
-            return [[
-                'Title' => $this->itemTitle($parsed->storyTitle(), 1),
-                'ImageLink' => '',
-                'OrderIndex' => 1,
-                'Manifest' => '',
-            ]];
+            throw new RuntimeException('IIIF manifest missing. Import aborted.');
         }
 
         $manifest = $this->manifestClient->fetch(
@@ -28,8 +25,27 @@ final class DeiItemFactory
             $parsed->pdfImage,
         );
 
-        $canvases = $manifest['canvases'];
-        $imageLinks = $manifest['imageLinks'];
+        $canvases = $manifest['canvases'] ?? [];
+
+        if (empty($canvases)) {
+            throw new RuntimeException('IIIF manifest contains no canvases. Import aborted.');
+        }
+
+        return $manifest;
+    }
+
+    public function makeFromManifest(
+        Story $story,
+        ParsedJsonLdData $parsed,
+        array $manifest,
+    ): array {
+        $canvases = $manifest['canvases'] ?? [];
+        $imageLinks = $manifest['imageLinks'] ?? [];
+
+        if (empty($canvases)) {
+            throw new RuntimeException('IIIF manifest contains no canvases. Import aborted.');
+        }
+
         $items = [];
 
         foreach ($canvases as $index => $canvas) {

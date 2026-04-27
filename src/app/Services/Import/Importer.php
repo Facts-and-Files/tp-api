@@ -57,14 +57,24 @@ class Importer
         string $importName,
         string $rawBody,
     ): string {
-        DB::transaction(function () use ($parsed, $projectId, $datasetId, $importName) {
+        $manifest = $this->itemFactory->fetchRequiredManifest($parsed);
+
+        DB::transaction(function () use (
+            $parsed,
+            $projectId,
+            $datasetId,
+            $importName,
+            $manifest,
+        ) {
             $existing  = Story::where('RecordId', $parsed->recordId)->first();
             $storyData = $this->storyDataMapper->map($parsed, $projectId, $datasetId, $importName);
 
             if ($existing === null) {
                 $story = $this->buildStory($storyData);
                 $story->save();
-                $this->importItems($this->itemFactory->make($story, $parsed), $story);
+
+                $items = $this->itemFactory->makeFromManifest($story, $parsed, $manifest);
+                $this->importItems($items, $story);
                 return;
             }
 
