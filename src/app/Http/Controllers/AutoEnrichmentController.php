@@ -28,8 +28,8 @@ class AutoEnrichmentController extends ResponseController
 
         $data = $this->getDataByRequest($request, $model, $queryColumns, $initialSortColumn);
 
-        if(!$data) {
-            return $this->sendError('Invalid data', $request, ' not valid', 400);
+        if (!$data) {
+            return $this->sendError('Invalid data', $request . ' not valid', 400);
         }
 
         $collection = AutoEnrichmentResource::collection($data);
