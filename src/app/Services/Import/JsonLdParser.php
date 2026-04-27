@@ -71,7 +71,7 @@ class JsonLdParser
             // ── edm:WebResource ───────────────────────────────────────────
             if ($this->isWebResource($node)) {
                 if (isset($node['dcterms:isReferencedBy']['@id'])
-                    && $this->isValidManifestUrl($node['dcterms:isReferencedBy']['@id'])
+                    && $this->isValidUrl($node['dcterms:isReferencedBy']['@id'])
                     && $manifestUrl === ''
                 ) {
                     $manifestUrl = $node['dcterms:isReferencedBy']['@id'];
@@ -209,7 +209,7 @@ class JsonLdParser
         return false;
     }
 
-    private function isValidManifestUrl(string $url): bool
+    private function isValidUrl(string $url): bool
     {
         return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
