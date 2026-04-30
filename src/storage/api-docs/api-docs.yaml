@@ -66,6 +66,8 @@ tags:
 paths:
   /import:
     $ref: 'import-path.yaml'
+  /import/dei:
+    $ref: 'import-dei-path.yaml'
 
   /update-solr:
     $ref: 'update-solr-path.yaml'

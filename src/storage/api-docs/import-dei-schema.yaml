@@ -1,0 +1,154 @@
+ImportDeiJsonLdNodeSchema:
+  type: object
+  description: A single node of the EDM JSON-LD graph.
+  additionalProperties: true
+  properties:
+    '@id':
+      type: string
+      example: 'http://example.org/item/test_1'
+    '@type':
+      oneOf:
+        - type: string
+        - type: array
+          items:
+            type: string
+      example: 'edm:ProvidedCHO'
+
+ImportDeiJsonLdContextSchema:
+  type: object
+  description: JSON-LD context definitions.
+  additionalProperties:
+    oneOf:
+      - type: string
+      - type: object
+      - type: array
+
+ImportDeiPostRequestSchema:
+  type: object
+  description: Europeana EDM JSON-LD payload used for DEI import.
+  required:
+    - '@graph'
+  additionalProperties: true
+  properties:
+    '@graph':
+      type: array
+      minItems: 1
+      description: Graph of EDM, ORE, DQV and related JSON-LD nodes.
+      items:
+        $ref: '#/ImportDeiJsonLdNodeSchema'
+    '@context':
+      oneOf:
+        - $ref: '#/ImportDeiJsonLdContextSchema'
+        - type: array
+          items:
+            oneOf:
+              - type: string
+              - $ref: '#/ImportDeiJsonLdContextSchema'
+    iiif_url:
+      description: Optional top-level IIIF manifest URL. If provided, it takes priority over manifest URLs found in graph nodes.
+      oneOf:
+        - type: string
+          format: uri
+          example: 'https://example.org/iiif/manifest/test_1'
+        - type: object
+          additionalProperties: true
+        - type: array
+          items:
+            oneOf:
+              - type: string
+              - type: object
+                additionalProperties: true
+
+ImportDeiItemReferenceSchema:
+  type: object
+  properties:
+    ItemId:
+      type: integer
+      example: 101
+    StoryId:
+      type: integer
+      example: 55
+    Title:
+      type:
+        - string
+        - 'null'
+      example: 'Manifest Story page 1'
+    OrderIndex:
+      type: integer
+      example: 1
+    ImageLink:
+      type:
+        - string
+        - 'null'
+      description: JSON string containing the image reference stored for the created item.
+      example: '{"@id":"https://example.com/p1.jpg"}'
+    Manifest:
+      type:
+        - string
+        - 'null'
+      format: uri
+      example: 'https://example.com/iiif/manifest/test_1'
+
+ImportDeiResponseSchema:
+  type: object
+  description: Story data returned after a successful DEI import.
+  properties:
+    StoryId:
+      type: integer
+      example: 55
+    RecordId:
+      type:
+        - string
+        - 'null'
+      example: '/2/manifest_test'
+    ExternalRecordId:
+      type:
+        - string
+        - 'null'
+      example: 'http://data.europeana.eu/item/2/manifest_test'
+    ImportName:
+      type: string
+      example: 'myimport'
+    ProjectId:
+      type: integer
+      example: 1
+    DatasetId:
+      type: integer
+      example: 1
+    PreviewImage:
+      type:
+        - string
+        - 'null'
+      description: JSON string of the first canvas image used as story preview.
+      example: '{"@id":"https://example.com/cover.jpg"}'
+    Manifest:
+      type:
+        - string
+        - 'null'
+      format: uri
+      example: 'https://example.com/iiif/manifest/test_1'
+    PlaceName:
+      type:
+        - string
+        - 'null'
+      example: 'Test Location'
+    PlaceLatitude:
+      type:
+        - number
+        - 'null'
+      example: 55.605
+    PlaceLongitude:
+      type:
+        - number
+        - 'null'
+      example: 13.0038
+    Dc:
+      $ref: 'stories-schema.yaml#/DcElementsReferenceSchema'
+    Dcterms:
+      $ref: 'stories-schema.yaml#/DctermsReferenceSchema'
+    Edm:
+      $ref: 'stories-schema.yaml#/EdmReferenceSchema'
+    Items:
+      type: array
+      items:
+        $ref: '#/ImportDeiItemReferenceSchema'
