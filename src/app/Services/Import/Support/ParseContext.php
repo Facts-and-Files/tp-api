@@ -6,35 +6,46 @@ use App\Services\Import\DTO\ParsedJsonLdData;
 
 final class ParseContext
 {
-    public array $fields = [];
-    public string $manifestUrl = '';
-    public string $pdfImage = '';
-    public string $externalRecordId = '';
-    public string $recordId = '';
-    public string $manifestAuthMode = 'public';
+    public function __construct(
+        public array $fields = [],
+        public string $manifestUrl = '',
+        public string $pdfImage = '',
+        public string $externalRecordId = '',
+        public string $recordId = '',
+        public string $manifestAuthMode = 'public',
+    ) {
+    }
 
-    public function __construct(?string $iiifUrl = null)
+    public function appendField(string $field, string $value): void
     {
-        if ($iiifUrl !== null && $iiifUrl !== '') {
-            $this->manifestUrl = $iiifUrl;
-            $this->manifestAuthMode = 'token';
+        if ($value === '') {
+            return;
         }
+
+        if (!isset($this->fields[$field]) || $this->fields[$field] === '') {
+            $this->fields[$field] = $value;
+            return;
+        }
+
+        $existingParts = array_filter(array_map('trim', explode(' || ', $this->fields[$field])));
+        $newParts = array_filter(array_map('trim', explode(' || ', $value)));
+
+        foreach ($newParts as $newPart) {
+            if (!in_array($newPart, $existingParts, true)) {
+                $existingParts[] = $newPart;
+            }
+        }
+
+        $this->fields[$field] = implode(' || ', $existingParts);
     }
 
-    public function appendField(string $key, string $value): void
-    {
-        $this->fields[$key] = isset($this->fields[$key])
-            ? $this->fields[$key] . ' || ' . $value
-            : $value;
-    }
-
-    public function setManifestUrl(string $manifestUrl, string $authMode = 'public'): void
+    public function setManifestUrl(string $url, string $authMode): void
     {
         if ($this->manifestUrl !== '') {
             return;
         }
 
-        $this->manifestUrl = $manifestUrl;
+        $this->manifestUrl = $url;
         $this->manifestAuthMode = $authMode;
     }
 

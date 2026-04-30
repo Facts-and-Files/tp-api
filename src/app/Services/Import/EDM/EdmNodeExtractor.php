@@ -13,25 +13,24 @@ final class EdmNodeExtractor
         'dc:contributor', 'dc:publisher', 'dc:coverage', 'dc:date',
         'dc:type', 'dc:relation', 'dc:rights', 'dc:identifier', 'dc:language',
         'edm:landingPage', 'edm:country', 'edm:dataProvider', 'edm:provider',
-        'edm:rights', 'edm:begin', 'edm:end', 'edm:year', 'edm:datasetName',
-        'edm:isShownAt', 'edm:language', 'edm:agent',
+        'edm:rights', 'edm:begin', 'edm:end', 'edm:year',
+        'edm:datasetName', 'edm:isShownAt', 'edm:language', 'edm:agent',
         'dcterms:medium', 'dcterms:provenance', 'dcterms:created',
     ];
 
     public function __construct(
-        private readonly JsonLdValueExtractor $values = new JsonLdValueExtractor(),
+        private readonly JsonLdValueExtractor $values,
     ) {
     }
 
-    public function extract(array $graph, ?string $iiifUrl = null): ParsedJsonLdData
+    public function extract(array $graph, ?string $iiifUrl): ParsedJsonLdData
     {
-        $context = new ParseContext($iiifUrl);
+        $context = new ParseContext(
+            manifestUrl: $iiifUrl ?? '',
+            manifestAuthMode: $iiifUrl ? 'token' : 'public',
+        );
 
         foreach ($graph as $node) {
-            if (!is_array($node)) {
-                continue;
-            }
-
             $this->extractStoryFields($node, $context);
             $this->extractInlineManifest($node, $context);
             $this->handlePlace($node, $context);
@@ -50,8 +49,8 @@ final class EdmNodeExtractor
                 continue;
             }
 
-            $value = $this->values->extractScalar($node[$field]);
-            if ($value === null) {
+            $value = $this->values->extractFlattened($node[$field]);
+            if ($value === null || $value === '') {
                 continue;
             }
 
@@ -101,7 +100,7 @@ final class EdmNodeExtractor
             return;
         }
 
-        $label = $this->values->extractScalar($node['skos:prefLabel']) ?? '';
+        $label = $this->values->extractFlattened($node['skos:prefLabel']) ?? '';
         $id = $node['@id'] ?? '';
         $agent = trim($label . ' | ' . $id, ' |');
 

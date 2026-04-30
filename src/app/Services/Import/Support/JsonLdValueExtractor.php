@@ -6,16 +6,54 @@ final class JsonLdValueExtractor
 {
     public function extractScalar(mixed $value): ?string
     {
-        if (is_string($value) || is_numeric($value)) {
-            return $this->clean((string) $value);
-        }
+        $literals = $this->extractLiterals($value);
 
-        if (!is_array($value)) {
+        if ($literals === []) {
             return null;
         }
 
+        foreach ($literals as $literal) {
+            if ($literal->language !== null && str_contains(mb_strtolower($literal->language), 'en')) {
+                return $literal->value;
+            }
+        }
+
+        return $literals[0]->value;
+    }
+
+    public function extractFlattened(mixed $value): ?string
+    {
+        $literals = $this->extractLiterals($value);
+
+        if ($literals === []) {
+            return null;
+        }
+
+        return implode(' || ', array_map(
+            static fn (Literal $literal): string => $literal->value,
+            $literals,
+        ));
+    }
+
+    public function extractLiterals(mixed $value): array
+    {
+        if (is_string($value) || is_numeric($value)) {
+            return $this->unique([
+                new Literal($this->clean((string) $value)),
+            ]);
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
         if (isset($value['@value'])) {
-            return $this->clean((string) $value['@value']);
+            return $this->unique([
+                new Literal(
+                    $this->clean((string) $value['@value']),
+                    isset($value['@language']) ? (string) $value['@language'] : null,
+                ),
+            ]);
         }
 
         foreach (['rdf:value', 'skos:prefLabel', 'dc:title', 'rdfs:label', '@id'] as $field) {
@@ -23,33 +61,38 @@ final class JsonLdValueExtractor
                 continue;
             }
 
-            $resolved = $this->extractScalar($value[$field]);
-            if ($resolved !== null && $resolved !== '') {
+            $resolved = $this->extractLiterals($value[$field]);
+            if ($resolved !== []) {
                 return $resolved;
             }
         }
 
-        $parts = [];
-        $englishValue = null;
+        $literals = [];
 
         foreach ($value as $element) {
+            if (is_string($element) || is_numeric($element)) {
+                $literals[] = new Literal($this->clean((string) $element));
+                continue;
+            }
+
             if (!is_array($element)) {
-                $parts[] = $this->clean((string) $element);
                 continue;
             }
 
-            if (isset($element['@language']) && str_contains((string) $element['@language'], 'en')) {
-                $englishValue = $this->clean((string) ($element['@value'] ?? $this->extractScalar($element) ?? ''));
+            if (isset($element['@value'])) {
+                $literals[] = new Literal(
+                    $this->clean((string) $element['@value']),
+                    isset($element['@language']) ? (string) $element['@language'] : null,
+                );
                 continue;
             }
 
-            $resolved = $this->extractScalar($element);
-            if ($resolved !== null && $resolved !== '') {
-                $parts[] = $resolved;
+            foreach ($this->extractLiterals($element) as $literal) {
+                $literals[] = $literal;
             }
         }
 
-        return $englishValue ?? (empty($parts) ? null : implode(' || ', $parts));
+        return $this->unique($literals);
     }
 
     public function extractFirstUrl(mixed $value): ?string
@@ -88,6 +131,23 @@ final class JsonLdValueExtractor
     public function clean(string $value): string
     {
         return trim(str_replace(',', ' |', $value));
+    }
+
+    private function unique(array $literals): array
+    {
+        $unique = [];
+
+        foreach ($literals as $literal) {
+            $normalized = trim($literal->value);
+
+            if ($normalized === '') {
+                continue;
+            }
+
+            $unique[$literal->identity()] = new Literal($normalized, $literal->language);
+        }
+
+        return array_values($unique);
     }
 
     private function isValidUrl(string $url): bool

@@ -6,14 +6,22 @@ use App\Services\Import\DTO\ParsedJsonLdData;
 use App\Services\Import\EDM\EdmNodeExtractor;
 use App\Services\Import\Support\JsonLdGraphIndexer;
 use App\Services\Import\Support\JsonLdGraphNormalizer;
+use App\Services\Import\Support\JsonLdValueExtractor;
 
 final class JsonLdParser
 {
+    private readonly JsonLdGraphIndexer $indexer;
+    private readonly JsonLdGraphNormalizer $normalizer;
+    private readonly EdmNodeExtractor $extractor;
+
     public function __construct(
-        private readonly JsonLdGraphIndexer $indexer = new JsonLdGraphIndexer(),
-        private readonly JsonLdGraphNormalizer $normalizer = new JsonLdGraphNormalizer(),
-        private readonly EdmNodeExtractor $extractor = new EdmNodeExtractor(),
+        ?JsonLdGraphIndexer $indexer = null,
+        ?JsonLdGraphNormalizer $normalizer = null,
+        ?EdmNodeExtractor $extractor = null,
     ) {
+        $this->indexer = $indexer ?? new JsonLdGraphIndexer();
+        $this->normalizer = $normalizer ?? new JsonLdGraphNormalizer();
+        $this->extractor = $extractor ?? new EdmNodeExtractor(new JsonLdValueExtractor());
     }
 
     public function parse(array $graph, ?string $iiifUrl = null): ParsedJsonLdData
