@@ -75,27 +75,6 @@ class IiifManifestClient
         return $response->json('access_token');
     }
 
-    private function getManifest(string $url, string $token, bool $converted): array
-    {
-        $response = Http::withToken($token)
-            ->withoutRedirecting()
-            ->get($url);
-
-        // follow a single redirect when not yet converted
-        if (!$converted && $response->redirect()) {
-            $location = $response->header('Location') ?? $url;
-            $response = Http::withToken($token)->get($location);
-        }
-
-        if ($response->failed()) {
-            throw new RuntimeException(
-                'IIIF manifest not reachable. Status: ' . $response->status()
-            );
-        }
-
-        return $response->json();
-    }
-
     private function extractImageLinks(array $canvases, string $pdfImage): array
     {
         if ($pdfImage !== '') {
