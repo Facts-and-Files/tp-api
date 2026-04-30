@@ -363,4 +363,38 @@ class ImportFromDeiTest extends TestCase
         $this->assertSame('Original Title', $story->Dc['Title']);
         $this->assertDatabaseCount('Story', 1);
     }
+
+    public function test_import_full_edm_graph_builds_story_from_all_relevant_nodes(): void
+    {
+        $payload = json_decode(file_get_contents(base_path('tests/Fixtures/edm_full_test_1.json')), true);
+
+        $this->mock(IiifManifestClient::class, function ($mock) {
+            $mock->shouldReceive('fetch')
+                ->once()
+                ->andReturn([
+                    'canvases' => [
+                        ['images' => [['resource' => ['@id' => 'https://example.org/image/test_1.jpg']]]],
+                    ],
+                    'imageLinks' => ['https://example.org/image/test_1.jpg'],
+                ]);
+        });
+
+        $this->post(
+            self::$endpoint . '?projectId=1&importName=test&datasetId=1',
+            $payload,
+        )->assertOk();
+
+        $story = Story::where('RecordId', '/item/test_1')->firstOrFail();
+
+        $this->assertSame('http://example.org/item/test_1', $story->ExternalRecordId);
+        $this->assertSame('Test Item Full Title || Alternative Title', $story->Dc['Title']);
+        $this->assertSame('Test description of item 1.', $story->Dc['Description']);
+        $this->assertSame('TEST_DATASET_1', $story->Edm['DatasetName']);
+        $this->assertSame('https://example.org/item/test_1', $story->Edm['LandingPage']);
+        $this->assertSame('Testland', $story->Edm['Country']);
+        $this->assertSame('Test Provider', $story->Edm['DataProvider']);
+        $this->assertSame('Test Library', $story->Edm['Provider']);
+        $this->assertSame('https://provider.example.org/item/test_1', $story->Edm['IsShownAt']);
+        $this->assertSame('http://creativecommons.org/licenses/by/4.0/', $story->Edm['Rights']);
+    }
 }
