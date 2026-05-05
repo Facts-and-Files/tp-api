@@ -86,9 +86,21 @@ class IiifManifestClient
             'grant_type' => 'client_credentials',
             'client_secret' => $this->clientSecret,
             'client_id' => $this->clientId,
-        ])->throw();
+        ]);
 
-        return $response->json('access_token');
+        if ($response->failed()) {
+            throw new RuntimeException(
+                'IIIF access token request failed. Status: ' . $response->status()
+            );
+        }
+
+        $token = $response->json('access_token');
+
+        if (!is_string($token) || $token === '') {
+            throw new RuntimeException('IIIF access token response did not contain an access token.');
+        }
+
+        return $token;
     }
 
     private function extractImageLinks(array $canvases, string $pdfImage): array
