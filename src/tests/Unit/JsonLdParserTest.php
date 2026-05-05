@@ -264,7 +264,7 @@ final class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph);
 
-        $this->assertSame('John Doe | http://example.com/agent/1', $result->fields['edm:agent']);
+        $this->assertSame('John Doe', $result->fields['edm:agent']);
     }
 
     public function test_flattens_distinct_agent_values(): void
@@ -285,7 +285,7 @@ final class JsonLdParserTest extends TestCase
         $result = $this->parser->parse($graph);
 
         $this->assertSame(
-            'John Doe | http://example.com/agent/1 || Jane Doe | http://example.com/agent/2',
+            'John Doe || Jane Doe',
             $result->fields['edm:agent']
         );
     }
