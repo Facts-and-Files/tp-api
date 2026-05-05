@@ -147,7 +147,7 @@ final class JsonLdParserTest extends TestCase
         $this->assertSame('Malmo', $result->fields['PlaceName']);
     }
 
-    public function test_flattens_distinct_language_values_for_story_fields(): void
+    public function test_prefers_english_value_for_scalar_dc_title(): void
     {
         $graph = [
             [
@@ -161,7 +161,7 @@ final class JsonLdParserTest extends TestCase
 
         $result = $this->parser->parse($graph);
 
-        $this->assertSame('Deutscher Titel || English Title', $result->fields['dc:title']);
+        $this->assertSame('English Title', $result->fields['dc:title']);
     }
 
     public function test_strips_special_chars_from_dc_description(): void
