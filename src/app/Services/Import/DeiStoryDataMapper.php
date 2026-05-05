@@ -24,6 +24,7 @@ final class DeiStoryDataMapper
             'PlaceName' => $field['PlaceName'] ?? null,
             'PlaceLatitude' => $field['PlaceLatitude'] ?? null,
             'PlaceLongitude' => $field['PlaceLongitude'] ?? null,
+            'Manifest' => $parsed->manifestUrl !== '' ? $parsed->manifestUrl : null,
             'Dc' => [
                 'Title' => $field['dc:title'] ?? null,
                 'Description' => $field['dc:description'] ?? null,

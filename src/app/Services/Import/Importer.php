@@ -152,6 +152,7 @@ class Importer
         $story->ExternalRecordId = $storyData['ExternalRecordId'] ?? null;
         $story->RecordId         = $storyData['RecordId']         ?? null;
         $story->ImportName       = $storyData['ImportName']       ?? null;
+        $story->Manifest         = $storyData['Manifest']         ?? null;
         $story->dc               = $storyData['Dc']               ?? [];
         $story->dcterms          = $storyData['Dcterms']          ?? [];
         $story->edm              = $storyData['Edm']              ?? [];
