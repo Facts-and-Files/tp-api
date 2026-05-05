@@ -102,7 +102,7 @@ final class EdmNodeExtractor
 
         $label = $this->values->extractFlattened($node['skos:prefLabel']) ?? '';
         $id = $node['@id'] ?? '';
-        $agent = trim($label . ' | ' . $id, ' |');
+        $agent = $label !== '' ? trim($label) : $id;
 
         if ($agent !== '') {
             $context->appendField('edm:agent', $agent);
