@@ -487,4 +487,32 @@ final class JsonLdParserTest extends TestCase
             $result->fields['dc:title']
         );
     }
+
+    public function test_resolves_id_references_to_labels_for_any_field(): void
+    {
+        $graph = [
+            [
+                '@id' => 'file:///home/vcap/app/#agentOf:nnm1wZl_1',
+                '@type' => 'edm:Agent',
+                'skos:prefLabel' => [
+                    '@language' => 'pl',
+                    '@value' => 'Hauke, Maurycy (1773-1830)',
+                ],
+            ],
+            [
+                '@id' => 'http://data.europeana.eu/item/456/_nnm1wZl',
+                '@type' => 'edm:ProvidedCHO',
+                'dc:creator' => [
+                    '@id' => 'file:///home/vcap/app/#agentOf:nnm1wZl_1',
+                ],
+            ],
+        ];
+
+        $result = $this->parser->parse($graph, null);
+
+        $this->assertSame(
+            'Hauke, Maurycy (1773-1830)',
+            $result->fields['dc:creator'] ?? null
+        );
+    }
 }
