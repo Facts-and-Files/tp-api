@@ -515,4 +515,75 @@ final class JsonLdParserTest extends TestCase
             $result->fields['dc:creator'] ?? null
         );
     }
+
+    public function test_extracts_manifest_url_from_web_resource_dcterms_is_referenced_by(): void
+    {
+        $graph = [
+            [
+                '@type' => 'edm:WebResource',
+                '@id'   => 'https://example.com/image.jpg',
+                'dcterms:isReferencedBy' => ['@id' => 'https://example.com/iiif/manifest.json'],
+            ],
+        ];
+
+        $result = $this->parser->parse($graph);
+
+        $this->assertSame('https://example.com/iiif/manifest.json', $result->manifestUrl);
+        $this->assertSame('public', $result->manifestAuthMode);
+    }
+
+    public function test_web_resource_without_dcterms_is_referenced_by_does_not_set_manifest_url(): void
+    {
+        $graph = [
+            [
+                '@type' => 'edm:WebResource',
+                '@id'   => 'https://example.com/image.jpg',
+                'ebucore:hasMimeType' => 'image/jpeg',
+            ],
+        ];
+
+        $result = $this->parser->parse($graph);
+
+        $this->assertSame('', $result->manifestUrl);
+    }
+
+    public function test_iiif_url_on_node_takes_priority_over_dcterms_is_referenced_by(): void
+    {
+        $graph = [
+            [
+                'iiif_url' => 'https://example.com/iiif/from-iiif-url',
+            ],
+            [
+                '@type' => 'edm:WebResource',
+                '@id'   => 'https://example.com/image.jpg',
+                'dcterms:isReferencedBy' => ['@id' => 'https://example.com/iiif/from-dcterms'],
+            ],
+        ];
+
+        $result = $this->parser->parse($graph);
+
+        $this->assertSame('https://example.com/iiif/from-iiif-url', $result->manifestUrl);
+        $this->assertSame('token', $result->manifestAuthMode);
+    }
+
+    public function test_html_web_resource_without_dcterms_does_not_steal_manifest_url_from_image_resource(): void
+    {
+        $graph = [
+            [
+                '@type' => 'edm:WebResource',
+                '@id'   => 'https://example.com/viewer.html',
+                'ebucore:hasMimeType' => 'text/html',
+            ],
+            [
+                '@type' => 'edm:WebResource',
+                '@id'   => 'https://example.com/image.jpg',
+                'ebucore:hasMimeType' => 'image/jpeg',
+                'dcterms:isReferencedBy' => ['@id' => 'https://example.com/iiif/manifest.json'],
+            ],
+        ];
+
+        $result = $this->parser->parse($graph);
+
+        $this->assertSame('https://example.com/iiif/manifest.json', $result->manifestUrl);
+    }
 }
