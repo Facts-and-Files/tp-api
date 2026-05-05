@@ -147,7 +147,7 @@ final class JsonLdValueExtractor
         return trim($value);
     }
 
-    private function unique(array $literals): array
+    private function unique(array $literals, string $preferredLanguage = 'en'): array
     {
         $unique = [];
 
@@ -158,7 +158,23 @@ final class JsonLdValueExtractor
                 continue;
             }
 
-            $unique[$literal->identity()] = new Literal($normalized, $literal->language);
+            $valueKey = mb_strtolower($normalized);
+
+            if (!isset($unique[$valueKey])) {
+                $unique[$valueKey] = new Literal($normalized, $literal->language);
+                continue;
+            }
+
+            // upgrade to preferred language if we haven't got it yet
+            $currentLang = $unique[$valueKey]->language ?? '';
+            $newLang     = $literal->language ?? '';
+
+            if (
+                !str_starts_with(mb_strtolower($currentLang), $preferredLanguage)
+                && str_starts_with(mb_strtolower($newLang), $preferredLanguage)
+            ) {
+                $unique[$valueKey] = new Literal($normalized, $literal->language);
+            }
         }
 
         return array_values($unique);
