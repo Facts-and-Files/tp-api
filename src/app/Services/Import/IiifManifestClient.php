@@ -61,7 +61,10 @@ class IiifManifestClient
 
     private function getManifestPublic(string $url): array
     {
-        $response = Http::get($url);
+        $response = Http::withHeaders([
+            'Accept'     => 'application/ld+json, application/json',
+            'User-Agent' => 'Mozilla/5.0 (compatible; DEI-Importer/1.0)',
+        ])->get($url);
 
         if ($response->failed()) {
             throw new RuntimeException(
