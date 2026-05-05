@@ -130,7 +130,7 @@ final class JsonLdValueExtractor
 
     public function clean(string $value): string
     {
-        return trim(str_replace(',', ' |', $value));
+        return trim($value);
     }
 
     private function unique(array $literals): array
