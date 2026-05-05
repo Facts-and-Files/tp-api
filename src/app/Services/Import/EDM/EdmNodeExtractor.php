@@ -49,7 +49,7 @@ final class EdmNodeExtractor
                 continue;
             }
 
-            $value = $this->values->extractFlattened($node[$field]);
+            $value = $this->values->extractScalar($node[$field]);
             if ($value === null || $value === '') {
                 continue;
             }

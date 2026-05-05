@@ -12,13 +12,27 @@ final class JsonLdValueExtractor
             return null;
         }
 
-        foreach ($literals as $literal) {
-            if ($literal->language !== null && str_contains(mb_strtolower($literal->language), 'en')) {
-                return $literal->value;
+        // if any literal has a language tag, prefer English
+        $hasLanguage = array_filter($literals, fn(Literal $l) => $l->language !== null);
+
+        if ($hasLanguage) {
+            foreach ($literals as $literal) {
+                if ($literal->language !== null
+                    && str_contains(mb_strtolower($literal->language), 'en')
+                ) {
+                    return $literal->value;
+                }
             }
+
+            // no English found, fall back to first
+            return $literals[0]->value;
         }
 
-        return $literals[0]->value;
+        // no language tags at all — return all distinct values concatenated
+        return implode(' || ', array_map(
+            static fn(Literal $literal): string => $literal->value,
+            $literals,
+        ));
     }
 
     public function extractFlattened(mixed $value): ?string
