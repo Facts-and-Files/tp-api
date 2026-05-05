@@ -115,9 +115,11 @@ final class EdmNodeExtractor
             return;
         }
 
-        $manifestUrl = $this->extractManifestUrl($node);
-        if ($manifestUrl !== null) {
-            $context->setManifestUrl($manifestUrl, 'public');
+        if (isset($node['dcterms:isReferencedBy'])) {
+            $manifestUrl = $this->values->extractFirstUrl($node['dcterms:isReferencedBy']);
+            if ($manifestUrl !== null) {
+                $context->setManifestUrl($manifestUrl, 'public');
+            }
         }
 
         $mimeType = $this->values->extractScalar($node['ebucore:hasMimeType'] ?? null) ?? '';
@@ -138,22 +140,6 @@ final class EdmNodeExtractor
         if (count($parts) >= 2) {
             $context->recordId = '/' . $parts[count($parts) - 2] . '/' . end($parts);
         }
-    }
-
-    private function extractManifestUrl(array $node): ?string
-    {
-        foreach (['iiif_url', 'dcterms:isReferencedBy', 'rdf:value', '@id'] as $field) {
-            if (!isset($node[$field])) {
-                continue;
-            }
-
-            $url = $this->values->extractFirstUrl($node[$field]);
-            if ($url !== null) {
-                return $url;
-            }
-        }
-
-        return null;
     }
 
     private function isWebResource(array $node): bool
