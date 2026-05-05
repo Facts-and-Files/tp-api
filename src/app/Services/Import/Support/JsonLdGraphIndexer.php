@@ -18,7 +18,7 @@ final class JsonLdGraphIndexer
             return;
         }
 
-        if ($this->isNode($value)) {
+        if ($this->isNode($value) && count($value) > 1) {
             $index[$value['@id']] = $value;
         }
 
