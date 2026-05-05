@@ -9,6 +9,7 @@ use Database\Seeders\CampaignDataSeeder;
 use Database\Seeders\DatasetDataSeeder;
 use Database\Seeders\ProjectDataSeeder;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Tests\TestCase;
@@ -396,5 +397,78 @@ class ImportFromDeiTest extends TestCase
         $this->assertSame('Test Library', $story->Edm['Provider']);
         $this->assertSame('https://provider.example.org/item/test_1', $story->Edm['IsShownAt']);
         $this->assertSame('http://creativecommons.org/licenses/by/4.0/', $story->Edm['Rights']);
+    }
+
+    public function test_import_returns_400_when_token_manifest_fetch_fails(): void
+    {
+        $this->mock(IiifManifestClient::class, function ($mock) {
+            $mock->shouldReceive('fetch')
+                ->once()
+                ->andThrow(new RuntimeException('IIIF manifest not reachable. Status: 401'));
+        });
+
+        $payload = [
+            '@graph' => [
+                [
+                    '@type' => 'edm:ProvidedCHO',
+                    '@id' => 'http://data.europeana.eu/item/9/token_manifest_failure',
+                    'dc:title' => 'Token Manifest Failure',
+                ],
+            ],
+            'iiif_url' => 'https://example.com/iiif/protected-manifest',
+        ];
+
+        $response = $this->post(
+            self::$endpoint . '?projectId=1&importName=test&datasetId=1',
+            $payload,
+        );
+
+        $response
+            ->assertStatus(400)
+            ->assertJson(['success' => false])
+            ->assertJsonFragment(['message' => 'Import failed'])
+            ->assertJsonFragment(['data' => 'IIIF manifest not reachable. Status: 401']);
+
+        $this->assertDatabaseMissing('Story', [
+            'RecordId' => '/9/token_manifest_failure',
+        ]);
+
+        $this->assertDatabaseCount('Item', 0);
+        Storage::disk('imports')->assertMissing('test/9_token_manifest_failure.json');
+    }
+
+    public function test_import_returns_400_when_token_request_fails(): void
+    {
+        config()->set('services.europena_iiif.sso_url', 'https://sso.example.org/oauth/token');
+
+        Http::fake([
+            'https://sso.example.org/oauth/token' => Http::response([
+                'error' => 'invalid_client',
+            ], 401),
+
+            'https://example.com/protected/manifest' => Http::response([], 200),
+        ]);
+
+        $payload = [
+            '@graph' => [
+                [
+                    '@type' => 'edm:ProvidedCHO',
+                    '@id' => 'http://data.europeana.eu/item/9/token_failure',
+                    'dc:title' => 'Token Failure',
+                ],
+            ],
+            'iiif_url' => 'https://example.com/protected/manifest',
+        ];
+
+        $response = $this->post(
+            self::$endpoint . '?projectId=1&importName=test&datasetId=1',
+            $payload,
+        );
+
+        $response
+            ->assertStatus(400)
+            ->assertJson(['success' => false])
+            ->assertJsonFragment(['message' => 'Import failed'])
+            ->assertJsonFragment(['data' => 'IIIF access token request failed. Status: 401']);
     }
 }
