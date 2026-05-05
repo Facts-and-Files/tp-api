@@ -470,4 +470,21 @@ final class JsonLdParserTest extends TestCase
 
         $this->assertEmpty($result->fields);
     }
+
+    public function test_preserves_commas_in_literal_values(): void
+    {
+        $graph = [
+            [
+                '@type' => 'edm:ProvidedCHO',
+                'dc:title' => 'Letters, Diaries, and Notes',
+            ],
+        ];
+
+        $result = $this->parser->parse($graph);
+
+        $this->assertSame(
+            'Letters, Diaries, and Notes',
+            $result->fields['dc:title']
+        );
+    }
 }
