@@ -586,4 +586,47 @@ final class JsonLdParserTest extends TestCase
 
         $this->assertSame('https://example.com/iiif/manifest.json', $result->manifestUrl);
     }
+
+    public function test_deduplicates_agent_label_with_same_value_across_language_variants(): void
+    {
+        $graph = [
+            [
+                '@type' => 'edm:Agent',
+                '@id'   => 'http://viaf.org/viaf/35210126',
+                'skos:prefLabel' => [
+                    ['@language' => 'cs-cz', '@value' => 'Siegfried Brie'],
+                    ['@language' => 'fr-fr', '@value' => 'Siegfried Brie'],
+                    ['@language' => 'en-us', '@value' => 'Siegfried Brie'],
+                    ['@language' => 'de-de', '@value' => 'Siegfried Brie'],
+                    ['@language' => 'nl-nl', '@value' => 'Siegfried Brie'],
+                ],
+            ],
+        ];
+
+        $result = $this->parser->parse($graph);
+
+        $this->assertSame('Siegfried Brie', $result->fields['edm:agent']);
+        $this->assertStringNotContainsString('||', $result->fields['edm:agent']);
+    }
+
+    public function test_prefers_english_variant_when_deduplicating_agent_labels(): void
+    {
+        $graph = [
+            [
+                '@type' => 'edm:Agent',
+                '@id'   => 'http://viaf.org/viaf/35210126',
+                'skos:prefLabel' => [
+                    ['@language' => 'fr',    '@value' => 'Manuscrit'],
+                    ['@language' => 'de',    '@value' => 'Manuskript'],
+                    ['@language' => 'en',    '@value' => 'Manuscript'],
+                    ['@language' => 'en-us', '@value' => 'Manuscript'],
+                ],
+            ],
+        ];
+
+        $result = $this->parser->parse($graph);
+
+        $this->assertSame('Manuscript', $result->fields['edm:agent']);
+        $this->assertStringNotContainsString('||', $result->fields['edm:agent']);
+    }
 }
