@@ -35,7 +35,7 @@ class StoryMetsPreparationController extends ResponseController
             $this->sendMetsReadyNotification->send($notificationEmail, $story, 'ready', null);
             return $this->sendResponse([
                 'status' => 'ready',
-                'download_url' => url("/stories/{$id}/items/export/mets"),
+                'download_url' => url("/v2/stories/{$id}/items/export/mets"),
             ], 'METS XML is ready', 200);
         }
 
@@ -58,8 +58,8 @@ class StoryMetsPreparationController extends ResponseController
         return $this->sendResponse([
             'status'  => 'processing',
             'batch_id' => $batch->id,
-            'status_url' => url("/stories/{$id}/items/exports/mets/status/{$batch->id}"),
-            'download_url' => url("/stories/{$id}/items/export/mets"),
+            'status_url' => url("/v2/stories/{$id}/items/exports/mets/status/{$batch->id}"),
+            'download_url' => url("/v2/stories/{$id}/items/export/mets"),
             'totals' => [
                 'pages' => $allItems->count(),
                 'cached'  => $allItems->count() - $missingItems->count(),
@@ -91,7 +91,7 @@ class StoryMetsPreparationController extends ResponseController
                     : 0,
             ],
             'download_url' => $batch->finished()
-                ? url("/stories/{$id}/items/export/mets")
+                ? url("/v2/stories/{$id}/items/export/mets")
                 : null,
         ], $status, 200);
     }
