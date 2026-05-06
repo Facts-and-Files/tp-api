@@ -2,29 +2,18 @@
 
 namespace Tests\Unit;
 
+use App\Services\Import\DeiTokenClient;
 use App\Services\Import\IiifManifestClient;
 use App\Services\Import\IiifManifestParser;
-use App\Services\Import\DeiTokenClient;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 use Tests\TestCase;
 
 class IiifManifestClientTest extends TestCase
 {
-    public function test_parser_extracts_canvases_and_image_links_from_manifest(): void
+    public function test_parser_v2_extracts_canvases_and_image_links(): void
     {
-        $parser = new IiifManifestParser();
-
-        $raw = [
-            'sequences' => [[
-                'canvases' => [
-                    ['images' => [['resource' => ['@id' => 'https://example.com/p1.jpg']]]],
-                    ['images' => [['resource' => ['@id' => 'https://example.com/p2.jpg']]]],
-                ],
-            ]],
-        ];
-
-        $result = $parser->parse($raw);
+        $result = (new IiifManifestParser())->parse($this->v2Manifest());
 
         $this->assertCount(2, $result['canvases']);
         $this->assertSame([
@@ -35,9 +24,7 @@ class IiifManifestClientTest extends TestCase
 
     public function test_parser_returns_empty_canvases_and_links_when_sequences_missing(): void
     {
-        $parser = new IiifManifestParser();
-
-        $result = $parser->parse([]);
+        $result = (new IiifManifestParser())->parse([]);
 
         $this->assertSame([], $result['canvases']);
         $this->assertSame([], $result['imageLinks']);
@@ -45,18 +32,111 @@ class IiifManifestClientTest extends TestCase
 
     public function test_parser_uses_pdf_image_with_page_query_when_provided(): void
     {
-        $parser = new IiifManifestParser();
+        $result = (new IiifManifestParser())->parse($this->v2Manifest(), 'https://example.com/doc.pdf');
 
-        $raw = [
+        $this->assertSame([
+            'https://example.com/doc.pdf?page=0',
+            'https://example.com/doc.pdf?page=1',
+        ], $result['imageLinks']);
+    }
+
+    public function test_parser_v2_falls_back_to_empty_string_for_missing_image_id(): void
+    {
+        $manifest = [
             'sequences' => [[
                 'canvases' => [
-                    ['images' => [['resource' => ['@id' => 'https://example.com/p1.jpg']]]],
-                    ['images' => [['resource' => ['@id' => 'https://example.com/p2.jpg']]]],
+                    ['images' => [['resource' => []]]],
                 ],
             ]],
         ];
 
-        $result = $parser->parse($raw, 'https://example.com/doc.pdf');
+        $result = (new IiifManifestParser())->parse($manifest);
+
+        $this->assertSame([''], $result['imageLinks']);
+    }
+
+    public function test_parser_v3_extracts_canvases_and_image_links(): void
+    {
+        $result = (new IiifManifestParser())->parse($this->v3Manifest());
+
+        $this->assertCount(2, $result['canvases']);
+        $this->assertSame([
+            'https://example.com/p1.jpg',
+            'https://example.com/p2.jpg',
+        ], $result['imageLinks']);
+    }
+
+    public function test_parser_v3_context_as_array_is_detected_correctly(): void
+    {
+        $manifest                = $this->v3Manifest();
+        $manifest['@context']    = [
+            'http://www.w3.org/ns/anno.jsonld',
+            'http://iiif.io/api/presentation/3/context.json',
+        ];
+
+        $result = (new IiifManifestParser())->parse($manifest);
+
+        $this->assertCount(2, $result['canvases']);
+        $this->assertSame([
+            'https://example.com/p1.jpg',
+            'https://example.com/p2.jpg',
+        ], $result['imageLinks']);
+    }
+
+    public function test_parser_v3_resolves_specific_resource_body(): void
+    {
+        $manifest = [
+            '@context' => 'http://iiif.io/api/presentation/3/context.json',
+            'items'    => [[
+                'id'    => 'https://example.com/canvas/1',
+                'type'  => 'Canvas',
+                'items' => [[
+                    'items' => [[
+                        'body' => [
+                            'type'   => 'SpecificResource',
+                            'source' => ['id' => 'https://example.com/image.jpg'],
+                        ],
+                    ]],
+                ]],
+            ]],
+        ];
+
+        $result = (new IiifManifestParser())->parse($manifest);
+
+        $this->assertSame(['https://example.com/image.jpg'], $result['imageLinks']);
+    }
+
+    public function test_parser_v3_returns_empty_when_items_missing(): void
+    {
+        $result = (new IiifManifestParser())->parse([
+            '@context' => 'http://iiif.io/api/presentation/3/context.json',
+        ]);
+
+        $this->assertSame([], $result['canvases']);
+        $this->assertSame([], $result['imageLinks']);
+    }
+
+    public function test_parser_v3_falls_back_to_empty_string_for_missing_image_id(): void
+    {
+        $manifest = [
+            '@context' => 'http://iiif.io/api/presentation/3/context.json',
+            'items'    => [[
+                'items' => [[
+                    'items' => [[
+                        'body' => ['type' => 'Image'],  // no 'id' key
+                    ]],
+                ]],
+            ]],
+        ];
+
+        $result = (new IiifManifestParser())->parse($manifest);
+
+        $this->assertSame([''], $result['imageLinks']);
+    }
+
+    public function test_parser_v3_uses_pdf_image_with_page_query_when_provided(): void
+    {
+        $result = (new IiifManifestParser())->parse($this->v3Manifest(), 'https://example.com/doc.pdf');
 
         $this->assertSame([
             'https://example.com/doc.pdf?page=0',
@@ -74,9 +154,7 @@ class IiifManifestClientTest extends TestCase
             'https://sso.example.org/token' => Http::response(['access_token' => 'test-token-abc'], 200),
         ]);
 
-        $client = new DeiTokenClient();
-
-        $this->assertSame('test-token-abc', $client->getAccessToken());
+        $this->assertSame('test-token-abc', (new DeiTokenClient())->getAccessToken());
     }
 
     public function test_token_client_throws_when_sso_returns_error_status(): void
@@ -110,20 +188,31 @@ class IiifManifestClientTest extends TestCase
     public function test_fetch_public_returns_parsed_manifest(): void
     {
         Http::fake([
-            'https://example.com/manifest' => Http::response([
-                'sequences' => [[
-                    'canvases' => [
-                        ['images' => [['resource' => ['@id' => 'https://example.com/p1.jpg']]]],
-                    ],
-                ]],
-            ], 200),
+            'https://example.com/manifest' => Http::response($this->v2Manifest(), 200),
         ]);
 
-        $client = new IiifManifestClient(new DeiTokenClient(), new IiifManifestParser());
-        $result = $client->fetch('https://example.com/manifest');
+        $result = $this->makeClient()->fetch('https://example.com/manifest');
 
-        $this->assertCount(1, $result['canvases']);
-        $this->assertSame(['https://example.com/p1.jpg'], $result['imageLinks']);
+        $this->assertCount(2, $result['canvases']);
+        $this->assertSame([
+            'https://example.com/p1.jpg',
+            'https://example.com/p2.jpg',
+        ], $result['imageLinks']);
+    }
+
+    public function test_fetch_public_returns_parsed_v3_manifest(): void
+    {
+        Http::fake([
+            'https://example.com/manifest' => Http::response($this->v3Manifest(), 200),
+        ]);
+
+        $result = $this->makeClient()->fetch('https://example.com/manifest');
+
+        $this->assertCount(2, $result['canvases']);
+        $this->assertSame([
+            'https://example.com/p1.jpg',
+            'https://example.com/p2.jpg',
+        ], $result['imageLinks']);
     }
 
     public function test_fetch_throws_when_public_manifest_is_unreachable(): void
@@ -135,8 +224,7 @@ class IiifManifestClientTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('IIIF manifest not reachable. Status: 404');
 
-        (new IiifManifestClient(new DeiTokenClient(), new IiifManifestParser()))
-            ->fetch('https://example.com/manifest');
+        $this->makeClient()->fetch('https://example.com/manifest');
     }
 
     public function test_fetch_throws_when_response_is_not_json_array(): void
@@ -148,8 +236,7 @@ class IiifManifestClientTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('IIIF manifest response was not a JSON object/array');
 
-        (new IiifManifestClient(new DeiTokenClient(), new IiifManifestParser()))
-            ->fetch('https://example.com/manifest');
+        $this->makeClient()->fetch('https://example.com/manifest');
     }
 
     public function test_fetch_with_token_uses_bearer_token_from_token_client(): void
@@ -157,20 +244,13 @@ class IiifManifestClientTest extends TestCase
         config()->set('services.europena_iiif.sso_url', 'https://sso.example.org/token');
 
         Http::fake([
-            'https://sso.example.org/token'       => Http::response(['access_token' => 'bearer-xyz'], 200),
-            'https://example.com/protected/manifest' => Http::response([
-                'sequences' => [[
-                    'canvases' => [
-                        ['images' => [['resource' => ['@id' => 'https://example.com/p1.jpg']]]],
-                    ],
-                ]],
-            ], 200),
+            'https://sso.example.org/token'          => Http::response(['access_token' => 'bearer-xyz'], 200),
+            'https://example.com/protected/manifest' => Http::response($this->v2Manifest(), 200),
         ]);
 
-        $result = (new IiifManifestClient(new DeiTokenClient(), new IiifManifestParser()))
-            ->fetch('https://example.com/protected/manifest', '', 'token');
+        $result = $this->makeClient()->fetch('https://example.com/protected/manifest', '', 'token');
 
-        $this->assertCount(1, $result['canvases']);
+        $this->assertCount(2, $result['canvases']);
 
         Http::assertSent(fn($req) => $req->hasHeader('Authorization', 'Bearer bearer-xyz'));
     }
@@ -186,7 +266,51 @@ class IiifManifestClientTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('IIIF access token request failed. Status: 401');
 
-        (new IiifManifestClient(new DeiTokenClient(), new IiifManifestParser()))
-            ->fetch('https://example.com/protected/manifest', '', 'token');
+        $this->makeClient()->fetch('https://example.com/protected/manifest', '', 'token');
+    }
+
+    private function makeClient(): IiifManifestClient
+    {
+        return new IiifManifestClient(new DeiTokenClient(), new IiifManifestParser());
+    }
+
+    private function v2Manifest(): array
+    {
+        return [
+            '@context'  => 'http://iiif.io/api/presentation/2/context.json',
+            'sequences' => [[
+                'canvases' => [
+                    ['images' => [['resource' => ['@id' => 'https://example.com/p1.jpg']]]],
+                    ['images' => [['resource' => ['@id' => 'https://example.com/p2.jpg']]]],
+                ],
+            ]],
+        ];
+    }
+
+    private function v3Manifest(): array
+    {
+        return [
+            '@context' => 'http://iiif.io/api/presentation/3/context.json',
+            'items'    => [
+                [
+                    'id'    => 'https://example.com/canvas/1',
+                    'type'  => 'Canvas',
+                    'items' => [[
+                        'items' => [[
+                            'body' => ['type' => 'Image', 'id' => 'https://example.com/p1.jpg'],
+                        ]],
+                    ]],
+                ],
+                [
+                    'id'    => 'https://example.com/canvas/2',
+                    'type'  => 'Canvas',
+                    'items' => [[
+                        'items' => [[
+                            'body' => ['type' => 'Image', 'id' => 'https://example.com/p2.jpg'],
+                        ]],
+                    ]],
+                ],
+            ],
+        ];
     }
 }
