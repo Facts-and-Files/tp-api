@@ -62,7 +62,7 @@ class ImportController extends ResponseController
         }
 
         try {
-            $externalRecordId = $this->importer->importFromJsonLd(
+            [$externalRecordId, $created] = $this->importer->importFromJsonLd(
                 parsed: $parsed,
                 projectId: (int) $request->input('projectId'),
                 datasetId: (int) $request->input('datasetId'),
@@ -77,6 +77,10 @@ class ImportController extends ResponseController
             'ExternalRecordId' => $externalRecordId,
         ]);
 
-        return $this->sendResponse($resource, 'Story imported successfully.');
+        $message = $created
+            ? 'Story successfully imported.'
+            : 'Story meta data successfully updated.';
+
+        return $this->sendResponse($resource, $message);
     }
 }

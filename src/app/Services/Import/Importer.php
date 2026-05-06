@@ -56,8 +56,9 @@ class Importer
         int $datasetId,
         string $importName,
         string $rawBody,
-    ): string {
+    ): array {
         $manifest = $this->itemFactory->fetchRequiredManifest($parsed);
+        $created = false;
 
         DB::transaction(function () use (
             $parsed,
@@ -65,11 +66,13 @@ class Importer
             $datasetId,
             $importName,
             $manifest,
+            &$created,
         ) {
             $existing  = Story::where('RecordId', $parsed->recordId)->first();
             $storyData = $this->storyDataMapper->map($parsed, $projectId, $datasetId, $importName);
 
             if ($existing === null) {
+                $created = true;
                 $story = $this->buildStory($storyData);
 
                 $itemResult = $this->itemFactory->makeFromManifest($parsed, $manifest);
@@ -89,7 +92,7 @@ class Importer
 
         $this->rawImportStorage->store($importName, $parsed->recordId, $rawBody);
 
-        return $parsed->externalRecordId;
+        return [$parsed->externalRecordId, $created];
     }
 
     private function importStory(array $import, $validProjectIds, $validDatasetIds): array
