@@ -5,7 +5,7 @@ post:
   description: >
     Accepts a Europeana EDM JSON-LD payload and creates or updates a Story
     together with its Items. The endpoint expects query parameters for the
-    target project, dataset and import batch, and validates that a usable IIIF
+    target project, dataset and import name, and validates that a usable IIIF
     manifest is available before writing data.
   operationId: importDei
   parameters:
@@ -186,3 +186,5 @@ post:
                 data: IIIF manifest contains no canvases. Import aborted.
     '401':
       $ref: 'responses.yaml#/401ErrorResponse'
+    '422':
+      $ref: 'responses.yaml#/422ErrorResponse'
