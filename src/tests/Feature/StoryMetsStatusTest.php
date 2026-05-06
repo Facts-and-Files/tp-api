@@ -120,7 +120,7 @@ class StoryMetsStatusTest extends TestCase
         $this->getJson(self::ENDPOINT . "/status/$batch->id")
             ->assertOk()
             ->assertJsonPath('data.status', 'ready')
-            ->assertJsonPath('data.download_url', url('/stories/' . self::STORY_ID . '/items/export/mets'));
+            ->assertJsonPath('data.download_url', url('/v2/stories/' . self::STORY_ID . '/items/export/mets'));
     }
 
     public function test_status_returns_cancelled_when_batch_is_cancelled(): void

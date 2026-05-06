@@ -311,7 +311,7 @@ class StoryMetsPreparationTest extends TestCase
         $this->assertSame(0, $data['data']['progress']['failed']);
         $this->assertSame(100, $data['data']['progress']['percent']);
         $this->assertSame(
-            url('/stories/' . self::STORY_ID . '/items/export/mets'),
+            url('/v2/stories/' . self::STORY_ID . '/items/export/mets'),
             $data['data']['download_url'],
         );
     }
@@ -346,7 +346,7 @@ class StoryMetsPreparationTest extends TestCase
         $this->assertSame(2, $data['data']['progress']['failed']);
         $this->assertSame(100, $data['data']['progress']['percent']);
         $this->assertSame(
-            url('/stories/' . self::STORY_ID . '/items/export/mets'),
+            url('/v2/stories/' . self::STORY_ID . '/items/export/mets'),
             $data['data']['download_url'],
         );
     }
