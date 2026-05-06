@@ -20,8 +20,7 @@ final class EdmNodeExtractor
 
     public function __construct(
         private readonly JsonLdValueExtractor $values,
-    ) {
-    }
+    ) {}
 
     public function extract(array $graph, ?string $iiifUrl): ParsedJsonLdData
     {

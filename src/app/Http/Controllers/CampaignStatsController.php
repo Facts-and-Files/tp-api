@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\CampaignStatsResource;
 use App\Models\Campaign;
 use App\Models\Score;
@@ -43,7 +42,7 @@ class CampaignStatsController extends ResponseController
                 'CampaignId' => $id,
                 'Summary'    => $summary,
                 'Teams'      => $teams,
-                'Users'      => $users
+                'Users'      => $users,
             ];
 
             $resource = new CampaignStatsResource($grouped);
@@ -67,7 +66,7 @@ class CampaignStatsController extends ResponseController
         foreach ($campaign->teams as $team) {
             $teamStats = [
                 'TeamId' => $team['TeamId'],
-                'Miles' => 0
+                'Miles' => 0,
             ];
 
             $teamScoreIds = DB::table('TeamScore')
@@ -99,7 +98,7 @@ class CampaignStatsController extends ResponseController
                 ->filter(function ($story) use ($teamCampaignScores) {
                     $itemIds = array_merge(
                         $story->ItemIds->all(),
-                        $teamCampaignScores->pluck('ItemId')->all()
+                        $teamCampaignScores->pluck('ItemId')->all(),
                     );
                     return count(array_unique($itemIds)) > 0 ? true : false;
                 })
@@ -132,7 +131,7 @@ class CampaignStatsController extends ResponseController
             'Enrichments'          => $collection->pluck('Enrichments')->sum(),
             'Descriptions'         => $collection->pluck('Descriptions')->sum(),
             'HTRTranscriptions'    => $collection->pluck('HTRTranscriptions')->sum(),
-            'Miles'                => ceil($collection->pluck('Miles')->sum())
+            'Miles'                => ceil($collection->pluck('Miles')->sum()),
         ];
     }
 }

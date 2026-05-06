@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\Item;
 use App\Models\ItemStats;
 use App\Http\Resources\ItemStatsResource;
@@ -14,7 +13,7 @@ class ItemStatsController extends ResponseController
     public function index(Request $request): JsonResponse
     {
         $queryColumns = [
-            'StoryId' => 'StoryId'
+            'StoryId' => 'StoryId',
         ];
 
         $initialSortColumn = 'LastUpdated';
@@ -84,13 +83,13 @@ class ItemStatsController extends ResponseController
 
     protected function getUserIds(Item $item): array
     {
-       $manualUserIds = $item
-            ->transcriptions()
-            ->select('UserId')
-            ->groupBy('UserId')
-            ->get()
-            ->pluck('UserId')
-            ->toArray();
+        $manualUserIds = $item
+             ->transcriptions()
+             ->select('UserId')
+             ->groupBy('UserId')
+             ->get()
+             ->pluck('UserId')
+             ->toArray();
 
         $htrUserIds = $item
             ->htrData()
@@ -124,7 +123,7 @@ class ItemStatsController extends ResponseController
         return $enrichments;
     }
 
-    protected function getOldestTranscriptionDate(Item $item): string|null
+    protected function getOldestTranscriptionDate(Item $item): ?string
     {
         // manual transcription begin date
         $editStartManual = $item

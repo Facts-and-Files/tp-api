@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserStatsView;
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\UserStatsResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;

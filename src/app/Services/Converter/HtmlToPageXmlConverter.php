@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Services\Converter;;
+namespace App\Services\Converter;
+
+;
 
 use App\Services\Converter\DTO\PageXmlPageData;
 use DOMDocument;
@@ -28,7 +30,7 @@ class HtmlToPageXmlConverter extends AbstractPageXmlConverter
         $dom = new DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
         $dom->loadHTML(
-            '<?xml encoding="UTF-8"><!DOCTYPE html><html><body>' . $html . '</body></html>'
+            '<?xml encoding="UTF-8"><!DOCTYPE html><html><body>' . $html . '</body></html>',
         );
         libxml_clear_errors();
 
@@ -138,7 +140,7 @@ class HtmlToPageXmlConverter extends AbstractPageXmlConverter
     private function mapParagraphBlock(DOMElement $element, string $tag): array
     {
         $lines = $this->buildAnnotatedLinesFromNode($element);
-        $plain = implode("\n", array_map(static fn (array $line): string => $line['plain'], $lines));
+        $plain = implode("\n", array_map(static fn(array $line): string => $line['plain'], $lines));
         $custom = [
             'sourceTag' => $tag,
             'htmlStructure' => 'paragraph',
@@ -183,7 +185,7 @@ class HtmlToPageXmlConverter extends AbstractPageXmlConverter
             'tag' => $tag,
             'type' => 'list',
             'node' => $element,
-            'text' => implode("\n", array_map(static fn (array $line): string => $line['plain'], $lines)),
+            'text' => implode("\n", array_map(static fn(array $line): string => $line['plain'], $lines)),
             'lines' => $lines,
             'custom' => [
                 'sourceTag' => $tag,
@@ -219,7 +221,7 @@ class HtmlToPageXmlConverter extends AbstractPageXmlConverter
                 $cells[] = $this->normalizeWhitespace($cell->textContent ?? '');
             }
 
-            $plain = implode(' | ', array_filter($cells, static fn (string $value): bool => $value !== ''));
+            $plain = implode(' | ', array_filter($cells, static fn(string $value): bool => $value !== ''));
             if ($plain === '') {
                 continue;
             }
@@ -238,7 +240,7 @@ class HtmlToPageXmlConverter extends AbstractPageXmlConverter
             'tag' => 'table',
             'type' => 'table',
             'node' => $element,
-            'text' => implode("\n", array_map(static fn (array $line): string => $line['plain'], $lines)),
+            'text' => implode("\n", array_map(static fn(array $line): string => $line['plain'], $lines)),
             'lines' => $lines,
             'custom' => [
                 'sourceTag' => 'table',
@@ -326,7 +328,7 @@ class HtmlToPageXmlConverter extends AbstractPageXmlConverter
 
         $lines[] = $this->finalizeLineSegments($buffer);
 
-        return array_values(array_filter($lines, static fn (array $line): bool => $line['plain'] !== ''));
+        return array_values(array_filter($lines, static fn(array $line): bool => $line['plain'] !== ''));
     }
 
     private function buildAnnotatedLine(DOMElement $element): array
@@ -342,9 +344,9 @@ class HtmlToPageXmlConverter extends AbstractPageXmlConverter
         }
 
         return [
-            'plain' => implode(' ', array_map(static fn (array $line): string => $line['plain'], $lines)),
+            'plain' => implode(' ', array_map(static fn(array $line): string => $line['plain'], $lines)),
             'custom' => [
-                'fragments' => array_map(static fn (array $line): array => [
+                'fragments' => array_map(static fn(array $line): array => [
                     'plain' => $line['plain'],
                     'custom' => $line['custom'],
                 ], $lines),
@@ -485,7 +487,7 @@ class HtmlToPageXmlConverter extends AbstractPageXmlConverter
 
         if (isset($custom['spans']) && is_array($custom['spans'])) {
             $custom['spans'] = array_map(
-                static fn (array $span): array => [
+                static fn(array $span): array => [
                     ...$span,
                     'from' => ($span['from'] ?? 0) + $prefixLength,
                     'to' => ($span['to'] ?? 0) + $prefixLength,

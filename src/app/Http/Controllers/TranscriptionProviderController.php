@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\TranscriptionProvider;
 use App\Http\Resources\TranscriptionProviderResource;
 
@@ -59,7 +58,7 @@ class TranscriptionProviderController extends ResponseController
     {
         try {
             $data = TranscriptionProvider::findOrfail($id);
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage(), 404);
         }
 
@@ -68,7 +67,7 @@ class TranscriptionProviderController extends ResponseController
             $data->save();
 
             return $this->sendResponse(new TranscriptionProviderResource($data), 'Transcription provider updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -77,7 +76,7 @@ class TranscriptionProviderController extends ResponseController
     {
         try {
             $data = TranscriptionProvider::findOrfail($id);
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage(), 404);
         }
 
@@ -87,7 +86,7 @@ class TranscriptionProviderController extends ResponseController
             $data->delete();
 
             return $this->sendResponse($resource, 'Transcription provider deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

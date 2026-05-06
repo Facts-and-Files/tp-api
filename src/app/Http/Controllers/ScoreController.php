@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Events\ScoreTableUpdated;
 use App\Models\Campaign;
 use App\Models\Item;
@@ -19,7 +18,7 @@ class ScoreController extends ResponseController
         $queryColumns = [
             'ItemId'      => 'ItemId',
             'UserId'      => 'UserId',
-            'ScoreTypeId' => 'ScoreTypeId'
+            'ScoreTypeId' => 'ScoreTypeId',
         ];
 
         $initialSortColumn = 'Timestamp';

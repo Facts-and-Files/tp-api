@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
-use App\Models\Team;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Collection;
 
 class User extends Model
 {
-    const CREATED_AT = 'Timestamp';
-    const UPDATED_AT = null;
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = null;
 
     protected $table = 'User';
 
@@ -20,7 +19,7 @@ class User extends Model
 
     protected $hidden = [
         'Token',
-        'pivot'
+        'pivot',
     ];
 
     protected $appends = ['Teams'];
@@ -35,7 +34,7 @@ class User extends Model
         return $this->teams()->get()->map(function ($team) {
             return [
                 'TeamId' => $team->TeamId,
-                'Name' => $team->Name
+                'Name' => $team->Name,
             ];
         });
     }

@@ -29,13 +29,13 @@ class IiifManifestParser
         if ($pdfImage !== '') {
             return array_map(
                 fn(int $i) => $pdfImage . '?page=' . $i,
-                range(0, count($canvases) - 1)
+                range(0, count($canvases) - 1),
             );
         }
 
         return array_map(
             fn(array $canvas) => $this->resolveImageUrl($canvas),
-            $canvases
+            $canvases,
         );
     }
 

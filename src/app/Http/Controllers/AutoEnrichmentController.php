@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\AutoEnrichment;
 use App\Models\Item;
 use App\Models\Story;
@@ -19,7 +18,7 @@ class AutoEnrichmentController extends ResponseController
             'Name' => 'Name',
             'Type' => 'Type',
             'StoryId' => 'StoryId',
-            'ItemId' => 'ItemId'
+            'ItemId' => 'ItemId',
         ];
 
         $initialSortColumn = 'AutoEnrichmentId';
@@ -136,7 +135,7 @@ class AutoEnrichmentController extends ResponseController
             $autoEnrichmentData->save();
 
             return $this->sendResponse(new AutoEnrichmentResource($autoEnrichmentData), 'Auto Enrichment updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -150,7 +149,7 @@ class AutoEnrichmentController extends ResponseController
             $autoEnrichmentData->delete();
 
             return $this->sendResponse($resource, 'Auto Enrichment deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

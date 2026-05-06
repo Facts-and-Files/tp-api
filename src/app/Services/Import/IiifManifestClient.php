@@ -47,7 +47,7 @@ class IiifManifestClient
     {
         if ($response->failed()) {
             throw new RuntimeException(
-                'IIIF manifest not reachable. Status: ' . $response->status()
+                'IIIF manifest not reachable. Status: ' . $response->status(),
             );
         }
 
@@ -55,7 +55,7 @@ class IiifManifestClient
 
         if (!is_array($manifest)) {
             throw new RuntimeException(
-                'IIIF manifest response was not a JSON object/array for URL: ' . $url
+                'IIIF manifest response was not a JSON object/array for URL: ' . $url,
             );
         }
 

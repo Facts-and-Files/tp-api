@@ -59,7 +59,7 @@ Route::get('/documentation/{filename}', function ($filename) {
 Route::get('/health', [HealthController::class, 'check']);
 Route::get('/stories/{id}/items/export/{format}', [StoryItemExportController::class, 'export']);
 
-Route::middleware(['api.permission'])->group(function() {
+Route::middleware(['api.permission'])->group(function () {
     Route::get('/htrdata', [HtrDataController::class, 'index']);
     Route::post('/htrdata', [HtrDataController::class, 'store']);
     Route::get('/htrdata/{id}', [HtrDataController::class, 'show']);

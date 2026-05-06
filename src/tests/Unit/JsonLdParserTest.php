@@ -286,7 +286,7 @@ final class JsonLdParserTest extends TestCase
 
         $this->assertSame(
             'John Doe || Jane Doe',
-            $result->fields['edm:agent']
+            $result->fields['edm:agent'],
         );
     }
 
@@ -484,7 +484,7 @@ final class JsonLdParserTest extends TestCase
 
         $this->assertSame(
             'Letters, Diaries, and Notes',
-            $result->fields['dc:title']
+            $result->fields['dc:title'],
         );
     }
 
@@ -512,7 +512,7 @@ final class JsonLdParserTest extends TestCase
 
         $this->assertSame(
             'Hauke, Maurycy (1773-1830)',
-            $result->fields['dc:creator'] ?? null
+            $result->fields['dc:creator'] ?? null,
         );
     }
 

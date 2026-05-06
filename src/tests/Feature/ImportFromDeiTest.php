@@ -21,7 +21,7 @@ class ImportFromDeiTest extends TestCase
     private function graphWithManifest(
         string $externalId = 'http://data.europeana.eu/item/91/BibliographicResource_1',
         string $title = 'Test Story Title',
-        string $manifestUrl = 'https://example.com/iiif/manifest'
+        string $manifestUrl = 'https://example.com/iiif/manifest',
     ): array {
         return [
             '@graph' => [

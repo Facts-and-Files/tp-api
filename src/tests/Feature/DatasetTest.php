@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use Illuminate\Support\Facades\Artisan;
 use Database\Seeders\DatasetDataSeeder;
 use Tests\TestCase;
-use Tests\Feature\ProjectTest;
 
 class DatasetTest extends TestCase
 {
@@ -52,7 +51,7 @@ class DatasetTest extends TestCase
 
     public function testGetAllDatasetsByProjectId(): void
     {
-        $queryParams = '?ProjectId='. DatasetDataSeeder::$data[1]['ProjectId'];
+        $queryParams = '?ProjectId=' . DatasetDataSeeder::$data[1]['ProjectId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [DatasetDataSeeder::$data[1]]];
 
@@ -66,7 +65,7 @@ class DatasetTest extends TestCase
 
     public function testGetAllDatasetsByName(): void
     {
-        $queryParams = '?Name='. DatasetDataSeeder::$data[1]['Name'];
+        $queryParams = '?Name=' . DatasetDataSeeder::$data[1]['Name'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [DatasetDataSeeder::$data[1]]];
 
@@ -80,7 +79,7 @@ class DatasetTest extends TestCase
 
     public function testAGetSingleDataset(): void
     {
-        $queryParams = '/'. DatasetDataSeeder::$data[1]['DatasetId'];
+        $queryParams = '/' . DatasetDataSeeder::$data[1]['DatasetId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => DatasetDataSeeder::$data[1]];
 
@@ -108,7 +107,7 @@ class DatasetTest extends TestCase
     {
         $createData = [
             'Name'      => 'TestDataset',
-            'ProjectId' => 2
+            'ProjectId' => 2,
         ];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => $createData];
@@ -125,8 +124,8 @@ class DatasetTest extends TestCase
     public function testUpdateADataset(): void
     {
         $updateData = [
-           'Name'      => 'UpdatedDataset',
-           'ProjectId' => 1
+            'Name'      => 'UpdatedDataset',
+            'ProjectId' => 1,
         ];
         $datasetId = DatasetDataSeeder::$data[1]['DatasetId'];
         $queryParams = '/' . $datasetId;

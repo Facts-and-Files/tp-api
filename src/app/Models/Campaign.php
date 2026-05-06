@@ -5,14 +5,11 @@ namespace App\Models;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\Team;
-use App\Models\Story;
-use Illuminate\Support\Facades\DB;
 
 class Campaign extends Model
 {
-    const CREATED_AT = null;
-    const UPDATED_AT = null;
+    public const CREATED_AT = null;
+    public const UPDATED_AT = null;
 
     protected $table = 'Campaign';
 
@@ -21,16 +18,16 @@ class Campaign extends Model
     protected $guarded = ['CampaignId'];
 
     protected $casts = [
-        'Public' => 'boolean'
+        'Public' => 'boolean',
     ];
 
     protected $hidden = [
-        'pivot'
+        'pivot',
     ];
 
     protected $appends = [
         'Teams',
-        'StoryIds'
+        'StoryIds',
     ];
 
     public function teams(): BelongsToMany
@@ -40,7 +37,8 @@ class Campaign extends Model
 
     public function stories(): BelongsToMany
     {
-        return $this->belongsToMany(Story::class, 'StoryCampaign', 'CampaignId', 'StoryId');;
+        return $this->belongsToMany(Story::class, 'StoryCampaign', 'CampaignId', 'StoryId');
+        ;
     }
 
     public function getTeamsAttribute(): Collection
@@ -48,7 +46,7 @@ class Campaign extends Model
         return $this->teams()->get()->map(function ($team) {
             return [
                 'TeamId' => $team->TeamId,
-                'Name' => $team->Name
+                'Name' => $team->Name,
             ];
         });
     }

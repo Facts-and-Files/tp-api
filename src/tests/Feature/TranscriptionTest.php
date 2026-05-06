@@ -18,7 +18,7 @@ class TranscriptionTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => LanguageDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => TranscriptionDataSeeder::class]);
@@ -54,7 +54,7 @@ class TranscriptionTest extends TestCase
 
     public function test_get_all_transcriptions_by_itemid(): void
     {
-        $queryParams = '?ItemId='. TranscriptionDataSeeder::$data[2]['ItemId'];
+        $queryParams = '?ItemId=' . TranscriptionDataSeeder::$data[2]['ItemId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [TranscriptionDataSeeder::$data[2]]];
 
@@ -68,7 +68,7 @@ class TranscriptionTest extends TestCase
 
     public function test_get_all_transcription_by_itemid_and_currentversion(): void
     {
-        $queryParams = '?ItemId='. TranscriptionDataSeeder::$data[0]['ItemId']
+        $queryParams = '?ItemId=' . TranscriptionDataSeeder::$data[0]['ItemId']
             . '&CurrentVersion=true';
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [TranscriptionDataSeeder::$data[0]]];
@@ -86,18 +86,18 @@ class TranscriptionTest extends TestCase
         $transcriptionId = TranscriptionDataSeeder::$data[1]['TranscriptionId'];
         $languageIds = array_filter(
             TranscriptionLanguageDataSeeder::$data,
-            function($lang) use ($transcriptionId) {
+            function ($lang) use ($transcriptionId) {
                 return $lang['TranscriptionId'] === $transcriptionId;
-            }
+            },
         );
-        $queryParams = '/'. $transcriptionId;
+        $queryParams = '/' . $transcriptionId;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => TranscriptionDataSeeder::$data[1]];
         $awaitedData['data']['Language'] = array_filter(
             LanguageDataSeeder::$data,
-            function($lang) use ($languageIds) {
+            function ($lang) use ($languageIds) {
                 return in_array($lang['LanguageId'], $languageIds);
-            }
+            },
         );
 
         $response = $this->get(self::$endpoint . $queryParams);
@@ -180,9 +180,9 @@ class TranscriptionTest extends TestCase
         $awaitedData = ['data' => $createData];
         $awaitedData['data']['Language'] = array_filter(
             LanguageDataSeeder::$data,
-            function($lang) use ($createData) {
+            function ($lang) use ($createData) {
                 return in_array($lang['LanguageId'], $createData['Language']);
-            }
+            },
         );
 
         $response = $this->post(self::$endpoint, $createData);

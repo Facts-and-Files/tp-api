@@ -9,8 +9,7 @@ final class DeiItemFactory
 {
     public function __construct(
         private readonly IiifManifestClient $manifestClient,
-    ) {
-    }
+    ) {}
 
     public function fetchRequiredManifest(ParsedJsonLdData $parsed): array
     {

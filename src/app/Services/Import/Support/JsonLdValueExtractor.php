@@ -44,7 +44,7 @@ final class JsonLdValueExtractor
         }
 
         return implode(' || ', array_map(
-            static fn (Literal $literal): string => $literal->value,
+            static fn(Literal $literal): string => $literal->value,
             $literals,
         ));
     }

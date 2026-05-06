@@ -13,6 +13,5 @@ readonly class PageXmlPageData
         public int $height,
         public ?string $plainText = null,
         public ?string $htmlText = null,
-    ) {
-    }
+    ) {}
 }

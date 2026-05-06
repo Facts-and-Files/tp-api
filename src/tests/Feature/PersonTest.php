@@ -18,7 +18,7 @@ class PersonTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => ItemDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PersonDataSeeder::class]);
@@ -54,7 +54,7 @@ class PersonTest extends TestCase
 
     public function testGetAllPersonsByFirstname(): void
     {
-        $queryParams = '?FirstName='. PersonDataSeeder::$data[1]['FirstName'];
+        $queryParams = '?FirstName=' . PersonDataSeeder::$data[1]['FirstName'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PersonDataSeeder::$data[1]]];
 
@@ -68,7 +68,7 @@ class PersonTest extends TestCase
 
     public function testGetAllPersonsByLastname(): void
     {
-        $queryParams = '?LastName='. PersonDataSeeder::$data[1]['LastName'];
+        $queryParams = '?LastName=' . PersonDataSeeder::$data[1]['LastName'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PersonDataSeeder::$data[1]]];
 
@@ -99,7 +99,7 @@ class PersonTest extends TestCase
         $createData = [
             'FirstName'  => 'Max 3',
             'PersonRole' => 'DocumentCreator',
-            'ItemId'     => 2
+            'ItemId'     => 2,
         ];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => $createData];
@@ -124,7 +124,7 @@ class PersonTest extends TestCase
     public function testUpdateAPerson(): void
     {
         $updateData = [
-            'FirstName'  => 'Max 4'
+            'FirstName'  => 'Max 4',
         ];
         $personId = PersonDataSeeder::$data[1]['PersonId'];
         $queryParams = '/' . $personId;

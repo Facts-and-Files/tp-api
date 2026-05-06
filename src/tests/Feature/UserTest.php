@@ -23,7 +23,7 @@ class UserTest extends TestCase
 
     public function testGetOneWpuserIdByByUserId(): void
     {
-        $queryParams = '/wpuserids?UserId='. UserDataSeeder::$data[0]['UserId'];
+        $queryParams = '/wpuserids?UserId=' . UserDataSeeder::$data[0]['UserId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [UserDataSeeder::$data[0]]];
         unset($awaitedData['data'][0]['Timestamp']);

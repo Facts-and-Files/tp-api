@@ -11,8 +11,7 @@ final readonly class ParsedJsonLdData
         public string $externalRecordId,
         public string $recordId,
         public string $manifestAuthMode = 'public',
-    ) {
-    }
+    ) {}
 
     public function hasRecordId(): bool
     {

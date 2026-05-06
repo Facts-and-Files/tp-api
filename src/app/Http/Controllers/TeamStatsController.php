@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\Team;
 use App\Models\ScoreType;
 use App\Http\Resources\TeamStatsResource;
@@ -21,7 +20,7 @@ class TeamStatsController extends ResponseController
             $scoreTypes = ScoreType::get();
 
             $summary = [
-                'Miles' => 0
+                'Miles' => 0,
             ];
             $scoreTypes->map(function ($score) use (&$summary) {
                 $scoreName = $this->rename($score->Name);
@@ -35,10 +34,10 @@ class TeamStatsController extends ResponseController
                     $userStat = [
                         'UserId' => $userId,
                         'Miles'  => 0,
-                        'Items'  => 0
+                        'Items'  => 0,
                     ];
 
-                    $scoreTypes->map(function ($score) use (&$userStat){
+                    $scoreTypes->map(function ($score) use (&$userStat) {
                         $scoreName = $this->rename($score->Name);
                         $userStat[$scoreName] = 0;
                     });
@@ -56,7 +55,7 @@ class TeamStatsController extends ResponseController
 
                     $summary['Miles'] += $userStat['Miles'];
 
-                    $scoreTypes->map(function ($score) use ($userStat, &$summary){
+                    $scoreTypes->map(function ($score) use ($userStat, &$summary) {
                         $scoreName = $this->rename($score->Name);
                         $summary[$scoreName] += $userStat[$scoreName];
                     });
@@ -69,7 +68,7 @@ class TeamStatsController extends ResponseController
             $data = [
                 'TeamId'  => $id,
                 'Summary' => $summary,
-                'Users'   => $users->values()
+                'Users'   => $users->values(),
             ];
 
             $resource = new TeamStatsResource($data);

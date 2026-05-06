@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Jobs\PrepareItemAltoJob;
 use App\Models\Item;
 use App\Models\Story;
@@ -44,7 +43,7 @@ class StoryMetsPreparationController extends ResponseController
         $missingItems = $this->metsStoryReadiness->missingItems($story);
 
         $jobs = $missingItems
-            ->map(fn (Item $item) => new PrepareItemAltoJob($item))
+            ->map(fn(Item $item) => new PrepareItemAltoJob($item))
             ->all();
 
         $batch = Bus::batch($jobs)

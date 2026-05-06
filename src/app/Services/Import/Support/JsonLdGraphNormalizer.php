@@ -71,7 +71,7 @@ final class JsonLdGraphNormalizer
         }
 
         return array_map(
-            fn (mixed $item): mixed => $this->normalizeValue($item, $index, $visited),
+            fn(mixed $item): mixed => $this->normalizeValue($item, $index, $visited),
             $value,
         );
     }

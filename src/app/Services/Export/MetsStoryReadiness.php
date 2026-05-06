@@ -4,7 +4,6 @@ namespace App\Services\Export;
 
 use App\Models\Item;
 use App\Models\Story;
-use App\Services\Export\ItemExportManager;
 use Illuminate\Support\Collection;
 
 final class MetsStoryReadiness
@@ -16,7 +15,7 @@ final class MetsStoryReadiness
     public function missingItems(Story $story): Collection
     {
         return $this->storyItems($story)
-            ->filter(fn (Item $item) => !$this->itemExportManager->hasCachedAlto($item))
+            ->filter(fn(Item $item) => !$this->itemExportManager->hasCachedAlto($item))
             ->values();
     }
 

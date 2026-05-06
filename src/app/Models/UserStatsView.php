@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use App\Casts\Ceil;
@@ -8,8 +9,8 @@ class UserStatsView extends Model
 {
     protected $table = 'user_stats_view';
 
-    const CREATED_AT = null;
-    const UPDATED_AT = null;
+    public const CREATED_AT = null;
+    public const UPDATED_AT = null;
 
     protected $fillable = [];
 

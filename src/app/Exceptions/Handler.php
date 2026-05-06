@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Exceptions\AltoNotPreparedException;
 use App\Http\Controllers\ResponseController;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Auth\AuthenticationException;
@@ -11,7 +10,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
-
 
 class Handler extends ExceptionHandler
 {

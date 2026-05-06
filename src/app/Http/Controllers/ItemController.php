@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Models\Item;
 use App\Http\Resources\ItemResource;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +13,7 @@ class ItemController extends ResponseController
     {
         $queryColumns = [
             'StoryId' => 'StoryId',
-            'ItemId'  => 'ItemId'
+            'ItemId'  => 'ItemId',
         ];
 
         $initialSortColumn = 'ItemId';
@@ -55,7 +54,7 @@ class ItemController extends ResponseController
             $item->save();
 
             return $this->sendResponse(new ItemResource($item), 'Item updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

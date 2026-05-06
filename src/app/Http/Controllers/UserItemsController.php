@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\UserItemsResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -35,7 +34,7 @@ class UserItemsController extends ResponseController
                     'cs.Name AS CompletionStatus',
                     DB::raw('MAX(s.Timestamp) AS LastEdit'),
                     'stype.Name AS ScoreType',
-                    DB::raw('SUM(s.Amount) AS Amount')
+                    DB::raw('SUM(s.Amount) AS Amount'),
                 )
                 ->where('s.UserId', $id)
                 ->groupBy('p.Name', 'i.ItemId', 's.ScoreTypeId')
@@ -49,7 +48,7 @@ class UserItemsController extends ResponseController
             $collection = UserItemsResource::collection($grouped);
 
             return $this->sendResponseWithMeta($collection, 'Items fetched.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

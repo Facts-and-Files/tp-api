@@ -21,11 +21,11 @@ class DeiItemFactoryTest extends TestCase
         $factory = new DeiItemFactory($client);
 
         $parsed = new ParsedJsonLdData(
-            fields:           ['dc:title' => 'Title'],
-            manifestUrl:      '',
-            pdfImage:         '',
+            fields: ['dc:title' => 'Title'],
+            manifestUrl: '',
+            pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/1/test',
-            recordId:         '/1/test',
+            recordId: '/1/test',
         );
 
         $this->expectException(RuntimeException::class);
@@ -47,11 +47,11 @@ class DeiItemFactoryTest extends TestCase
         $factory = new DeiItemFactory($client);
 
         $parsed = new ParsedJsonLdData(
-            fields:           ['dc:title' => 'Title'],
-            manifestUrl:      'https://example.com/iiif/manifest',
-            pdfImage:         '',
+            fields: ['dc:title' => 'Title'],
+            manifestUrl: 'https://example.com/iiif/manifest',
+            pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/1/test',
-            recordId:         '/1/test',
+            recordId: '/1/test',
         );
 
         $this->expectException(RuntimeException::class);
@@ -70,11 +70,11 @@ class DeiItemFactoryTest extends TestCase
         $factory = new DeiItemFactory($client);
 
         $parsed = new ParsedJsonLdData(
-            fields:           ['dc:title' => 'Manifest Story'],
-            manifestUrl:      'https://example.com/iiif/manifest',
-            pdfImage:         '',
+            fields: ['dc:title' => 'Manifest Story'],
+            manifestUrl: 'https://example.com/iiif/manifest',
+            pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/2/test',
-            recordId:         '/2/test',
+            recordId: '/2/test',
         );
 
         $manifest = [
@@ -92,7 +92,7 @@ class DeiItemFactoryTest extends TestCase
 
         $this->assertSame(
             ['@id' => 'https://example.com/p1.jpg'],
-            $result['previewImage']
+            $result['previewImage'],
         );
 
         $this->assertCount(2, $result['items']);
@@ -100,7 +100,7 @@ class DeiItemFactoryTest extends TestCase
         $this->assertSame('Manifest Story Item 1', $result['items'][0]['Title']);
         $this->assertSame(
             json_encode(['@id' => 'https://example.com/p1.jpg']),
-            $result['items'][0]['ImageLink']
+            $result['items'][0]['ImageLink'],
         );
         $this->assertSame(1, $result['items'][0]['OrderIndex']);
         $this->assertSame('https://example.com/iiif/manifest', $result['items'][0]['Manifest']);
@@ -109,7 +109,7 @@ class DeiItemFactoryTest extends TestCase
         $this->assertSame('Manifest Story Item 2', $result['items'][1]['Title']);
         $this->assertSame(
             json_encode(['@id' => 'https://example.com/p2.jpg']),
-            $result['items'][1]['ImageLink']
+            $result['items'][1]['ImageLink'],
         );
         $this->assertSame(2, $result['items'][1]['OrderIndex']);
         $this->assertSame('https://example.com/iiif/manifest', $result['items'][1]['Manifest']);
@@ -122,11 +122,11 @@ class DeiItemFactoryTest extends TestCase
         $factory = new DeiItemFactory($client);
 
         $parsed = new ParsedJsonLdData(
-            fields:           ['dc:title' => 'Rich Resource'],
-            manifestUrl:      'https://example.com/iiif/manifest',
-            pdfImage:         '',
+            fields: ['dc:title' => 'Rich Resource'],
+            manifestUrl: 'https://example.com/iiif/manifest',
+            pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/3/test',
-            recordId:         '/3/test',
+            recordId: '/3/test',
         );
 
         $resource = [
@@ -171,11 +171,11 @@ class DeiItemFactoryTest extends TestCase
         $factory = new DeiItemFactory($client);
 
         $parsed = new ParsedJsonLdData(
-            fields:           ['dc:title' => 'V3 Story'],
-            manifestUrl:      'https://example.com/iiif/v3/manifest',
-            pdfImage:         '',
+            fields: ['dc:title' => 'V3 Story'],
+            manifestUrl: 'https://example.com/iiif/v3/manifest',
+            pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/4/test',
-            recordId:         '/4/test',
+            recordId: '/4/test',
         );
 
         $manifest = [
@@ -230,11 +230,11 @@ class DeiItemFactoryTest extends TestCase
         $factory = new DeiItemFactory($client);
 
         $parsed = new ParsedJsonLdData(
-            fields:           ['dc:title' => 'V3 SpecificResource'],
-            manifestUrl:      'https://example.com/iiif/v3/manifest',
-            pdfImage:         '',
+            fields: ['dc:title' => 'V3 SpecificResource'],
+            manifestUrl: 'https://example.com/iiif/v3/manifest',
+            pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/5/test',
-            recordId:         '/5/test',
+            recordId: '/5/test',
         );
 
         $manifest = [
@@ -265,11 +265,11 @@ class DeiItemFactoryTest extends TestCase
         $factory = new DeiItemFactory($client);
 
         $parsed = new ParsedJsonLdData(
-            fields:           ['dc:title' => 'Compat Test'],
-            manifestUrl:      'https://example.com/iiif/manifest',
-            pdfImage:         '',
+            fields: ['dc:title' => 'Compat Test'],
+            manifestUrl: 'https://example.com/iiif/manifest',
+            pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/6/test',
-            recordId:         '/6/test',
+            recordId: '/6/test',
         );
 
         $v2Manifest = [
@@ -326,11 +326,11 @@ class DeiItemFactoryTest extends TestCase
         $factory = new DeiItemFactory($client);
 
         $parsed = new ParsedJsonLdData(
-            fields:           ['dc:title' => 'Manifest Story'],
-            manifestUrl:      'https://example.com/iiif/manifest',
-            pdfImage:         '',
+            fields: ['dc:title' => 'Manifest Story'],
+            manifestUrl: 'https://example.com/iiif/manifest',
+            pdfImage: '',
             externalRecordId: 'http://data.europeana.eu/item/2/test',
-            recordId:         '/2/test',
+            recordId: '/2/test',
         );
 
         $this->expectException(RuntimeException::class);

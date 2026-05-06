@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -7,8 +8,8 @@ class SummaryStatsView extends Model
 {
     protected $table = 'summary_stats_view';
 
-    const CREATED_AT = null;
-    const UPDATED_AT = null;
+    public const CREATED_AT = null;
+    public const UPDATED_AT = null;
 
     protected $fillable = [];
 
@@ -20,6 +21,6 @@ class SummaryStatsView extends Model
         'UniqueItemsPerScoreType' => 'integer',
         'OverallUniqueUsers'      => 'integer',
         'OverallUniqueItems'      => 'integer',
-        'Amount'                  => 'integer'
+        'Amount'                  => 'integer',
     ];
 }

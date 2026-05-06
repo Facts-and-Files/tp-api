@@ -16,7 +16,7 @@ class ProjectTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => ProjectDataSeeder::class]);
     }
@@ -50,7 +50,7 @@ class ProjectTest extends TestCase
 
     public function testGetAllProjectsByName(): void
     {
-        $queryParams = '?Name='. ProjectDataSeeder::$data[1]['Name'];
+        $queryParams = '?Name=' . ProjectDataSeeder::$data[1]['Name'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ProjectDataSeeder::$data[1]]];
 
@@ -64,7 +64,7 @@ class ProjectTest extends TestCase
 
     public function testGetASingleProject(): void
     {
-        $queryParams = '/'. ProjectDataSeeder::$data[1]['ProjectId'];
+        $queryParams = '/' . ProjectDataSeeder::$data[1]['ProjectId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => ProjectDataSeeder::$data[1]];
 
@@ -81,7 +81,7 @@ class ProjectTest extends TestCase
         $createData = [
             'ProjectId' => 3,
             'Name'      => 'TestProject',
-            'Url'       => 'testproject'
+            'Url'       => 'testproject',
         ];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => $createData];
@@ -97,8 +97,8 @@ class ProjectTest extends TestCase
     public function testUpdateAProject(): void
     {
         $updateData = [
-           'Name' => 'UpdatedProject',
-           'Url'  => 'updatedproject'
+            'Name' => 'UpdatedProject',
+            'Url'  => 'updatedproject',
         ];
         $projectId = ProjectDataSeeder::$data[1]['ProjectId'];
         $queryParams = '/' . $projectId;

@@ -7,8 +7,7 @@ final readonly class Literal
     public function __construct(
         public string $value,
         public ?string $language = null,
-    ) {
-    }
+    ) {}
 
     public function normalizedValue(): string
     {

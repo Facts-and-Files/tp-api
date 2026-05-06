@@ -6,7 +6,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\HealthResource;
 
 class HealthController extends ResponseController
@@ -103,7 +102,8 @@ class HealthController extends ResponseController
                 $data['conected'] = 'Ok';
                 $data['time'] = round(($end - $start) * 1000);
             }
-        } catch(Exception $exception) { }
+        } catch (Exception $exception) {
+        }
 
         return $data;
     }
@@ -118,8 +118,8 @@ class HealthController extends ResponseController
             $start = microtime(true);
 
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL,'http://transcribathon.eu/tp-api/projects/');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($ch, CURLOPT_URL, 'http://transcribathon.eu/tp-api/projects/');
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
@@ -135,7 +135,8 @@ class HealthController extends ResponseController
             }
 
             curl_close($ch);
-        } catch (Exception $exception) { }
+        } catch (Exception $exception) {
+        }
 
         return $data;
     }

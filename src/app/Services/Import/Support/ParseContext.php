@@ -13,8 +13,7 @@ final class ParseContext
         public string $externalRecordId = '',
         public string $recordId = '',
         public string $manifestAuthMode = 'public',
-    ) {
-    }
+    ) {}
 
     public function appendField(string $field, string $value): void
     {

@@ -17,7 +17,7 @@ class PropertyTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => PropertyTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => PropertyDataSeeder::class]);
@@ -38,7 +38,7 @@ class PropertyTest extends TestCase
 
     public function test_get_properties_by_property_type(): void
     {
-        $queryParams = '?PropertyTypeId='. PropertyTypeDataSeeder::$data[1]['PropertyTypeId'];
+        $queryParams = '?PropertyTypeId=' . PropertyTypeDataSeeder::$data[1]['PropertyTypeId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PropertyDataSeeder::$data[1]]];
 
@@ -64,7 +64,7 @@ class PropertyTest extends TestCase
 
     public function test_get_a_single_property(): void
     {
-        $queryParams = '/'. PropertyDataSeeder::$data[0]['PropertyId'];
+        $queryParams = '/' . PropertyDataSeeder::$data[0]['PropertyId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => PropertyDataSeeder::$data[0]];
 

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Events\PlaceInserted;
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\PlaceResource;
 use App\Models\Dataset;
 use App\Models\Item;
@@ -40,7 +39,8 @@ class PlaceController extends ResponseController
 
         $initialSortColumn = 'Place.PlaceId';
 
-        $query = $this->buildQueryByParentId($request)->with('links');;
+        $query = $this->buildQueryByParentId($request)->with('links');
+        ;
 
         $data = $this->getDataByRequest($request, $query, $queryColumns, $initialSortColumn);
 

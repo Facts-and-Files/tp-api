@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Events\PersonInserted;
-use App\Http\Controllers\ResponseController;
 use App\Models\Item;
 use App\Models\Person;
 use App\Http\Resources\PersonResource;
@@ -19,7 +18,7 @@ class PersonController extends ResponseController
             'LastName'   => 'LastName',
             'BirthPlace' => 'BirthPlace',
             'DeathPlace' => 'DeathPlace',
-            'PersonRole' => 'PersonRole'
+            'PersonRole' => 'PersonRole',
         ];
 
         $initialSortColumn = 'PersonId';
@@ -95,7 +94,7 @@ class PersonController extends ResponseController
             $resource = new PersonResource($person);
 
             return $this->sendResponse($resource, 'Person updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -109,7 +108,7 @@ class PersonController extends ResponseController
             $person->delete();
 
             return $this->sendResponse($resource, 'Person deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

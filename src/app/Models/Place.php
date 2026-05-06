@@ -9,8 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Place extends Model
 {
-    const CREATED_AT = null;
-    const UPDATED_AT = null;
+    public const CREATED_AT = null;
+    public const UPDATED_AT = null;
 
     protected $table = 'Place';
 
@@ -33,7 +33,7 @@ class Place extends Model
     ];
 
     protected $casts = [
-        'UserGenerated' => 'boolean'
+        'UserGenerated' => 'boolean',
     ];
 
 

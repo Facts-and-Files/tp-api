@@ -59,7 +59,7 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByUserId(): void
     {
-        $queryParams = '?UserId='. ScoreDataSeeder::$data[1]['UserId'];
+        $queryParams = '?UserId=' . ScoreDataSeeder::$data[1]['UserId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ScoreDataSeeder::$data[1]]];
 
@@ -73,7 +73,7 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByItemId(): void
     {
-        $queryParams = '?ItemId='. ScoreDataSeeder::$data[1]['ItemId'];
+        $queryParams = '?ItemId=' . ScoreDataSeeder::$data[1]['ItemId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ScoreDataSeeder::$data[1]]];
 
@@ -87,7 +87,7 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByStoryId(): void
     {
-        $queryParams = '?StoryId='. ItemDataSeeder::$data[1]['StoryId'];
+        $queryParams = '?StoryId=' . ItemDataSeeder::$data[1]['StoryId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ScoreDataSeeder::$data[1]]];
 
@@ -101,7 +101,7 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByCampaignId(): void
     {
-        $queryParams = '?CampaignId='. CampaignDataSeeder::$data[0]['CampaignId'];
+        $queryParams = '?CampaignId=' . CampaignDataSeeder::$data[0]['CampaignId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ScoreDataSeeder::$data[0], ScoreDataSeeder::$data[1]]];
 
@@ -115,7 +115,7 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByScoreTypeId(): void
     {
-        $queryParams = '?ScoreTypeId='. ScoreDataSeeder::$data[1]['ScoreTypeId'];
+        $queryParams = '?ScoreTypeId=' . ScoreDataSeeder::$data[1]['ScoreTypeId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ScoreDataSeeder::$data[0], ScoreDataSeeder::$data[1]]];
 
@@ -129,7 +129,7 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByFromDatetime(): void
     {
-        $queryParams = '?from=' . Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'] )->sub(1, 'day');
+        $queryParams = '?from=' . Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'])->sub(1, 'day');
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ScoreDataSeeder::$data[1]]];
 
@@ -143,7 +143,7 @@ class ScoreTest extends TestCase
 
     public function testGetScoresByToDatetime(): void
     {
-        $queryParams = '?to='. Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'] )->add(1, 'day');
+        $queryParams = '?to=' . Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'])->add(1, 'day');
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ScoreDataSeeder::$data[0]]];
 
@@ -157,8 +157,8 @@ class ScoreTest extends TestCase
 
     public function testGetAllScoresByBetweenDatetimes(): void
     {
-        $to = Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'] )->add(1, 'day');
-        $from = Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'] )->sub(1, 'day');
+        $to = Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'])->add(1, 'day');
+        $from = Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'])->sub(1, 'day');
         $queryParams = '?from=' . $from . '&to=' . $to;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [ScoreDataSeeder::$data[0], ScoreDataSeeder::$data[1]]];
@@ -173,8 +173,8 @@ class ScoreTest extends TestCase
 
     public function testGetNoScoreByTimestampBetween(): void
     {
-        $to = Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'] )->sub(1, 'day');
-        $from = Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'] )->add(1, 'day');
+        $to = Carbon::parse(ScoreDataSeeder::$data[1]['Timestamp'])->sub(1, 'day');
+        $from = Carbon::parse(ScoreDataSeeder::$data[0]['Timestamp'])->add(1, 'day');
         $queryParams = '?from=' . $from . '&to=' . $to;
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => []];

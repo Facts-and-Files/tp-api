@@ -120,7 +120,7 @@ class ItemExportTest extends TestCase
 
         $xml->registerXPathNamespace(
             'page',
-            'http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15'
+            'http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15',
         );
 
         $creator = $xml->xpath('//page:Metadata/page:Creator');
@@ -151,7 +151,7 @@ class ItemExportTest extends TestCase
 
         $xml->registerXPathNamespace(
             'page',
-            'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'
+            'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15',
         );
 
         $creator = $xml->xpath('//page:Metadata/page:Creator');

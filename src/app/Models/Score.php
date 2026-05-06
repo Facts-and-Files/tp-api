@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Score extends Model
 {
-    const CREATED_AT = 'Timestamp';
-    const UPDATED_AT = null;
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = null;
 
     protected $table = 'Score';
 

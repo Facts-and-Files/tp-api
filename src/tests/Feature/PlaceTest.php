@@ -26,7 +26,7 @@ class PlaceTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => ProjectDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => DatasetDataSeeder::class]);
@@ -65,7 +65,7 @@ class PlaceTest extends TestCase
 
     public function test_get_all_places_by_name(): void
     {
-        $queryParams = '?Name='. PlaceDataSeeder::$data[1]['Name'];
+        $queryParams = '?Name=' . PlaceDataSeeder::$data[1]['Name'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
@@ -93,7 +93,7 @@ class PlaceTest extends TestCase
 
     public function test_get_all_places_by_wikidata_id(): void
     {
-        $queryParams = '?WikidataId='. PlaceDataSeeder::$data[1]['WikidataId'];
+        $queryParams = '?WikidataId=' . PlaceDataSeeder::$data[1]['WikidataId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => [PlaceDataSeeder::$data[1]]];
 
@@ -234,7 +234,7 @@ class PlaceTest extends TestCase
     public function test_creating_a_place_with_missing_fields_returs_422(): void
     {
         $createData = [
-            'Name' => 'Test'
+            'Name' => 'Test',
         ];
         $awaitedSuccess = ['success' => false];
 

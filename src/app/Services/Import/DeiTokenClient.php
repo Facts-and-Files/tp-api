@@ -28,7 +28,7 @@ class DeiTokenClient
 
         if ($response->failed()) {
             throw new RuntimeException(
-                'IIIF access token request failed. Status: ' . $response->status()
+                'IIIF access token request failed. Status: ' . $response->status(),
             );
         }
 

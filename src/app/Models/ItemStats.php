@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ItemStats extends Model
 {
-    const CREATED_AT = 'Timestamp';
-    const UPDATED_AT = 'LastUpdated';
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = 'LastUpdated';
 
     protected $table = 'ItemStats';
 
@@ -17,6 +17,6 @@ class ItemStats extends Model
 
     protected $casts = [
         'UserIds' => 'json',
-        'Enrichments' => 'json'
+        'Enrichments' => 'json',
     ];
 }

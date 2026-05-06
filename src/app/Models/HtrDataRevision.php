@@ -19,8 +19,8 @@ class HtrDataRevision extends Model
     /**
      * Use user defined exisiting timestamp columns
      */
-    const CREATED_AT = 'Timestamp';
-    const UPDATED_AT = 'LastUpdated';
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = 'LastUpdated';
 
     /**
      * All of the relationships to be touched.

@@ -51,7 +51,7 @@ class ImportController extends ResponseController
     {
         $parsed = $this->parser->parse(
             $request->input('@graph'),
-            $request->input('iiif_url')
+            $request->input('iiif_url'),
         );
 
         if (!$parsed->hasRecordId()) {
