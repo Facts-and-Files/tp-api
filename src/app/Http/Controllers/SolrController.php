@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\UpdateSolrResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;

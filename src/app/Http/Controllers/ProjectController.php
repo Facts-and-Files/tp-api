@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\Project;
 use App\Http\Resources\ProjectResource;
 
@@ -13,7 +12,7 @@ class ProjectController extends ResponseController
     public function index(Request $request): JsonResponse
     {
         $queryColumns = [
-            'Name' => 'Name'
+            'Name' => 'Name',
         ];
 
         $initialSortColumn = 'ProjectId';
@@ -61,7 +60,7 @@ class ProjectController extends ResponseController
     {
         try {
             $data = Project::findOrfail($id);
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage(), 404);
         }
 
@@ -70,7 +69,7 @@ class ProjectController extends ResponseController
             $data->save();
 
             return $this->sendResponse(new ProjectResource($data), 'Project updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -79,7 +78,7 @@ class ProjectController extends ResponseController
     {
         try {
             $data = Project::findOrfail($id);
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Not found', $exception->getMessage(), 404);
         }
 
@@ -89,7 +88,7 @@ class ProjectController extends ResponseController
             $data->delete();
 
             return $this->sendResponse($resource, 'Project deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

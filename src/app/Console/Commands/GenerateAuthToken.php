@@ -14,7 +14,7 @@ class GenerateAuthToken extends Command
         {--ro : Shorthand for read-only}
         {--rw : Shorthand for full access}';
 
-        protected $description = 'Generates an api client auth token for api usage';
+    protected $description = 'Generates an api client auth token for api usage';
 
     public function handle(): int
     {

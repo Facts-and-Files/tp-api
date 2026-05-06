@@ -115,7 +115,7 @@ class StoryMetsPreparationTest extends TestCase
             self::EMAIL,
             $story,
             'ready',
-            null
+            null,
         );
 
         Mail::assertQueued(MetsReadyMail::class, function (MetsReadyMail $mail) {
@@ -312,7 +312,7 @@ class StoryMetsPreparationTest extends TestCase
         $this->assertSame(100, $data['data']['progress']['percent']);
         $this->assertSame(
             url('/stories/' . self::STORY_ID . '/items/export/mets'),
-            $data['data']['download_url']
+            $data['data']['download_url'],
         );
     }
 
@@ -347,7 +347,7 @@ class StoryMetsPreparationTest extends TestCase
         $this->assertSame(100, $data['data']['progress']['percent']);
         $this->assertSame(
             url('/stories/' . self::STORY_ID . '/items/export/mets'),
-            $data['data']['download_url']
+            $data['data']['download_url'],
         );
     }
 
@@ -461,7 +461,7 @@ class StoryMetsPreparationTest extends TestCase
                         </Page>
                     </Layout>
                 </alto>
-                XML
+                XML,
             );
         }
     }

@@ -6,7 +6,6 @@ use App\Models\Item;
 use App\Services\Converter\HtmlToAltoConverter;
 use App\Services\Converter\PageXmlToAltoConverter;
 use App\Services\Converter\HtmlToPageXmlConverter;
-use App\Services\Export\PageXmlItemExporter;
 use App\Services\Page2AltoApiClient;
 use Illuminate\Validation\ValidationException;
 

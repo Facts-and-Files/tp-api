@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 
@@ -15,7 +14,7 @@ class UserController extends ResponseController
         $queryColumns = [
             'WP_UserId' => 'WP_UserId',
             'RoleId'    => 'RoleId',
-            'WP_Role'   => 'WP_Role'
+            'WP_Role'   => 'WP_Role',
         ];
 
         $initialSortColumn = 'UserId';
@@ -48,7 +47,7 @@ class UserController extends ResponseController
     public function showWPUserIdsByUserId(Request $request): JsonResponse
     {
         $queryColumns = [
-            'UserId' => 'UserId'
+            'UserId' => 'UserId',
         ];
 
         $initialSortColumn = 'UserId';

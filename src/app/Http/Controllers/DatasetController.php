@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\Dataset;
 use App\Http\Resources\DatasetResource;
 
@@ -14,7 +13,7 @@ class DatasetController extends ResponseController
     {
         $queryColumns = [
             'Name' => 'Name',
-            'ProjectId' => 'ProjectId'
+            'ProjectId' => 'ProjectId',
         ];
 
         $initialSortColumn = 'DatasetId';
@@ -71,7 +70,7 @@ class DatasetController extends ResponseController
             $dataset->save();
 
             return $this->sendResponse(new DatasetResource($dataset), 'Dataset updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -90,7 +89,7 @@ class DatasetController extends ResponseController
             $dataset->delete();
 
             return $this->sendResponse($resource, 'Dataset deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

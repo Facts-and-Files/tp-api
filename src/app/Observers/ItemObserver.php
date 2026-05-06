@@ -40,8 +40,8 @@ class ItemObserver
         }
 
         if (
-            $newStatus === CompletionStatus::Review &&
-            $story->CompletionStatusId->value < CompletionStatus::Review->value
+            $newStatus === CompletionStatus::Review
+            && $story->CompletionStatusId->value < CompletionStatus::Review->value
         ) {
             $story->CompletionStatusId = CompletionStatus::Review;
             $story->save();
@@ -50,8 +50,8 @@ class ItemObserver
         }
 
         if (
-            $newStatus === CompletionStatus::Edit &&
-            $story->CompletionStatusId->value < CompletionStatus::Edit->value
+            $newStatus === CompletionStatus::Edit
+            && $story->CompletionStatusId->value < CompletionStatus::Edit->value
         ) {
             $story->CompletionStatusId = CompletionStatus::Edit;
             $story->save();

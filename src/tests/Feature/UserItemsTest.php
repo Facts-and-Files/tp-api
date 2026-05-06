@@ -18,7 +18,7 @@ class UserItemsTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => ProjectDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => StoryDataSeeder::class]);
@@ -61,14 +61,14 @@ class UserItemsTest extends TestCase
                         'Scores' => [
                             [
                                 'ScoreType' => 'Enrichment',
-                                'Amount' => 100
+                                'Amount' => 100,
                             ],
                             [
                                 'ScoreType' => 'Transcription',
-                                'Amount' => 55
+                                'Amount' => 55,
                             ],
                         ],
-                    ]
+                    ],
                 ],
             ],
             [
@@ -83,7 +83,7 @@ class UserItemsTest extends TestCase
                         'Scores' => [
                             [
                                 'ScoreType' => 'Enrichment',
-                                'Amount' => 100
+                                'Amount' => 100,
                             ],
                         ],
                     ],
@@ -96,7 +96,7 @@ class UserItemsTest extends TestCase
                         'Scores' => [
                             [
                                 'ScoreType' => 'Enrichment',
-                                'Amount' => 10
+                                'Amount' => 10,
                             ],
                         ],
                     ],
@@ -135,7 +135,7 @@ class UserItemsTest extends TestCase
                         'Scores' => [
                             [
                                 'ScoreType' => 'Enrichment',
-                                'Amount' => 10
+                                'Amount' => 10,
                             ],
                         ],
                     ],

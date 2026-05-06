@@ -9,8 +9,8 @@ class CompletionStatus extends Model
     /**
      * Use user defined exisiting timestamp columns
      */
-    const CREATED_AT = null;
-    const UPDATED_AT = null;
+    public const CREATED_AT = null;
+    public const UPDATED_AT = null;
 
     /**
      * The table associated with the model.

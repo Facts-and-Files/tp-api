@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\StatisticsResource;
 use App\Models\SummaryStatsView;
 use App\Models\SummaryStatsViewByYear;
@@ -19,7 +18,7 @@ class StatisticsController extends ResponseController
             $queryColumns = [
                 'Year'        => 'Year',
                 'Month'       => 'Month',
-                'ScoreTypeId' => 'ScoreTypeId'
+                'ScoreTypeId' => 'ScoreTypeId',
             ];
 
             $request->merge(['limit' => 1000000]);
@@ -67,7 +66,7 @@ class StatisticsController extends ResponseController
                 'HTRTranscriptions'        => $this->sumByScoreTypeId($scores, 5),
                 'Locations'                => $this->sumByScoreTypeId($scores, 1),
                 'Enrichments'              => $this->sumByScoreTypeId($scores, 3),
-                'Descriptions'             => $this->sumByScoreTypeId($scores, 4)
+                'Descriptions'             => $this->sumByScoreTypeId($scores, 4),
             ];
 
             $resource = new StatisticsResource($data);

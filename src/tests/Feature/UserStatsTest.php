@@ -15,7 +15,7 @@ class UserStatsTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => ScoreTypeDataSeeder::class]);
         Artisan::call('db:seed', ['--class' => ScoreDataSeeder::class]);
@@ -42,19 +42,19 @@ class UserStatsTest extends TestCase
         $queryParams = '?limit=1&page=1&orderBy=ScoreId&orderDir=desc';
         $awaitedSuccess = ['success' => true];
 
-        $userFiltered = array_filter(ScoreDataSeeder::$data, function($entry) use ($userId) {
+        $userFiltered = array_filter(ScoreDataSeeder::$data, function ($entry) use ($userId) {
             return $entry['UserId'] == $userId;
         });
 
-        function scoreFiltered (array $array, int $scoreTypeId): int
+        function scoreFiltered(array $array, int $scoreTypeId): int
         {
             return array_sum(
                 array_column(
-                    array_filter($array, function($entry) use ($scoreTypeId) {
+                    array_filter($array, function ($entry) use ($scoreTypeId) {
                         return $entry['ScoreTypeId'] === $scoreTypeId;
                     }),
-                    'Amount'
-                )
+                    'Amount',
+                ),
             );
         }
 
@@ -62,17 +62,17 @@ class UserStatsTest extends TestCase
             'data' => [
                 'UserId'               => $userId,
                 'Items'                => count(
-                    array_unique(array_column(array_filter($userFiltered), 'ItemId'))
+                    array_unique(array_column(array_filter($userFiltered), 'ItemId')),
                 ),
                 'Locations'            => scoreFiltered($userFiltered, 1),
                 'ManualTranscriptions' => scoreFiltered($userFiltered, 2),
                 'Enrichments'          => scoreFiltered($userFiltered, 3),
                 'Descriptions'         => scoreFiltered($userFiltered, 4),
-                'HTRTranscriptions'    => scoreFiltered($userFiltered, 5)
-            ]
+                'HTRTranscriptions'    => scoreFiltered($userFiltered, 5),
+            ],
         ];
 
-        function rate (array $array, int $scoreTypeId): float
+        function rate(array $array, int $scoreTypeId): float
         {
             $filtered = array_filter($array, function ($entry) use ($scoreTypeId) {
                 return $entry['ScoreTypeId'] === $scoreTypeId;
@@ -83,11 +83,11 @@ class UserStatsTest extends TestCase
         }
 
         $awaitedData['data']['Miles'] = ceil(
-            $awaitedData['data']['Locations']            * rate(ScoreTypeDataSeeder::$data, 1) +
-            $awaitedData['data']['ManualTranscriptions'] * rate(ScoreTypeDataSeeder::$data, 2) +
-            $awaitedData['data']['Enrichments']          * rate(ScoreTypeDataSeeder::$data, 3) +
-            $awaitedData['data']['Descriptions']         * rate(ScoreTypeDataSeeder::$data, 4) +
-            $awaitedData['data']['HTRTranscriptions']    * rate(ScoreTypeDataSeeder::$data, 5)
+            $awaitedData['data']['Locations']            * rate(ScoreTypeDataSeeder::$data, 1)
+            + $awaitedData['data']['ManualTranscriptions'] * rate(ScoreTypeDataSeeder::$data, 2)
+            + $awaitedData['data']['Enrichments']          * rate(ScoreTypeDataSeeder::$data, 3)
+            + $awaitedData['data']['Descriptions']         * rate(ScoreTypeDataSeeder::$data, 4)
+            + $awaitedData['data']['HTRTranscriptions']    * rate(ScoreTypeDataSeeder::$data, 5),
         );
 
         $response = $this->get($endpoint . $queryParams);
@@ -98,7 +98,7 @@ class UserStatsTest extends TestCase
             ->assertJson($awaitedData);
     }
 
-    function testGetStatisticsForAllUsers(): void
+    public function testGetStatisticsForAllUsers(): void
     {
         $endpoint = '/users/statistics';
         $queryParams = '';
@@ -124,8 +124,8 @@ class UserStatsTest extends TestCase
                     'Descriptions' => 0,
                     'HTRTranscriptions' => 0,
                     'Miles' => 1,
-                ]
-            ]
+                ],
+            ],
         ];
 
         $response = $this->get($endpoint . $queryParams);
@@ -152,8 +152,8 @@ class UserStatsTest extends TestCase
                     'Descriptions' => 0,
                     'HTRTranscriptions' => 0,
                     'Miles' => 1,
-                ]
-            ]
+                ],
+            ],
         ];
         $awaitedMeta = [
             'meta' => [

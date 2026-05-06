@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\Team;
 use App\Http\Resources\TeamResource;
 
@@ -14,7 +13,7 @@ class TeamController extends ResponseController
     {
         $queryColumns = [
             'Name' => 'Name',
-            'ShortName' => 'ShortName'
+            'ShortName' => 'ShortName',
         ];
 
         $initialSortColumn = 'TeamId';
@@ -77,7 +76,7 @@ class TeamController extends ResponseController
             $resource = new TeamResource($team);
 
             return $this->sendResponse(new TeamResource($team), 'Team updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -91,7 +90,7 @@ class TeamController extends ResponseController
             $team->delete();
 
             return $this->sendResponse($resource, 'Team deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\Campaign;
 use App\Http\Resources\CampaignResource;
 
@@ -14,7 +13,7 @@ class CampaignController extends ResponseController
     {
         $queryColumns = [
             'Name' => 'Name',
-            'DatasetId' => 'DatasetId'
+            'DatasetId' => 'DatasetId',
         ];
 
         $initialSortColumn = 'CampaignId';
@@ -81,7 +80,7 @@ class CampaignController extends ResponseController
             }
 
             return $this->sendResponse(new CampaignResource($campaign), 'Campaign updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -95,7 +94,7 @@ class CampaignController extends ResponseController
             $campaign->delete();
 
             return $this->sendResponse($resource, 'Campaign deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }

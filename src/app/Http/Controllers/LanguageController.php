@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\Language;
 use App\Http\Resources\LanguageResource;
 
@@ -22,7 +21,7 @@ class LanguageController extends ResponseController
             'Name' => 'Name',
             'NameEnglish' => 'NameEnglish',
             'Code' => 'Code',
-            'Code3' => 'Code3'
+            'Code3' => 'Code3',
         ];
 
         $initialSortColumn = 'LanguageId';

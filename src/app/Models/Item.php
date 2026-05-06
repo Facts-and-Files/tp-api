@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Item extends Model
 {
-    const CREATED_AT = 'Timestamp';
-    const UPDATED_AT = 'LastUpdated';
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = 'LastUpdated';
 
     protected $table = 'Item';
 
@@ -27,14 +27,14 @@ class Item extends Model
         'Exported',
         'OldItemId',
         'edm:WebResource',
-        'EuropeanaAttachment'
+        'EuropeanaAttachment',
     ];
 
     protected $appends = [
         'DescriptionLang',
         'CompletionStatus',
         'Transcription',
-        'Properties'
+        'Properties',
     ];
 
     protected $casts = [
@@ -103,7 +103,7 @@ class Item extends Model
                 'CompletionStatusId as StatusId',
                 'Name',
                 'ColorCode',
-                'ColorCodeGradient'
+                'ColorCodeGradient',
             ]);
 
         return $status ?: new CompletionStatus();

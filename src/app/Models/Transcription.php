@@ -5,18 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\Language;
 
 class Transcription extends Model
 {
-    const CREATED_AT = 'Timestamp';
-    const UPDATED_AT = null;
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = null;
 
     protected $table = 'Transcription';
 
     protected $primaryKey = 'TranscriptionId';
 
-    protected  $casts = [
+    protected $casts = [
         'CurrentVersion' => 'boolean',
         'NoText' => 'boolean',
     ];
@@ -30,7 +29,10 @@ class Transcription extends Model
     public function language(): BelongsToMany
     {
         return $this->belongsToMany(
-            Language::class, 'TranscriptionLanguage', 'TranscriptionId', 'LanguageId'
+            Language::class,
+            'TranscriptionLanguage',
+            'TranscriptionId',
+            'LanguageId',
         );
     }
 

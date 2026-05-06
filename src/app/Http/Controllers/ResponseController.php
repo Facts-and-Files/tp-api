@@ -20,7 +20,7 @@ class ResponseController extends Controller
             'success' => true,
             'data'    => $result,
             'meta'    => $this->meta,
-            'message' => $message
+            'message' => $message,
         ];
 
         return response()->json($response, 200);
@@ -34,7 +34,7 @@ class ResponseController extends Controller
         $response = [
             'success' => true,
             'data'    => $result,
-            'message' => $message
+            'message' => $message,
         ];
 
         return response()->json($response, $status);
@@ -43,14 +43,13 @@ class ResponseController extends Controller
     public static function sendPartlyResponse(
         JsonResource $result,
         array $errors,
-        string $message
-    ): JsonResponse
-    {
+        string $message,
+    ): JsonResponse {
         $response = [
             'success' => true,
             'data'    => $result,
             'error'   => $errors,
-            'message' => $message
+            'message' => $message,
         ];
 
         return response()->json($response, 207);
@@ -59,15 +58,14 @@ class ResponseController extends Controller
     public static function sendError(
         string $error,
         string|array $errorMessages,
-        int $code = 404
-    ): JsonResponse
-    {
+        int $code = 404,
+    ): JsonResponse {
         $response = [
             'success' => false,
-            'message' => $error
+            'message' => $error,
         ];
 
-        if(!empty($errorMessages)){
+        if (!empty($errorMessages)) {
             $response['data'] = $errorMessages;
         }
 
@@ -78,9 +76,8 @@ class ResponseController extends Controller
         Request $request,
         Model|Builder $modelOrBuilder,
         array $queryColumns,
-        string $initialSortColumn
-    ): Collection
-    {
+        string $initialSortColumn,
+    ): Collection {
         $queries = $request->query();
 
         $broadMatch = empty($queries['broadMatch'])
@@ -157,9 +154,8 @@ class ResponseController extends Controller
     protected function filterDataByQueries(
         Builder $query,
         array $queries,
-        string $initialSortColumn
-    ): Builder
-    {
+        string $initialSortColumn,
+    ): Builder {
         $limit = $queries['limit'] ?? 100;
         $page = $queries['page'] ?? 1;
         $orderBy = $queries['orderBy'] ?? $initialSortColumn;
@@ -189,9 +185,8 @@ class ResponseController extends Controller
         Collection $data,
         Request $request,
         array $defaults,
-        string $initialSortColumn
-    ): Collection
-    {
+        string $initialSortColumn,
+    ): Collection {
         $queries = $request->query();
 
         if (empty($queries['fieldlist'])) {
@@ -204,11 +199,11 @@ class ResponseController extends Controller
         $fieldlist = array_merge($defaults, $fieldlist);
         $fieldlist = array_unique($fieldlist);
         $dataArray = $data->toArray()[0] ?? $data->toArray();
-        $fieldsToRemove = array_filter(array_keys($dataArray), function($field) use ($fieldlist) {
+        $fieldsToRemove = array_filter(array_keys($dataArray), function ($field) use ($fieldlist) {
             return !in_array($field, $fieldlist);
         });
 
-        $data->each(function($data) use ($fieldsToRemove) {
+        $data->each(function ($data) use ($fieldsToRemove) {
             $data->makeHidden($fieldsToRemove);
         });
 

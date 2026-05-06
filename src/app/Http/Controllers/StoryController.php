@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\Project;
 use App\Models\Story;
 use App\Http\Resources\StoryResource;
@@ -20,7 +19,7 @@ class StoryController extends ResponseController
             'DcTitle' => 'dc:title',
             'ProjectId' => 'ProjectId',
             'DatasetId' => 'DatasetId',
-            'StoryId' => 'StoryId'
+            'StoryId' => 'StoryId',
         ];
 
         $initialSortColumn = 'StoryId';
@@ -72,7 +71,7 @@ class StoryController extends ResponseController
 
             if ($story->ProjectId && !Project::find($story->ProjectId)) {
                 throw ValidationException::withMessages(
-                    ['ProjectId' => __('ProjectId does not exists')]
+                    ['ProjectId' => __('ProjectId does not exists')],
                 );
             }
 
@@ -85,7 +84,7 @@ class StoryController extends ResponseController
             $resource = new StoryResource($story);
 
             return $this->sendResponse(new StoryResource($story), 'Story updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -99,7 +98,7 @@ class StoryController extends ResponseController
             $story->delete();
 
             return $this->sendResponse($resource, 'Story deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -111,7 +110,7 @@ class StoryController extends ResponseController
 
             $stories = Story::whereIn('StoryId', $storyIds)
                 ->select('StoryId')
-                ->with(['campaigns' => function($query) {
+                ->with(['campaigns' => function ($query) {
                     $query->select('Campaign.CampaignId', 'Campaign.Name');
                 }])
                 ->get();
@@ -125,7 +124,7 @@ class StoryController extends ResponseController
 
                 $data[] = [
                     'StoryId' => $story->StoryId,
-                    'Campaigns' => $story->campaigns
+                    'Campaigns' => $story->campaigns,
                 ];
             }
 
@@ -145,7 +144,7 @@ class StoryController extends ResponseController
             $data = $campaigns->map(function ($campaign) {
                 return [
                     'CampaignId' => $campaign->CampaignId,
-                    'Name' => $campaign->Name
+                    'Name' => $campaign->Name,
                 ];
             });
 
@@ -170,7 +169,7 @@ class StoryController extends ResponseController
             $data = $campaigns->map(function ($campaign) {
                 return [
                     'CampaignId' => $campaign->CampaignId,
-                    'Name' => $campaign->Name
+                    'Name' => $campaign->Name,
                 ];
             });
             $resource = new CampaignResource($data);
@@ -194,7 +193,7 @@ class StoryController extends ResponseController
             $data = $campaigns->map(function ($campaign) {
                 return [
                     'CampaignId' => $campaign->CampaignId,
-                    'Name' => $campaign->Name
+                    'Name' => $campaign->Name,
                 ];
             });
             $resource = new CampaignResource($data);

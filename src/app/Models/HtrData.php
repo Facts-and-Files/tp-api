@@ -8,25 +8,23 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\HtrDataRevision;
-use App\Models\Language;
 
 class HtrData extends Model
 {
     protected $table = 'HtrData';
 
-    const CREATED_AT = 'Timestamp';
-    const UPDATED_AT = 'LastUpdated';
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = 'LastUpdated';
 
     protected $primaryKey = 'HtrDataId';
 
     protected $guarded = [
         'HtrDataId',
         'ItemId',
-        'Language'
+        'Language',
     ];
 
-    protected  $hidden = ['TranscriptionProviderId'];
+    protected $hidden = ['TranscriptionProviderId'];
 
     protected $appends = [
         'UserId',
@@ -65,7 +63,7 @@ class HtrData extends Model
         return $this->belongsToMany(Language::class, 'HtrDataLanguage', 'HtrDataId', 'LanguageId');
     }
 
-// we make usage of some custom accessors and mutators
+    // we make usage of some custom accessors and mutators
 
     public function getTranscriptionProviderAttribute(): string
     {
@@ -78,21 +76,21 @@ class HtrData extends Model
         return $this->language()->get();
     }
 
-    public function getTranscriptionDataAttribute(): string|null
+    public function getTranscriptionDataAttribute(): ?string
     {
         $latestRevision = $this->latestRevision()->first();
 
         return $latestRevision ? $latestRevision['TranscriptionData'] : null;
     }
 
-    public function getTranscriptionTextAttribute(): string|null
+    public function getTranscriptionTextAttribute(): ?string
     {
         $latestRevision = $this->latestRevision()->first();
 
         return $latestRevision ? $latestRevision['TranscriptionText'] : null;
     }
 
-    public function getUserIdAttribute(): int|null
+    public function getUserIdAttribute(): ?int
     {
         $latestRevision = $this->latestRevision()->first();
 

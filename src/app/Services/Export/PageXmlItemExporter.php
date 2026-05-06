@@ -17,8 +17,7 @@ class PageXmlItemExporter
 
     public function __construct(
         private readonly FileExportCache $cache,
-    ) {
-    }
+    ) {}
 
     public function exportWithConverter(Item $item, PageXmlConverterInterface $converter): string
     {

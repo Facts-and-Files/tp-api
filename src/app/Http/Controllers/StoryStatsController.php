@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\StoryStatsResource;
 use App\Models\Item;
 use App\Models\ItemStats;
@@ -19,7 +18,7 @@ class StoryStatsController extends ResponseController
                 'StoryId' => $id,
                 'orderDir' => 'asc',
                 'orderBy' => 'EditStart',
-                'broadMatch' => false
+                'broadMatch' => false,
             ]);
             $model = new ItemStats();
             $queryColumns = ['StoryId' => 'StoryId'];
@@ -43,7 +42,7 @@ class StoryStatsController extends ResponseController
             $itemCompletions = $itemCompletions->map(function ($item) {
                 return [
                     'CompletionStatusId' => $item->CompletionStatusId,
-                    'Amount' => $item->Amount
+                    'Amount' => $item->Amount,
                 ];
             });
 
@@ -61,7 +60,7 @@ class StoryStatsController extends ResponseController
                 'Persons' => 0,
                 'Properties' => 0,
                 'Dates' => 0,
-                'Descriptions' => 0
+                'Descriptions' => 0,
             ];
             $data['CompletionStatus'] = $itemCompletions;
 
@@ -71,7 +70,7 @@ class StoryStatsController extends ResponseController
 
                 // count all enrichments from story items
                 foreach ($data['Enrichments'] as $key => $value) {
-                  $data['Enrichments'][$key] += $item['Enrichments'][$key];
+                    $data['Enrichments'][$key] += $item['Enrichments'][$key];
                 }
             });
 

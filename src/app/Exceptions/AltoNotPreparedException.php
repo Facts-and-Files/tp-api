@@ -9,12 +9,11 @@ use Throwable;
 
 final class AltoNotPreparedException extends RuntimeException
 {
-
     public function __construct(
         private readonly int $storyId,
         string $message = 'The ALTO export has not been prepared.',
         int $code = 0,
-        ?Throwable $previous = null
+        ?Throwable $previous = null,
     ) {
         parent::__construct($message, $code, $previous);
     }
@@ -27,7 +26,7 @@ final class AltoNotPreparedException extends RuntimeException
                 'prepare_post_url' => url("/stories/{$this->storyId}/items/export/mets"),
                 $this->getMessage(),
             ],
-            409
+            409,
         );
     }
 }

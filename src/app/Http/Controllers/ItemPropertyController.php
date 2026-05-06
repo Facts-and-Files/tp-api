@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Models\Item;
 use App\Models\Property;
 use App\Http\Resources\ItemResource;
@@ -18,7 +17,7 @@ class ItemPropertyController extends ResponseController
         $property = Property::findOrfail($request->PropertyId);
 
         if ($item->properties()->where('Property.PropertyId', $request->PropertyId)->exists()) {
-                throw ValidationException::withMessages(['Property already attached.']);
+            throw ValidationException::withMessages(['Property already attached.']);
         }
 
         $item->properties()->attach($request->PropertyId);
@@ -32,7 +31,7 @@ class ItemPropertyController extends ResponseController
         $property = Property::findOrfail($propertyId);
 
         if (!$item->properties()->where('Property.PropertyId', $propertyId)->exists()) {
-                throw ValidationException::withMessages(['Property already detached.']);
+            throw ValidationException::withMessages(['Property already detached.']);
         }
 
         $item->properties()->detach($propertyId);

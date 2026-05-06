@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use SimpleXMLElement;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\ResponseController;
 use App\Models\HtrData;
 use App\Models\HtrDataRevision;
 use App\Models\Transcription;
@@ -21,7 +20,7 @@ class HtrDataController extends ResponseController
             'ItemId' => 'ItemId',
             'HtrModelId' => 'HtrModelId',
             'HtrStatus' => 'HtrStatus',
-            'EuropeanaAnnotationId' => 'EuropeanaAnnotationId'
+            'EuropeanaAnnotationId' => 'EuropeanaAnnotationId',
         ];
 
         $initialSortColumn = 'LastUpdated';
@@ -98,7 +97,7 @@ class HtrDataController extends ResponseController
             'page'     => 1,
             'orderBy'  => 'LastUpdated',
             'orderDir' => 'desc',
-            'offset'   => 0
+            'offset'   => 0,
         ];
         $data = HtrData::where(['ItemId' => $itemId, 'HtrStatus' => 'FINISHED']);
         $latest = $this->filterDataByQueries($data, $queries, 'LastUpdated')->first();
@@ -140,7 +139,7 @@ class HtrDataController extends ResponseController
             $resource = new HtrDataResource($htrData);
 
             return $this->sendResponse(new HtrDataResource($htrData), 'HtrData updated.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -154,7 +153,7 @@ class HtrDataController extends ResponseController
             $htrData->delete();
 
             return $this->sendResponse($resource, 'HtrData deleted.');
-        } catch(\Exception $exception) {
+        } catch (\Exception $exception) {
             return $this->sendError('Invalid data', $exception->getMessage(), 400);
         }
     }
@@ -180,24 +179,24 @@ class HtrDataController extends ResponseController
         return $text;
     }
 
-    protected function setItemCompletionStatus (int $itemId, int $status): void
+    protected function setItemCompletionStatus(int $itemId, int $status): void
     {
-            $transcription = Transcription::where([
-                'ItemId' => $itemId,
-                'CurrentVersion' => 1
-            ])->get();
+        $transcription = Transcription::where([
+            'ItemId' => $itemId,
+            'CurrentVersion' => 1,
+        ])->get();
 
-            $item = Item::find($itemId);
+        $item = Item::find($itemId);
 
 
-            if (
-                count($transcription) === 0 and // no manual transcription available
-                $item->TranscriptionSource === 'manual' and // transcription source is also manual
-                $item->TranscriptionStatusId < 2 // and transcription status is also default 1
-            ) {
-                $item->TranscriptionSource = 'htr';
-                $item->TranscriptionStatusId = 3;
-                $item->save();
-            }
+        if (
+            count($transcription) === 0 // no manual transcription available
+            and $item->TranscriptionSource === 'manual' // transcription source is also manual
+            and $item->TranscriptionStatusId < 2 // and transcription status is also default 1
+        ) {
+            $item->TranscriptionSource = 'htr';
+            $item->TranscriptionStatusId = 3;
+            $item->save();
+        }
     }
 }

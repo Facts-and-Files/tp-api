@@ -16,7 +16,7 @@ class SummaryStatsTest extends TestCase
         self::populateTable();
     }
 
-    public static function populateTable (): void
+    public static function populateTable(): void
     {
         Artisan::call('db:seed', ['--class' => ScoreDataSeeder::class]);
     }
@@ -35,7 +35,7 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
                 'OverallItemsStarted'     => 2,
-                'Amount'                  => 57
+                'Amount'                  => 57,
             ],
             [
                 'Year'                    => 2022,
@@ -46,7 +46,7 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 1,
                 'OverallUniqueItems'      => 1,
                 'OverallItemsStarted'     => 1,
-                'Amount'                  => 10
+                'Amount'                  => 10,
             ],
             [
                 'Year'                    => 2023,
@@ -57,7 +57,7 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 1,
                 'OverallUniqueItems'      => 1,
                 'OverallItemsStarted'     => 0,
-                'Amount'                  => 100
+                'Amount'                  => 100,
             ],
             [
                 'Year'                    => 2023,
@@ -68,7 +68,7 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 1,
                 'OverallUniqueItems'      => 1,
                 'OverallItemsStarted'     => 1,
-                'Amount'                  => 100
+                'Amount'                  => 100,
             ],
             [
                 'Year'                    => 2021,
@@ -79,7 +79,7 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
                 'OverallItemsStarted'     => 2,
-                'Amount'                  => 57
+                'Amount'                  => 57,
             ],
             [
                 'Year'                    => 2022,
@@ -90,7 +90,7 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 1,
                 'OverallUniqueItems'      => 1,
                 'OverallItemsStarted'     => 1,
-                'Amount'                  => 10
+                'Amount'                  => 10,
             ],
             [
                 'Year'                    => 2023,
@@ -101,7 +101,7 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 1,
                 'OverallUniqueItems'      => 2,
                 'OverallItemsStarted'     => 1,
-                'Amount'                  => 200
+                'Amount'                  => 200,
             ],
         ];
 
@@ -142,7 +142,7 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
                 'OverallItemsStarted'     => 2,
-                'Amount'                  => 57
+                'Amount'                  => 57,
             ],
             [
                 'Year'                    => 2021,
@@ -153,8 +153,8 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
                 'OverallItemsStarted'     => 2,
-                'Amount'                  => 57
-            ]
+                'Amount'                  => 57,
+            ],
         ];
 
         $response = $this->get(self::$endpoint . $queryParams);
@@ -180,8 +180,8 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
                 'OverallItemsStarted'     => 2,
-                'Amount'                  => 57
-            ]
+                'Amount'                  => 57,
+            ],
         ];
 
         $response = $this->get(self::$endpoint . $queryParams);
@@ -207,8 +207,8 @@ class SummaryStatsTest extends TestCase
                 'OverallUniqueUsers'      => 2,
                 'OverallUniqueItems'      => 2,
                 'OverallItemsStarted'     => 2,
-                'Amount'                  => 57
-            ]
+                'Amount'                  => 57,
+            ],
         ];
 
         $response = $this->get(self::$endpoint . $queryParams);

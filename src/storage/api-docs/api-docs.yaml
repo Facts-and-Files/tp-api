@@ -1,7 +1,7 @@
 openapi: 3.1.1
 
 info:
-  version: 1.77.1
+  version: 2.0.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -66,6 +66,8 @@ tags:
 paths:
   /import:
     $ref: 'import-path.yaml'
+  /import/dei:
+    $ref: 'import-dei-path.yaml'
 
   /update-solr:
     $ref: 'update-solr-path.yaml'

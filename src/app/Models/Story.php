@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\CompletionStatus as StoryCompletionStatus;
-use App\Models\CompletionStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,8 +11,8 @@ use Illuminate\Support\Collection;
 
 class Story extends Model
 {
-    const CREATED_AT = 'Timestamp';
-    const UPDATED_AT = 'LastUpdated';
+    public const CREATED_AT = 'Timestamp';
+    public const UPDATED_AT = 'LastUpdated';
 
     protected $table = 'Story';
 
@@ -23,7 +22,7 @@ class Story extends Model
         'StoryId',
         'ExternalRecordId',
         'RecordId',
-        'ImportName'
+        'ImportName',
     ];
 
     protected $casts = [
@@ -136,7 +135,7 @@ class Story extends Model
         return [
             'Medium'     => $this->attributes['dcterms:medium']     ?? null,
             'Created'    => $this->attributes['dcterms:created']    ?? null,
-            'Provenance' => $this->attributes['dcterms:provenance'] ?? null
+            'Provenance' => $this->attributes['dcterms:provenance'] ?? null,
         ];
     }
 
@@ -162,7 +161,7 @@ class Story extends Model
             'Relation'    => $this->attributes['dc:relation']    ?? null,
             'Rights'      => $this->attributes['dc:rights']      ?? null,
             'Language'    => $this->attributes['dc:language']    ?? null,
-            'Identifier'  => $this->attributes['dc:identifier']  ?? null
+            'Identifier'  => $this->attributes['dc:identifier']  ?? null,
         ];
     }
 
@@ -197,7 +196,7 @@ class Story extends Model
             'End'          => $this->attributes['edm:end']          ?? null,
             'IsShownAt'    => $this->attributes['edm:isShownAt']    ?? null,
             'Language'     => $this->attributes['edm:language']     ?? null,
-            'Agent'        => $this->attributes['edm:agent']        ?? null
+            'Agent'        => $this->attributes['edm:agent']        ?? null,
         ];
     }
 

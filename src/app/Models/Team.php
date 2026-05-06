@@ -5,13 +5,11 @@ namespace App\Models;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use App\Models\Campaign;
-use App\Models\User;
 
 class Team extends Model
 {
-    const CREATED_AT = null;
-    const UPDATED_AT = null;
+    public const CREATED_AT = null;
+    public const UPDATED_AT = null;
 
     protected $table = 'Team';
 
@@ -43,7 +41,7 @@ class Team extends Model
         return $this->user()->get()->map(function ($user) {
             return [
                 'UserId' => $user->UserId,
-                'WP_UserId' => $user->WP_UserId
+                'WP_UserId' => $user->WP_UserId,
             ];
         });
     }
@@ -53,7 +51,7 @@ class Team extends Model
         return $this->campaign()->get()->map(function ($campaign) {
             return [
                 'CampaignId' => $campaign->CampaignId,
-                'Name' => $campaign->Name
+                'Name' => $campaign->Name,
             ];
         });
     }

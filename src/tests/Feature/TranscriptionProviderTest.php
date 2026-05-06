@@ -39,7 +39,7 @@ class TranscriptionProviderTest extends TestCase
 
     public function testGetASingleTranscriptionProvider(): void
     {
-        $queryParams = '/'. self::$data[1]['TranscriptionProviderId'];
+        $queryParams = '/' . self::$data[1]['TranscriptionProviderId'];
         $awaitedSuccess = ['success' => true];
         $awaitedData = ['data' => self::$data[1]];
 
@@ -70,7 +70,7 @@ class TranscriptionProviderTest extends TestCase
     public function testUpdateATranscriptionProvider(): void
     {
         $updateData = [
-           'Name' => 'TestTranscriptionProviderUpdate',
+            'Name' => 'TestTranscriptionProviderUpdate',
         ];
         $id = self::$data[1]['TranscriptionProviderId'];
         $queryParams = '/' . $id;

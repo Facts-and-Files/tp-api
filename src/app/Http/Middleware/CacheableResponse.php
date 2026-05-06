@@ -11,7 +11,7 @@ class CacheableResponse
 {
     public function handle(Request $request, Closure $next, int|string $ttl = '1h'): JsonResponse
     {
-        $seconds = match($ttl) {
+        $seconds = match ($ttl) {
             '5m' => 300,
             '30m' => 1800,
             '1h' => 3600,
@@ -19,7 +19,7 @@ class CacheableResponse
             '1d' => 86400,
             '1w' => 608400,
             '1m' => 2592000,
-            default => (int) $ttl
+            default => (int) $ttl,
         };
 
         $cacheKey = $this->generateCacheKey($request);

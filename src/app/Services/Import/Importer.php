@@ -1,17 +1,25 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Import;
 
+use Exception;
 use App\Models\Dataset;
 use App\Models\Item;
 use App\Models\Project;
 use App\Models\Story;
+use App\Services\Import\DTO\ParsedJsonLdData;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
-class ImportService
+class Importer
 {
+    public function __construct(
+        private readonly DeiStoryDataMapper $storyDataMapper,
+        private readonly DeiItemFactory $itemFactory,
+        private readonly RawImportStorage $rawImportStorage,
+    ) {}
+
     public function importAll(array $data): array
     {
         $inserted = [];
@@ -40,6 +48,51 @@ class ImportService
         }
 
         return [$inserted, $errors];
+    }
+
+    public function importFromJsonLd(
+        ParsedJsonLdData $parsed,
+        int $projectId,
+        int $datasetId,
+        string $importName,
+        string $rawBody,
+    ): array {
+        $manifest = $this->itemFactory->fetchRequiredManifest($parsed);
+        $created = false;
+
+        DB::transaction(function () use (
+            $parsed,
+            $projectId,
+            $datasetId,
+            $importName,
+            $manifest,
+            &$created,
+        ) {
+            $existing  = Story::where('RecordId', $parsed->recordId)->first();
+            $storyData = $this->storyDataMapper->map($parsed, $projectId, $datasetId, $importName);
+
+            if ($existing === null) {
+                $created = true;
+                $story = $this->buildStory($storyData);
+
+                $itemResult = $this->itemFactory->makeFromManifest($parsed, $manifest);
+                $story->PreviewImage = $itemResult['previewImage'] !== null
+                    ? json_encode($itemResult['previewImage'])
+                    : null;
+
+                $story->save();
+                $this->importItems($itemResult['items'], $story);
+
+                return;
+            }
+
+            $story = $this->buildStory($storyData, $existing);
+            $story->save();
+        });
+
+        $this->rawImportStorage->store($importName, $parsed->recordId, $rawBody);
+
+        return [$parsed->externalRecordId, $created];
     }
 
     private function importStory(array $import, $validProjectIds, $validDatasetIds): array
@@ -85,7 +138,7 @@ class ImportService
                 $import['Story']['Dc']['Title'] ?? null,
                 $ve->errors(),
             )];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return ['error' => $this->storyError(
                 $import['Story']['ExternalRecordId'] ?? null,
                 $import['Story']['RecordId'] ?? null,
@@ -95,15 +148,17 @@ class ImportService
         }
     }
 
-    private function buildStory(array $storyData): Story
+    private function buildStory(array $storyData, ?Story $existing = null): Story
     {
-        $story = new Story();
+        $story = $existing ?? new Story();
         $story->fill($storyData);
         $story->ExternalRecordId = $storyData['ExternalRecordId'] ?? null;
-        $story->RecordId = $storyData['RecordId'] ?? null;
-        $story->dc = $storyData['Dc'] ?? [];
-        $story->dcterms = $storyData['Dcterms'] ?? [];
-        $story->edm = $storyData['Edm'] ?? [];
+        $story->RecordId         = $storyData['RecordId']         ?? null;
+        $story->ImportName       = $storyData['ImportName']       ?? null;
+        $story->Manifest         = $storyData['Manifest']         ?? null;
+        $story->dc               = $storyData['Dc']               ?? [];
+        $story->dcterms          = $storyData['Dcterms']          ?? [];
+        $story->edm              = $storyData['Edm']              ?? [];
 
         return $story;
     }
@@ -124,7 +179,7 @@ class ImportService
         foreach ($items as $itemData) {
             $validator = Validator::make($itemData, [
                 'Title' => 'required',
-                'ImageLink' => 'required',
+                'ImageLink' => 'nullable|string',
                 'OrderIndex' => 'integer',
             ]);
 
@@ -149,11 +204,11 @@ class ImportService
         array|object $error,
     ): array {
         return [
-            'source' => 'Story',
+            'source'           => 'Story',
             'ExternalRecordId' => $externalRecordId,
-            'RecordId' => $recordId,
-            'dc:title' => $title,
-            'error' => $error,
+            'RecordId'         => $recordId,
+            'dc:title'         => $title,
+            'error'            => $error,
         ];
     }
 }
