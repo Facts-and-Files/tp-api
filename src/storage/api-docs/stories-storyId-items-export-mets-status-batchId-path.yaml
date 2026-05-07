@@ -1,7 +1,6 @@
 get:
   tags:
     - stories
-    - items
     - exports
   summary: Get METS preparation status
   description: >-
