@@ -11,17 +11,17 @@ class UserDataSeeder extends Seeder
         [
             'UserId'    => 1,
             'WP_UserId' => 1001,
-            'Timestamp'   => '2020-01-01 12:00:00'
+            'Timestamp'   => '2020-01-01 12:00:00',
         ],
         [
             'UserId'    => 2,
             'WP_UserId' => 1002,
-            'Timestamp'   => '2021-01-01 12:00:00'
+            'Timestamp'   => '2021-01-01 12:00:00',
         ],
         [
             'UserId'    => 3,
             'WP_UserId' => 1003,
-            'Timestamp'   => '2022-01-01 12:00:00'
+            'Timestamp'   => '2022-01-01 12:00:00',
         ],
     ];
 

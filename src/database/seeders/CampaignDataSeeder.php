@@ -15,7 +15,7 @@ class CampaignDataSeeder extends Seeder
         [
             'CampaignId' => 2,
             'DatasetId' => 2,
-        ]
+        ],
     ];
 
     public function run(): void

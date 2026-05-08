@@ -3,17 +3,16 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
-	public function up(): void
-	{
-		DB::unprepared('DROP TRIGGER IF EXISTS item_status_update');
-		DB::unprepared('DROP TRIGGER IF EXISTS story_status_update');
-	}
+return new class() extends Migration {
+    public function up(): void
+    {
+        DB::unprepared('DROP TRIGGER IF EXISTS item_status_update');
+        DB::unprepared('DROP TRIGGER IF EXISTS story_status_update');
+    }
 
-	public function down(): void
-	{
-		DB::unprepared("
+    public function down(): void
+    {
+        DB::unprepared("
 			CREATE TRIGGER item_status_update
 			BEFORE UPDATE ON Item FOR EACH ROW
 			BEGIN
@@ -36,7 +35,7 @@ return new class extends Migration
 			END
 		");
 
-		DB::unprepared("
+        DB::unprepared("
 			CREATE TRIGGER story_status_update
 			AFTER UPDATE ON items FOR EACH ROW
             BEGIN
@@ -57,5 +56,5 @@ return new class extends Migration
 	            END IF;
             END
 		");
-	}
+    }
 };

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     public function up(): void
     {
         Schema::create('CompletionStatus', function (Blueprint $table) {
@@ -13,8 +12,8 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
 
             $table->smallIncrements('CompletionStatusId');
-            $table->string('Name',              45)->nullable();
-            $table->string('ColorCode',         45)->nullable();
+            $table->string('Name', 45)->nullable();
+            $table->string('ColorCode', 45)->nullable();
             $table->string('ColorCodeGradient', 45)->nullable();
         });
     }
@@ -24,4 +23,3 @@ return new class extends Migration
         Schema::dropIfExists('CompletionStatus');
     }
 };
-

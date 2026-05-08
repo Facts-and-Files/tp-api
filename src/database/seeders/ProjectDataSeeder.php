@@ -11,13 +11,13 @@ class ProjectDataSeeder extends Seeder
         [
             'ProjectId' => 1,
             'Name'      => 'Project-1',
-            'Url'       => 'project-1'
+            'Url'       => 'project-1',
         ],
         [
             'ProjectId' => 2,
             'Name'      => 'Project-2',
-            'Url'       => 'project-2'
-        ]
+            'Url'       => 'project-2',
+        ],
     ];
 
     public function run(): void

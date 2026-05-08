@@ -5,8 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     public function up(): void
     {
         Schema::create('TeamScore', function (Blueprint $table) {
@@ -52,13 +51,13 @@ return new class extends Migration
                 ->where('UserId', $userId)
                 ->orderBy('ScoreId')
                 ->chunk(100, function ($scores) use ($teamId, &$teamAssociations) {
-                foreach ($scores as $score) {
-                    $teamAssociations[] = [
-                        'TeamId' => $teamId,
-                        'ScoreId' => $score->ScoreId
-                    ];
-                }
-            });
+                    foreach ($scores as $score) {
+                        $teamAssociations[] = [
+                            'TeamId' => $teamId,
+                            'ScoreId' => $score->ScoreId,
+                        ];
+                    }
+                });
         }
 
         $chunks = array_chunk($teamAssociations, 100);
@@ -73,4 +72,3 @@ return new class extends Migration
         Schema::dropIfExists('TeamScore');
     }
 };
-
