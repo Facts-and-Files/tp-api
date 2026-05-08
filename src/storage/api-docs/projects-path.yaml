@@ -1,7 +1,7 @@
 get:
   tags:
     - projects
-  summary: Get all stored projects
+  summary: List all Projects
   description: The index endpoint can be used to get all teams. The output is limited to 100 but can be filtered, sorted and paginated. The returned data is always an array even if the filter criteria is a unique identifier.
   parameters:
     - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
@@ -40,7 +40,7 @@ get:
 post:
   tags:
     - projects
-  summary: Store a new project entry
+  summary: Store a new Project
   requestBody:
     required: true
     content:
