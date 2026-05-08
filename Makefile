@@ -52,11 +52,11 @@ stan: serve
 
 lint: serve
 	@clear
-	./src/vendor/bin/pint --test -v src/app src/tests src/routes --preset per
+	./src/vendor/bin/pint --test -v
 
 lint-fix: serve
 	@clear
-	./src/vendor/bin/pint src/app src/tests src/routes --preset per
+	./src/vendor/bin/pint
 
 vendor: distclean
 	@clear

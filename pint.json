@@ -1,0 +1,18 @@
+{
+	"preset": "per",
+	"exclude": [
+        "src/bootstrap",
+        "src/config",
+        "src/public",
+        "src/resources",
+        "src/storage",
+        "src/vendor"
+    ],
+    "notPath": [
+        "src/artisan"
+    ],
+    "rules": {
+			"class_definition": true,
+			"new_with_parentheses": true
+    }
+}
