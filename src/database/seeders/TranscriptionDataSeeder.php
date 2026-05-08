@@ -17,7 +17,7 @@ class TranscriptionDataSeeder extends Seeder
             'NoText' => false,
             'CurrentVersion' => true,
             'EuropeanaAnnotationId' => null,
-            'Timestamp' => '2025-01-31T12:00:00.000000Z'
+            'Timestamp' => '2025-01-31T12:00:00.000000Z',
         ],
         [
             'TranscriptionId' => 2,
@@ -28,7 +28,7 @@ class TranscriptionDataSeeder extends Seeder
             'NoText' => false,
             'CurrentVersion' => false,
             'EuropeanaAnnotationId' => null,
-            'Timestamp' => '2025-01-01T12:00:00.000000Z'
+            'Timestamp' => '2025-01-01T12:00:00.000000Z',
         ],
         [
             'TranscriptionId' => 3,
@@ -39,7 +39,7 @@ class TranscriptionDataSeeder extends Seeder
             'NoText' => true,
             'CurrentVersion' => true,
             'EuropeanaAnnotationId' => null,
-            'Timestamp' => '2025-01-15T12:00:00.000000Z'
+            'Timestamp' => '2025-01-15T12:00:00.000000Z',
         ],
         [
             'TranscriptionId' => 4,
@@ -50,7 +50,7 @@ class TranscriptionDataSeeder extends Seeder
             'NoText' => false,
             'CurrentVersion' => true,
             'EuropeanaAnnotationId' => null,
-            'Timestamp' => '2025-01-16T12:00:00.000000Z'
+            'Timestamp' => '2025-01-16T12:00:00.000000Z',
         ],
     ];
 

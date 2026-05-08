@@ -1,7 +1,6 @@
 post:
   tags:
     - stories
-    - items
     - exports
   summary: Prepare METS export
   description: >-

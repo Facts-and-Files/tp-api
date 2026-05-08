@@ -3,8 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
+return new class() extends Migration {
     public function up(): void
     {
         // seed new ScoreTypeId
@@ -12,8 +11,8 @@ return new class extends Migration
             [
                 'ScoreTypeId' => 5,
                 'Name' => 'HTR-Transcription',
-                'Rate' => 0.0033
-            ]
+                'Rate' => 0.0033,
+            ],
         ]);
 
         DB::statement('

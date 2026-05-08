@@ -12,26 +12,26 @@ class CompletionStatusDataSeeder extends Seeder
             'CompletionStatusId' => 1,
             'Name'               => 'Not Started',
             'ColorCode'          => '#eeeeee',
-            'ColorCodeGradient'  => '#eeeeee'
+            'ColorCodeGradient'  => '#eeeeee',
         ],
         [
             'CompletionStatusId' => 2,
             'Name'               => 'Edit',
             'ColorCode'          => '#fff700',
-            'ColorCodeGradient'  => '#ffd800'
+            'ColorCodeGradient'  => '#ffd800',
         ],
         [
             'CompletionStatusId' => 3,
             'Name'               => 'Review',
             'ColorCode'          => '#ffc720',
-            'ColorCodeGradient'  => '#f0b146'
+            'ColorCodeGradient'  => '#f0b146',
         ],
         [
             'CompletionStatusId' => 4,
             'Name'               => 'Completed',
             'ColorCode'          => '#61e02f',
-            'ColorCodeGradient'  => '#4dcd1c'
-        ]
+            'ColorCodeGradient'  => '#4dcd1c',
+        ],
     ];
 
     public function run(): void

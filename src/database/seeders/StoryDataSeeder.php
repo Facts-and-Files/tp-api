@@ -56,7 +56,7 @@ class StoryDataSeeder extends Seeder
             'edm:end' => '',
             'edm:isShownAt' => '',
             'edm:language' => '',
-            'edm:agent' => ''
+            'edm:agent' => '',
         ],
         [
             'StoryId' => 2,
@@ -106,7 +106,7 @@ class StoryDataSeeder extends Seeder
             'edm:end' => '',
             'edm:isShownAt' => '',
             'edm:language' => '',
-            'edm:agent' => ''
+            'edm:agent' => '',
         ],
         [
             'StoryId' => 3,
@@ -156,8 +156,8 @@ class StoryDataSeeder extends Seeder
             'edm:end' => '',
             'edm:isShownAt' => '',
             'edm:language' => '',
-            'edm:agent' => ''
-        ]
+            'edm:agent' => '',
+        ],
     ];
 
     public function run(): void

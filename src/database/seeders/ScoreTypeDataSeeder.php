@@ -11,28 +11,28 @@ class ScoreTypeDataSeeder extends Seeder
         [
             'ScoreTypeId' => 1,
             'Name'        => 'Location',
-            'Rate'        => 0.2
+            'Rate'        => 0.2,
         ],
         [
             'ScoreTypeId' => 2,
             'Name'        => 'Transcription',
-            'Rate'        => 0.0033
+            'Rate'        => 0.0033,
         ],
         [
             'ScoreTypeId' => 3,
             'Name'        => 'Enrichment',
-            'Rate'        => 0.2
+            'Rate'        => 0.2,
         ],
         [
             'ScoreTypeId' => 4,
             'Name'        => 'Description',
-            'Rate'        => 0.2
+            'Rate'        => 0.2,
         ],
         [
             'ScoreTypeId' => 5,
             'Name'        => 'HTR-Transcription',
-            'Rate'        => 0.0033
-        ]
+            'Rate'        => 0.0033,
+        ],
     ];
 
     public function run(): void

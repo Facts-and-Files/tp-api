@@ -11,13 +11,13 @@ class ItemPersonDataSeeder extends Seeder
         [
             'ItemPersonId' => 1,
             'ItemId'       => 1,
-            'PersonId'     => 1
+            'PersonId'     => 1,
         ],
         [
             'ItemPersonId' => 2,
             'ItemId'       => 1,
-            'PersonId'     => 2
-        ]
+            'PersonId'     => 2,
+        ],
     ];
 
     public function run(): void

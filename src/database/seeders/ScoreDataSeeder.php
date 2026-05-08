@@ -15,7 +15,7 @@ class ScoreDataSeeder extends Seeder
             'UserId'      => 1,
             'ScoreTypeId' => 2,
             'Amount'      => 55,
-            'Timestamp'   => '2021-01-01T12:00:00.000000Z'
+            'Timestamp'   => '2021-01-01T12:00:00.000000Z',
         ],
         [
             'ScoreId'     => 2,
@@ -23,7 +23,7 @@ class ScoreDataSeeder extends Seeder
             'UserId'      => 2,
             'ScoreTypeId' => 2,
             'Amount'      => 2,
-            'Timestamp'   => '2021-01-05T12:00:00.000000Z'
+            'Timestamp'   => '2021-01-05T12:00:00.000000Z',
         ],
         [
             'ScoreId'     => 3,
@@ -31,7 +31,7 @@ class ScoreDataSeeder extends Seeder
             'UserId'      => 1,
             'ScoreTypeId' => 3,
             'Amount'      => 10,
-            'Timestamp'   => '2022-02-01T12:00:00.000000Z'
+            'Timestamp'   => '2022-02-01T12:00:00.000000Z',
         ],
         [
             'ScoreId'     => 4,
@@ -39,7 +39,7 @@ class ScoreDataSeeder extends Seeder
             'UserId'      => 1,
             'ScoreTypeId' => 3,
             'Amount'      => 100,
-            'Timestamp'   => '2023-02-01T12:00:00.000000Z'
+            'Timestamp'   => '2023-02-01T12:00:00.000000Z',
         ],
         [
             'ScoreId'     => 5,
@@ -47,7 +47,7 @@ class ScoreDataSeeder extends Seeder
             'UserId'      => 1,
             'ScoreTypeId' => 3,
             'Amount'      => 100,
-            'Timestamp'   => '2023-03-01T12:00:00.000000Z'
+            'Timestamp'   => '2023-03-01T12:00:00.000000Z',
         ],
     ];
 

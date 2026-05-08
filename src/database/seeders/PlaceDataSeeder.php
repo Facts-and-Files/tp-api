@@ -19,7 +19,7 @@ class PlaceDataSeeder extends Seeder
             'UserId'        => 1,
             'WikidataName'  => 'Teststadt',
             'WikidataId'    => 'Q777',
-            'PlaceRole'     => 'CreationPlace'
+            'PlaceRole'     => 'CreationPlace',
         ],
         [
             'PlaceId'       => 2,
@@ -32,8 +32,8 @@ class PlaceDataSeeder extends Seeder
             'UserId'        => 1,
             'WikidataName'  => 'Teststadt',
             'WikidataId'    => 'Q778',
-            'PlaceRole'     => 'Other'
-        ]
+            'PlaceRole'     => 'Other',
+        ],
     ];
 
     public function run(): void

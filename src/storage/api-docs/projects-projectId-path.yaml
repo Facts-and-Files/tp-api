@@ -1,7 +1,7 @@
 get:
   tags:
     - projects
-  summary: Get stored projects data of an entry
+  summary: Get a Project
   description: The returned data is single object
   parameters:
     - in: path
@@ -29,7 +29,7 @@ get:
 put:
   tags:
     - projects
-  summary: Updates data of a project
+  summary: Update a Project
   parameters:
     - in: path
       name: ProjectId
@@ -65,7 +65,7 @@ put:
 delete:
   tags:
     - projects
-  summary: delete a project data entry
+  summary: Delete a Project
   parameters:
     - in: path
       name: ProjectId

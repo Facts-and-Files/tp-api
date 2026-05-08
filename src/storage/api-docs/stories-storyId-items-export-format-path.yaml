@@ -1,9 +1,8 @@
 get:
   tags:
     - stories
-    - items
     - exports
-  summary: Export story items
+  summary: Export a story
   description: >-
     Export story data and basic item data to various formats. Exporting to CSV
     creates a zip file containing a CSV with story metadata and a CSV with item

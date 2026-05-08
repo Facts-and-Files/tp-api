@@ -156,34 +156,23 @@ post:
             allOf:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - type: object
-                properties:
+              - properties:
                   data:
                     $ref: 'import-dei-schema.yaml#/ImportDeiResponseSchema'
+                  message:
+                    example: 'Story successfully imported.'
     '400':
+      $ref: 'responses.yaml#/400ErrorResponse'
       description: Import failed because the payload or IIIF manifest was invalid.
       content:
         application/json:
           schema:
-            $ref: 'responses.yaml#/400ErrorResponse'
-          examples:
-            manifest-missing:
-              summary: Missing manifest URL
-              value:
-                success: false
-                message: Import failed
-                data: IIIF manifest missing. Import aborted.
-            manifest-unreachable:
-              summary: Manifest not reachable
-              value:
-                success: false
-                message: Import failed
-                data: 'IIIF manifest not reachable. Status: 404'
-            manifest-empty:
-              summary: Manifest has no canvases
-              value:
-                success: false
-                message: Import failed
-                data: IIIF manifest contains no canvases. Import aborted.
+            allOf:
+              - properties:
+                example:
+                  success: false
+                  message: Import failed
+                  data: IIIF manifest missing. Import aborted.
     '401':
       $ref: 'responses.yaml#/401ErrorResponse'
     '422':

@@ -20,7 +20,7 @@ class PersonDataSeeder extends Seeder
             'DeathDateDisplay' => 'Spät',
             'Link'             => 'Q11111',
             'Description'      => 'Test Entry',
-            'PersonRole'       => 'DocumentCreator'
+            'PersonRole'       => 'DocumentCreator',
         ],
         [
             'PersonId'         => 2,
@@ -34,8 +34,8 @@ class PersonDataSeeder extends Seeder
             'DeathDateDisplay' => 'Sehr spät',
             'Link'             => 'Q11111',
             'Description'      => 'Test Entry 2',
-            'PersonRole'       => 'DocumentCreator'
-        ]
+            'PersonRole'       => 'DocumentCreator',
+        ],
     ];
 
     public function run(): void

@@ -11,13 +11,13 @@ class DatasetDataSeeder extends Seeder
         [
             'DatasetId' => 1,
             'Name'      => 'Dataset-1',
-            'ProjectId' => 1
+            'ProjectId' => 1,
         ],
         [
             'DatasetId' => 2,
             'Name'      => 'Dataset-2',
-            'ProjectId' => 2
-        ]
+            'ProjectId' => 2,
+        ],
     ];
 
     public function run(): void
