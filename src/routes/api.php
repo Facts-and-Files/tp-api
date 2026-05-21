@@ -15,6 +15,9 @@ use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectStatsController;
+
+;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\SolrController;
 use App\Http\Controllers\StoryController;
@@ -143,6 +146,7 @@ Route::middleware(['api.permission'])->group(function () {
     Route::put('/projects/{id}', [ProjectController::class, 'update']);
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
     Route::get('/projects/{id}/places', [PlaceController::class, 'showByProjectId']);
+    Route::get('/projects/{id}/statistics', [ProjectStatsController::class, 'show']);
 
     Route::get('/statistics', [StatisticsController::class, 'index']);
     Route::get('/statistics/alltime', [StatisticsController::class, 'alltimeIndex']);
