@@ -1,7 +1,7 @@
 openapi: 3.1.1
 
 info:
-  version: 2.0.2
+  version: 2.1.0
   title: Transcribathon Platform API v2
   description: This is the documentation of the Transcribathon API v2 used by [https:transcribathon.eu](https://transcribathon.eu/).<br />
          For authorization you can use the the bearer token you are provided with.
@@ -182,6 +182,8 @@ paths:
     $ref: 'projects-projectId-path.yaml'
   /projects/{ProjectId}/places:
     $ref: 'projects-projectId-places-path.yaml'
+  /projects/{ProjectId}/statistics:
+    $ref: 'projects-projectId-statistics-path.yaml'
 
   /properties:
     $ref: 'properties-path.yaml'

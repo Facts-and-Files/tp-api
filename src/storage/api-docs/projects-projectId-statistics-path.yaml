@@ -1,13 +1,13 @@
 get:
   tags:
-    - campaigns
     - scores
     - statistics
-  summary: Get statistics/scores of a Campaign
+    - projects
+  summary: Get statistics/scores of a Project
   description: The returned data is single object
   parameters:
     - in: path
-      name: CampaignId
+      name: ProjectId
       description: Numeric ID of the entry
       type: integer
       required: true
@@ -21,7 +21,7 @@ get:
               - $ref: 'responses.yaml#/BasicSuccessResponse'
               - properties:
                   data:
-                    $ref: 'campaigns-statistics-schema.yaml#/CampaignStatisticsGetResponseSchema'
+                    $ref: 'projects-statistics-schema.yaml#/ProjectStatisticsGetResponseSchema'
     400:
       $ref: 'responses.yaml#/400ErrorResponse'
     401:
