@@ -49,8 +49,6 @@ ItemsStatisticsUserIdsReferenceSchema:
         example: 2865
 
 ItemsStatisticsEnrichmentsReferenceSchema:
-  type: object
-  description: Object with statistics data of enrichments
   properties:
     Places:
       type: integer
@@ -80,7 +78,7 @@ ItemsStatisticsGetResponseSchema:
     - $ref: '#/ItemsStatisticsMinimalDataReferenceSchema'
     - $ref: '#/ItemsStatisticsAdditionalGetReferenceSchema'
     - $ref: '#/ItemsStatisticsUserIdsReferenceSchema'
-      properties:
+    - properties:
         Enrichments:
           $ref: '#/ItemsStatisticsEnrichmentsReferenceSchema'
 
