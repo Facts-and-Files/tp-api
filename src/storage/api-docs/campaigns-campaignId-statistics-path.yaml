@@ -1,8 +1,9 @@
 get:
   tags:
-    - statistics
     - campaigns
-  summary: Get stored statistics data of a campaign
+    - scores
+    - statistics
+  summary: Get statistics/scores of a Campaign
   description: The returned data is single object
   parameters:
     - in: path
