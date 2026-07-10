@@ -139,7 +139,7 @@ class EnrichmentExportQueryService
                 throw new InvalidArgumentException('Filter [' . $key . '] is not allowed.');
             }
 
-            $values = array_filter(array_map('trim', explode(',', (string) $value)), static fn ($item) => $item !== '');
+            $values = array_filter(array_map('trim', explode(',', (string) $value)), static fn($item) => $item !== '');
 
             if ($values === []) {
                 continue;

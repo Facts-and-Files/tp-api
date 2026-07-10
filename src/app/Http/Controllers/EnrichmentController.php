@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\ResponseController;
 use App\Http\Resources\EnrichmentExportResource;
 use App\Models\Annotation;
 use App\Models\Item;
@@ -16,8 +15,7 @@ class EnrichmentController extends ResponseController
 {
     public function __construct(
         private readonly EnrichmentExportQueryService $queryService,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
