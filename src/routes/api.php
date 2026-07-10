@@ -4,6 +4,7 @@ use App\Http\Controllers\AutoEnrichmentController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CampaignStatsController;
 use App\Http\Controllers\DatasetController;
+use App\Http\Controllers\EnrichmentController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\HtrDataController;
 use App\Http\Controllers\ImportController;
@@ -16,8 +17,6 @@ use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\PersonController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectStatsController;
-
-;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\SolrController;
 use App\Http\Controllers\StoryController;
@@ -104,6 +103,10 @@ Route::middleware(['api.permission'])->group(function () {
     Route::get('/autoenrichments/{id}', [AutoEnrichmentController::class, 'show']);
     Route::put('/autoenrichments/{id}', [AutoEnrichmentController::class, 'update']);
     Route::delete('/autoenrichments/{id}', [AutoEnrichmentController::class, 'destroy']);
+
+    Route::get('/enrichments', [EnrichmentController::class, 'index']);
+    Route::patch('/enrichments/transcription/{id}', [EnrichmentController::class, 'updateTranscription']);
+    Route::patch('/enrichments/annotation/{id}', [EnrichmentController::class, 'updateAnnotation']);
 
     Route::get('/languages', [LanguageController::class, 'index']);
     Route::get('/languages/{id}', [LanguageController::class, 'show']);
