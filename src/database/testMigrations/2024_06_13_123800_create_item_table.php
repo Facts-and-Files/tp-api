@@ -25,6 +25,12 @@ return new class() extends Migration {
             $table->text('ImageLink');
             $table->text('Manifest')->nullable();
             $table->integer('OrderIndex');
+
+            // columns used by enrichment query
+            $table->text('edm:WebResource')->nullable();
+            $table->string('EuropeanaAttachment')->nullable();
+            $table->boolean('Exported')->default(false);
+
             $table->dateTime('LastUpdated')->useCurrent();
             $table->dateTime('Timestamp')->useCurrent();
             $table->enum('TranscriptionSource', ['manual','htr','occam'])->default('manual');

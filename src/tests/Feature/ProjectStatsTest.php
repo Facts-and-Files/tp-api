@@ -51,7 +51,6 @@ class ProjectStatsTest extends TestCase
         $endpoint = '/projects/' . $project_id . '/statistics';
 
         $response = $this->get($endpoint);
-        $response->dump();
 
         $response
             ->assertOk()

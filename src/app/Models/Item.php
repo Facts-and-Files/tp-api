@@ -24,10 +24,7 @@ class Item extends Model
         'CompletionStatusId',
         'DatasetId',
         'DescriptionLanguage',
-        'Exported',
         'OldItemId',
-        'edm:WebResource',
-        'EuropeanaAttachment',
     ];
 
     protected $appends = [
@@ -43,6 +40,7 @@ class Item extends Model
         'LocationStatusId' => ItemCompletionStatus::class,
         'TaggingStatusId' => ItemCompletionStatus::class,
         'CompletionStatusId' => ItemCompletionStatus::class,
+        'Exported' => 'boolean',
     ];
 
     // declare relationships

@@ -1,0 +1,166 @@
+EnrichmentBaseSchema:
+  description: Base fields of an enrichment entry
+  type: object
+  properties:
+    EuropeanaAnnotationId:
+      type:
+        - integer
+        - 'null'
+      description: Europeana Annotation ID linked to the enrichment
+      example: 123456
+    Motivation:
+      type: string
+      description: Motivation of the enrichment (e.g. annotation type or 'transcribing')
+      example: transcribing
+    OrderIndex:
+      type: integer
+      description: Order index of the item within the story
+      example: 1
+    TranscribathonItemId:
+      type: integer
+      description: ItemId within Transcribathon
+      example: 2259965
+    TranscribathonStoryId:
+      type: integer
+      description: StoryId within Transcribathon
+      example: 1234
+    StoryUrl:
+      type: string
+      description: Landing page URL of the story
+      example: https://transcribathon.eu/story/1234
+    StoryId:
+      type: string
+      description: Story identifier used for export (RecordId + optional suffix)
+      example: 'DE-123_0001'
+    ImageLink:
+      type: string
+      description: Image URL for the item
+      example: https://transcribathon.eu/files/1234/5678.jpg
+
+EnrichmentAnnotationPartSchema:
+  description: Annotation-specific fields of an enrichment
+  type: object
+  properties:
+    AnnotationId:
+      type:
+        - integer
+        - 'null'
+      description: ID of the annotation entry
+      example: 42
+    Text:
+      type:
+        - string
+        - 'null'
+      description: Text of the annotation
+      example: Some annotated text
+    TextNoTags:
+      type:
+        - string
+        - 'null'
+      description: Annotation text without markup
+      example: Some annotated text
+    Timestamp:
+      type:
+        - string
+        - 'null'
+      format: date-time
+      description: Timestamp of the annotation
+      example: '2024-05-01 12:34:56'
+    XCoord:
+      type: number
+      format: float
+      description: X coordinate of the annotation region
+      example: 10.5
+    YCoord:
+      type: number
+      format: float
+      description: Y coordinate of the annotation region
+      example: 20.5
+    Width:
+      type: number
+      format: float
+      description: Width of the annotation region
+      example: 100.0
+    Height:
+      type: number
+      format: float
+      description: Height of the annotation region
+      example: 50.0
+
+EnrichmentTranscriptionPartSchema:
+  description: Transcription-specific fields of an enrichment
+  type: object
+  properties:
+    TranscriptionId:
+      type:
+        - integer
+        - 'null'
+      description: ID of the transcription entry
+      example: 77
+    Text:
+      type:
+        - string
+        - 'null'
+      description: Text of the transcription
+      example: This is a transcription
+    TextNoTags:
+      type:
+        - string
+        - 'null'
+      description: Transcription text without markup
+      example: This is a transcription
+    Timestamp:
+      type:
+        - string
+        - 'null'
+      format: date-time
+      description: Timestamp of the transcription
+      example: '2024-05-01 12:34:56'
+    Languages:
+      type:
+        - array
+        - 'null'
+      description: >
+        Languages of the transcription, if available. Each element contains a
+        code and a name.
+      items:
+        type: object
+        properties:
+          Code:
+            type: string
+            description: Language code
+            example: en
+          Name:
+            type: string
+            description: Language name
+            example: English
+
+EnrichmentsGetResponseSchema:
+  description: The data object of a single enrichment entry in the response
+  allOf:
+    - $ref: '#/EnrichmentBaseSchema'
+    # One of the two parts will be populated depending on the enrichment type
+    - $ref: '#/EnrichmentAnnotationPartSchema'
+    - $ref: '#/EnrichmentTranscriptionPartSchema'
+
+EnrichmentsUpdateTranscriptionRequestSchema:
+  description: The data object of a PATCH request body for transcription enrichment
+  type: object
+  required:
+    - EuropeanaAnnotationId
+  properties:
+    EuropeanaAnnotationId:
+      type: integer
+      description: Europeana Annotation ID to store for the transcription
+      example: 987654
+
+EnrichmentsUpdateAnnotationRequestSchema:
+  description: The data object of a PATCH request body for annotation enrichment
+  type: object
+  required:
+    - EuropeanaAnnotationId
+  properties:
+    EuropeanaAnnotationId:
+      type: integer
+      description: Europeana Annotation ID to store for the annotation
+      example: 987654

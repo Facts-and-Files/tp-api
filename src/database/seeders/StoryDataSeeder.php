@@ -21,7 +21,7 @@ class StoryDataSeeder extends Seeder
             'Public' => 1,
             'ImportName' => '',
             'ProjectId' => 1,
-            'RecordId' => '',
+            'RecordId' => 'RecordId-1',
             'PreviewImage' => '{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif/full/full/0/default.jpg","@type":"dctypes:Image","width":3533,"height":5000,"service":{"@id":"rhus-209.man.poznan.pl/fcgi-bin/iipsrv.fcgi?IIIF=1//2025903/_nnVvTgs/PAN044_Page0000.tif","@context":"http://iiif.io/api/image/2/context.json","profile":"http://iiif.io/api/image/2/level1.json"}}',
             'DatasetId' => 1,
             'StoryLanguage' => '',

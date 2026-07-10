@@ -22,6 +22,8 @@ class ItemDataSeeder extends Seeder
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 1',
             'Manifest'              => 'http://example.com/manifest1fromItem.json',
+            'edm:WebResource'       => 'https://digi.ub.uni-heidelberg.de/diglitData/image/matrikelregister2/4/000a_Titel.jpg',
+            'Exported'              => false,
         ],
         [
             'ItemId'                => 2,
@@ -37,6 +39,8 @@ class ItemDataSeeder extends Seeder
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 2',
             'Manifest'              => '',
+            'edm:WebResource'       => 'https://digi.ub.uni-heidelberg.de/diglitData/image/matrikelregister2/4/000a_Titel.jpg',
+            'Exported'              => false,
         ],
         [
             'ItemId'                => 3,
@@ -52,6 +56,8 @@ class ItemDataSeeder extends Seeder
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 3',
             'Manifest'              => '',
+            'edm:WebResource'       => 'https://digi.ub.uni-heidelberg.de/diglitData/image/matrikelregister2/4/000a_Titel.jpg',
+            'Exported'              => false,
         ],
         [
             'ItemId'                => 5,
@@ -67,6 +73,8 @@ class ItemDataSeeder extends Seeder
             'DescriptionLanguage'   => 1,
             'Description'           => 'Test Description Item 5',
             'Manifest'              => '',
+            'edm:WebResource'       => 'https://digi.ub.uni-heidelberg.de/diglitData/image/matrikelregister2/4/000a_Titel.jpg',
+            'Exported'              => false,
         ],
         [
             'ItemId'                => 6,
@@ -82,6 +90,8 @@ class ItemDataSeeder extends Seeder
             'DescriptionLanguage'   => 2,
             'Description'           => 'Test Description Item 6',
             'Manifest'              => '',
+            'edm:WebResource'       => 'https://digi.ub.uni-heidelberg.de/diglitData/image/matrikelregister2/4/000a_Titel.jpg',
+            'Exported'              => false,
         ],
         [
             'ItemId'                => 7,
@@ -97,6 +107,8 @@ class ItemDataSeeder extends Seeder
             'DescriptionLanguage'   => 2,
             'Description'           => 'Test Description Item 7',
             'Manifest'              => '',
+            'edm:WebResource'       => 'https://digi.ub.uni-heidelberg.de/diglitData/image/matrikelregister2/4/000a_Titel.jpg',
+            'Exported'              => false,
         ],
     ];
 

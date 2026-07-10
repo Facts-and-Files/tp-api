@@ -1,0 +1,46 @@
+get:
+  tags:
+    - exports
+    - enrichments
+  summary: Get all enrichments ready for export
+  description: >
+    Returns a union of annotation and transcription enrichments that are ready
+    for export. By default, only not-yet-exported items are returned. Use the
+    includeExported flag to also include already exported items.
+  parameters:
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/limit'
+    - $ref: 'basic-query-parameter.yaml#/PaginationParameters/page'
+    - in: query
+      name: includeExported
+      description: >
+        Include already exported items. If set to 1, results include items with
+        any Exported state as long as they are in the correct transcription
+        status; otherwise only items with Exported = 0 are returned.
+      schema:
+        type: string
+        enum: ['0', '1']
+      example: '1'
+    - in: query
+      name: storyId
+      description: Filter enrichments by story identifier (RecordId).
+      schema:
+        type: string
+  responses:
+    '200':
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    description: A list of enrichment entries as array
+                    items:
+                      $ref: 'enrichments-schema.yaml#/EnrichmentsGetResponseSchema'
+    '400':
+      $ref: 'responses.yaml#/400ErrorResponse'
+    '401':
+      $ref: 'responses.yaml#/401ErrorResponse'
