@@ -1,0 +1,45 @@
+patch:
+  tags:
+    - enrichments
+    - annotations
+  summary: Update export data for an annotation enrichment
+  description: >
+    Updates the enrichment data for a specific annotation and marks the
+    related item as exported. Currently only the EuropeanaAnnotationId can be
+    updated.
+  parameters:
+    - in: path
+      name: AnnotationId
+      description: Numeric ID of the annotation
+      required: true
+      schema:
+        type: integer
+  requestBody:
+    description: Data to be stored for the annotation enrichment
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: 'enrichments-schema.yaml#/EnrichmentsUpdateAnnotationRequestSchema'
+  responses:
+    '200':
+      description: Ok
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: 'responses.yaml#/BasicSuccessResponse'
+              - type: object
+                properties:
+                  data:
+                    $ref: 'enrichments-schema.yaml#/EnrichmentsGetResponseSchema'
+                  message:
+                    example: Annotation enrichment updated.
+    '400':
+      $ref: 'responses.yaml#/400ErrorResponse'
+    '401':
+      $ref: 'responses.yaml#/401ErrorResponse'
+    '404':
+      $ref: 'responses.yaml#/404ErrorResponse'
+    '422':
+      $ref: 'responses.yaml#/422ErrorResponse'

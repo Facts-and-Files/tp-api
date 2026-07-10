@@ -22,12 +22,16 @@ security:
   - bearerAuth: []
 
 tags:
+  - name: annotations
+    description: Operations related to annotations
   - name: autoenrichments
     description: Operations related to automatically generated enrichments (Test phase)
   - name: campaigns
     description: Operations related to campaigns
   - name: datasets
     description: Operations related to datasets
+  - name: enrichments
+    description: Operations related to enrichments (transcriptions, annotations)
   - name: health
     description: Check health and performance of some server values
   - name: htrdata
@@ -105,6 +109,13 @@ paths:
     $ref: 'autoenrichments-bulkimports-path.yaml'
   /autoenrichments/{AutoEnrichmentId}:
     $ref: 'autoenrichments-autoEnrichmentId-path.yaml'
+
+  /enrichments:
+    $ref: 'enrichments-path.yaml'
+  /enrichments/transcription/{TranscriptionId}:
+    $ref: 'enrichments-transcriptionId-path.yaml'
+  /enrichments/annotation/{AnnotationId}:
+    $ref: 'enrichments-annotationId-path.yaml'
 
   /items:
     $ref: 'items-path.yaml'
@@ -243,6 +254,12 @@ components:
       $ref: 'datasets-schema.yaml#/DatasetsPostRequestSchema'
     DatasetsPutRequestSchema:
       $ref: 'datasets-schema.yaml#/DatasetsPutRequestSchema'
+    EnrichmentsGetResponseSchema:
+      $ref: 'enrichments-schema.yaml#/EnrichmentsGetResponseSchema'
+    EnrichmentsUpdateTranscriptionRequestSchema:
+      $ref: 'enrichments-schema.yaml#/EnrichmentsUpdateTranscriptionRequestSchema'
+    EnrichmentsUpdateAnnotationRequestSchema:
+      $ref: 'enrichments-schema.yaml#/EnrichmentsUpdateAnnotationRequestSchema'
     HealthGetResponseSchema:
       $ref: 'health-schema.yaml#/HealthGetResponseSchema'
     HtrDataGetResponseSchema:
