@@ -309,3 +309,5 @@ StoriesPutRequestSchema:
           $ref: '#/DcElementsReferenceSchema'
         Edm:
           $ref: '#/EdmReferenceSchema'
+        Place:
+          $ref: '#/PlaceReferenceSchema'
