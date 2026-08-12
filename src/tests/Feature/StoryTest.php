@@ -83,10 +83,9 @@ class StoryTest extends TestCase
 
     public function test_delete_a_story(): void
     {
-        $datasetId = StoryDataSeeder::$data[1]['StoryId'];
+        $datasetId = StoryDataSeeder::$data[0]['StoryId'];
         $queryParams = '/' . $datasetId;
         $awaitedSuccess = ['success' => true];
-        $awaitedData = ['data' => StoryDataSeeder::$data[1]];
 
         $response = $this->delete(self::$endpoint . $queryParams);
 
