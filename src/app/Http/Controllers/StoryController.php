@@ -61,7 +61,7 @@ class StoryController extends ResponseController
                 'Dc' => 'array',
                 'Dcterms' => 'array',
                 'Edm' => 'array',
-                'Place' => 'array'
+                'Place' => 'array',
             ]);
 
             $story->fill($request->all());
