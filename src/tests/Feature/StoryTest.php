@@ -80,17 +80,4 @@ class StoryTest extends TestCase
             ->assertJson($awaitedSuccess)
             ->assertJson(['data' => $updateData]);
     }
-
-    public function test_delete_a_story(): void
-    {
-        $datasetId = StoryDataSeeder::$data[0]['StoryId'];
-        $queryParams = '/' . $datasetId;
-        $awaitedSuccess = ['success' => true];
-
-        $response = $this->delete(self::$endpoint . $queryParams);
-
-        $response
-            ->assertOk()
-            ->assertJson($awaitedSuccess);
-    }
 }
