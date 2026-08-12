@@ -61,6 +61,7 @@ class StoryController extends ResponseController
                 'Dc' => 'array',
                 'Dcterms' => 'array',
                 'Edm' => 'array',
+                'Place' => 'array'
             ]);
 
             $story->fill($request->all());
@@ -77,7 +78,7 @@ class StoryController extends ResponseController
 
             $story->save();
 
-            // LastUpdated is not updating correclty so we update it manually
+            // LastUpdated is not updating correctly so we update it manually
             // can be removed when the issue is solved
             $story->touch();
 

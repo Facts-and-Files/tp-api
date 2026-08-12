@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use PhpParser\Node\Expr\FuncCall;
 
 class Story extends Model
 {
@@ -63,12 +64,14 @@ class Story extends Model
         'dcterms:created',
         'Summary',
         'ParentStory',
-        'SearchText',
-        'DateStart',
-        'DateEnd',
-        'OrderIndex',
-        'ImportName',
-        'CompletionStatusId',
+        'PlaceName',
+        'PlaceLatitude',
+        'PlaceLongitude',
+        'PlaceLink',
+        'PlaceComment',
+        'PlaceUserId',
+        'PlaceUserGenerated',
+        'placeZoom',
         'OldStoryId',
     ];
 
@@ -227,6 +230,17 @@ class Story extends Model
             'UserId'        => $this->attributes['PlaceUserId']        ?? null,
             'UserGenerated' => $this->attributes['PlaceUserGenerated'] ?? null,
         ];
+    }
+
+    public function setPlaceAttribute(array $values): void
+    {
+        $this->attributes['PlaceName']          = $values['Name']          ?? $this->attributes['PlaceName'];
+        $this->attributes['PlaceLatitude']      = $values['Latitude']      ?? $this->attributes['PlaceLatitude'];
+        $this->attributes['PlaceLongitude']     = $values['Longitude']     ?? $this->attributes['PlaceLongitude'];
+        $this->attributes['PlaceLink']          = $values['WikiDataId']    ?? $this->attributes['PlaceLink'];
+        $this->attributes['PlaceComment']       = $values['WikiDataName']  ?? $this->attributes['PlaceComment'];
+        $this->attributes['PlaceUserId']        = $values['UserId']        ?? $this->attributes['PlaceUserId'];
+        $this->attributes['PlaceUserGenerated'] = $values['UserGenerated'] ?? $this->attributes['PlaceUserGenerated'];
     }
 
     public function getProjectNameAttribute(): ?string
