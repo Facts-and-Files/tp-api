@@ -1,4 +1,4 @@
-.PHONY: all distclean help lint lint-fix serve stop test vendor
+.PHONY: all distclean help lint lint-fix serve stop test vendor vendor-update
 
 # include .env
 # export $(shell sed 's/=.*//' .env)
@@ -62,6 +62,10 @@ vendor: distclean
 	@clear
 	@bash docker_composer.sh install
 
+vendor-update:
+	@clear
+	@bash docker_composer.sh update
+
 help:
 	@echo "Manage project"
 	@echo ""
@@ -90,4 +94,7 @@ help:
 	@echo ""
 	@echo "  $$ make vendor"
 	@echo "  Install dependencies"
+	@echo ""
+	@echo "  $$ make vendor-update"
+	@echo "  Update dependencies"
 	@echo ""
