@@ -151,7 +151,7 @@ Route::middleware(['api.permission'])->group(function () {
     Route::get('/projects/{id}/places', [PlaceController::class, 'showByProjectId']);
     Route::get('/projects/{id}/statistics', [ProjectStatsController::class, 'show']);
 
-    Route::get('/statistics', [StatisticsController::class, 'index']);
+    Route::get('/statistics', [StatisticsController::class, 'index'])->name('statistics');
     Route::get('/statistics/alltime', [StatisticsController::class, 'alltimeIndex']);
 
     Route::get('/persons', [PersonController::class, 'index']);

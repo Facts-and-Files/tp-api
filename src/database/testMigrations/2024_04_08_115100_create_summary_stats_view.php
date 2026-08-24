@@ -21,8 +21,8 @@ return new class() extends Migration {
             FROM
                 (
                     SELECT
-                        strftime('%Y', Timestamp) AS Year,
-                        strftime('%m', Timestamp) AS Month,
+                        CAST(strftime('%Y', Timestamp) AS INTEGER) AS Year,
+                        CAST(strftime('%m', Timestamp) AS INTEGER) AS Month,
                         ScoreTypeId,
                         COUNT(DISTINCT UserId) AS UniqueUsers,
                         COUNT(DISTINCT ItemId) AS UniqueItems,
@@ -30,22 +30,22 @@ return new class() extends Migration {
                     FROM
                         Score
                     GROUP BY
-                        strftime('%Y', Timestamp),
-                        strftime('%m', Timestamp),
+                        CAST(strftime('%Y', Timestamp) AS INTEGER),
+                        CAST(strftime('%m', Timestamp) AS INTEGER),
                         ScoreTypeId
                 ) AS t1
             JOIN
                 (
                     SELECT
-                        strftime('%Y', Timestamp) AS Year,
-                        strftime('%m', Timestamp) AS Month,
+                        CAST(strftime('%Y', Timestamp) AS INTEGER) AS Year,
+                        CAST(strftime('%m', Timestamp) AS INTEGER) AS Month,
                         COUNT(DISTINCT UserId) AS UniqueUsers,
                         COUNT(DISTINCT ItemId) AS UniqueItems
                     FROM
                         Score
                     GROUP BY
-                        strftime('%Y', Timestamp),
-                        strftime('%m', Timestamp)
+                        CAST(strftime('%Y', Timestamp) AS INTEGER),
+                        CAST(strftime('%m', Timestamp) AS INTEGER)
                 ) AS t2
             ON
                 t1.Year = t2.Year
@@ -53,8 +53,8 @@ return new class() extends Migration {
             LEFT JOIN
                 (
                     SELECT
-                        strftime('%Y', s.Timestamp) AS Year,
-                        strftime('%m', s.Timestamp) AS Month,
+                        CAST(strftime('%Y', s.Timestamp) AS INTEGER) AS Year,
+                        CAST(strftime('%m', s.Timestamp) AS INTEGER) AS Month,
                         COUNT(*) AS NumberOfFirstRecords
                     FROM
                         Score s
@@ -71,7 +71,8 @@ return new class() extends Migration {
                         s.ItemId = firstRecords.ItemId
                         AND s.ScoreId = firstRecords.FirstScoreId
                     GROUP BY
-                        strftime('%Y', s.Timestamp), strftime('%m', s.Timestamp)
+                        CAST(strftime('%Y', s.Timestamp) AS INTEGER),
+                        CAST(strftime('%m', s.Timestamp) AS INTEGER)
                 ) AS t3
             ON
                 t1.Year = t3.Year

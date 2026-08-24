@@ -2,7 +2,7 @@ get:
   tags:
     - statistics
   summary: Get all stats by month and year
-  description: The index endpoint can be used to get all entries. The output is limited to 100 but can be filtered, sorted and paginated.
+  description: The index endpoint can be used to get all entries. The the data is cached for one day. If you want to get non-stale data use the fresh=1 parameter.
   parameters:
     - in: query
       name: orderBy
@@ -23,6 +23,10 @@ get:
       name: Month
       description: To month of the statistics (from 1-12). With month 0 or just it will the stats for the whole year (same as omitting month completly).
       type: string
+    - in: query
+      name: fresh
+      description: Get up-to-date non-stale data. Otherwise it is cached for one day.
+      type: boolean
   responses:
     200:
       description: Ok
