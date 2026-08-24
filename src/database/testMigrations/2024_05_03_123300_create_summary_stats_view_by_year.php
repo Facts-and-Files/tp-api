@@ -24,7 +24,7 @@ return new class() extends Migration {
                   (
                     (
                       SELECT
-                        strftime('%Y', Score.Timestamp) AS Year,
+                        CAST(strftime('%Y', Score.Timestamp) AS INTEGER) AS Year,
                         Score.ScoreTypeId AS ScoreTypeId,
                         COUNT(DISTINCT Score.UserId) AS UniqueUsers,
                         COUNT(DISTINCT Score.ItemId) AS UniqueItems,
@@ -32,26 +32,26 @@ return new class() extends Migration {
                       FROM
                         Score
                       GROUP BY
-                        strftime('%Y', Score.Timestamp),
+                        CAST(strftime('%Y', Score.Timestamp) AS INTEGER),
                         Score.ScoreTypeId
                     )
                   ) t1
                   JOIN (
                     SELECT
-                      strftime('%Y', Score.Timestamp) AS Year,
+                      CAST(strftime('%Y', Score.Timestamp) AS INTEGER) AS Year,
                       COUNT(DISTINCT Score.UserId) AS UniqueUsers,
                       COUNT(DISTINCT Score.ItemId) AS UniqueItems
                     FROM
                       Score
                     GROUP BY
-                      strftime('%Y', Score.Timestamp)
+                      CAST(strftime('%Y', Score.Timestamp) AS INTEGER)
                   ) t2 ON(
                     (t1.Year = t2.Year)
                   )
                 )
                 LEFT JOIN (
                   SELECT
-                    strftime('%Y', s.Timestamp) AS Year,
+                    CAST(strftime('%Y', s.Timestamp) AS INTEGER) AS Year,
                     COUNT(0) AS NumberOfFirstRecords
                   FROM
                     (
@@ -72,7 +72,7 @@ return new class() extends Migration {
                       )
                     )
                   GROUP BY
-                    strftime('%Y', s.Timestamp)
+                    CAST(strftime('%Y', s.Timestamp) AS INTEGER)
                 ) t3 ON(
                   (t1.Year = t3.Year)
                 )
