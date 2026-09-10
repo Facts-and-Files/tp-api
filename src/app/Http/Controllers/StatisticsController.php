@@ -19,16 +19,16 @@ class StatisticsController extends ResponseController
     public function index(Request $request): JsonResponse
     {
         try {
-            $request->merge(['limit' => 1_000_000]);
+            $request->query->set('limit', '1000000');
 
             $allowedOrderBy = ['Year', 'Month', 'ScoreTypeId'];
 
             if (!in_array($request->query('orderBy', 'Year'), $allowedOrderBy, true)) {
-                $request->merge(['orderBy' => 'Year']);
+                $request->query->set('orderBy', 'Year');
             }
 
             if (!in_array(strtolower($request->query('orderDir', 'asc')), ['asc', 'desc'], true)) {
-                $request->merge(['orderDir' => 'asc']);
+                $request->query->set('orderDir', 'asc');
             }
 
             $data = $this->getCachedStatistics($request);
