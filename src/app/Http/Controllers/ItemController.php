@@ -14,6 +14,12 @@ class ItemController extends ResponseController
         $queryColumns = [
             'StoryId' => 'StoryId',
             'ItemId'  => 'ItemId',
+            'TranscriptionStatusId' => 'TranscriptionStatusId',
+            'CompletionStatusId' => 'CompletionStatusId',
+            'DescriptionStatusId' => 'DescriptionStatusId',
+            'LocationStatusId' => 'LocationStatusId',
+            'TaggingStatusId' => 'TaggingStatusId',
+            'AutomaticEnrichmentStatusId'=> 'AutomaticEnrichmentStatusId',
         ];
 
         $initialSortColumn = 'ItemId';
