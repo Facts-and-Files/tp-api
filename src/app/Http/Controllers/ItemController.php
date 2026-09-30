@@ -19,7 +19,7 @@ class ItemController extends ResponseController
             'DescriptionStatusId' => 'DescriptionStatusId',
             'LocationStatusId' => 'LocationStatusId',
             'TaggingStatusId' => 'TaggingStatusId',
-            'AutomaticEnrichmentStatusId'=> 'AutomaticEnrichmentStatusId',
+            'AutomaticEnrichmentStatusId' => 'AutomaticEnrichmentStatusId',
         ];
 
         $initialSortColumn = 'ItemId';
