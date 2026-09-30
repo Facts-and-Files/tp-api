@@ -5,1112 +5,1191 @@
 * @copyright 2007 Jakub Vrana
 * @license https://www.apache.org/licenses/LICENSE-2.0 Apache License, Version 2.0
 * @license https://www.gnu.org/licenses/gpl-2.0.html GNU General Public License, version 2 (one or other)
-* @version 6.0.0
+* @version 6.1.1
 */namespace
-Adminer;const
-VERSION="6.0.0";error_reporting(24575);set_error_handler(function($Uc,$Wc){return!!preg_match('~^Undefined (array key|offset|index)~',$Wc);},E_WARNING|E_NOTICE);$yd=!preg_match('~^(unsafe_raw)?$~',ini_get("filter.default"));if($yd||ini_get("filter.default_flags")){foreach(array('_GET','_POST','_COOKIE','_SERVER')as$X){$Uk=filter_input_array(constant("INPUT$X"),FILTER_UNSAFE_RAW);if($Uk)$$X=$Uk;}}if(function_exists("mb_internal_encoding"))mb_internal_encoding("8bit");function
+Adminer;if(isset($_GET["status"]))$_GET["variables"]=$_GET["status"];if(isset($_GET["import"]))$_GET["sql"]=$_GET["import"];const
+VERSION="6.1.1";error_reporting(24575);set_error_handler(function($sd,$ud){return!!preg_match('~^Undefined (array key|offset|index)~',$ud);},E_WARNING|E_NOTICE);$Xd=!preg_match('~^(unsafe_raw)?$~',ini_get("filter.default"));if($Xd||ini_get("filter.default_flags")){foreach(array('_GET','_POST','_COOKIE','_SERVER')as$W){$Ym=filter_input_array(constant("INPUT$W"),FILTER_UNSAFE_RAW);if($Ym)$$W=$Ym;}}$_COOKIE=array_filter($_COOKIE,'is_scalar');if(function_exists("mb_internal_encoding"))mb_internal_encoding("8bit");function
 connection($g=null){return($g?:Db::$instance);}function
 adminer(){return
 Adminer::$instance;}function
 driver(){return
 Driver::$instance;}function
-connect(){$Pb=adminer()->credentials();$I=Driver::connect($Pb[0],$Pb[1],$Pb[2]);return(is_object($I)?$I:null);}function
-idf_unescape($u){if(!preg_match('~^[`\'"[]~',$u))return$u;$uf=substr($u,-1);return
-str_replace($uf.$uf,$uf,substr($u,1,-1));}function
-q($Q){return
-connection()->quote($Q);}function
-idx($_a,$x,$k=null){return($_a&&array_key_exists($x,$_a)?$_a[$x]:$k);}function
-number($X){return
-preg_replace('~[^0-9]+~','',$X);}function
+connect(){$hc=adminer()->credentials();$H=Driver::connect($hc[0],$hc[1],$hc[2]);return(is_object($H)?$H:null);}function
+idf_unescape($t){if(!preg_match('~^[`\'"[]~',$t))return$t;$kg=substr($t,-1);return
+str_replace($kg.$kg,$kg,substr($t,1,-1));}function
+q($P){return
+connection()->quote($P);}function
+idx($Ea,$w,$j=null){return($Ea&&array_key_exists($w,$Ea)?$Ea[$w]:$j);}function
+number($W){return
+preg_replace('~[^0-9]+~','',$W);}function
 int_type(){return'(tiny|small|medium|big)?int(eger|\d)?';}function
-number_type(){return'(^('.int_type().'|decimal|numeric|real|(binary_|half_|scaled_)?float\d?|(binary_)?double( precision)?|(small)?money)$)';}function
-remove_slashes(array$pl,$yd=false){$I=array();foreach($pl
-as$x=>$X)$I[stripslashes($x)]=(is_array($X)?remove_slashes($X,$yd):($yd?$X:stripslashes($X)));return$I;}function
-bracket_escape($u,$Ia=false){static$Ak=array(':'=>':1',']'=>':2','['=>':3','"'=>':4','='=>':5');return
-strtr($u,($Ia?array_flip($Ak):$Ak));}function
-url_escape($Q){static$Ak=array();if(!$Ak){$Ak=array(' '=>'+');foreach(str_split("\"'<>#%&+=?".ini_get("arg_separator.input"))as$ab)$Ak[$ab]=sprintf('%%%02X',ord($ab));for($s=0;$s<256;$s++){if($s<32||$s>126)$Ak[chr($s)]=sprintf('%%%02X',$s);}}return
-strtr((string)$Q,$Ak);}function
-min_version($sl,$Mf="",$g=null){$g=connection($g);$nj=$g->server_info;if($Mf&&preg_match('~([\d.]+)-MariaDB~',$nj,$B)){$nj=$B[1];$sl=$Mf;}return$sl&&version_compare($nj,$sl)>=0;}function
+number_type(){return'(^('.int_type().'|decimal|numeric|number|real|(binary_|half_|scaled_)?float\d?|(binary_)?double( precision)?|(small)?money)$)';}function
+text_type(){return'char|text'.(JUSH=="sql"?'|enum|set':'');}function
+is_user_type($T){return
+in_array($T,idx(driver()->structuredTypes(),'User types',array()));}function
+full_type_sql(array$l){$T=$l["type"];return(is_user_type($T)?idf_escape($T).substr($l["full_type"],strlen($T)):$l["full_type"]);}function
+is_searchable(array$l,array$W){if(!isset($l["privileges"]["where"]))return
+false;if(preg_match('~NULL$~',$W["op"]))return
+true;$T=$l["type"];$Ak=$W["val"];$Xa='binary$|bytea|raw|image|bfile|^vector$'.(JUSH=="mssql"?'|^timestamp$':'|^bit').(JUSH=="oracle"?'|^blob|^long|rowid':'');if(preg_match("~$Xa~",$T))return
+false;if(preg_match(number_type(),$T)){$Qh='-?\d+(\.\d+)?';return(bool)preg_match('~^'.$Qh.(preg_match('~IN$~',$W["op"])?"( *, *$Qh)*":'').'$~',$Ak);}if(preg_match('~^(small)?date|^timestamp~',$T))return(bool)preg_match('~^\d+-\d+-\d+~',$Ak);if(preg_match('~^time~',$T))return(bool)preg_match('~^\d+:\d+~',$Ak);if(preg_match('~^bool~',$T)||(JUSH=="mssql"&&$T=="bit"))return(bool)preg_match('~^(t|f|true|false|[01])$~i',$Ak);return
+true;}function
+remove_slashes(array$Y,$Xd=false){$H=array();foreach($Y
+as$w=>$W)$H[stripslashes($w)]=(is_array($W)?remove_slashes($W,$Xd):($Xd?$W:stripslashes($W)));return$H;}function
+bracket_escape($t,$Qa=false){static$_m=array(':'=>':1',']'=>':2','['=>':3','"'=>':4','='=>':5');return
+strtr($t,($Qa?array_flip($_m):$_m));}function
+url_escape($P){static$_m=array();if(!$_m){$_m=array(' '=>'+');foreach(str_split("\"'<>#%&+=?".ini_get("arg_separator.input"))as$lb)$_m[$lb]=sprintf('%%%02X',ord($lb));for($r=0;$r<256;$r++){if($r<32||$r>126)$_m[chr($r)]=sprintf('%%%02X',$r);}}return
+strtr((string)$P,$_m);}function
+min_version($yn,$Fg="",$g=null){$g=connection($g);$Xk=$g->server_info;if($Fg&&preg_match('~([\d.]+)-MariaDB~',$Xk,$_)){$Xk=$_[1];$yn=$Fg;}return$yn&&version_compare($Xk,$yn)>=0;}function
 charset(Db$f){return(min_version("5.5.3",0,$f)?"utf8mb4":"utf8");}function
-ini_set($ih,$Y){return(function_exists('ini_set')?\ini_set($ih,$Y):false);}function
-ini_bool($Qe){$X=ini_get($Qe);return(preg_match('~^(on|true|yes)$~i',$X)||(int)$X);}function
-ini_bytes($Qe){$X=ini_get($Qe);switch(strtolower(substr($X,-1))){case'g':$X=(int)$X*1024;case'm':$X=(int)$X*1024;case'k':$X=(int)$X*1024;}return$X;}function
-max_input_vars($J,$xh){$Qf=(int)ini_get("max_input_vars");return($Qf?(int)floor(($Qf-$xh)/$J):0);}function
-max_input_vars_error(){$Qe="max_input_vars";return
-sprintf('Maximum number of allowed fields exceeded. Please increase %s.',"<b>$Qe = ".ini_get($Qe)."</b>");}function
-sid(){static$I;if($I===null)$I=(SID&&!($_COOKIE&&ini_bool("session.use_cookies")));return$I;}function
-set_password($rl,$N,$V,$E){$_SESSION["pwds"][$rl][$N][$V]=($_COOKIE["adminer_key"]&&is_string($E)?array(encrypt_string($E,$_COOKIE["adminer_key"])):$E);}function
-get_password(){$I=get_session("pwds");if(is_array($I))$I=($_COOKIE["adminer_key"]?decrypt_string($I[0],$_COOKIE["adminer_key"]):false);return$I;}function
-get_val($G,$m=0,$Ab=null){$Ab=connection($Ab);$H=$Ab->query($G);if(!is_object($H))return
-false;$J=$H->fetch_row();return($J?$J[$m]:false);}function
-get_vals($G,$d=0){$I=array();$H=connection()->query($G);if(is_object($H)){while($J=$H->fetch_row())$I[]=$J[$d];}return$I;}function
-get_key_vals($G,$g=null,$qj=true){$g=connection($g);$I=array();$H=$g->query($G);if(is_object($H)){while($J=$H->fetch_row()){if($qj)$I[$J[0]]=$J[1];else$I[]=$J[0];}}return$I;}function
-get_rows($G,$g=null,$l="<p class='error'>"){$Ab=connection($g);$I=array();$H=$Ab->query($G);if(is_object($H)){while($J=$H->fetch_assoc())$I[]=$J;}elseif(!$H&&!$g&&$l&&(defined('Adminer\PAGE_HEADER')||$l=="-- "))echo$l.error()."\n";return$I;}function
-unique_array($J,array$w){foreach($w
-as$v){if(preg_match("~^(PRIMARY|UNIQUE)$~",$v["type"])&&!$v["partial"]){$I=array();foreach($v["columns"]as$x){if(!isset($J[$x]))continue
-2;$I[$x]=$J[$x];}return$I;}}}function
-escape_key($x){if(preg_match('(^([\w(]+)('.str_replace("_",".*",preg_quote(idf_escape("_"))).')([ \w)]+)$)',$x,$B))return$B[1].idf_escape(idf_unescape($B[2])).$B[3];return
-idf_escape($x);}function
-where(array$Z,array$n=array()){$I=array();foreach((array)$Z["where"]as$x=>$X){$x=bracket_escape($x,true);$d=escape_key($x);$m=idx($n,$x,array());$sd=$m["type"];$af=$m&&(is_blob($m)||preg_match('~binary~',$sd));$I[]=$d.($af&&!is_utf8($X)?" = ".driver()->quoteBinary($X):(JUSH=="sql"&&$sd=="json"?" = CAST(".q($X)." AS JSON)":(JUSH=="pgsql"&&preg_match('~^jsonb?$~',$m["full_type"])?"::jsonb = ".q($X)."::jsonb":(JUSH=="sql"&&is_numeric($X)&&preg_match('~\.~',$X)?" LIKE ".q($X):(JUSH=="mssql"&&strpos($sd,"datetime")===false?" LIKE ".q(preg_replace('~[_%[]~','[\0]',$X)):" = ".unconvert_field($m,q($X)))))));if(JUSH=="sql"&&preg_match('~char|text~',$sd)&&preg_match("~[^ -@]~",$X))$I[]="$d = ".q($X)." COLLATE ".charset(connection())."_bin";}foreach((array)$Z["null"]as$x)$I[]=escape_key($x)." IS NULL";return
-implode(" AND ",$I);}function
-where_columns(array$n){$I=array();foreach((array)$_GET["null"]as$x)$I[$x]=true;foreach((array)$_GET["where"]as$x=>$X){$x=bracket_escape($x,true);foreach($n
-as$C=>$m){if($x==$C||strpos($x,idf_escape($C))!==false)$I[$C]=true;}}return$I;}function
-where_check($X,array$n=array()){parse_str($X,$cb);remove_slashes(array(&$cb));return
-where($cb,$n);}function
-where_link($s,$d,$Y,$fh="="){$ch=($Y!==null?$fh:"IS NULL");return"&where[$s][col]=".url_escape($d).($ch!=first(adminer()->operators())?"&where[$s][op]=".url_escape($ch):"")."&where[$s][val]=".url_escape($Y);}function
-convert_fields(array$e,array$n,array$M=array()){$I="";foreach($e
-as$x=>$X){if($M&&!in_array(idf_escape($x),$M))continue;$Aa=convert_field($n[$x]);if($Aa)$I
-.=", $Aa AS ".idf_escape($x);}return$I;}function
+ini_set($qi,$X){return(function_exists('ini_set')?\ini_set($qi,$X):false);}function
+ini_bool($Bf){$W=ini_get($Bf);return(preg_match('~^(on|true|yes)$~i',$W)||(int)$W);}function
+ini_bytes($Bf){$W=ini_get($Bf);switch(strtolower(substr($W,-1))){case'g':$W=(int)$W*1024;case'm':$W=(int)$W*1024;case'k':$W=(int)$W*1024;}return$W;}function
+max_input_vars($I,$Ei){$Jg=(int)ini_get("max_input_vars");return($Jg?(int)floor(($Jg-$Ei)/$I):0);}function
+max_input_vars_error(){$Bf="max_input_vars";return
+sprintf('Maximum number of allowed fields exceeded. Please increase %s.',"<b>$Bf = ".ini_get($Bf)."</b>");}function
+sid(){static$H;if($H===null)$H=(SID&&!($_COOKIE&&ini_bool("session.use_cookies")));return$H;}function
+set_password($xn,$M,$U,$D){$_SESSION["pwds"][$xn][$M][$U]=($_COOKIE["adminer_key"]&&is_string($D)?array(encrypt_string($D,$_COOKIE["adminer_key"])):$D);}function
+get_password(){$H=get_session("pwds");if(is_array($H))$H=($_COOKIE["adminer_key"]?decrypt_string($H[0],$_COOKIE["adminer_key"]):false);return$H;}function
+get_val($F,$l=0,$Ob=null){$Ob=connection($Ob);$G=$Ob->query($F);if(!is_object($G))return
+false;$I=$G->fetch_row();return($I?$I[$l]:false);}function
+get_vals($F,$d=0){$H=array();$G=connection()->query($F);if(is_object($G)){while($I=$G->fetch_row())$H[]=$I[$d];}return$H;}function
+get_key_vals($F,$g=null,$al=true){$g=connection($g);$H=array();$G=$g->query($F);if(is_object($G)){while($I=$G->fetch_row()){if($al)$H[$I[0]]=$I[1];else$H[]=$I[0];}}return$H;}function
+get_rows($F,$g=null,$k="<p class='error'>"){$Ob=connection($g);$H=array();$G=$Ob->query($F);if(is_object($G)){while($I=$G->fetch_assoc())$H[]=$I;}elseif(!$G&&!$g&&$k&&(defined('Adminer\PAGE_HEADER')||$k=="-- "))echo$k.adminer()->error()."\n";return$H;}function
+unique_array($I,array$v){foreach($v
+as$u){if(preg_match("~^(PRIMARY|UNIQUE)$~",$u["type"])&&!$u["partial"]){$H=array();foreach($u["columns"]as$w){if(!isset($I[$w]))continue
+2;$H[$w]=$I[$w];}return$H;}}}function
+where_function($ve,$d,array$l){if($ve=="md5")return
+driver()->md5($d,$l)?:$d;return(in_array($ve,driver()->functions)||in_array($ve,driver()->grouping)?apply_sql_function($ve,$d):$d);}function
+where(array$Z,array$m=array()){$H=array();foreach((array)$Z["where"]as$w=>$W){$w=bracket_escape($w,true);$d=idf_escape($w);$l=idx($m,$w,array());$Rd=$l["type"];$Of=$l&&(is_blob($l)||preg_match('~binary~',$Rd));$H[]=$d.($Of&&!is_utf8($W)?" = ".driver()->quoteBinary($W):(JUSH=="sql"&&$Rd=="json"?" = CAST(".q($W)." AS JSON)":(JUSH=="pgsql"&&preg_match('~^jsonb?$~',$l["full_type"])?"::jsonb = ".q($W)."::jsonb":(JUSH=="sql"&&is_numeric($W)&&preg_match('~\.~',$W)?" LIKE ".q($W):(JUSH=="mssql"&&strpos($Rd,"datetime")===false?" LIKE ".q(preg_replace('~[_%[]~','[\0]',$W)):" = ".unconvert_field($l,q($W)))))));if(JUSH=="sql"&&preg_match('~char|text~',$Rd)&&preg_match("~[^ -@]~",$W))$H[]="$d = ".q($W)." COLLATE ".charset(connection())."_bin";}foreach((array)$Z["null"]as$w)$H[]=idf_escape($w)." IS NULL";foreach((array)$Z["col"]as$r=>$_b){$W=idx($Z["val"],$r);$H[]=where_function(idx($Z["fun"],$r),idf_escape($_b),idx($m,$_b,array())).($W!==null?" = ".q($W):" IS NULL");}return
+implode(" AND ",$H);}function
+where_columns(array$m){$H=array();foreach((array)$_GET["null"]as$w)$H[$w]=true;foreach(array_keys((array)$_GET["where"])as$w)$H[bracket_escape($w,true)]=true;foreach((array)$_GET["col"]as$_b)$H[$_b]=true;return
+array_intersect_key($H,$m);}function
+where_check($W,array$m=array()){parse_str($W,$ob);remove_slashes(array(&$ob));return
+where($ob,$m);}function
+where_link($r,$d,$X,$ni="="){$ki=($X!==null?$ni:"IS NULL");return"&where[$r][col]=".url_escape($d).($ki!=first(adminer()->operators())?"&where[$r][op]=".url_escape($ki):"")."&where[$r][val]=".url_escape($X);}function
+convert_fields(array$e,array$m,array$L=array()){$H="";foreach($e
+as$w=>$W){if($L&&!in_array(idf_escape($w),$L))continue;$Fa=convert_field($m[$w]);if($Fa)$H
+.=", $Fa AS ".idf_escape($w);}return$H;}function
 cookie_path(){return
 strtr(preg_replace('~\?.*~','',$_SERVER["REQUEST_URI"]),array(";"=>"%3B",","=>"%2C"));}function
-cookie($C,$Y,$Df=2592000){header("Set-Cookie: $C=".rawurlencode($Y).($Df?"; expires=".gmdate("D, d M Y H:i:s",time()+$Df)." GMT":"")."; path=".cookie_path().(HTTPS?"; secure":"").($C=="adminer_import"?"":"; HttpOnly")."; SameSite=lax",false);}function
-get_url($bl,$Hb){$http_response_header=null;$Vc=array();set_error_handler(function($Uc,$l)use(&$Vc){$Vc[]=preg_replace('~^file_get_contents\([^)]*\):\s*~','',$l);return
-true;});$I=file_get_contents($bl,false,$Hb);restore_error_handler();$le=(function_exists('http_get_last_response_headers')?http_get_last_response_headers():$http_response_header);return
-array($I,(preg_match('~^HTTP/[\d.]+ (\d+)~',idx($le,0,''),$B)?$B[1]:''),(array)$le,($I===false?implode("\n",$Vc):''),);}function
-get_settings($Kb){parse_str($_COOKIE[$Kb],$rj);return$rj;}function
-get_setting($x,$Kb="adminer_settings",$k=null){return
-idx(get_settings($Kb),$x,$k);}function
-save_settings(array$rj,$Kb="adminer_settings"){$Y=http_build_query($rj+get_settings($Kb));cookie($Kb,$Y);$_COOKIE[$Kb]=$Y;}function
+cookie($A,$X,$ug=2592000){header("Set-Cookie: $A=".rawurlencode($X).($ug?"; expires=".gmdate("D, d M Y H:i:s",time()+$ug)." GMT":"")."; path=".cookie_path().(HTTPS?"; secure":"").($A=="adminer_import"?"":"; HttpOnly")."; SameSite=lax",false);}function
+get_url($hn,$Xb){$http_response_header=null;$td=array();set_error_handler(function($sd,$k)use(&$td){$td[]=preg_replace('~^file_get_contents\([^)]*\):\s*~','',$k);return
+true;});$H=file_get_contents($hn,false,$Xb);restore_error_handler();$Se=(function_exists('http_get_last_response_headers')?http_get_last_response_headers():$http_response_header);return
+array($H,(preg_match('~^HTTP/[\d.]+ (\d+)~',idx($Se,0,''),$_)?$_[1]:''),(array)$Se,($H===false?implode("\n",$td):''),);}function
+json_decode_exact($Wf){$Wf=preg_replace('~"(\\\\u0001(?:[^"\\\\]|\\\\.)*+")|"(?:[^"\\\\]|\\\\.)*+"(*SKIP)(*FAIL)~','"\\\\u0001$1',$Wf);return
+json_decode(preg_replace('~"(?:[^"\\\\]|\\\\.)*+"(*SKIP)(*FAIL)|-?\d[-+.\deE]*+~','"\\\\u0001$0"',$Wf));}function
+json_scalar($W){return(is_string($W)&&substr($W,0,1)=="\1"?substr($W,1):$W);}function
+json_encode_exact($W,$de=0){return
+preg_replace('~"\\\\u0001(-?\d[^"\\\\]*)"|(")\\\\u0001(\\\\u0001(?:[^"\\\\]|\\\\.)*+")|"(?:[^"\\\\]|\\\\.)*+"(*SKIP)(*FAIL)~','$1$2$3',json_encode($W,$de));}function
+get_settings($bc){parse_str($_COOKIE[$bc],$bl);return$bl;}function
+get_setting($w,$bc="adminer_settings",$j=null){return
+idx(get_settings($bc),$w,$j);}function
+save_settings(array$bl,$bc="adminer_settings"){$X=http_build_query($bl+get_settings($bc));cookie($bc,$X);$_COOKIE[$bc]=$X;}function
 restart_session(){if(!ini_bool("session.use_cookies")&&(!function_exists('session_status')||session_status()==PHP_SESSION_NONE))session_start();}function
-stop_session($Gd=false){$el=ini_bool("session.use_cookies");if(!$el||$Gd){session_write_close();if($el&&ini_set("session.use_cookies",'0')===false)session_start();}}function&get_session($x){return$_SESSION[$x][DRIVER][SERVER][$_GET["username"]];}function
-set_session($x,$X){$_SESSION[$x][DRIVER][SERVER][$_GET["username"]]=$X;}function
-auth_url($rl,$N,$V,$j=null){$al=remove_from_uri(implode("|",array_keys(SqlDriver::$drivers))."|username|ext|".($j!==null?"db|":"").($rl=='mssql'||$rl=='pgsql'?"":"ns|").session_name());preg_match('~([^?]*)\??(.*)~',$al,$B);return"$B[1]?".(sid()?SID."&":"").($_GET["ext"]?"ext=".url_escape($_GET["ext"])."&":"").($rl!="server"||$N!=""?url_escape($rl)."=".url_escape($N)."&":"")."username=".url_escape($V).($j!=""?"&db=".url_escape($j):"").($B[2]?"&$B[2]":"");}function
+stop_session($ge=false){$kn=ini_bool("session.use_cookies");if(!$kn||$ge){session_write_close();if($kn&&ini_set("session.use_cookies",'0')===false)session_start();}}function&get_session($w){return$_SESSION[$w][DRIVER][SERVER][$_GET["username"]];}function
+set_session($w,$W){$_SESSION[$w][DRIVER][SERVER][$_GET["username"]]=$W;}function
+auth_url($xn,$M,$U,$i=null){$gn=remove_from_uri(implode("|",array_keys(SqlDriver::$drivers))."|username|ext|".($i!==null?"db|":"").($xn=='mssql'||$xn=='pgsql'?"":"ns|").session_name());preg_match('~([^?]*)\??(.*)~',$gn,$_);return"$_[1]?".(sid()?SID."&":"").($_GET["ext"]?"ext=".url_escape($_GET["ext"])."&":"").($xn!="server"||$M!=""?url_escape($xn)."=".url_escape($M)."&":"")."username=".url_escape($U).($i!=""?"&db=".url_escape($i):"").($_[2]?"&$_[2]":"");}function
 is_ajax(){return($_SERVER["HTTP_X_REQUESTED_WITH"]=="XMLHttpRequest");}function
-redirect($A,$fg=null){if($fg!==null){restart_session();$_SESSION["messages"][preg_replace('~^[^?]*~','',($A!==null?$A:$_SERVER["REQUEST_URI"]))][]=$fg;}if($A!==null){if($A=="")$A=".";header("Location: $A");exit;}}function
-query_redirect($G,$A,$fg,$xi=true,$cd=true,$md=false,$ok=""){if($cd){$Jj=microtime(true);$md=!connection()->query($G);$ok=format_time($Jj);}$Cj=($G?adminer()->messageQuery($G,$ok,$md):"");if($md){adminer()->error
-.=error().$Cj.script("messagesPrint();")."<br>";return
-false;}if($xi)redirect($A,$fg.$Cj);return
+redirect($Bg,$Zg=null){if($Zg!==null){restart_session();$_SESSION["messages"][preg_replace('~^[^?]*~','',($Bg!==null?$Bg:$_SERVER["REQUEST_URI"]))][]=$Zg;}if($Bg!==null){if($Bg=="")$Bg=".";header("Location: $Bg");exit;}}function
+query_redirect($F,$Bg,$Zg,$Pj=true,$Ad=true,$Ld=false,$nm=""){if($Ad){$xl=microtime(true);$Ld=!connection()->query($F);$nm=format_time($xl);}$ql=($F?adminer()->messageQuery($F,$nm,$Ld):"");if($Ld){adminer()->error
+.=adminer()->error().$ql.script("messagesPrint();")."<br>";return
+false;}if($Pj)redirect($Bg,$Zg.$ql);return
 true;}class
 Queries{static$queries=array();static$start=0;}function
-queries($G){if(!Queries::$start)Queries::$start=microtime(true);Queries::$queries[]=(driver()->delimiter!=';'?$G:(preg_match('~;$~',$G)?"DELIMITER ;;\n$G;\nDELIMITER ":$G).";");return
-connection()->query($G);}function
-apply_queries($G,array$T,$Xc='Adminer\table'){foreach($T
-as$R){if(!queries("$G ".$Xc($R)))return
+remember_query($F){if(!Queries::$start)Queries::$start=microtime(true);Queries::$queries[]=(driver()->delimiter!=';'?$F:(preg_match('~;$~',$F)?"DELIMITER ;;\n$F;\nDELIMITER ":$F).";");}function
+queries($F){remember_query($F);return
+connection()->query($F);}function
+apply_queries($F,array$S,$vd='Adminer\table'){foreach($S
+as$Q){if(!queries("$F ".$vd($Q)))return
 false;}return
 true;}function
-queries_redirect($A,$fg,$xi){$ri=implode("\n",Queries::$queries);$ok=format_time(Queries::$start);return
-query_redirect($ri,$A,$fg,$xi,false,!$xi,$ok);}function
-format_time($Jj){return
-sprintf('%.3f s',max(0,microtime(true)-$Jj));}function
-relative_uri(){return
-preg_replace_callback('~^[^?]*~',function($B){return
-str_replace(":","%3A",$B[0]);},preg_replace('~^[^?]*/([^?]*)~','\1',$_SERVER["REQUEST_URI"]));}function
-remove_from_uri($Dh=""){return
-substr(preg_replace("~(?<=[?&])($Dh".(SID?"":"|".session_name()).")=[^&]*&~",'',relative_uri()."&"),0,-1);}function
-get_files($x,$dc=false){$ud=$_FILES[$x];if(!$ud)return
-null;foreach($ud
-as$x=>$X)$ud[$x]=(array)$X;$I=array();foreach($ud["error"]as$x=>$l){if($l)return$l;$C=$ud["name"][$x];$wk=$ud["tmp_name"][$x];$Fb=file_get_contents($dc&&preg_match('~\.gz$~',$C)?"compress.zlib://$wk":$wk);if($dc){$Jj=substr($Fb,0,3);if(function_exists("iconv")&&preg_match("~^\xFE\xFF|^\xFF\xFE~",$Jj))$Fb=iconv("utf-16","utf-8",$Fb);elseif($Jj=="\xEF\xBB\xBF")$Fb=substr($Fb,3);}$I[]=array($C,$Fb);}return$I;}function
-get_file($x,$dc=false,$jc=""){$xd=get_files($x,$dc);if(!is_array($xd))return$xd;$I='';foreach($xd
-as$ud){$Fb=$ud[1];$I
-.=$Fb;if($jc)$I
-.=(preg_match("($jc\\s*\$)",$Fb)?"":$jc)."\n\n";}return$I;}function
-upload_error($l){$Yf=($l==UPLOAD_ERR_INI_SIZE?ini_get("upload_max_filesize"):0);return($l?'Unable to upload a file.'.($Yf?" ".sprintf('Maximum allowed file size is %sB.',$Yf):""):'File does not exist.');}function
-repeat_pattern($Rh,$y){return
-str_repeat("$Rh{0,65535}",$y/65535)."$Rh{0,".($y%65535)."}";}function
-is_utf8($X){return(preg_match('~~u',$X)&&!preg_match('~[\0-\x8\xB\xC\xE-\x1F]~',$X));}function
-format_number($X){return
-strtr(number_format($X,0,".",','),preg_split('~~u','0123456789',-1,PREG_SPLIT_NO_EMPTY));}function
-format_status(array$S,$x){$X=idx($S,$x,'?');if(!is_numeric($X))return
-h($X);if($X<0)return'?';$xa=($x=="Rows"&&(JUSH=="sqlite"||$S["Engine"]==(JUSH=="pgsql"?"table":"InnoDB")));return($xa?"~ ":"").format_number($X);}function
-friendly_url($X){return
-preg_replace('~\W~i','-',$X);}function
-table_status1($R,$nd=false){$I=table_status($R,$nd);return($I?reset($I):array("Name"=>$R));}function
-column_foreign_keys($R){$I=array();foreach(adminer()->foreignKeys($R)as$p){foreach($p["source"]as$X)$I[$X][]=$p;}return$I;}function
-fields_from_edit(){$I=array();foreach((array)$_POST["field_keys"]as$x=>$X){if($X!=""){$X=bracket_escape($X);$_POST["function"][$X]=$_POST["field_funs"][$x];$_POST["fields"][$X]=$_POST["field_vals"][$x];}}foreach((array)$_POST["fields"]as$x=>$X){$C=bracket_escape($x,true);$I[$C]=array("field"=>$C,"full_type"=>"","type"=>"","privileges"=>array("insert"=>1,"update"=>1,"where"=>1,"order"=>1),"null"=>true,"auto_increment"=>($C==driver()->primary),);}return$I;}function
-dump_headers($we,$tg=false){$I=adminer()->dumpHeaders($we,$tg);$zh=$_POST["output"];if($zh!="text"||$I=="tar"){$xb=($zh!="text"&&$zh!="file"&&preg_match('~^[0-9a-z]+$~',$zh)?".$zh":"");header("Content-Disposition: attachment; filename=".adminer()->dumpFilename($we).".$I$xb");}session_write_close();if(!ob_get_level())ob_start(null,4096);ob_flush();flush();return$I;}function
-dump_csv(array$J){$Lk=$_POST["format"]=="tsv";foreach($J
-as$x=>$X){if(preg_match('~["\n]|^0[^.]|\.\d*0$|'.($Lk?'\t':'[,;]|^$').'~',$X))$J[$x]='"'.str_replace('"','""',$X).'"';}echo
-implode(($_POST["format"]=="csv"?",":($Lk?"\t":";")),$J)."\r\n";}function
-parse_csv($Sb,$gj){$I=array();preg_match_all('~(?>"[^"]*"|[^"\r\n]+)+~',$Sb,$Of);foreach($Of[0]as$J){preg_match_all("~((?>\"[^\"]*\")+|[^$gj]*)$gj~",$J.$gj,$Pf);$I[]=$Pf[1];}return$I;}function
-csv_value($X){return(preg_match('~^".*"$~s',$X)?str_replace('""','"',substr($X,1,-1)):$X);}function
-apply_sql_function($r,$d){return($r?($r=="unixepoch"?"DATETIME($d, '$r')":($r=="count distinct"?"COUNT(DISTINCT ":strtoupper("$r("))."$d)"):$d);}function
+queries_redirect($Bg,$Zg,$Pj){$Jj=implode("\n",Queries::$queries);$nm=format_time(Queries::$start);return
+query_redirect($Jj,$Bg,$Zg,$Pj,false,!$Pj,$nm);}function
+format_time($xl){return
+sprintf('%.3f s',max(0,microtime(true)-$xl));}function
+relative_uri($gn=''){return
+preg_replace_callback('~^[^?]*~',function($_){return
+str_replace(":","%3A",$_[0]);},preg_replace('~^[^?]*/([^?]*)~','\1',($gn?:$_SERVER["REQUEST_URI"])));}function
+remove_from_uri($Li=""){return
+substr(preg_replace("~(?<=[?&])($Li".(SID?"":"|".session_name()).")=[^&]*&~",'',relative_uri()."&"),0,-1);}function
+get_files($A,$wc=false){$Td=$_FILES[$A];if(!$Td)return
+null;foreach($Td
+as$w=>$W)$Td[$w]=(array)$W;$H=array();foreach($Td["error"]as$w=>$k){if($k)return$k;$n=$Td["name"][$w];$vm=$Td["tmp_name"][$w];$Vb=file_get_contents($wc&&preg_match('~\.gz$~',$n)?"compress.zlib://$vm":$vm);if($wc){$xl=substr($Vb,0,3);if(function_exists("iconv")&&preg_match("~^\xFE\xFF|^\xFF\xFE~",$xl))$Vb=iconv("utf-16","utf-8",$Vb);elseif($xl=="\xEF\xBB\xBF")$Vb=substr($Vb,3);}$H[]=array($n,$Vb);}return$H;}function
+get_file($w,$wc=false,$Cc=""){$Wd=get_files($w,$wc);if(!is_array($Wd))return$Wd;$H='';foreach($Wd
+as$Td){$Vb=$Td[1];$H
+.=$Vb;if($Cc)$H
+.=(preg_match("($Cc\\s*\$)",$Vb)?"":$Cc)."\n\n";}return$H;}function
+upload_error($k){$Rg=($k==UPLOAD_ERR_INI_SIZE?ini_get("upload_max_filesize"):0);return($k?'Unable to upload a file.'.($Rg?" ".sprintf('Maximum allowed file size is %sB.',$Rg):""):'File does not exist.');}function
+is_utf8($W){return(preg_match('~~u',$W)&&!preg_match('~[\0-\x8\xB\xC\xE-\x1F]~',$W));}function
+utf8_length($W){return
+strlen(preg_replace('~[\x80-\xBF]~','',$W));}function
+format_number($W){preg_match('~^#+([^#0]+)(?:(#+)\1)?(#*0)$~u','#,##0',$_);$fl=strlen($_[3]);$H=number_format($W,0,".","");$H=preg_replace('~\B(?=(\d{'.(strlen($_[2])?:$fl).'})*\d{'.$fl.'}$)~',$_[1],$H);return
+strtr($H,preg_split('~~u','0123456789',-1,PREG_SPLIT_NO_EMPTY));}function
+format_status(array$R,$w){$W=idx($R,$w,'?');if(!is_numeric($W))return
+h($W);if($W<0)return'?';$Aa=($w=="Rows"&&(JUSH=="sqlite"||$R["Engine"]==(JUSH=="pgsql"?"table":"InnoDB")));return($Aa?"~ ":"").format_number($W);}function
+friendly_url($W){return
+preg_replace('~\W~i','-',$W);}function
+table_status1($Q,$Md=false){$H=table_status($Q,$Md);return($H?reset($H):array("Name"=>$Q));}function
+column_foreign_keys($Q){$H=array();foreach(adminer()->foreignKeys($Q)as$o){foreach($o["source"]as$W)$H[$W][]=$o;}return$H;}function
+fields_from_edit(){$H=array();foreach((array)$_POST["field_keys"]as$w=>$W){if($W!=""){$W=bracket_escape($W);$_POST["function"][$W]=$_POST["field_funs"][$w];$_POST["fields"][$W]=$_POST["field_vals"][$w];}}foreach((array)$_POST["fields"]as$w=>$W){$A=bracket_escape($w,true);$H[$A]=array("field"=>$A,"full_type"=>"","type"=>"","privileges"=>array("insert"=>1,"update"=>1,"where"=>1,"order"=>1),"null"=>true,"auto_increment"=>($A==driver()->primary),);}return$H;}function
+dump_headers($gf,$rh=false){$H=adminer()->dumpHeaders($gf,$rh);$Gi=$_POST["output"];if($Gi!="text"||$H=="tar"){$Kb=($Gi!="text"&&$Gi!="file"&&preg_match('~^[0-9a-z]+$~',$Gi)?".$Gi":"");header("Content-Disposition: attachment; filename=".adminer()->dumpFilename($gf).".$H$Kb");}session_write_close();if(!ob_get_level())ob_start(null,4096);ob_flush();flush();return$H;}function
+dump_csv(array$I){$Lm=$_POST["format"]=="tsv";foreach($I
+as$w=>$W){if(preg_match('~["\n]|^0[^.]|\.\d*0$|'.($Lm?'\t':'[,;]|^$').'~',$W))$I[$w]='"'.str_replace('"','""',$W).'"';}echo
+implode(($_POST["format"]=="csv"?",":($Lm?"\t":";")),$I)."\r\n";}function
+parse_csv($kc,$Lk){$H=array();preg_match_all('~(?>"[^"]*"|[^"\r\n]+)+~',$kc,$Hg);foreach($Hg[0]as$I){preg_match_all("~((?>\"[^\"]*\")+|[^$Lk]*)$Lk~",$I.$Lk,$Ig);$H[]=$Ig[1];}return$H;}function
+csv_value($W){return(preg_match('~^".*"$~s',$W)?str_replace('""','"',substr($W,1,-1)):$W);}function
+apply_sql_function($p,$d){return($p?($p=="unixepoch"?"DATETIME($d, '$p')":($p=="count distinct"?"COUNT(DISTINCT ":strtoupper("$p("))."$d)"):$d);}function
 get_temp_dir(){return
 ini_get("upload_tmp_dir")?:sys_get_temp_dir();}function
-file_open_lock($o){if(is_link($o))return;$q=@fopen($o,"c+");if(!$q)return;@chmod($o,0660);if(!flock($q,LOCK_EX)){fclose($q);return;}return$q;}function
-file_write_unlock($q,$Wb){rewind($q);fwrite($q,$Wb);ftruncate($q,strlen($Wb));file_unlock($q);}function
-file_unlock($q){flock($q,LOCK_UN);fclose($q);}function
-first(array$_a){return
-reset($_a);}function
-password_file($h){$o=get_temp_dir()."/adminer.key";if(!$h&&!file_exists($o))return'';$q=file_open_lock($o);if(!$q)return'';$I=stream_get_contents($q);if(!$I){$I=rand_string();file_write_unlock($q,$I);}else
-file_unlock($q);return$I;}function
+file_open_lock($n){if(is_link($n))return;$ne=@fopen($n,"c+");if(!$ne)return;@chmod($n,0660);if(!flock($ne,LOCK_EX)){fclose($ne);return;}return$ne;}function
+file_write_unlock($ne,$oc){rewind($ne);fwrite($ne,$oc);ftruncate($ne,strlen($oc));file_unlock($ne);}function
+file_unlock($ne){flock($ne,LOCK_UN);fclose($ne);}function
+first(array$Ea){return
+reset($Ea);}function
+password_file($ec){$n=get_temp_dir()."/adminer.key";if(!$ec&&!file_exists($n))return'';$ne=file_open_lock($n);if(!$ne)return'';$H=stream_get_contents($ne);if(!$H){$H=rand_string();file_write_unlock($ne,$H);}else
+file_unlock($ne);return$H;}function
 rand_string(){return(function_exists('random_bytes')?bin2hex(random_bytes(16)):md5(uniqid(strval(mt_rand()),true)));}function
-select_value($X,$_,array$m,$nk){if(is_array($X)){$I="";if(array_filter($X,'is_array')==array_values($X)){$mf=array();foreach($X
-as$W)$mf+=array_fill_keys(array_keys($W),null);foreach(array_keys($mf)as$kf)$I
-.="<th>".h($kf);foreach($X
-as$W){$I
-.="<tr>";foreach(array_merge($mf,$W)as$ll)$I
-.="<td>".select_value($ll,$_,$m,$nk);}}else{foreach($X
-as$kf=>$W)$I
-.="<tr>".($X!=array_values($X)?"<th>".h($kf):"")."<td>".select_value($W,$_,$m,$nk);}return"<table>$I</table>";}if(!$_)$_=adminer()->selectLink($X,$m);if($_===null){if(is_mail($X))$_="mailto:$X";if(is_url($X))$_=$X;}$X=driver()->value($X,$m);$I=adminer()->editVal($X,$m);if($I!==null){if(!is_utf8($I))$I="\0";elseif($nk!=""&&is_shortable($m))$I=shorten_utf8($I,max(0,+$nk));else$I=h($I);}return
-adminer()->selectVal($I,$_,$m,$X);}function
-is_blob(array$m){return
-preg_match('~blob|bytea|raw|file'.(JUSH=="mssql"?'|binary|image':'').'~',$m["type"])&&!in_array($m["type"],idx(driver()->structuredTypes(),'User types',array()));}function
-is_mail($Lc){$Ca='[-a-z0-9!#$%&\'*+/=?^_`{|}~]';$zc='[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])';$Rh="$Ca+(\\.$Ca+)*@($zc?\\.)+$zc";return
-is_string($Lc)&&preg_match("(^$Rh(,\\s*$Rh)*\$)i",$Lc);}function
-is_url($Q){$zc='[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])';return
-preg_match("~^((https?):)?//($zc?\\.)+$zc(:\\d+)?(/.*)?(\\?.*)?(#.*)?\$~i",$Q);}function
-is_shortable(array$m){return!preg_match('~'.number_type().'|date|time|year~',$m["type"]);}function
-host_port($N){return(preg_match('~^(:([^:].*)|(\[(.+)\]|(([^:]+://)?[^:]+))(:(\d+))?)$~',$N,$B)?array($B[4].$B[5],$B[2].$B[8]):array($N,''));}function
-count_rows($R,array$Z,$bf,array$Xd){$G=" FROM ".table($R).($Z?" WHERE ".implode(" AND ",$Z):"");return($bf&&(JUSH=="sql"||count($Xd)==1)?"SELECT COUNT(DISTINCT ".implode(", ",$Xd).")$G":"SELECT COUNT(*)".($bf?" FROM (SELECT 1$G GROUP BY ".implode(", ",$Xd).") x":$G));}function
-slow_query($G){$j=adminer()->database();$pk=adminer()->queryTimeout();$wj=driver()->slowQuery($G,$pk);$g=null;if(!$wj&&support("kill")){$g=connect();if($g&&($j==""||$g->select_db($j))){$nf=get_val(connection_id(),0,$g);echo
-script("const timeout = setTimeout(() => { ajax('".js_escape(ME)."script=kill', function () {}, 'kill=$nf&token=".get_token()."'); }, 1000 * $pk);");}}ob_flush();flush();$I=@get_key_vals(($wj?:$G),$g,false);if($g){echo
-script("clearTimeout(timeout);");ob_flush();flush();}return$I;}function
-get_token(){$ui=rand(1,1e6);return($ui^$_SESSION["token"]).":$ui";}function
-verify_token(){list($xk,$ui)=explode(":",$_POST["token"]);return($ui^$_SESSION["token"])==$xk&&in_array($_SERVER["HTTP_SEC_FETCH_SITE"],array("","same-origin"));}function
+select_value($W,$z,array$l,$lm,array$fj=array()){if(is_array($W)){$H="";if(array_filter($W,'is_array')==array_values($W)){$bg=array();foreach($W
+as$V)$bg+=array_fill_keys(array_keys($V),null);foreach(array_keys($bg)as$Yf)$H
+.="<th>".h($Yf);foreach($W
+as$V){$H
+.="<tr>";foreach(array_merge($bg,$V)as$rn)$H
+.="<td>".select_value($rn,$z,$l,$lm,$fj);}}else{foreach($W
+as$Yf=>$V)$H
+.="<tr>".($W!=array_values($W)?"<th>".h($Yf):"")."<td>".select_value($V,$z,$l,$lm,$fj);}return"<table>$H</table>";}if(!$z)$z=adminer()->selectLink($W,$l);if($z===null){if(is_mail($W))$z="mailto:$W";if(is_url($W))$z=$W;}$W=driver()->value($W,$l);$H=adminer()->editVal($W,$l);if($H!==null){if(!is_utf8($H))$H="\0";elseif($lm!=""&&is_shortable($l))$H=shorten_utf8($H,max(0,+$lm),"",$fj);else$H=highlight_matches($H,$fj);}return
+adminer()->selectVal($H,$z,$l,$W);}function
+is_blob(array$l){return
+preg_match('~blob|bytea|raw|file'.(JUSH=="mssql"?'|binary|image':'').'~',$l["type"])&&!in_array($l["type"],idx(driver()->structuredTypes(),'User types',array()));}function
+is_identity_always(array$l){return$l["auto_increment"]&&(JUSH=="mssql"||$l["default"]=="GENERATED ALWAYS AS IDENTITY");}function
+is_mail($id){$Ha='[-a-z0-9!#$%&\'*+/=?^_`{|}~]';$Uc='[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])';$ej="$Ha+(\\.$Ha+)*@($Uc?\\.)+$Uc";return
+is_string($id)&&preg_match("(^$ej(,\\s*$ej)*\$)i",$id);}function
+is_url($P){$Uc='[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])';return
+preg_match("~^((https?):)?//($Uc?\\.)+$Uc(:\\d+)?(/.*)?(\\?.*)?(#.*)?\$~i",$P);}function
+is_ipv6($na){$q='[\da-f]{1,4}';$Nf='\d{1,3}(\.\d{1,3}){3}';return(bool)preg_match("~^(($q:){7}$q|($q:){6}$Nf|(($q:)*$q)?::(($q:)*($q|$Nf))?)$~iD",$na);}function
+is_shortable(array$l){return!preg_match('~'.number_type().'|date|time|year~',$l["type"]);}function
+url_host($cf){return(strpos($cf,":")!==false?"[$cf]":$cf);}function
+server_parts(array$Yi){return
+array("scheme"=>(string)$Yi["scheme"],"host"=>(string)$Yi["host"],"port"=>(string)$Yi["port"],"socket"=>(string)$Yi["socket"],"path"=>(string)$Yi["path"],);}function
+parse_server($M){if($M=="")return
+server_parts(array());if($M[0]==":"&&!is_ipv6($M)){$dk=substr($M,1);if(preg_match('~^\d+$~D',$dk))return
+server_parts(array("port"=>$dk));return(preg_match('~^/[-\w.:/]*$~D',$dk)?server_parts(array("socket"=>$dk)):null);}$zk="";if(preg_match('~^([-+.\w]+)://~',$M,$_)){$zk=strtolower($_[1]);$M=substr($M,strlen($_[0]));}if(preg_match('~^\[(.+)](:(\d+))?(/[-\w./]*)?$~D',$M,$_))return(is_ipv6($_[1])?server_parts(array("scheme"=>$zk,"host"=>$_[1],"port"=>$_[3],"path"=>$_[4])):null);if(is_ipv6($M))return
+server_parts(array("scheme"=>$zk,"host"=>$M));if(preg_match('~^(/[-\w./]*)(:(\d+))?$~D',$M,$_))return
+server_parts(array("scheme"=>$zk,"host"=>$_[1],"port"=>$_[3]));return(preg_match('~^([-\w.]*)(:(\d+))?(/[-\w./]*)?$~D',$M,$_)?server_parts(array("scheme"=>$zk,"host"=>$_[1],"port"=>$_[3],"path"=>$_[4])):null);}function
+count_rows($Q,array$Z,$Pf,array$q){$F=" FROM ".table($Q).($Z?" WHERE ".implode(" AND ",$Z):"");return($Pf&&(JUSH=="sql"||count($q)==1)?"SELECT COUNT(DISTINCT ".implode(", ",$q).")$F":"SELECT COUNT(*)".($Pf?" FROM (SELECT 1$F GROUP BY ".implode(", ",$q).") x":$F));}function
+slow_query($F){$i=adminer()->database();$om=adminer()->queryTimeout();$hl=driver()->slowQuery($F,$om);$g=null;if(!$hl&&support("kill")){$g=connect();if($g&&($i==""||$g->select_db($i))){$cg=number(get_val(connection_id(),0,$g));echo
+script("const timeout = setTimeout(() => { ajax('".js_escape(ME)."script=kill', function () {}, 'kill=$cg&token=".get_token()."'); }, 1000 * $om);");}}ob_flush();flush();$H=@get_key_vals(($hl?:$F),$g,false);if($g){echo
+script("clearTimeout(timeout);");ob_flush();flush();}return$H;}function
+get_token(){$Mj=rand(1,1e6);return($Mj^$_SESSION["token"]).":$Mj";}function
+verify_token(){list($wm,$Mj)=explode(":",$_POST["token"]);return($Mj^$_SESSION["token"])==$wm&&in_array($_SERVER["HTTP_SEC_FETCH_SITE"],array("","same-origin"));}function
 compress_alphabet(){return
 strtr(implode(range('"','~')),"'\\","!\n");}function
-decompress_string($Q,$pc=""){$va=array_flip(str_split(compress_alphabet()));$y=strlen($Q);$ol=($y?13*($y-1)/2-$va[$Q[0]]:0);$Oa="";$Ji=0;$Ki=0;for($s=1;$s<$y;$s+=2){$Ji=($Ji<<13)+$va[$Q[$s]]*93+$va[$Q[$s+1]];$Ki+=13;while($Ki>=8&&$ol>=8){$Ki-=8;$ol-=8;$Oa
-.=chr($Ji>>$Ki);$Ji&=(1<<$Ki)-1;}}if($Oa=="")return"";if($pc!=""&&function_exists('inflate_init'))return
-inflate_add(inflate_init(ZLIB_ENCODING_RAW,array('dictionary'=>$pc)),$Oa,ZLIB_FINISH);return($pc==""&&function_exists('gzinflate')?gzinflate($Oa):inflate($Oa,$pc));}function
-inflate($Oa,$pc=""){$Af=array(3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258);$Bf=array(0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0);$tc=array(1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577);$vc=array(0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13);$I=$pc;$F=0;do{$zd=inflate_bits($Oa,$F,1);$U=inflate_bits($Oa,$F,2);if(!$U){$F=($F+7)&~7;$y=inflate_bits($Oa,$F,16);$F+=16;$I
-.=substr($Oa,$F>>3,$y);$F+=$y<<3;}else{if($U==1){$Hf=array_merge(array_fill(0,144,8),array_fill(0,112,9),array_fill(0,24,7),array_fill(0,8,8));$wc=array_fill(0,30,5);}else{$Gf=inflate_bits($Oa,$F,5)+257;$uc=inflate_bits($Oa,$F,5)+1;$lh=array(16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15);$lg=array_fill(0,19,0);$kg=inflate_bits($Oa,$F,4)+4;for($s=0;$s<$kg;$s++)$lg[$lh[$s]]=inflate_bits($Oa,$F,3);$mg=inflate_table($lg);$Cf=array();while(count($Cf)<$Gf+$uc){$Tj=inflate_symbol($Oa,$F,$mg);if($Tj==16)$Cf=array_merge($Cf,array_fill(0,inflate_bits($Oa,$F,2)+3,end($Cf)));elseif($Tj==17)$Cf=array_merge($Cf,array_fill(0,inflate_bits($Oa,$F,3)+3,0));elseif($Tj==18)$Cf=array_merge($Cf,array_fill(0,inflate_bits($Oa,$F,7)+11,0));else$Cf[]=$Tj;}$Hf=array_slice($Cf,0,$Gf);$wc=array_slice($Cf,$Gf);}$If=inflate_table($Hf);$yc=inflate_table($wc);while(($Tj=inflate_symbol($Oa,$F,$If))!=256){if($Tj<256)$I
-.=chr($Tj);else{$y=$Af[$Tj-257]+inflate_bits($Oa,$F,$Bf[$Tj-257]);$xc=inflate_symbol($Oa,$F,$yc);$Rg=strlen($I)-$tc[$xc]-inflate_bits($Oa,$F,$vc[$xc]);for($s=0;$s<$y;$s++)$I
-.=$I[$Rg+$s];}}}}while(!$zd);return($pc==""?$I:substr($I,strlen($pc)));}function
-inflate_bits($Oa,&$F,$Mb){$I=0;for($s=0;$s<$Mb;$s++){$I+=((ord($Oa[$F>>3])>>($F&7))&1)<<$s;$F++;}return$I;}function
-inflate_table(array$Cf){$R=array();$mb=0;for($Pa=1;$Pa<=max($Cf);$Pa++){foreach($Cf
-as$Tj=>$y){if($y==$Pa){$R[$Pa][$mb]=$Tj;$mb++;}}$mb<<=1;}return$R;}function
-inflate_symbol($Oa,&$F,array$R){$mb=0;$Pa=0;do{$mb=($mb<<1)+inflate_bits($Oa,$F,1);$Pa++;}while(!isset($R[$Pa][$mb]));return$R[$Pa][$mb];}function
-script($_j,$_k="\n"){return"<script".nonce().">$_j</script>$_k";}function
-script_src($bl,$gc=false){return"<script src='".h($bl)."'".nonce().($gc?" defer":"")."></script>\n";}function
+decompress_string($P,$Ic=""){$ya=array_flip(str_split(compress_alphabet()));$x=strlen($P);$un=($x?13*($x-1)/2-$ya[$P[0]]:0);$Xa="";$dk=0;$ek=0;for($r=1;$r<$x;$r+=2){$dk=($dk<<13)+$ya[$P[$r]]*93+$ya[$P[$r+1]];$ek+=13;while($ek>=8&&$un>=8){$ek-=8;$un-=8;$Xa
+.=chr($dk>>$ek);$dk&=(1<<$ek)-1;}}if($Xa=="")return"";if($Ic!=""&&function_exists('inflate_init'))return
+inflate_add(inflate_init(ZLIB_ENCODING_RAW,array('dictionary'=>$Ic)),$Xa,ZLIB_FINISH);return($Ic==""&&function_exists('gzinflate')?gzinflate($Xa):inflate($Xa,$Ic));}function
+inflate($Xa,$Ic=""){$rg=array(3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258);$sg=array(0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0);$Mc=array(1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577);$Oc=array(0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13);$H=$Ic;$E=0;do{$Yd=inflate_bits($Xa,$E,1);$T=inflate_bits($Xa,$E,2);if(!$T){$E=($E+7)&~7;$x=inflate_bits($Xa,$E,16);$E+=16;$H
+.=substr($Xa,$E>>3,$x);$E+=$x<<3;}else{if($T==1){$_g=array_merge(array_fill(0,144,8),array_fill(0,112,9),array_fill(0,24,7),array_fill(0,8,8));$Pc=array_fill(0,30,5);}else{$zg=inflate_bits($Xa,$E,5)+257;$Nc=inflate_bits($Xa,$E,5)+1;$ti=array(16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15);$fh=array_fill(0,19,0);$eh=inflate_bits($Xa,$E,4)+4;for($r=0;$r<$eh;$r++)$fh[$ti[$r]]=inflate_bits($Xa,$E,3);$gh=inflate_table($fh);$tg=array();while(count($tg)<$zg+$Nc){$Jl=inflate_symbol($Xa,$E,$gh);if($Jl==16)$tg=array_merge($tg,array_fill(0,inflate_bits($Xa,$E,2)+3,end($tg)));elseif($Jl==17)$tg=array_merge($tg,array_fill(0,inflate_bits($Xa,$E,3)+3,0));elseif($Jl==18)$tg=array_merge($tg,array_fill(0,inflate_bits($Xa,$E,7)+11,0));else$tg[]=$Jl;}$_g=array_slice($tg,0,$zg);$Pc=array_slice($tg,$zg);}$Ag=inflate_table($_g);$Rc=inflate_table($Pc);while(($Jl=inflate_symbol($Xa,$E,$Ag))!=256){if($Jl<256)$H
+.=chr($Jl);else{$x=$rg[$Jl-257]+inflate_bits($Xa,$E,$sg[$Jl-257]);$Qc=inflate_symbol($Xa,$E,$Rc);$Yh=strlen($H)-$Mc[$Qc]-inflate_bits($Xa,$E,$Oc[$Qc]);for($r=0;$r<$x;$r++)$H
+.=$H[$Yh+$r];}}}}while(!$Yd);return($Ic==""?$H:substr($H,strlen($Ic)));}function
+inflate_bits($Xa,&$E,$dc){$H=0;for($r=0;$r<$dc;$r++){$H+=((ord($Xa[$E>>3])>>($E&7))&1)<<$r;$E++;}return$H;}function
+inflate_table(array$tg){$Q=array();$zb=0;for($Ya=1;$Ya<=max($tg);$Ya++){foreach($tg
+as$Jl=>$x){if($x==$Ya){$Q[$Ya][$zb]=$Jl;$zb++;}}$zb<<=1;}return$Q;}function
+inflate_symbol($Xa,&$E,array$Q){$zb=0;$Ya=0;do{$zb=($zb<<1)+inflate_bits($Xa,$E,1);$Ya++;}while(!isset($Q[$Ya][$zb]));return$Q[$Ya][$zb];}function
+script($ml,$zm="\n"){return"<script".nonce().">$ml</script>$zm";}function
+script_src($hn,$zc=false){return"<script src='".h($hn)."'".nonce().($zc?" defer":"")."></script>\n";}function
 nonce(){return' nonce="'.get_nonce().'"';}function
-on($Yc,$de,$ya=null){$za=array();foreach(array_slice(func_get_args(),2)as$X)$za[]=json_encode($X,256);return" data-on$Yc='".str_replace(array('&','<',"'"),array('&amp;','&lt;','&#039;'),"$de(".implode(", ",$za).")")."'";}function
-input_hidden($C,$Y=""){return"<input type='hidden' name='".h($C)."' value='".h($Y)."'>\n";}function
+on($wd,$Je,$Ba=null){$Da=array();foreach(array_slice(func_get_args(),2)as$W)$Da[]=json_encode($W,256);return" data-on$wd='".str_replace(array('&','<',"'"),array('&amp;','&lt;','&#039;'),"$Je(".implode(", ",$Da).")")."'";}function
+input_hidden($A,$X=""){return"<input type='hidden' name='".h($A)."' value='".h($X)."'>\n";}function
 input_token(){return
 input_hidden("token",get_token());}function
 target_blank(){return' target="_blank" rel="noreferrer noopener"';}function
-h($Q){return
-str_replace(array('&','<','"',"'","\0"),array('&amp;','&lt;','&quot;','&#039;','&#0;'),$Q);}function
-nl_br($Q){return
-str_replace("\n","<br>",$Q);}function
-checkbox($C,$Y,$fb,$rf="",$c="",$kb="",$tf=""){$I="<input type='checkbox' name='$C' value='".h($Y)."'".($fb?" checked":"").($rf==""&&$kb?" class='$kb'":"").($tf?" aria-labelledby='$tf'":"").$c.">";return($rf!=""?"<label".($kb?" class='$kb'":"").">$I".h($rf)."</label>":$I);}function
-optionlist($jh,$dj=null,$fl=false){$I="";foreach($jh
-as$kf=>$W){$kh=array($kf=>$W);if(is_array($W)){$I
-.='<optgroup label="'.h($kf).'">';$kh=$W;}foreach($kh
-as$x=>$X)$I
-.='<option'.($fl||is_string($x)?' value="'.h($x).'"':'').($dj!==null&&($fl||is_string($x)?(string)$x:$X)===$dj?' selected':'').'>'.h($X);if(is_array($W))$I
-.='</optgroup>';}return$I;}function
-html_select($C,array$jh,$Y="",$c="",$tf=""){static$rf=0;$sf="";if(!$tf&&substr($jh[""],0,1)=="("){$rf++;$tf="label-$rf";$sf="<option value='' id='$tf'>".h($jh[""]);unset($jh[""]);}return"<select name='".h($C)."'".($tf?" aria-labelledby='$tf'":"")."$c>".$sf.optionlist($jh,$Y)."</select>";}function
-html_radios($C,array$jh,$Y="",$gj=""){$I="";foreach($jh
-as$x=>$X)$I
-.="<label><input type='radio' name='".h($C)."' value='".h($x)."'".($x==$Y?" checked":"").">".h($X)."</label>$gj";return$I;}function
-confirm($fg=""){return
-on('click','confirmClick',$fg?:'Are you sure?');}function
-print_fieldset($t,$_f,$vl=false){echo"<fieldset><legend>","<a href='#fieldset-$t' class='toggle'>$_f</a>","</legend>","<div id='fieldset-$t'".($vl?"":" class='hidden'").">\n";}function
-bold($Ra,$kb=""){return($Ra?" class='active $kb'":($kb?" class='$kb'":""));}function
-js_escape($Q){return
-str_replace("<","\\x3C",addcslashes($Q,"\r\n'\\"));}function
-js_escape_re($Q){return
-addcslashes(preg_quote($Q,"/"),"\r\n");}function
-pagination_href($D){return
-remove_from_uri("page|next").($D?"&page=$D".($_GET["next"]!=""?"&next=".url_escape($_GET["next"]):""):"");}function
-pagination($D,$Tb){return" ".($D==$Tb?($D?"<b>".($D+1)."</b>":$D+1):'<a href="'.h(pagination_href($D)).'">'.($D+1)."</a>");}function
-hidden_fields(array$oi,array$_e=array(),$fi=''){$I=false;foreach($oi
-as$x=>$X){if(!in_array($x,$_e)){if(is_array($X))hidden_fields($X,array(),$x);else{$I=true;echo
-input_hidden(($fi?$fi."[$x]":$x),$X);}}}return$I;}function
+h($P){return
+str_replace(array('&','<','"',"'","\0"),array('&amp;','&lt;','&quot;','&#039;','&#0;'),$P);}function
+nl_br($P){return
+str_replace("\n","<br>",$P);}function
+checkbox($A,$X,$rb,$gg="",$c="",$xb="",$ig=""){$H="<input type='checkbox' name='$A' value='".h($X)."'".($rb?" checked":"").($gg==""&&$xb?" class='$xb'":"").($ig?" aria-labelledby='$ig'":"").$c.">";return($gg!=""?"<label".($xb?" class='$xb'":"").">$H".h($gg)."</label>":$H);}function
+optionlist($B,$Hk=null,$ln=false){$H="";foreach($B
+as$Yf=>$V){$si=array($Yf=>$V);if(is_array($V)){$H
+.='<optgroup label="'.h($Yf).'">';$si=$V;}foreach($si
+as$w=>$W)$H
+.='<option'.($ln||is_string($w)?' value="'.h($w).'"':'').($Hk!==null&&($ln||is_string($w)?(string)$w:$W)===$Hk?' selected':'').'>'.h($W);if(is_array($V))$H
+.='</optgroup>';}return$H;}function
+group_system(array$zh,$yk=false){$H=array();$Kl=array();foreach($zh
+as$A){if($yk?driver()->isSystem(DB,$A):driver()->isSystem($A))$Kl[]=$A;else$H[]=$A;}if($Kl)$H[sprintf('System%s','')]=$Kl;return$H;}function
+html_select($A,array$B,$X="",$c="",$ig=""){static$gg=0;$hg="";if(!$ig&&substr($B[""],0,1)=="("){$gg++;$ig="label-$gg";$hg="<option value='' id='$ig'>".h($B[""]);unset($B[""]);}return"<select name='".h($A)."'".($ig?" aria-labelledby='$ig'":"")."$c>".$hg.optionlist($B,$X)."</select>";}function
+html_radios($A,array$B,$X="",$Lk=""){$H="";foreach($B
+as$w=>$W)$H
+.="<label><input type='radio' name='".h($A)."' value='".h($w)."'".($w==$X?" checked":"").">".h($W)."</label>$Lk";return$H;}function
+confirm($Zg=""){return
+on('click','confirmClick',$Zg?:'Are you sure?');}function
+print_fieldset($s,$qg,$An=false){echo"<fieldset><legend>","<a href='#fieldset-$s' class='toggle'>$qg</a>","</legend>","<div id='fieldset-$s'".($An?"":" class='hidden'").">\n";}function
+bold($Za,$xb=""){return($Za?" class='active $xb'":($xb?" class='$xb'":""));}function
+js_escape($P){return
+str_replace("<","\\x3C",addcslashes($P,"\r\n'\\"));}function
+js_escape_re($P){return
+addcslashes(preg_quote($P,"/"),"\r\n");}function
+pagination_href($C){return
+remove_from_uri("page|next").($C?"&page=$C".($_GET["next"]!=""?"&next=".url_escape($_GET["next"]):""):"");}function
+pagination($C,$lc){return" ".($C==$lc?($C?"<b>".($C+1)."</b>":$C+1):'<a href="'.h(pagination_href($C)).'">'.($C+1)."</a>");}function
+hidden_fields(array$Fj,array$lf=array(),$vj=''){$H=false;foreach($Fj
+as$w=>$W){if(!in_array($w,$lf)){if(is_array($W))hidden_fields($W,array(),$w);else{$H=true;echo
+input_hidden(($vj?$vj."[$w]":$w),$W);}}}return$H;}function
 hidden_fields_get(){echo(sid()?input_hidden(session_name(),session_id()):''),($_GET["ext"]?input_hidden("ext",$_GET["ext"]):""),(isset($_GET[DRIVER])?input_hidden(DRIVER,SERVER):""),input_hidden("username",$_GET["username"]);}function
-file_input($c,$Ji=""){$Sf="max_file_uploads";$Tf=ini_get($Sf);$Yf="upload_max_filesize";$Zf=ini_bytes($Yf);$ci=ini_bytes("post_max_size");if($ci&&$ci<$Zf){$Yf="post_max_size";$Zf=$ci;}$ag=ini_get($Yf);return(ini_bool("file_uploads")?"<input type='file'$c".on('change','fileChange',(int)$Tf,sprintf('Increase %s.',"$Sf = $Tf"),$Zf,sprintf('Increase %s.',"$Yf = $ag")).">$Ji":'File uploads are disabled.');}function
-enum_input($U,$c,array$m,$Y,$Oc=""){preg_match_all("~'((?:[^']|'')*)'~",$m["length"],$Of);$fi=($m["type"]=="enum"?"val-":"");$fb=(is_array($Y)?in_array("null",$Y):$Y===null);$I=($m["null"]&&$fi?"<label><input type='$U'$c value='null'".($fb?" checked":"")."><i>$Oc</i></label>":"");foreach($Of[1]as$X){$X=stripcslashes(str_replace("''","'",$X));$fb=(is_array($Y)?in_array($fi.$X,$Y):$Y===$X);$I
-.=" <label><input type='$U'$c value='".h($fi.$X)."'".($fb?' checked':'').'>'.h(adminer()->editVal($X,$m)).'</label>';}return$I;}function
-input(array$m,$Y,$r,$Ga=false,$Yk=false){$C=h(bracket_escape($m["field"]));echo"<td class='function'>";if(is_array($Y)&&!$r)$r="json";$hf=($r=="json"||preg_match('~^jsonb?$~',$m["full_type"]));if($hf&&$Y!=''&&(JUSH!="pgsql"||$m["type"]!="json"))$Y=json_encode(is_array($Y)?$Y:json_decode($Y),128|64|256);$Ii=(JUSH=="mssql"&&$Yk&&$m["auto_increment"]);if($Ii&&!$_POST["save"])$r=null;$Sd=(isset($_GET["select"])||$Ii?array("orig"=>'original'):array())+adminer()->editFunctions($m);$Tc=driver()->enumLength($m);if($Tc){$m["type"]="enum";$m["length"]=$Tc;}$c=" name='fields[$C]".($m["type"]=="enum"||$m["type"]=="set"?"[]":"")."'".($Ga?" autofocus":"");echo
-driver()->unconvertFunction($m)." ";$R=$_GET["edit"]?:$_GET["select"];if($m["type"]=="enum")echo
-h($Sd[""])."<td>".adminer()->editInput($R,$m,$c,$Y);else{$fe=(in_array($r,$Sd)||isset($Sd[$r]));$_d=0;foreach($Sd
-as$x=>$X){if($x===""||!$X)break;$_d++;}echo(count($Sd)>1?"<select name='function[$C]'".on('change','functionChange').on_help_value('^SQL$').">".optionlist($Sd,$r===null||$fe?$r:"")."</select>":h(reset($Sd)))."<td".($_d&&count($Sd)>1?on('input','skipOriginal',$_d):"").">";$Se=adminer()->editInput($R,$m,$c,$Y);if($Se!="")echo$Se;elseif(preg_match('~bool~',$m["type"]))echo"<input type='hidden'$c value='0'>"."<input type='checkbox'".(preg_match('~^(1|t|true|y|yes|on)$~i',$Y)?" checked":"")."$c value='1'>";elseif($m["type"]=="set")echo
-enum_input("checkbox",$c,$m,(is_string($Y)?explode(",",$Y):$Y));elseif(is_blob($m)&&ini_bool("file_uploads"))echo"<input type='file' name='fields-$C'>";elseif($hf)echo"<textarea$c cols='50' rows='12' class='jush-json'>".h($Y).'</textarea>';elseif(($lk=preg_match('~text|lob|memo~i',$m["type"]))||preg_match("~\n~",$Y)){if($lk&&JUSH!="sqlite")$c
-.=" cols='50' rows='12'";else{$K=min(12,substr_count($Y,"\n")+1);$c
-.=" cols='30' rows='$K'";}echo"<textarea$c>".h($Y).'</textarea>';}else{$Ok=driver()->types();$bg=(!preg_match('~int~',$m["type"])&&preg_match('~^(\d+)(,(\d+))?$~',$m["length"],$B)?((preg_match("~binary~",$m["type"])?2:1)*$B[1]+($B[3]?1:0)+($B[2]&&!$m["unsigned"]?1:0)):($Ok[$m["type"]]?$Ok[$m["type"]]+($m["unsigned"]?0:1):0));if(JUSH=='sql'&&min_version(5.6)&&preg_match('~time~',$m["type"]))$bg+=7;echo"<input".((!$fe||$r==="")&&preg_match('~^'.int_type().'$~',$m["type"])&&!preg_match('~\[]~',$m["full_type"])?" type='number'":"")." value='".h($Y)."'".($bg?" data-maxlength='$bg'":"").(preg_match('~char|binary~',$m["type"])&&$bg>20?" size='".($bg>99?60:40)."'":"")."$c>";}echo
-adminer()->editHint($R,$m,$Y),(count($Sd)>1?script("fire(qs('select', qsl('td').previousSibling), 'change');",""):"");}}function
-process_input(array$m){$u=bracket_escape($m["field"]);$r=idx($_POST["function"],$u);if($r=="orig")return(preg_match('~^CURRENT_TIMESTAMP~i',$m["on_update"])?idf_escape($m["field"]):false);if($r=="NULL")return"NULL";if(is_blob($m)&&ini_bool("file_uploads")){$ud=get_file("fields-$u");if(!is_string($ud))return
+on_upload_progress(&$fn){$fn=(ini_bool("session.upload_progress.enabled")&&ini_get("session.upload_progress.name")?rand_string():"");return($fn?on('submit','uploadProgress',ME."upload=$fn",SESSION_NAME."=$fn"):"");}function
+file_input($c,$dk=""){$Lg="max_file_uploads";$Mg=ini_get($Lg);$Rg="upload_max_filesize";$Sg=ini_bytes($Rg);$rj=ini_bytes("post_max_size");if($rj&&$rj<$Sg){$Rg="post_max_size";$Sg=$rj;}$Tg=ini_get($Rg);return(ini_bool("file_uploads")?"<input type='file'$c".on('change','fileChange',(int)$Mg,sprintf('Increase %s.',"$Lg = $Mg"),$Sg,sprintf('Increase %s.',"$Rg = $Tg")).">$dk":'File uploads are disabled.');}function
+enum_input($T,$c,array$l,$X,$ld=""){preg_match_all("~".driver()->enumLength."~",$l["length"],$Hg);$vj=($l["type"]=="enum"?"val-":"");$rb=(is_array($X)?in_array("null",$X):$X===null);$H=($l["null"]&&$vj?"<label><input type='$T'$c value='null'".($rb?" checked":"")."><i>$ld</i></label>":"");foreach($Hg[0]as$W){$W=stripcslashes(idf_unescape($W));$rb=(is_array($X)?in_array($vj.$W,$X):$X===$W);$H
+.=" <label><input type='$T'$c value='".h($vj.$W)."'".($rb?' checked':'').'>'.h(adminer()->editVal($W,$l)).'</label>';}return$H;}function
+input(array$l,$X,$p,$Oa=false,$cn=false){$A=h(bracket_escape($l["field"]));echo"<td class='function'>";$rd=driver()->enumLength($l);if($rd){$l["type"]="enum";$l["length"]=$rd;}$B=($l["type"]=="enum"||$l["type"]=="set");if(is_array($X)&&!$p&&!$B)$p="json";$Wf=($p=="json"||preg_match('~^jsonb?$~',$l["full_type"]));if($Wf&&$X!=''&&(JUSH!="pgsql"||$l["type"]!="json")&&(is_array($X)||!$_POST["save"]))$X=(is_array($X)?json_encode($X,128|64|256):json_encode_exact(json_decode_exact($X),128|64|256));$ck=($cn&&is_identity_always($l));if($ck&&!$_POST["save"])$p=null;$we=(isset($_GET["select"])||$ck?array("orig"=>'original'):array())+adminer()->editFunctions($l);$c=" name='fields[$A]".($B?"[]":"")."'".($Oa?" autofocus":"");echo
+driver()->unconvertFunction($l)." ";$Q=$_GET["edit"]?:$_GET["select"];if($l["type"]=="enum")echo
+h($we[""])."<td>".adminer()->editInput($Q,$l,$c,$X);else{$Le=(in_array($p,$we)||isset($we[$p]));$Zd=0;foreach($we
+as$w=>$W){if($w===""||!$W)break;$Zd++;}echo(count($we)>1?"<select name='function[$A]'".on('change','functionChange').on_help_value('^SQL$').">".optionlist($we,$p===null||$Le?$p:"")."</select>":h(reset($we)))."<td".($Zd&&count($we)>1?on('input','skipOriginal',$Zd):"").">";$Df=adminer()->editInput($Q,$l,$c,$X);if($Df!="")echo$Df;elseif(preg_match('~bool~',$l["type"]))echo"<input type='hidden'$c value='0'>"."<input type='checkbox'".(preg_match('~^(1|t|true|y|yes|on)$~i',$X)?" checked":"")."$c value='1'>";elseif($l["type"]=="set")echo
+enum_input("checkbox",$c,$l,(is_string($X)?explode(",",$X):$X));elseif(is_blob($l)&&ini_bool("file_uploads"))echo"<input type='file' name='fields-$A'>";elseif($Wf)echo"<textarea$c cols='50' rows='12' class='jush-json'>".h($X).'</textarea>';elseif(($km=preg_match('~text|lob|memo~i',$l["type"]))||preg_match("~\n~",$X)){if($km&&JUSH!="sqlite")$c
+.=" cols='50' rows='12'";else{$J=min(12,substr_count($X,"\n")+1);$c
+.=" cols='30' rows='$J'";}echo"<textarea$c>".h($X).'</textarea>';}else{$Qm=driver()->types();$Om=$Qm[$l["type"]];$Ea=preg_match('~\[]~',$l["full_type"]);if($Ea)$Ug=0;elseif(preg_match('~date|time|year~',$l["type"])){$uj=($l["length"]==""&&JUSH=="pgsql"?6:$l["length"]);$oe=(preg_match('~time~',$l["type"])&&preg_match('~^[1-9]\d*$~',$uj)?$uj+1:0);$Ug=($Om?$Om+$oe:0);}elseif(!preg_match('~int|vector~',$l["type"])&&preg_match('~^(\d+)(,(\d+))?$~',$l["length"],$_))$Ug=(preg_match("~binary~",$l["type"])?2:1)*$_[1]+($_[3]?1:0)+($_[2]&&!$l["unsigned"]?1:0);else$Ug=($Om?$Om+($l["unsigned"]?0:1):0);echo"<input".((!$Le||$p==="")&&preg_match('~^'.int_type().'$~',$l["type"])&&!$Ea?" type='number'":"")." value='".h($X)."'".($Ug?" data-maxlength='$Ug'":"").(preg_match('~char|binary~',$l["type"])&&$Ug>20?" size='".($Ug>99?60:40)."'":"")."$c>";}echo
+adminer()->editHint($Q,$l,$X),(count($we)>1?script("fire(qs('select', qsl('td').previousSibling), 'change');",""):"");}}function
+process_input(array$l){$t=bracket_escape($l["field"]);$p=idx($_POST["function"],$t);if($p=="orig")return(preg_match('~^CURRENT_TIMESTAMP~i',$l["on_update"])?idf_escape($l["field"]):false);if($p=="NULL")return"NULL";if(is_blob($l)&&ini_bool("file_uploads")){$Td=get_file("fields-$t");if(!is_string($Td))return
 false;return
-driver()->quoteBinary($ud);}$Y=idx($_POST["fields"],$u);if($Y===null)return
-false;if($m["type"]=="enum"||driver()->enumLength($m)){$Y=idx($Y,0);if($Y=="orig"||!$Y)return
-false;if($Y=="null")return"NULL";$Y=substr($Y,4);}if($m["auto_increment"]&&$Y=="")return
-null;if($m["type"]=="set")$Y=implode(",",(array)$Y);if($r=="json"){$Y=json_decode($Y,true);if(!is_array($Y))return
-false;return$Y;}return
-adminer()->processInput($m,$Y,$r);}function
-search_tables(){$_GET["where"][0]["val"]=$_POST["query"];$fj="<ul>\n";foreach(table_status('',true)as$R=>$S){$C=adminer()->tableName($S);if(isset($S["Engine"])&&$C!=""&&(!$_POST["tables"]||in_array($R,$_POST["tables"]))){$H=connection()->query("SELECT".limit("1 FROM ".table($R)," WHERE ".implode(" AND ",adminer()->selectSearchProcess(fields($R),array())),1));if(!$H||$H->fetch_row()){$ki="<a href='".h(ME."select=".url_escape($R)."&where[0][op]=".url_escape($_GET["where"][0]["op"])."&where[0][val]=".url_escape($_GET["where"][0]["val"]))."'>$C</a>";echo"$fj<li>".($H?$ki:"<p class='error'>$ki: ".error())."\n";$fj="";}}}echo($fj?"<p class='message'>".'No tables.':"</ul>")."\n";}function
-on_help($lk,$tj=0){return
-on('mouseover','helpMouseover',$lk,$tj).on('mouseout','helpMouseout');}function
-on_help_value($Di="",$Hi=""){return
-on('mouseover','helpValueMouseover',$Di,$Hi).on('mouseout','helpMouseout');}function
-edit_form($R,array$n,$J,$Yk,$l=''){$Yj=adminer()->tableName(table_status1($R,true));page_header(($Yk?'Edit':'Insert'),$l,array("select"=>array($R,$Yj)),$Yj);adminer()->editRowPrint($R,$n,$J,$Yk);if($J===false){echo"<p class='error'>".'No rows.'."\n";return;}echo"<form action='' method='post' enctype='multipart/form-data' id='form'>\n";$Jc=false;$Al=($Yk&&!isset($_GET["select"])?where_columns($n):array());$Ib=(count($Al)!=count($n));if(!$Ib)$Al=array();if(!$n)echo"<p class='error'>".'You have no privileges to update this table.'."\n";else{echo"<table class='layout nowrap'".on('keydown','editingKeydown').">\n";$Ga=!$_POST;foreach($n
-as$C=>$m){echo"<tr".($Al[$C]?on('change','whereChange'):"")."><th>".adminer()->fieldName($m);$k=idx($_GET["set"],bracket_escape($C));if($k===null){$k=$m["default"];if($m["type"]=="bit"&&preg_match("~^b'([01]*)'\$~",$k,$Ei))$k=$Ei[1];if(JUSH=="sql"&&preg_match('~binary~',$m["type"]))$k=bin2hex($k);}$Y=($J!==null?($J[$C]!=""&&JUSH=="sql"&&preg_match("~enum|set~",$m["type"])&&is_array($J[$C])?implode(",",$J[$C]):(is_bool($J[$C])?+$J[$C]:$J[$C])):(!$Yk&&$m["auto_increment"]?"":(isset($_GET["select"])?false:$k)));if(!$_POST["save"]&&is_string($Y))$Y=adminer()->editVal($Y,$m);if(($Yk&&!isset($m["privileges"]["update"]))||$m["generated"])echo"<td class='function'><td>".select_value($Y,'',$m,null);else{$Jc=true;$r=($_POST["save"]?idx($_POST["function"],bracket_escape($C),""):($Yk&&preg_match('~^CURRENT_TIMESTAMP~i',$m["on_update"])?"now":($Y===false?null:($Y!==null?'':'NULL'))));if(!$_POST&&!$Yk&&$Y==$m["default"]&&preg_match('~^[\w.]+\(~',$Y))$r="SQL";if(preg_match("~time~",$m["type"])&&preg_match('~^CURRENT_TIMESTAMP~i',$Y)){$Y="";$r="now";}if($m["type"]=="uuid"&&$Y=="uuid()"){$Y="";$r="uuid";}if($Ga!==false)$Ga=($m["auto_increment"]||$r=="now"||$r=="uuid"?null:true);input($m,$Y,$r,$Ga,$Yk);if($Ga)$Ga=false;}}if(!fields($R)&&driver()->primary!="")echo"<tr>"."<th><input name='field_keys[]'".on('input','fieldChange').">"."<td class='function'>".html_select("field_funs[]",adminer()->editFunctions(array("null"=>isset($_GET["select"]))))."<td><input name='field_vals[]'>";echo"</table>\n";}echo"<p>\n";if($Jc){echo"<input type='submit' value='".'Save'."'>\n";if(!isset($_GET["select"])&&$Ib){$qc=($Al&&($l!=""||adminer()->error!="")?" disabled":"");echo"<input type='submit' name='insert' value='".($Yk?'Save and continue edit':'Save and insert next')."' title='Ctrl+Shift+Enter'$qc".($Yk?on('click','ajaxForm','Saving…'):"").">\n";}}echo($Yk?"<input type='submit' name='delete' value='".'Delete'."'".confirm().">\n":"");if(isset($_GET["select"]))hidden_fields(array("check"=>(array)$_POST["check"],"clone"=>$_POST["clone"],"all"=>$_POST["all"]));echo
+driver()->quoteBinary($Td);}$X=idx($_POST["fields"],$t);if($X===null)return
+false;if($l["type"]=="enum"||driver()->enumLength($l)){$X=idx($X,0);if($X=="orig"||!$X)return
+false;if($X=="null")return"NULL";$X=substr($X,4);}if($l["auto_increment"]&&$X=="")return
+null;if($l["type"]=="set")$X=implode(",",(array)$X);if($p=="json"){$X=json_decode($X,true);if(!is_array($X))return
+false;return$X;}return
+adminer()->processInput($l,$X,$p);}function
+search_tables(){$_GET["where"][0]["val"]=$_POST["query"];$Kk="<ul>\n";foreach(table_status('',true)as$Q=>$R){$A=adminer()->tableName($R);if(isset($R["Engine"])&&$A!=""&&(!$_POST["tables"]||in_array($Q,$_POST["tables"]))){$G=connection()->query("SELECT".limit("1 FROM ".table($Q)," WHERE ".implode(" AND ",adminer()->selectSearchProcess(fields($Q),array(),$R)),1));if(!$G||$G->fetch_row()){$Bj="<a href='".h(ME."select=".url_escape($Q)."&where[0][op]=".url_escape($_GET["where"][0]["op"])."&where[0][val]=".url_escape($_GET["where"][0]["val"]))."'>$A</a>";echo"$Kk<li>".($G?$Bj:"<p class='error'>$Bj: ".adminer()->error())."\n";$Kk="";}}}echo($Kk?"<p class='message'>".'No tables.':"</ul>")."\n";}function
+on_help($km,$el=0){return
+on('mouseover','helpMouseover',$km,$el).on('mouseout','helpMouseout');}function
+on_help_value($Wj="",$bk=""){return
+on('mouseover','helpValueMouseover',$Wj,$bk).on('mouseout','helpMouseout');}function
+edit_form($Q,array$m,$I,$cn,$k='',$F='',$nm=''){$Sl=adminer()->tableName(table_status1($Q,true));page_header(($cn?'Edit':'Insert'),$k,array("select"=>array($Q,$Sl)),$Sl);adminer()->editRowPrint($Q,$m,$I,$cn,$F,$nm);if($I===false){echo"<p class='error'>".'No rows.'."\n";return;}echo"<form action='' method='post' enctype='multipart/form-data' id='form'>\n";$gd=false;$Hn=($cn&&!isset($_GET["select"])?where_columns($m):array());$Yb=(count($Hn)!=count($m));if(!$Yb)$Hn=array();if(!$m)echo"<p class='error'>".'You have no privileges to update this table.'."\n";else{echo"<table class='layout nowrap'".on('keydown','editingKeydown').">\n";$Oa=!$_POST;foreach($m
+as$A=>$l){echo"<tr".($Hn[$A]?on('change','whereChange'):"")."><th>".adminer()->fieldName($l);$j=idx($_GET["set"],bracket_escape($A));if($j===null){$j=$l["default"];if($l["type"]=="bit"&&preg_match("~^b'([01]*)'\$~",$j,$Yj))$j=$Yj[1];if(JUSH=="sql"&&preg_match('~binary~',$l["type"]))$j=bin2hex($j);}$X=($I!==null?($l["type"]=="set"&&is_array($I[$A])?implode(",",$I[$A]):(is_bool($I[$A])?+$I[$A]:$I[$A])):(!$cn&&$l["auto_increment"]?"":(isset($_GET["select"])?false:$j)));if(!$_POST["save"]&&is_string($X))$X=adminer()->editVal($X,$l);if(($cn&&!isset($l["privileges"]["update"]))||$l["generated"])echo"<td class='function'><td>".select_value($X,'',$l,null);else{$gd=true;$p=($_POST["save"]?idx($_POST["function"],bracket_escape($A),""):($cn&&preg_match('~^CURRENT_TIMESTAMP~i',$l["on_update"])?"now":($X===false?null:($X!==null?'':'NULL'))));if(!$_POST&&!$cn&&$X==$l["default"]&&preg_match('~^[\w.]+\(~',$X))$p="SQL";if(preg_match("~time~",$l["type"])&&preg_match('~^CURRENT_TIMESTAMP~i',$X)){$X="";$p="now";}if($l["type"]=="uuid"&&$X=="uuid()"){$X="";$p="uuid";}if($Oa!==false)$Oa=($l["auto_increment"]||$p=="now"||$p=="uuid"?null:true);input($l,$X,$p,$Oa,$cn);if($Oa)$Oa=false;}}if(!fields($Q)&&driver()->primary!="")echo"<tr>"."<th><input name='field_keys[]'".on('input','fieldChange').">"."<td class='function'>".html_select("field_funs[]",adminer()->editFunctions(array("null"=>isset($_GET["select"]))))."<td><input name='field_vals[]'>";echo"</table>\n";}echo"<p>\n";if($gd){echo"<input type='submit' value='".'Save'."'>\n";if(!isset($_GET["select"])&&$Yb){$Jc=($Hn&&($k!=""||adminer()->error!="")?" disabled":"");echo"<input type='submit' name='insert' value='".($cn?'Save and continue editing':'Save and insert next')."' title='Ctrl+Shift+Enter'$Jc".($cn?on('click','ajaxForm','Saving…'):"").">\n";}}echo($cn?"<input type='submit' name='delete' value='".'Delete'."'".confirm().">\n":"");if(isset($_GET["select"]))hidden_fields(array("check"=>(array)$_POST["check"],"clone"=>$_POST["clone"],"all"=>$_POST["all"]));echo
 input_hidden("referer",(isset($_POST["referer"])?$_POST["referer"]:$_SERVER["HTTP_REFERER"])),input_hidden("save",1),input_token(),"</form>\n";}function
-shorten_utf8($Q,$y=80,$Pj=""){if(!preg_match("(^(".repeat_pattern("[\t\r\n -\x{10FFFF}]",$y).")($)?)u",$Q,$B))preg_match("(^(".repeat_pattern("[\t\r\n -~]",$y).")($)?)",$Q,$B);return
-h($B[1]).$Pj.(isset($B[2])?"":"<i>…</i>");}function
-icon($ve,$C,$ue,$rk,$c=""){return"<button ".($C?"type='submit' name='$C'":"draggable='true' tabindex='-1'")." title='".h($rk)."' class='icon icon-$ve".($C?"":" jsonly")."'$c><span>$ue</span></button>";}function
-copy_icon(){$Lb='Copy';return"<a href='' class='jsonly icon-copy' title='$Lb'><span>$Lb</span></a>";}if(isset($_GET["file"])){if(substr(VERSION,-4)!='-dev'){if($_SERVER["HTTP_IF_MODIFIED_SINCE"]){header("HTTP/1.1 304 Not Modified");exit;}header("Expires: ".gmdate("D, d M Y H:i:s",time()+365*24*60*60)." GMT");header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");header("Cache-Control: immutable");}ini_set("zlib.output_compression",'1');if($_GET["file"]=="default.css"){header("Content-Type: text/css; charset=utf-8");echo
-decompress_string('!c0=@iDZ*tV?H*{U)[Q;B/1SR=Dh9&hJv;rrHHN,.V&KGmzhDwb9E:tfItN#CwUSwX?Xyeqi5d/N>]A"1lTaK
-Tx^G#)>.UM~&(MUO{shFwKG+g4,>C*S:
-f1hRcL)KhkmZFtH^qWCMBf7tZ{.#f{8V6<
-#Nk9.jSA&0km
-lxTc6$tVXF.+.*cJeW<wG~51NPIP4xT,`5Fw(3!{(~-,9<s}YqWT+L%^[i[s<&8ErH[O8<a)
-ljb
-$LurL4t]W%a>H/b
-X/{EMCz:LXX((.yD>6A0+]t%ACU_
-:"Bp%c=`r4T.#6G1(p
-xo=TMNIiX,W0G-OEkD}^/L"3iRuM0)KZQ^aWB9dsO%0WmcO<LgliJIDSwKw0uo4(Piokl7g)}Qq_R"C>
-^,?D183n.@41e}1M3L@&rCG$;yG3^fAu1qCeb_`V5R)ywQ+^^}Y?,S-#YZFZG
-*@I%I_vxm,Tu:<aGT4wdZr#t8h]Nq~_-mA_aP)C2W
-3#$o
-g`gA/T"apmp;"31><i"",jWq9Wx4|Kj$:Svf`fH`|l`L/=wn!GzOm+(2zYb@S?I6~Dgg51]s$GQ<f%*sZ)4os*u%H<]daIUU7+nOS>!R,?jI-ZyOTT8YA+<ro/FX
-5%v%]D1&UG`Rk{"Wc.*PH+X"!Vb@SA=T#6)+N_
-VgZ:[vm-?:-d-#LVMbB`M*
-o3=!8PG}PV45(W`#.!4Aj#=
-`|=e];={gdf>3&l{-kM.$C*+s{3":?S*Zv4|Rl!*UYvBXH@}(A,#om09^h1i;#LHmj2,KUT]s;#mi|*91KjF]nE
-u?>^sG`oFK
-)Wofomi0<!n"hdYaSs6[44(o8rHBG_@1V2u@D_*jz/#ZgKg<,ob6)a>B~0
-Nc9PJ]bx=7K{0`!<w~"{8gg&A2+L#$C,xw#&#5qLhH:Y
-6oD1wS)Hu:z&]%$L:*RH&&hm9*p.)J&x-8E0z+soB4Y.o:5!`DtOyw7783CWgj
-WZ%`ELhCb!<9!`!t;k@5]}^L$~J|@.agt}?B1>
-;"ZGyF-kRn"BIwMi;iFn0;f?!>s@V%wLZZ[kKwyDKfGko5=+|UjHeZjXy;0;#G@L"d`Um3u4Z@)WU.Kf:>6w?u|8l*.uRy`amgR$8Nv?MAbetW1fZC=.a/i!<lm+CgiuJdI)Ig2l@6xS*[@!@B.hXtesj)KZ`"D(QZyUo#,afykRAvt+#nz?,6c9u&`9kdt)X35?[Y<n!"C4r!0$AJl3>+#H(mk1pQn,Z3ZZ]8D)q@wst)_4|I5f}dsW#hqo*!.
-4#"_/$:mCAq.5UCVL;oIlfE&U`w!f9m@e?)4t)~-8Kr.@Bm$9-|,R
-ult.W=H4(dSM?+2D
-gapxO[e_/=:kYP05Q|i+[N_N-YHIAe)0I*>{8]&Z?!aMCh.,oL@6p&lY$/
-U=Fds9>*<FAc!>,5<A*;C+!_3@O6|?
-//8+>*;@Um0hT[y8<Yt,@dvwiU()maH>967;d_]`={>5EWy&s32*#uINV)k5YG"ekF2}hI1O:Mj?8&AG/j[.-n!P5/("uWRm`3"j5%iI+qc5SJ+:9eOv83%i]U%[V*dHY/2lm8EP@h:*ITM4#//"X9KhV|EJ;q*De_$X_uTkg^D"0(-oU$AjZ^;N#1fw]3U1a`)mkv^ymmdQDDS;q71|/~(_`/BNq++E<jkdNVV@mh?.W_4M<w=_(ybU80Bn/@V^N!54"@
-H!U(`":dm[rVdms6(S],j-batnN&O(^ru_<To+HJ~-NHu&
-@=6dl$NMZ6.-yJ1jkQMe$lOAr{RGpt_56jj]YcYfGIIoQ"Gp(LKTcE%
-(#A-Ss>OBN92I3S^/SZ[Y{fR5U]f3~"At`%-@82:PR%ue
-?eN{]g1_DyuG)bqfX_Qs^{78KXKDK$X3a[Ecg5g;AJ4X-!D6[i7{=;"[e<PUxWs#8`
+repeat_pattern($ej,$x){return
+str_repeat("$ej{0,65535}",$x/65535)."$ej{0,".($x%65535)."}";}function
+shorten_utf8($P,$x=80,$Fl="",array$fj=array()){if(!preg_match("(^(".repeat_pattern("[\t\r\n -\x{10FFFF}]",$x).")($)?)u",$P,$_))preg_match("(^(".repeat_pattern("[\t\r\n -~]",$x).")($)?)",$P,$_);$x=strlen(isset($_[2])?$_[1]:preg_replace('~\n[^\n]*\z~',"\n",$_[1]));return
+highlight_matches($P,$fj,$x).$Fl.(isset($_[2])?"":"<i>…</i>");}function
+highlight_matches($P,array$fj,$x=null){if($x===null)$x=strlen($P);$H="";$E=0;if($fj&&@preg_match_all("((?|".implode("|",$fj)."))su",$P,$Hg,PREG_OFFSET_CAPTURE)){foreach($Hg[0]as$_){list($km,$xl)=$_;if($km!=""&&$xl<$x){$md=min($xl+strlen($km),$x);$H
+.=h(substr($P,$E,$xl-$E))."<mark>".h(substr($P,$xl,$md-$xl))."</mark>";$E=$md;}}}return$H.h(substr($P,$E,$x-$E));}function
+icon($ff,$A,$ef,$qm,$c=""){return"<button ".($A?"type='submit' name='$A'":"draggable='true' tabindex='-1'")." title='".h($qm)."' class='icon icon-$ff".($A?"":" jsonly")."'$c><span>$ef</span></button>";}function
+copy_icon(){$cc='Copy';return"<a href='' class='jsonly icon-copy' title='$cc'><span>$cc</span></a>";}if(isset($_GET["file"])){if($_SERVER["HTTP_IF_MODIFIED_SINCE"]){header("HTTP/1.1 304 Not Modified");exit;}header("Expires: ".gmdate("D, d M Y H:i:s",time()+365*24*60*60)." GMT");header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");header("Cache-Control: immutable");ini_set("zlib.output_compression",'1');if($_GET["file"]=="default.css"){header("Content-Type: text/css; charset=utf-8");echo
+decompress_string('+c(<]iDp;+<8]XG-X#ETBP{IAOo`HAD0Z,$t2FfTr3g#Vd(TVf>Cx5+d&ycL<,9"B6]b"oPK(+THBssK@e0=xnaBRf;$]A0]jsW_*Ibe$(2;yd5/}P:0_3xBmwvnkq<ydKh3e?rW3UW8c6iorbru~.;FOKSUq)z0u4OH&MRf7i:
+N[U_7;F1p9i(5s29CE=`-:Ze`.kn@9RF4QL-+YuW|6!U&>e-zoVW6?4.A8t`/B@/ELQUIrIU%7Kvs3S?k#p2;1H
+X/y@s?AR7M+0t;gg~I=j9:,1HW;ic+?$`BB#$=qSuRwY!<DX3Ny>D#NN*xh]"#vZCW/M>Y@mG3*h%?kSmN=OT;f?cTPrvH,vnUVam2HYmY(?/@
+0?NF?2Ol^+5I
+U%GE]1O0$>ys`u;eY*<H,E)jU7$
+/G"I;uWG$9)5gsRW{:{e~U~.8AE.5W!
+iWp-~OBKj1jL_EwRB?Y&i9o<;$`HciPwu)}$:S%2WeZN_EB+TMeR~sZ$~6Tlb.PFzj2c5D6$IrS,VAG6-$YN,Jsp.hB-"5(?g%)]_85S;K}Q)!]Ug5W7nWvawCpy>%pke1%;C>,8*br=&cDBB+3bJLku@UA6Pj:[LNyDz#!]HdCU2Vp/Tlj+yr(,J,*Wh<pP&Q5qxHb/^oeg5%v+WD+:w2T0+%DHK8Z6Oq>bbmt"W9"Gv0Dk;uesBj-9`dThaOFtw)#)nPV3&XyFGk01&HN4/Q{y|&Q`8uS0E,^"<CZDxnmK?l<Ff_g^SD_u$Z@<+<tC&b^k)8;L,&z5t.6)K0^"X#G_Rn:/T#T(cmAla^WGNtZS4XlovO
+"JS=mYRH05NTD)D$P<[|2YAPQ@>B#ogdeOCH)M?8)+*D+`r2kS@J7:27wU2&LL!0(7rXo)F2]gv#2me/LOGGPS`9P@Wp!c9C)IEitF`CKjug?LA"_w?5f5ERLbV%"Sekh?;mD9kN
+Kgs*3=$EYJJoJm;SuFwOv5@2rMMTVhHs
+L]vkS}w&YkWCkI/+1n,j:]OE&&-ng%CfmYK`SO(N(v3A:cVgy
+Z)dKHyOq`7+i0G]M(r,[9,?ZYq
+]/"%_Hv07O6xyQ^+0#-*3$SpP!ci1={S}nLm3E:8k`7A`ng!$yH-j]G/|y}d8Vhy6XZ5FNRiRhJ:f23:43;VJp2REp"2/PU]Gt#F?,).3Oi]/oy2tM5RMl*RzvJsW2/:.fEIoUE.
+4l]"?S9(cOr~IfBV51Su7^`]oq&3b5HUl~B4/Sb^C7,cE.H-tQV*^R#rEmw+$qICNudLR<En:sNot2
+
+KY)]Xs7@-;-#x`3qs]OY=[_lc=L3=|G6qr8vNfc@]Vm(F,&^2w_="t$w3x[VZM*ybGUsmQORjL@FP4&?
+5C3C%d%,g6fMf@kAN>(<M)9lHg<(aowp0%0gvB
+>uekZH[Qhb3m3EZu69I0Z3Sk!}C,Cs`CJNb|ho&F+_Fv1V*9@fd39
+&)f27Wk->IL*%gW1AqC,hV&i=^gG(P&
+jb8I5PFUY-4Y_YjN@_kBFm$)`,?gA<HJm&6&N`7b69`OSgA1e]O:Jd%MEx>s2|
+d%"mb?yp
+C1+?Ml&im[ZB*N!c%e=]R
+6B%O;a,NRqW|U}tM;5Z6t7o/?c>a9WsG1Tk!?#]gn|vgx{qBT_505u#2(M@LqfO(RlG=I)aR6fMs]
+nyL/y6bx-,d|UacKJhi=PhxG2`Qhl5=kK?AT_AUf&(NI!:9i)TXDh`9<_N>d$}d?99epf"Lte7lxQz/KD0&
+ZA8jpQrjlcQ`!?dHd(6IFPRu1E.&@RfvL"p*6zsdlUE%#5/[>7_)D3jrqi%&e%U492k}9j(NS]G2KOF?I*ib%:`c)lY)b}l`asY{0YvMx=TkbBq:&ne?mKPtlwO9<i6[J=Jvib,r+Fh4>y%C9%Yf)_/A$Z=)PHmQN[3@8SPov"@_3L7^5<?Dc?#_LK9z`l1?RA7mfD#{AcNbJjBY6}GCA*S
+jaGHPp.*:(DO&{E97kVgEB_Mj
+eyxuy@#C.PNGx>5*Frh_a_R?jDEH
+0SJj74wk2(zJX$+G~tIe<)cUp$,i.@m:h$uqJkHp`rw5Oi^B#;af$OYt3F5ljH4E)n
+D.E35kH:ddpC<:o)_ZTHo`JxY;Qo/~4cD]Kka#&Jg*
+y8e"5(G+TB3VllVi"P,;M4*yU*:INGrm[E8&;fe79XPN-#HZv5M?*PHeu.j&qH`E)#ewBDs*XVW1sO4U^:"lWmS1I>hX!E/xZ:hSZq%;>_)s>QJx!o{4A%]JSThrG%Aq<$N00!#oQX&8YX@`nJxO-^f-2`Z#9H&@%7^<DA?mq`x3NL0"#LEPiR>]RVtp;MmL/xD4|W(@Q5=oF=5mMmOh/Ed]Sn#e4w!Xa3S0b5Zs2b4[JPU>Y-Q_NdQDebkvBS_`_2,Kmh/dlNO,=7^iJKsDWC+Y}eCrN]v7WqiU|@~@STU"M@~Z[ZQJfm!ZJ=,hW_1eaXa:~*LCm$prSpmT^XnJF)]#[MQtoKXlVgoIg#irnY4IhC=FVmq=3*Yv8]G>Mm=I"2/G")dC3B*e8=5rlIaC%)KY<2qP_N!X`(xkecZi(l?<@TCJAua%LjXkPpuSBqc%1"{/VvHRN]7dh00ywYgc4M/2.9$N-_EFZ=#GUk@,3jn5zb@70neZ0+4dd?x*0kYA~rA!AKSR.)6S~whrt^m2NhrAvS`$=p)^aw:ss1zm[bmvTR?tU->o$OHx",{x
+vU@iBfpiWCxF%}yCyf`rpPj5N%[zq+ww-"f!bm,qDw*~l4Q$y|vWbth!KtKd!<p&2<BU,[sQmx7pn}fhC^bKwW4>csrq@JyewRu|l7Ko>ggj>ayQr+wB9$qURwa"&%IN+g5arv+VyAd"lDSyM|Pi5Y*5K<uvJ778nz<2xCBq&]*7p+X);jN9`i
+o`,]_p5MuX3RtD*CcKdl&)hNr;rJ(d}KjWtTq]NRh(Xpx$ql^bW(3*]%@M)BntuCI]vqpX|v[,gS`tfFX)bclBkp~:F0/Ja^>h1q+MZ-U_2J4WqqJM;oN-/r/E{Qh9U1c@v[7r.C_i_Tje
+0J`0("b_3TT`&!Lb&)u:F|(8mo,ScbAqi}[zj#5U
+qY)>5Sz68#-"=vXaWY*E-<xKi+M0fX&e_Fbu
+=+7.L*v{tw=j#l^DKec|yzcIm<)55UCRw`=/jRj^H,.qZ;Or,k1@?K$_(+XuOf%3qnQbR!3|l0",RrV!Quq[g.46^QGSk~KSyRE20k2B<-5b/TC4A_H,iUtJuYn%uR,cv9E@z)vGMXa
+U7Y2)a(JKS0}aSk]F6_NGG[gkas.8:b|UpDNo7)#1:#^u(_HCcA[=y$0/DoQ*-u-Y(kgPrvr]SA.64*juL2`E:o"&N
+&,C8%TeT~=V^yWF8S.B@gi_qm<d1?S%?e_=p!.T[#Bw5ZN+cEZIcA.cq*akE?G
+:i+IU0S
+U^_[@PL}3e`rc&=dEd1i
+]Vb1Iot<#!x+zvS0U:]
+Otkx6Tg
+{N]Sq-dY*#Tq]m>cOeiMi<NR)uU1n>uWeM*X(]|raF9XW
+Jk~L;&knB$^)Y91*G
+*QyvX*Fy8cX";/[vR-M$^`qM>FPjg8vVhe8E
+<@m+-r<%+Mnz^_hSjahRL@hlq&&P(j:BN~O5?x,=/)siN?uPspLjm?2uWg?;QeUeu;Ribp+C$IU0Uuc/m2BD<~juKOZbKB>_fBjkwO`#:]yJnD>.S0E/^Qhj9Zv<_:WwIvaK=N.)@)bOq;)Q87@L*l%Yk<s^`g1Cat#ti>&u6x&d+11d
+/U#+W!`B:ZvZ&fc_/`sZceqo}[)20D-y$oVu9m_uA]j;-U7bB<|?7P|@2nE2@V?K98_5-g+ILk?^8*sC(bm*TB$7WbTag
+9Q|r`/x[gbit95y)ed+c[J^bxHu4Bt13vMc@ORH,*amJeT
+3qE<,,dHeMwr3;dgO>U(4bF.oRf}L*Ig:K0;UhO]&n>,++r:ue_nFS)#f9u6p-?syidcp)g?JNdnUG>eY+Z;Q
+ic*@g5_.(zZ+YP)7WTcSVV64E0hX_i$-S*f>RIkT6ld.Z.><DZX71s.
+WoV<&#()`85SxZ)5=HnlbK"*8mBsyhtbT&MSD&=h;.d+S7EUaT<uXX<57JdOk<fN,pSbM2v
+)Gt5CBx_X;Xmx[w@arJubk5w^{]:
+g*qcDVgqw;JdkVn3F.8$@p,:"FTh[*DX9m$V*:+c!axkZ)oj,UU@4RHdkI_C-nv@Bbb"2Il%Ec`V/]F!T7fe:-a?F&-iS-6v-`v1N"_kxs%h/QW`a,XTZX,EAi}J]q`kTc2LhWS
+KS/b&hmAg*8t%vv$ER(=+^RuQ+RY1t{08ll%O;+4{X7>#p:nsa+_mEK"WOgW;oA/x=!OiUz/D[9&Ty.4oid/0)gkT19r~W^qH<o6j<O!J)P3
+8@`.:n<:I^>H1d_z]a..A=+~7R`By];s-$4h19^+&_Wk7|H|u@b)l)m`d>1.U~vpYshDNjbBe4QTR`F$k[dSsdQOF5APIhwwcKCo@.rtDG^NYTsUbFiJyvxd1h&s]W+:x^L%tX');}elseif($_GET["file"]=="dark.css"){header("Content-Type: text/css; charset=utf-8");echo
+decompress_string('$Osc2b7V>fj0U7tCw8TNfbT`5e<0!4x49EeL1n%e,E<_WZ?>@wWMzpUD:UubAB^u7,;ZJ.!U!ODBJ$p,I?B8.F[0L@ZP|U.08;>OMB~NvqOKctbeXn{?PG0IyC%OS?)r=jqOH2M?hb}k!R/`..+tcti.<c<RYfU_-K2A
+vCxFn<6{L^r&8pu@R.[?Y;Q%DJhl3UE#:f_^Gy.{7^;|fNj6ajaX/-y3:kA
+^e)ZU{TubDn#S5p^*>QuANxT;&o~2R.180pfCDp{Af#.9i9,-(*Y&"#eJu7R(uH>BnL38{cb_!.Xt`+GTj["w]mNugo|W%7muWs%-r2M[*vyw`Oi6fN"fuoOa;Cx<jivJ:1;k/yuSo;e7`7Ib+sTqL`5Z!<_Msdu^T1o?NxnfVqUcZ(31mO1mW&?l3hyqkSs<KDz)JOYNX.qcbw.a-hF9!u8),&16yAnEfk#`",*pieSR"^
+:QnVS6*:q5["XTfNZdqS`4.wq&WqR$ff;}))8p/))?(NoZ>?`%8E(L)Qbr/mvjYq3odVYIZmt];gErx>%}pw8jHUEMo^U6FzrG6!>r%.Fl,i8GQ7.)96y=aANQAV
+I&mM@=8CtkDDN#eQ><"PT&0&"
+MqJq.V[OT-W:;AFl}kzYka3jtFJR2
+a(@dy4=2dZ`=+P>(`R1E_t2_SsXn^QTobmely7V_<d>rQWl@v,kyf0vur:xH._r2kS"fa0O7^l]f4?(
+>1U6U+VK-57o7x8oQWpsfb%dt4*EQPSa_B
+R5pEdml@-Xb&>I"-^*scQ1=E/ctCOk5vsYn%D90P*?o@rb?
+W?IHCMCI&bJI9sK8]T5bt76}rq_*)G[9K2;FAd)taZI^BtuBX+sK60V2H]NeE|*vCruwDpOK^kn6m6f6&1s^Ucs*]9vP^6+%wutWM/66l4Fj)WO0?_+RGg2|jW.*v?W?ZXyua"T+&(XWj;>M!:kHFApzq<`|]GHW(vkK32!q%[A`AHO1`}O*ZI?@w}[)');}elseif($_GET["file"]=="functions.js"){header("Content-Type: text/javascript; charset=utf-8");echo
+decompress_string('+]bcjnsZ323o!;f/.e+fx8n;[f71r0pc]giW`oV!D5mSIO;.F)#>?N&/uKRvUtUkWix^XgjX;sS9{(3
+eB-
+eJD[z_=IA3FpiUH:=MZ3k@qANy
+,pQ[T_3Z)Wvk_gT[Jd2khOG[lbtSJi%Xc~x,$3rQ`e7zs`9hczx~5/)NGI&}cu=mR0U@T!doS{^#,i$18TPKy|Ut2;;<LDrZ*rx?t3j]uV0wBhgRMVF+5rB"o&w`p]@K$P3@jPh+.?b}q$QhMV-w*DRoP)N{L2JTta*c.*>bWJuFy>FjBaYa^O=]J40HjoD4_^T?rw%#V3SaEJ,@haT<%p+hZz%2WiK*x/Ujaht!%qA^VCZ%24?IYc7SxrR/#P0:US@|Fn%2c_mX-0TL`9<sF_kip3+A]LVm4i_B)GKtx"@.D*hh<7$~]-CYZwFt@Oa4x]vbQ|`u+7g+B6IsXQ3H9^K]$9EnvPx3cO;lKlZbjaFHFIy,ncrDLW[Tn<w@a^MaXrb^LUyM7x^;r12)nqu8iDuIM(&I)|_X"Ta}5J+vE8Uf0-m`=4yNV{@ctgiirE-<
+?TDx$]G!:iP](g0Z*9Tox-iN*VRy5Z>W|@*CdPh,qgPeFeMj{gObW[)Bvq#<xTo_E9Ma8.QeBgQwGwbq:@%v*h-K?(EG6roY+s6+fSd4qJe8ihH3!oX$R%<=8sjBnS#^E#;AmlT"iBvkm.HK$!dmmiw(<TJiS*Fu)T`tfj)T
+@N%}vxH6(]h%)|`r.SEbR&c(LU&vpH"+5`VMV)-ZbIT#<fD?n>8n2J%va!Mv$m.^hRe%-X-j8i^ltxz"+|(/%&CpSH2U#0L{*B3d4
+_yY.,rLR)Vu[*cHPfLnsT%2)YL*l"Qrl)l]e?}*q</a6L:)^n}&4kh
+$76?e_vQYFJn_$lIesca`%Ewhj%@RVQhWxqp+.jV5;r-HtRBw:=<Sk)v"OJJtc%O%sO:
+ZZ&+Q1[:U&fw2;M5@lX{[^,8rZPTbc9_#(EBnTtG;ck;)R4J&Zs.JeIACX?%N(wf_FTvYw0/xQqtaLx0CKViZm]I1+UWX/z$S9P&84YP;E=~j^9RosV!7zfSE#83?W&67RHN5rXJPDCS2Gyv;d!O@S#*/Uo2_|#Mu=br..K!3_K;71(Uy~vxanxZS)w%e;THdO(#U)!#!GJB^&t[rKBocXn!w<n)YgNp!K#5tt=Q,r#DG:?&t8?)!?"%DU_7IMM7ZkymqVXhSO*|CkdoTA3Uncu[!&/UNEkv$d-~Q*Y<41A./WpZv1ekD>a6K,o&o{FA<,hX="<85cJg1"q`ACg$xfbTN^G(18VLq|V^0zEub|d9kf63V>g9m>$"Zen)a{$+a[j><8U7*GC%x99n>"T[6}?,bk*,q-nZ9yH=^Sqtfqs+*[fgu)b>FMLo[`a<HAX%w/b<L.xjMB]jfV,Ar6qJ-IvMed8h$K;tjyg2&/*Iq[?l-Gu<2MghB>KoD{5rWJrFV]bxI9H:=zbb7Td4o7a.Ga2ZLG`$+KgEw@fGI~tV,k-Nd=YwM{)h61ry(c(L/g5$-cWtXw=Q4,CNs`:|aRsFGM+*-V_`%rI/YL@:?n(>E
+/n2exjX%P[Dq]yI,HU[R3mauTku
+0AA+R`a:Co6f388ML#DT)"c(m-FoQw:%p0
+PG&r"LiSMarC.JWx4eaW//o9%OUE[0S6z&C/p4(Bg2oXd8!##.{#w]{VW@hQ7fU7o:tbCrEEJbz:6(cZrU0Xda`4xVx!+Sr@c2&GQ]F):Yb?,oH$K=2j2W%07YqKDDoSheV3Kw.3@aW+w*B#4Z36q<!qp1PyQkpGS9Q<-V(^VFyG;w.H_s5LVHIY&/6]::OcSEM!@>EdFKirB$BjXBihOE=7tX"fY"#JZ?@Rym;[F@lmHfkJOU*h/!MXOdxLq`d<FUof^^.We>/tP!
+oZuZPZ8^WdOIo#ty^2XU`|0/.trk[&21Vcp<:iH=NZ0ja;jtf&gI8o]iT]vsA^G)4V5//@E%tfMjh6j$+8wQs:Pc&6-_w^U&]In#`fvwt6#4:&L0:}G^TL=USoe%m{FH;,kcYR@`?q:)8pQ7H?c^Ua;GAk9K%p"fbcHuJ?<=6AT2(R*xu?bcvJKK1j@|g0`v(s$PNT=Z#L,%Q_C/a)6W+41|JQs:,1-J=t%2n.5cAt6l1AiKxX5xDG-iTXMpZBT=_X:=C4WdkI&-`(.GobZFC9!yC%C%/Q(V*k-!uQ?f5>Nt#36)EAcL2%Sn0e]E^+Gd]E4%Ci@ycI9C7j"@kRwz%J5W;$ioW;Co2:4g`/lcCnj@1G*py6%(m?I
+>n6Y!F]B-&^2@,;/Y(Rnu%
+]vb+wc+CKNq3w+w0D(]GoV^?fNN?,[+?;,"XGP<!b!&aS!S>`Ef:XW`PJXr>)1K&i;)lNuL!uR7/(<lxsGy137GOLb]Fnb{Q0;?J!6cGsEYr"Y?Ub0,cG9p8(2YP]j]KZ&QBDC/"2WjK>"/S&o8b2Fb6wZ]L)+<w7iPj#)yu#L"[sr`cp/__ynn$Cp^DHqvP(DXD^N?;~EeOS.aI-,bRWxnj54PhTJ)tt)hTKpj85%TlGg/JD"Br_)C3*Niig;Pp+XAIn(ilG0HITlWiG-!Giqi#F0nRZt&"Cm:`qUNeim?P-gE#PI/
+a"/;T^g$lh(6(/gH;^mRQ/GJh
+?ypWph-5Q:YV0biLHp}BJA[;=f#6io7b2@)3<Q8:h[ha$a3u%YhD2pVtC+)Sxldu`/!Dco{+*5mmGR^S[<=QShX]M[{NRMC$p3YYLT:T7)%uAc/"dRz"d%df`,&kOKUrG"u%=Q8G4_+YgWmeiBeyG<RMbn@!=7A.:b<i.=k.4WVYNE&4C"l.8GqVU"^Y]!G=d7hP]C69ADn
+Wvsg{r$C!a"K(/onhFLaJ=$R.Omru/!cNR{Ooj)>;Cw:](`AVamlBKN@J8hW@15F-MR>V<FN2r^I9#6t}@=#@acn%tdDD"J
+jpU3@l{VIqpQo0V`%op*XE&Lk,D0D
+
+xn"@?(c%ua3"y(U2U=!R[OD9?CRH.z?t>VQgh~gFpv#DLi
+rg]W*rmj~c0w(QWr]HbdnZmi(6!ICUX5JR~5cMVF[m#Qtrp5BW#D6_#CyQe+;$$JaCk<"0#RWu?mJ2elz9{U%lCxJ6F"_DDRtG:Jnx}[i,fyXsGHmF8UVDO`@S)o`gCQMbROQmJl=C>a~.lq1gJm;O(U/!3L68.#0p4fp$@"cnV^$=!/?+HnGA0M)H.ssyic]=86rn.GSyW_`->;8v_w?.WJt(.2xDx2HN0/6qdh8!!0QQ91=ViyJ_?dJFNHhpmd4;.;N9)-UNWq-UQl6<Agta%>%$:*|)0g
+%9%$*g"<sb^<Sa*I[2Fc"tXBV5[7c}Jtdvl_p/B"aE]QY"dl
+6esCs`m[Z6EiX^@*`hK.7i;YFeI3Ps^i`Cv+#^y1?#BJqHMJ,_I9%M/X0ZZ]U-*j*+sP6AqxD-HO":lZ6DPIGKK[VVuPV1qv4xdg1uS.=.qCkD0t[ZU#CnhjYc!/I,)g=Qzi#kX1&Ya<QbA[QFb47o_`YTHY-`*r*ysBg4vu.m*#&6rCX
+08-%~P<J+!tt"JZ&|RjU$y*!Q8)&Tnmg1S$m@0=wV@C#UY9Fh,5Tr4*m3[H=k2(Bhn*<QaHQGSggLQ[!]B*<Ikc"6j_AnX:Qd27cP@*6.F.Dhhae3
+4P[)cu5IL
+w5LV^NLS$.
+ZL%GKv6M4QId20GC5y!09*o|VB]kwj
+Jy`;0-Z7[yzB>CJ*dYIL2!rN/9Lh+r7@bl|E{F4o3m[E99r*/d"Q~2lwO9w/|W*%|,,oJ%=V{Lk!j]ZxhOqvHq_tavh^lS/6aD3h$%Jg`hb5b$in*5XOd4LBVSnOTxU]mCzFoC"-_ELTHLT)kXWL,R-;bQC,4#mT0sCNd0-Q8b33F%*1<=3>[aPI#Y4C"uW&gNI08vYLz_~[.$W$*nNW03v:usSeB1y+TG
+-3[TiIP}a5#v98
+4fx`{q8JC4n+H,50rd%HR&<&.YNiT#McvCx:An}wM?zy3R4Wf@2B_l
+1K-sEyR0RKw,eEPM,cP/l:xRF"c6,5k7R:]iHi%oWKkr:6:PjxJ:h?!!f&1#n0PBRErrk#i,Um5KlNtp[v47v|
+}N
+.g3]x9K_G_balSiTHSNLq=u"D^q=TAPwKhA|3;*z$<@6y6A{U_f+bqYO(mb*-qB7Wg+Bl:Re7Il0"R-?:+Ny;neN%Roruy>G9}l
+#HpLLx.R+u[0p="vLXx9Co)n$IUO1R-xqei2o17.6q3R"N?L]`k.fAb,ychZL("
+Q1_8_%xB?)#*&NZ"C~--G=D~*W8Lw<"DbGj}Q2lg[oW=U)g+A[0WNDZ-X?^~p2^.R_T_jCX
+JL
+C`MPV3|j>6^!x"e!mOv?<2;
+3n*RrA*66X-73frAk<`5@.{-UJs8lX6n+rzX]=_6}YPL=LIpQpGd&3)04Vq9GkDF,+E_WpFO"_DSn59WL#A2#
+8#*Q[9lfRgy)gc!5,4~TVG;.{@@Ic96^PxdNN5R._`v(ZoN_V@]m3D%?~_@dmjPWPY;EYp,3tZG1lrO(oms>=>koRuv=sL@)3P_I$lCjwE+3KVwwCGPQn9`uz??K];C:37X)$d!RXp25ZfHM;=^"l<b/BK()%Gah-l8d;:X"rj4n4;
+"Z6+4bL0c.288W%,W}fl-?e?0]JmAy-WCiT&m8F_He1|!Ln>v|et>>l7[0j+q5ew=)[Ur:g+G^[BC4b&;==x`x
+N4&K99M=l)]e{d9?7<c"p^1yvkVCE3KTwV2oW^}F@Ux52M&5lUo
+lo5D.OTi4h]/m/On7v@.zh&rhN$rBcp3%h@[s<C9F[9`3,C:-#Z`_LxJY.WKkV<*9U,g0/3$$?0:)Tv3]QEoOoU/A.&D"MV
+-0IfkO!+,akP2`
+G{#4tcXao><,UIw=qI*l8!tw,s3`q+D#%TxVm1?haUucyv0aO(+zry@++ZVa9|ZKRby$U}?zP
+FcKtb?[K3{g+>fk)%Rl.oO;nbhM8]FH{v<CPqz@),e/*Br+?s,f0S41U`q_)g!-u$l.RvhLI>PME!t`xSs>k50UL8zJ`Jq1ys~##^;Csq:Xn,u>{Ab1n=/B
+PG[+v?UWeqD}SwE{V)-v=G0d3{$Dv+Ma"X@i!Tfcf,L_0EKmF5KjX+khI:$b.%0?v&joC2;&8xKau8$,d>M`UCLc/w#!_`Z7Yh)}5R((iQX3By^J,
+cxa<<o"/j`VL.X
+>!.#vw=(LXH%1"wS2riY5KbNv
+C5`,O<q<myrro98;u!E4Z_!UlE{IaM6L~j?RYXq(s?8]K++e;="4?vM7*0/P{0-!"$6kkek*wZ5-VcM^Zlp
+e?)9O]=[G8u_"NL8Q5,6J0e5mutP)YX%%V`s)t$^teGh)-zrr1"d[UrEV$Amm;LO5aQ&w+>0pf+
+%Z_Hq9a..%8F)?kab5AN[v3QvG$Zgda/SUk#[dfFo0o`/^_?YXcI"9jt8eQ9o7AdFisX.x;p>+-%y!wy
+2hAt_#3uo
+h2AdSC:Cf19DqI`v6LMXQ}3>1#l;VmVR0w>Y&BQR5o6XwdX<G&rt9jZs#6_R>,g?y3&}pJ>")++%Ev8|!1(,,[Uk)EOK=LjDN|
+c@~9-eayBO]hH9U(LpCZ>[@s~AL2_Ck^|aMRPbn]Hg[wSSHF5ZRy+=jP<u}e8.uf+K/(w.B
+uFvkHSuKMPTU^m09cl6)/w~&9YfwrxsRcVv)@(]i"#i*{V_,#&ZDsG?#ynuiyODAY4-u,EaV)dHjqifId;BZq9}>!O.=/OtGIA*54=pO;%B$-9eE<gm:{V98btXGl
+IR(mdPD%Kls;l:/YQS{s5[uh_y)6JQoSRncC;8|rh:(ZfCFsy6%fG<O0R7!P
+hlGw`;@EA`/
+kzGQ4,vjx<>#nbco2*+W;t8,igkvTZR,va1EciB$+aP[-MhyA=BHrRdOZ3/.YT[3TW)NEpNhg`Nu8vivOBqv[a;_Ac7d9QG<1y55P*$y>%Sy7VYI
+H#Ws7i@*(7fvj-6:4!RLClZdT`+nFMg7y3,^YnJuJSFtvXgXe%vW$@!n8/[BEq[b>(0$g89d,88adF8bJeTeo"Z,~j-$GrMQ~u&J_PsNT<C$*bsB6JHCRmC7N?bj
+Qb*C`%;G.5Kgo*-[[i1dll)bACWQCAS>0fYiYm*jk8W%!o2-j>^3AAL(.(bf<+h"[IC]6K0R)fcXLu2paX6@jfw,f&XPi`"LiuV23vb@_0gK[9RQ!<.Si=@^V9.?"vI0QTm!=ogcjX$@g,AIQv-[?oQKoNWjc}>-NWdYjLZHt*a[[8Nx,xs)09]YBad8-e*3D,eU)DN%%WBUZM#B6xujBxx?T_AA&:/{jbJlr2m
+F?B@vB_LZ(_f_nem+js./A:?l(&N)27K0e*K4?W{Tn2}-(:T%WHD4R+X^/
+x:8ozp1K4EygaNxf9Xnc@C(A1^_tlN3%Q0]QAovhfB9=^DY<"Ii![
+(?9j"(-CjV(.*5)8c[c3
+eZMsQ{+3XNC3.clwgl]B2R;Wcb-2;AoTBk>lc#s!e!9hFe
+%#%0VLJldV"$:Y-J&o-gl>=nM0a8/R~izD~0f^10db2GOvuc4A9n~4[E_]_l@
+oP(/Q^4VP_J<oZQr4liC:]?c
+Wk
+J`F#b5?Y=Q
+(^m"WrcbHX!lUI?QZ6KJBc"p3[C45UazRp:GH]9ho"%<C>mnsebJh=GKJ*fHvkT<n`HBw8fl`3Ya9OTC>T6034P<0OJW
+UK&FYF-=cj2^IIbi6=yP43|C;xvKjg>Ig*@3N]MF}!ECY$XAvqJFFVNin(&/E<NFh_7IjdU^QX+BeJ#9mP6f(RpU)
+SXJeJ+09yhFm/7d*X@+OqnzbwBnqkBw$$_>,&!8K?eIcU?0Eq@e_A(b1EDv)Wi,lRr?aYGJ^wusZ!";5b9NqJ9D;g"9b(=~MQO%*:irDV1
+C:-Q_N_>9$2&-m"U1B7$0e.5pb+b9`hEE;_0MS52IU`q).p)=`
+t,I2D)My3gn*J^k=5QLIp"J(&i5=~P9!;
+ML>$}H}2Rw(rlcI@,^?Q^tuyyvms%Vsqk>FQKS$(OxxHbIk/v*oHVcQT_gPf/6BH_<.9TU2j<@MY58r(`#FkB;o:9^5de3~*Pa7E-+%/&P`6in6ILyJ_@=I!
+XpL&w@:]j6pR%[]M%0?gJKdoYgJOyq^Ctxx$%AA/#=4,$D?Q;lPqZYl)9F[rFkatDrTxBN6p]g,U)OKRf_bY#(N|iC>ig&YW6DK2_t#g!{$<8dAC8tn-j$mjfCA}[I2F9gB6Hy:~$&F1`=UkpA^oAb5@Hn6n=<0Z#!H6;Bb57^v6Mz6W#I=A7#Zra_@=gLwvd5mA=Ie:T1sIAHhV*"k|a!_[_{H8i$i~hMI,XSq%QQuk*W`i9h"(?(+R:nr=)%QhftNOV#`>Eol?J
+G;,d2%Tg!X<z8~%|o`Ke9uQOt[Ty_eYKf>&s]A@V4=M$(8P]dNdd?!^m)0gg]`a`UrakR<.Q!L#Si]I4%#HWxssw,6_dr1^,APm8oi#JB#?Xc!CCH<;B;:S%9}x,&jbTR][ox+eWYqh;"v,0m8JMVC9pZ>bwn<
+$L6q!/l;H7H"6c:K$vzZ8bOv0L~,3G?JF&;r
+d+ksBA
+`"RNav(;4Z{]_3s/
+g.5E^&qBh{%8+9D[vAH5yq5d^AB~sV-LffFw*WVnHplmqGgp%]:1tJTUo+dJh_*]qzr:Ktb$20^:)b2Oo9NwSP[<N]).X_J1ld<$ym
+G<Q=~Wm?IkF2liZp2Zw%H8,NO*W#~J|&)0&4Er{^Mr>=Cggl-)/dIZY%tI."9pT<fH<$RjA*Ek5c+amBKEBB6)IE2)|yHu:GWCvA:K2!Vl`=p,W^Aw8soaiRWKYC~%vtY9Q/]k`
+57/]kq
+["<=Y$c!*ex%>+NW_4EIP#HKJXex_~Du::gqX-s^mjJjq#tOr~0Ss9:28q&+_vGH#:VM>treh"lLjbsAXBC<laL2M~9}dqD_cKi)[{PYqnBgj@-?g3SL09Jz_9AEQ>19:@/[>B,lQvmTc!I=0kK*FgWHk9;mX[;hq;)NOQj{XJ<AIh2O2#v9R#>LBtYk#WS.&TQ{p$#Zi,E61%?Oj`
+dgV$*Z"gyvkb|go*~8v]e-IRoQaLX+j)Mo%7gi6iEst6]bQt.l+KKsUU^Fv6h_cZf!1.*LqCdI$
+v@JE-"aWQ5@N
+b#6*oj$Xhs&Clp#5$=`5SaMi&yt*l,f|IZxs""iW6|)NI_g8khqZ4yB=l`!_d=mUa$M&P#d!+rvP_ip,P`dtme985-5e00Ai;l,2C5w@(.CAuKqo3hEc8hJ(%[-9Be.TtzNa5O9aUQw(n|6o-/N!>@sk!6vB
+.M!/jS+;=)HcqxX,V*dY2DXM7:L/la*"^_Jv{^Gi}8Z;q0pK>^GRXtN]iV0>,K-9CXe"+/=M(CUB&.QNi/H7eMp`$Xj6o2^2#-?!{)?]*kFb$ihDD_lgQ7-3cui4f*+*&A}wIgjmL96p#30G[1AUE^6HDEnvY<j6;O3t5(X/qX-U+:0wK3EfqbgE?(ULLVQ<9*]jrlf&$nT3mfO+7Z9v`7GF
+!{oPAJE2
+Fdbf_29];ZW<08D=EJs^j:wWj&+*
+3EJp?{^83(se5GYRl[_ed-vJHM+R?1DC
+/*F1-rR"|^ritP_d(cawR;+`{G;^HBO[-Q|Ld0|:?BV3!5EI),an7%rJR
+%9W4m!WCJ%UWRE)rlRIlbaHa*0rx05A5(V77O#5JqEwY*7}Wf,D]<L3GQm1e!df<6Y1c_
+SG<2wm!kuF9FQ&d=N0?6m)WS6ZTic,4ECxerL0C%Uj9&p#L^:m:l`m~GefYA9H^mo6.LNCL7{<_(?_Qx<+PR~JVPS2Sb.1-"7,dlq9Y<
+ua/+[I=ku)pN5EKo=1=Oi&j[2$xHk&(a<_?}=[qr"`s("8d79F0H>6>_N:Q53u0`kvDb=WDJ+ErSZ_5G[EK+r6&.[y5{-]oQl`*+[!_[1#)b?(4R4Zkw(Lkq+~<k#D$XWOM8gmk<d+9uOxZ}c::+b5#|u-y@^y3]0%1C"7N"WmvMAkZqOq`7T+wNsKtWqne~s<#eDN%6?myE"Ff[y($d;{q8JkS9V5"Q`ZN5gD,a"pV`J-)!HxuSb-t^,|:[&}3`W0mit*Dz]$L!^!QBV=0#yCes&V`%EELo<YedQt+h#QF#8]>l6pgr&X]ON+?Y)l-Vo-qT`7)y5MX3@rHyk~Bsrg@yD_<Z
+3Y5G(!L*[A}Z$g?Z317X+ET8ih#W8EYwQrqreK/T^3gp"d;8D!ly2Q>"vs9.SiSfYd5/"v=lH0NS-k}]2C<5VT[B+[`7YqvcBlpXgNQ<Q
+|4Qg/m0<VN0<"7eOmO?&soo_zm1j-W5;$U^UJk|40R]FQ=al+R_;T2pHc@;P;toD+u).o$liO3:oq%hF)scW,8gGt_C(U464>VN)
+_mB=wcY|rK,(0-!-gkT$^&^
+n)@OY*f;O47-[P[4#n!a*6!8*d#tvFm(DE9pA,9R.oRS!<3U9%m-!_w-AF<,u_B=1k`|6cn(s>_^Spjc&.r{YcAW`A:(m!j!J~C.dyt=``(z-%p*7/]QeVb`HNK[J2]b-x0.[{OXP`fXJT/BxXDl#=11Jn4m$u0FB@]<_>S}Ly+Pr}lcIA)/,0.%R(JnO&0foKXvv,F#]~cz"0o(]8>ss]u{97p+)]YjlCPHxYz$itOOp
+9:*hsj8OAsa70T7l(S>Px1_h=+u]3hMo9ubQ?jA!m7Rg_>Bg25CKo|)xx-tqN(GcHICh=T)j"$<@sMr~=e7J@@_{J%H`3E6NZK_`vW_&A4r2Ku2W:o`
+jNvf3-D{UuPSNa6p:%NyHH9%)-1gk_3blX8&*.&ZMl;}w?t?^Apy9NhDB;03${r81f9|".S:to
+0@efXc@UdvO9frU<N<JWsVrItX[Wo15tvQm9>)8+~tmVdPwR-EPK>rD&uSiexas8Fx!w8/-aYmE[[,9X((K6[23d{AcWp6CCj<{S%*s%!0_o53)GY;&KPf4Lhm03a#R6sZsRU/P;bJYDHD>YO(cIPd$k["WYEuKS)j0J":%<4,[*iIZ"QNAok376s[^c%%%EY2L=)>eRmgK6bPZys#L"]M:OH@aros[*{,5_MFj^/3&J<XV[H+6
+lhs4JD4]$oS4)L|T+1WhvP4,S>ADFH0r/g?hah^4nK9;0[9LDix=b$q40-##|3(c!;a1H!&1|-<G-xEd
+641I/R.5i9X5:%Bt8Q*~A;Nk-FN{F<jUW5T#!VM56Z)Ob3BQ@>l&[z64!.KtT;`C7psi/A&g[8kw2&4I
+Gtpc*.D5Hate[^3)3"o$]tzSg]`]v:s2e9Ze^3u1#Fv^kT<&kwb2bSY;3#YU{&+@AgqqZ(Qw-%I0CgWKXMv%>>0+VXlD3b[cCO%VCR$Lda^=D"?QB/m(vqO$ww*ZCa{;ut@]R7sPeWOfQDP;xf`$M%g^trgT6/`U<;xeISB?MIF,SU#yTto=lAy6J
+T5`cy1IFar6R@DIe&4yu%vb!ZK5*<a7k2E|d=T
+>^#M)@n?q
+0XGM9]yJ7t$=dLt!(3H-HKTf_XTzLP2TS!PZhuT
+p>WhQ{k9b6uC#OY~Jz5=ui#U$KL@mU6vxaLA+oG9RtfZ`Bb[Ox<t]sAz:aF7T]<umXj!dP04Qkge+]`ak]*]AUw,WNOOPiItP19Xpk-x0yi5LR]AbFMride|:M)}@&FG^Q#IS>L)*7Hpb|]O&0fBx[b$*adz)bcP&}imPSiLjgN
+qS=X+^eCIcKkyUw:s4v|mYBpl}bn35NpFBh@&%p)S%x`<@v>D%ckjOrC%Q#`6`u{y<Xgv7>;Vl6|u_%"LMKjE<QA=jxiMul:Z5%v/y9lQsM{1)I"!TUMOakBX9Ejny13$@R#r|mW6#hz3_JU^vefL7WF
+if#p%ynvaW>k[PWhLg_JOYm`9lfxD6`w!iiZ4tsn"<3I{GixaBF</R}DAHl8#`4PnJ|sw^}qse@M=4WA`uqkr%|=Q=;GonIc9")OfWDnZ)M
+R2(%5N0Jnd=(%D]cBmX1:+!1L]Y0K2yr33mDxgG!Qf3F{sZ&,0&eCg?tGNucS6DSE3VQAV,`"9e#p/kIz<=
+KCR[put6=eGG5tc%oxlHN@!0p
+9YZbNZsLT@73O7x:5l[.H%?=yf+V7XDou5-N+ufhs*]-9ti)f:PBh6=BfM5B4>D`&CnfA&6({7X`AXTt4`}e|;)/()M]>Ya+~0Oikmun?.2S}OR_
+TuMd$%=tO#E([Jg&rr@7!]t(y:qTWb:!JJmdAW0=Ni/1nln,[,FSgp*yRDUy^%&hG
+e|y>24%K&*#*qW?1po#6.*F0K;ga*yH0^]+(8-!IJ!Wx=LtTw2-(%uY+y912>0fA1inE-5+YOfQ;;JRWtt,nt!("K2Zi[iz(KyAIG,Xe1SrHExWvVxs61&]
+[740]:+ucfOTlBa<T0sNN["5sPWG-#yTI,^~x0DmKdb{F@a-@Mn%[SpP:+lZ1e,3<
+y0!(^t]0
+kIB7pa0-803@K,QE.DR0^ff"zrN2xgF_GcPm4uN_d@Y0U!L%r_v&$7NK!d5(e76*O!Fu"`+G%Kk*koM6:x;R!A"w"
+iF$l?L8M*ffwZW/+D?MiSGRgPc`1DpBvY1Xrv^RijgdZ|v*X8!r94g;gB=T2PeaOgPrjk48N$SCsJeuO$MEnJ--&.XIEqy?Ld0C^[#Z/_Q?uPvEB{R}ur"ikR&7#.`QpbI*`)Rr%!%uDX@nGXe3wh4r50^fR0x#MxjdJR,zF9A{&A&XAFn>WzNOX|"Tg#X^A*Od({nijg
+>]s=x,:_,)aoD>uG7Is.k]=LnS9c0^Lo87wNMsn]C;La~f?<p0(B-3[[rHS5N$l9jpOVndNb3Sr[kEQge=n#f+w1*Ls3$Uxtpqa78v</l7H5=Ff,qXGm?#io[4yWi>o[OP115)$@rFHKy(vL.TR<RS!UGGMYQAnYkBnjz<5cLsvq0QA35tzWH0V$u]4.&YbcNyO/,vhyK]"n}TULs_[_YlCIjH#g~VHHEVHK@6.2l%Z6$ioT)l0SXG>@^7iC<<Kch=rr7revyUyLYy
+6ndml50sy8w@F=P706-vg*vX-?4VeO4#+p3xV3oPR{h?K^q1L!Jxcw:_nj.6Ez7I?Wl`F+eD[O:ISMYG?owcP3t7WjowPZV]8?o"u=&53zGA^7]0j0[Hq^v*;>cg,BtDIVy*_,:
+8kq)$/:MS;sQD#%WHtwfo^s++wc]")2Z2+o+yB_-r&k*hPgtO0bf@]cM2vkMb)=#(_qu=_kgl8/TsfF3QnMU
+}g1ID,}3B-g88D/f]s.YYr~s2^ihOo8E%M=H^-kGq8mT$;7N+"843lHUXC|CPY["6UtK7aP+"j[I2w$x-Tm"}XB3[tNp;I*l?4p#1k7O}-"e
+V0y#?Kqwb*c;ISid-vo>Ujs"Mt%DsP%]]/y8d]5c&-_05$u]AHUsxV;AWkIw*LDW9FUr8L_aaOb"4>I1#amfo!X!k+f0Tj02e9r_<CpH@:[5sdB?(efo@C-CT|r^NbuS:RsK`oNs,gA9aydD%CXEih>3P`RwkLT_#
+9"qi[WdBlNb1Gm9lhxhzIXKr5Md4
+L:_y@,ReKBq5HNaMt4I*vK|h$_<9xrDjzYUsv)kcE,dX|)LqDAVmcc2A7W>j!QzDr-,Am^AebNTF<bvD{Y(hqTwXo]_hqprwn:#=rp|L>yVa;h[EM=Bn}tMf
+m~eCL?nvHc?Cy[p-$aWOY/vmU6/IYbi8suCN9nq$4qdL9:6N/U3OU33bC$`i*YUy&0)ujztp&J&aRT>8PY;u,+)P;p&_h-vTKPGZo(e0&l+:LG?Yx4/3?;=yN-4#26?VDLnqke&J,Nl(KR.h6Yf^@9]"s&Fxsj^|N>t[HSD:8^P+<P:3l#dYb#QAN)-GA<D2W=?M
+=puG1x,g|1&r8;.9~ue5u"@^
+5nF5>nZ
+ehc%NIGlZ9&9l#W6Ah["nLy)Q|W7&!xERr!:*Q_?PX3R80H$;|1ESQ<:]0!a5GEz"~0=d])(CqWzd_Yu9%tK!=kFrnFlR_Twq+tW^1EMw|0SgHg4Pkv&^Y#IeC*b1F"!lQTW=v!TJR4~7pR,V7U2Rs1cKM2@7Hu~Yq.qZ#$qD]rZq4;f`!V$0AjS[BIF?9K-"7v8j#GjDK-:hz+,&$yYd{DiLJXg+!Es^w)l0l8SN)J-F[TTq*//XxOvRO,o+Cy|H1]eu:<,&#a:P}OI.&x,Bd@C+YudeY]p
+]Eu1_+fQp2Q1Od[WIM:KmCd8:$vlZ-W[2;e36o/(dgt"B5f5lp+@wt)&eq&&vjp,<]WRiV*s
+BFt)*&yo>e3w
+Ot9!rS;K;BEUuL}jdN:/-k=7#J^Gj:C4
+49v4g;T>MUW(mWW[xyj7r8(Xv/=`.]Yu:PI<?"eA+6Vpwt#$OvXRVoC[<dwfYGto5CM$%Gj0_E<2:y3gl"2}Ye.*GPRG$fd#CTj>6FD8eTMWv!jshCX$=!V}b*v*lkTi-BThMGV^O/]&LDLP#Buq;I]aBYZ>5maDK]*,X7,$*a+9p,^Ae2rrN@1O**U2;K%>_EgJ!MYb:CW9-9mOIlG~6LvpvN]^K5D9,8m+L>Esg~[9qwbx%#gzNA*EYwL[$Ja|v.SE9G<a1Ag-GmZT`4#u/*#Ge,]LE<I--kvq<LUKFOeh!;$2a7CI*2Cfq3hQh4%ycfUwM!r3*W`^)mNm&Bx9PQr[_A-OS"DN3oE[8jR^1Q(=rO!:.6^&[J!p.3pC"QBWZy"4X6S#1HOp54e4Rlc^!}R<sR)WY"+?0_k]KPSbl@7VTDg7mD:4J_r*g
+KF59)lxe%>DL%lNuCxE}`M2CjZ)165WITmN!w}A+*|J_2>+E1=USO29O$f6!o8eLoPs:*Wc?/+T`;F8NgR,mev[=2v&)5<T,1|J{p
+nJbrKOK[nG/AkuC[sv7*%8-MlYC^JCO#dJQ<D1%RP8MkdWuze!]HlU83o7EN/%dB=)"zkb,5H.2uU>#q+]y69)3h+$hl.rx4BRU~ty"|(@xP47surH%P8GE68XgZ^a?*g1E@-6QJJjN.mtw6rW1gN"UU@B[$Esr|#JCrsci[
+LACqACE/rbzN-HLUf8?Im"ML@n4^#H0%2tZ#,i#vQk`S{qnH/2Q:xAvd1*}pN]`?Tgo*`PZKgZNVmLAf}n?XS>TRzL7Bl4VV:7(2"T0qnq`->i?2"n5d!AGn9u"9&;7+h7~yw!Q');}elseif($_GET["file"]=="jush.js"){header("Content-Type: text/javascript; charset=utf-8");echo
+decompress_string(',hs]`s>Ze.2)6qix%iS;"ALoU!:VdVll-:e*CY7Z{p_&G^XreTQ=+k:67@Do}yna
+K%WsOP@hnnK[tVaD?ebrpeVa-gDTbtWyy$6;kZA>vi5L5D=][K7rS2AS]`Z=Qcu@R0]^cygCJ8sfb=["VK7SBYXB(YRexw?Ra>Ln,Aku7_M6rI]`O0^a=Zlay-omR,a^jW]Wp+]{KlZ+y.m`x-pswg.erK]-+VFQF^B|idw=hcEZ@(>tuZ7w=6M{;(*6xOj@oJpZ([mVusM;.EM6!Bo?&#>%M:+Yd@F-=Y6#^`/;GSg,yCc2HjYPwgV}g)[kH>kJU^-7#DW1m@/O!"rp<4=c88N<ZxNeyPd%G^=K[EYlj/d3&Xxo.IQKU8&SuUVBLiqU=Hj[hvKX=OoFgKp{)sKR^rfCH7w]bZAt_wz%up[N/#RYq.=1L!i{bS6q<bTmr+1d7*AwuuJ8[94S@)ERp6a1C
+^(B%R%QskaCdaloA[bK<OR6HKSpJZ|FeSAbkGZOS(O4@W<
+ww`3f(]c^
+>2)_#Q9vuV7D1;8QKN#yVMv^GVCUXbq7:1nq8FBtvVU4pBHf{Ee0g`1#gLKv
+gP6meG[7F5PVyLjS"}2&XsxZq4*4x1r1wnj[tdRN?W^CA^@gaV[^3~Qn#ZBOgp
+wS3#]y[d(V&`Em{klrHAOyO(uxg*iyz=IRc78k=X*0o!^l4n`S$6HEk(O<h&tn`xv!GC4J_t5[|ufBwW~oJm:
+{0%?LduGd)-c(Pc3!`^h*kg5"a,:eb3xMqEy0W.LFjKIo"XImQ2QtbcpisuB)HLI)Re:;6}xzX}w?aNM^@23GZftjV=V_Ag/HM%XyiQ`#d=*l"5(Iso%/Nn<lE(BL]$.mv%=-c0o%auOwL_RjkLv5^QWngYa*yIBiXN1te~9{./)}ksZHw=twtOsQV#Z(w?
+GgG)NjT`dSK]D,ys4EhvndSMrGz5"P6^#sr/V8^K3X~^
+7p.QY#Q%c9unY$r
+Cg;"r9gj[L&=[G,uhnL?ktwo1]w`4UxM^Sy,u8x6HnEw^Sg$m;4{Y.@p58%&)hGE2#QMp2JtJINu?&WRZ2)A.6Oqn4u0MJEh+8N@l=2c.g,{>;(N]pSNyfn;Y$H(c|b[$Y<um*pk=eRgtp?Sm,sdz&PjVH%(lOZ;uBD=6ipwU;cLr`/W4lmGq
+f,Re,6+bU8?H6bG)c~%=).m#DElMKqI
+&mUHq1MDFUsXo0>p_PLGu
+u*j_*7]masg>1u$qsEC]U=O?^enMSHxa6L({l:wdn~
+y0;X{FOh^CNj19|H"UdaohDv4g7t%s<lB.P8f_t:bR/KDR/I.rkv
+/SE}!JT+?:RbRUim^Nrqt5]^vf6rqo@RA+jUMnC<yLOq@2uv;C0qSJC[&"n/Y;B$wPVnk"1u&GhhgwEA>te.tWV<C4i/]-7Ka]s!1suj3Gte=:=@@6**=!
++-Xp)O4
+A<vj_;)t}+8PTpI>RXleA8%M@m7x:9N#u/#%N&jc6c~eupp9?v;$VKdR/K[i|97FwgR^D&a=rwh7*y|1DED?vu>Ah7xq3LKF-%:*8r<n~B|%Ie.GfuI[PJvCQWR#S+[r=!|"0;3S{yJqEjO!)qS"C;GxfLdmVkzomP2^?Kq<t7?]-V9
+d:|/WV+&YI&,N6}m&Y:^(+y8V>aIQSQ76s:]qO0qrfe%rYEiZn}o"4<Y+#J!X0frWjv_v
+Mm$`wa$)XGzA3kpPGZy!mfMqrF{*%={?}?ee1wvdpCxY0abHGD6S#vB(^Xi1
+Xap1>ux|u(W%s,N%/<H]f`f4B-HGFDDqr@S9o(bLbvlA#8Ga+lskBBTw%}MsA,B.RZ[l<K9S"/CRx1a_?m^o![q("kg0vSE"MFA|gs$`-DxBhV:5xhv1XgK.KP
+D)@v0&]JSD)x1Y$uVf*wQ1N(F-5QM<WG*Hy,Kkw&ht>$j0{K[D/_QEB`Pt5_fP%D
+_W]%`3eL`uv<gN^|lpj"TUU8Ys60Y"a]7TIs%O/;u!yI!$FSyu>rcRK|70cU-7d"@evi_vKeA%H;V=c!se>BItx~)1<BPO/hLX0A!"VtvCsW>z`y,~6HWR7XKQQ-]1]]7N!`WjNfyV[i[Un9"TcIJ$Gh7bV7ycE"Uv`#qidzdcJ_wfkU<-i<pqJ>Lbc3:@31-{`hOXVKQ:TA`SpP[SSCvSGb*AeT__/].S8eCu]G,]X+0l]9GctU+w$gw!&JSumhnV8tA(*|3716m>d/tf?LJ]-r0..Oh0@v7gZux^]XiP_QB~N7e0WG<0XH(=ZVNssS#U-PTRK_&*,]mOQDTmoCvlAlvkA$Dv.BU^2cUz^PKyaPrd0xPkA~kwoh!}h[,OqEpjv}2&E1H{#:MEZZ[a=eCm^adgu83j]+u|uuN7l|)20><(I^*sq*wv-H0Vj@-;-[SxD,PDXUO$oy+m_o3r?WBcxmXSwXm<fau;,V[y9{gR"s*uq);gMLo[jLL)N,?>vmrPG4p^L"HA])671Z)<Q7?v5&*[D(UWv0KsNL
+u%7>]6%aubF4=#(JQBp2OtTOIeq;0oRihU.[~<@:A_(VaWC(Fsjp62Ao}.3-QsgGLw<HZ0xbU2_9!"Z!xY#R3O;CT9lK9$6-sSKr=t/7vbB+)dX#|B{0j"vf%K~MYfu3D2fiGFR<!2J<VF&Ww!J;,j;!p0cVvxB/ery,i!|tOCU!YV@+.xa(11lyF[)Z?=zJ2>siLU#>u=2d|P<;XA:`Du7=X,J"W(4M}j#_G.ykPm+ra/9)9G_0p(6^H?-(@`1xcG7tO@7yf0ocsYeQ(*n_K^q"kf_Vi*"sw2+nUv0J=D/%AHSa|Y/Aq@Y1|Dzkn+J$wn?6`[{s/XjiOxgcRDiY%Y3YP,@pTy.`IxYbf[Leyr:=Cp{T9(DG5hmVCG}S$(r]e$6%$YxQZoXc:GV*(9(NQk6`QI"D1h*=`Fo_@kL1,?bev=p9PmGV?3L"oG*(yHbhlSD%2Kxn$d)#c
+ejQCabAg]yd4_kYmwDUwop+0d`qriJo1y)$Q]*RE^@|^/0&mll*ygPY?~06PhOA@Qt
+[<TG`TDdJC"E_Y.Bl=<pWrjqw^J_9?VCua*]v1S5u4Yb@R2dc$adj43o0I4u]u(oB][5PYTD8jj,)*FV,swM9pr`i1/VE3!&1Q]7?)SU_;J/SM<FTVVp7M&ZZ7b%H>0$nA=?2>eXn9yBuoVbf.0Bn$=G*k+XBFJ""kpFD4Ob
+;%4:9/r7wqxhQ/b
+Mr}M=p9"%#4uhb.Q59]QKx>_V.A,vw~8ZD:x5uLwxDX]{CG%2dj[**WHaiSM8`31HJ/0wT&l^XzJd*79"/Y99WQ"GaXe$]$[ScvIZSY*!8nQOItF+6pL>Q5@z5)/Q"wKq7?Q:EnG*IVmWwvfopG`[CRa!1V3
+.rJoz)jrAPC``q(bKQK8@QiQj>jIO>YTb-!C+ydiogbn-U/9%mD1_>mP)
+!#/NKh;oIt^-*|?]D+F/ILv|T3?+J~x-Uh
+
+D2MBW9Ym8);GWm
+I3ux0*/CCB$)YD26[x#7MxP_}v[(8-[WlnjS!vkK2FQy*td<=JTm2FPUmY3n
+>?xi0E[-vK&8^_vxn<dD#oIN=@=o)Od_r=.6v?WovZ2CC}d}F)FM%Xe0YH2>Xwu/:)oqJ_d<o"xi9KY@O7ub3^50UA?vo9y^sdo]rR8Zqa#u)F7#cEpJ[_vc*9i/EnUm=@Y7g_rDljS00Pqr_CdOtF8yZMZ0)qHSl(fct?+f93-uTNa>&Qi<a;f{=0ZL;W=aZ(1t_0Yz@};xG}8U23!ag8W0XI@^5PBV?;u:PvraOAU@TxikrVyx7p5<a
+o{N$;OQOu6u/:,7l=mq93F?@y6N#1gBcmC$$4u2xpo48C)`0LI8)F">%NWO#<}cO5KOB;T(Fc|]Mh]n&F~1Q&$Q.+M8$w6![q%yZ2MerA90yUVU}8OMbcHc[#z*fgccclU9Ygo(h@r$ZHz*|A>%SZ,4c:g9QV+qonCBAPr`T?P7QWgFBKd0TgRgDNEz![6W5G";_=s59E~M=,nn"CWmA.39D2)E&6C:HIViEEL>"3<ClbmR4nR<"S1hPRq;0acwXx6yPt5Uzl]p=?p",4v0d4h0ug#[|dU8=3&_jh3`gn+kW,^Y"/-qzO"BSmZ7?pYRfY#q&s9,q4o):tN0]>in<"qM[n9m`c~eDCMa=a2xjW<`g14w/iUr>8Ntbn}.}D2z(Q1d#[[/`nq3=s@]b5ir2l1SJQ^a;UxrZ,xY^$[
+zryLhyKw?HMR5_P7g!0T#nu=G6ux#jG2;cJ3KkyMpqI:Q[amH=b3eP]?o/vS(xcf*vTET^5-c9WuRKggye2W~fxuTH"]<5pW{1Vl3L^aEjkh2^e3[?Zsd)7K`TJFj+<cLij^qdtq!*7l[IdYp8#mxN;X^NFNkjU7}J+r<K;Q5
+_pfJAx<^{(zxGd!5FcQy@XR<_vz[e<#y@3$mfR102k5b5-yf7-1k<]B?$/Hfb%&J!X+k
+&SK!%_j#-_1!,;]|np
+a&AP9;)>.cCc[ZF3jN<0Ka+_
+Y7sL:9saV,;@S}OHP5,dQb3Q5->KSUS{p*yhcd
+)<~c
+sa
+.v?Q^n*mGFt30BOjRO`4"uj;n=:i[D/?kF=I;_Z8rT^q5bkefet+Q[~G5wcXA=}k&ub$W5^ymvb>)WEA&&YLqRW`8[nx_Or]8OeKiJ@vvy_PdR=_o5-wp,ImzX6?^N)2/fz14w4R_I)tUc|5v(9IPEu3X9HA)vv#6UzQfjxA*w~w1[jO"$=rq.wC
+OA,gcS?mm]tuq-Zo<w]$bLm_r~8#pLYATjg(F1)wJpu2(^N%x"k<SLd;7<?C[c`<UNLs?hZ%G1WFS",gf`_U^2KsfR[eQVZ=:aI_7CI"nk%iT$<z+XN$VKZ?^pe@U>,AUWy%A%b?C1iNRi9UQSCgoRf/A%qB=*b&0eftJrsHQSavpl$w*7?-2]bOH)vxK(wg]ua
+_?V81j?{=~^q*5a,3![i/bM
+/yc%``D:QN@VKXbl/fwkuzf&1T5|KYQyMn<}_c<p7h
+D[:6:(VAHguQTTKF=BjR!v#JV1#ajm%B7G{v{@Ph=kt7{c&n~]p
+J?(@tv9tnvMM(=U$CJ(69pZZX>s9?mbjoQ@y
+-I1/HC(.%R?jq1Mb#gHjiTIogODU!$?:la+Gf`o,@f.S1Z<f
+hL"<d;j&=m{FbikfVNmyc(hk430z!p{qHnwsocH;i[j@.3PMxXHjZ/tx^3m7!"z(qg1!4lAyn"@L!rD@@Mn/bp57z5Rtc4t=>DZM>h~B,`@yb(pmz<~TQuSk_dfU]Q{P0t*${Pt%9XgkMLw;)2z&YBP:xSKm
+x*u;3TV$"V,BeG<W@S,=8(#9MySACGmJ]^*es<SK^%4Z^&GD0mBki6!Vx_olHBj<;C^$CKFOpHgZa
+i/&RytMk=uxU0}#FtQm{Fq^X/hJkbZ64UH;:@(eFh5@`8]^ua^J^[7D1fYXsQnbMv>fy[i9`8",aNyem-0+lQA$JXM-#or^zaO#Suw(5$kEAn/+;aRFXwwk$U6Q^I<-"vQrvQXt]%@c$vuo?5JeCnE4{,x+Y_|GUuW>^Y=.7X,ZU,PbPBA!Z$p/7K6[@N9O/lj!"+2d?L,d5_VRRcNJnoDO7fvY4MVM<G;=hs;2q:G16Ql!=n-9"xK6BZnZ9
+1no-H?u]2y
+%e=Dqy2":Ajtd"Bo*5>q1~IUvu$=
+K]k1<b5F|oC_xwU+QK8({:VvS$Ma!p=+g,VO;y~L$dxHOEf[{.zMZhhjg^3^IX?:)s3ibE9)X)[B.T-T,*IBLxO,ntCvIJ[m9-HwPrAqj9?yqX#bc4qa|CZ
+CPfVUfJ5dWWb3u46EB8kEy_70A<OFZR[RNFx`wO*0a5frHDoIWl0^juFj`v9$/Z6;"PfV$gxRS4"=r}rz&{8C6y$So`?VL{WbbQIh:<"?l"0,=8s#P-x(-aHp6oRC*WveQ-iu&IG%DY&"b}v]cnKxqi::LW1rev(=#B`T@w1uyBbQ]tQ}xF^I&QA&]BmBY7tNQNF/4I*).TlakytFpl45YQi(F%eIGh+.!|sJ)CV4Av`/%bkk<4H/=o?u=em9uLi^cOFkWT?aebQp6qyBuvAcL@s%<S.i-T;+lD?Xc.]V.n`S#V+[+4H"@&-k<&pTU(CHnUwLs]6B+bFYz(Y5rVQG9OXAt"7i"Y9X,]WhJJ#li|xR(z`7hW"Ef+J-l`%P#/?R^uqkLBuBviN8*<^`C4r64fO;kIAB@HlRX[vBxN%*Fk>LjgK"8lVE<zW~&tsd[vU:Y)G{)s3AkOgEHv
+VLL-:U.KS#VM_2~Sh9xJY[i:uJfdI6qwKYVE6SAtpcVn/4wIhm.":XzKN<hcC3hH.Ejxb9:5x:>%M%2w7i)>d`)bOID@V@vX%j`@3Iofbw{WWA8[G/|;<Eo+nhy[(D[h@CN^5M
+k%[;D.!f
+vQi5!eDQ#O;Lq4VSQx7w0>My#;tEi`ZpyH8b~qU!4s*<)B`YrOH@r4*_@qnM#9~1rik<D1yu$^3TjcBYy?2=^=&N.%CH!CS&H?%T<(o8V.V4^+wiM7"Ux028g*0&)7!d}sKXJ4$Q=myStw+9M)v7`(hvyl?</^IshYFj;GZr~P``75{._@9+jCzC^!7tag~*]Jg`h`tcW&R.[G$uT=vl*!Gj<YO81TG0*Rom*9_/8FgxFTs
+bVe,{xBq*!<uk?Ve:;)b=!JTPUHSF3j<UB,czwxe&l.=_>/.amo/{?V
+-GKt~
+oydHKr"OZ#_XA+6bKKIms3B]v9#;hPK.}[D<8i*gTt!-mKwwGAV
+?xYtt5JRum>[kBVLUJl)4IL!koEb@+`^^OY(c<])(I;.FrU`VYhhLu7M.jafKYkw`x|:Dal0(J[4o<1=t/0jxZ[Q%TJhh_2mGLKDPS{d4P3ped}T<*|Ng_O!)gWCPe*ZhAXK
+3,nK
+y;%N7)MvyH1Ny9<Gvxd(ONDm_bdre4f981%,Q0P)t]xpeJYo8BX4Ac8l;BbxD"1r9C`fk2pkbFVZKt+EZKPc:>z$TDzY%1KN34VXdy#Y8:Rh2FZ])vCa,TeJDJgwoc9i*65w;`o!9X9dIR:`2/OshZDhYU2j/B-X1yytvh:Hgb9x{nDtRhh@noFtA/fO/yrsCjT&5vA.i7|w}k%>h7M?RoDPX_Y3%pyiS-ucX"uQ2PDxY!E)Y6v]!T<[^u+65A@0Vz!%Wou&_oHBZY&
+3q>"](@AVbFg[n;d4+%6J;Tu]s~<]SNmPg~V]wJ>rMBpiJH8e];*.c%<?#q*,w?y~`)@d&8[#)IfG`Wqc!$.=Bmf1oN
+2Yd!0R5EuccchseHS?tY1s#9%A_C[)-,<Dax-1iU#qbe[TY
+`dx.t`YTI1s:}R7
+E4i;[?"p.$n4TCtJE+9*}[e"+nsUCq)KvXwYw^SV-sHxE5fm~YBa;qdiS7kyT,>*9L*c=y^?(w;93Zkwl#;*o;!cdKo(F5`GZ,JWaI5V7cFTK]}RA1YNo1@i.nqw8u!9.4Gs~SHy(<msbfOwzfL2gE~2Q]}SB!Q-U<DG~xHTx+1xs@LGRro.L*DdqPpGWxVx*/z!}me=%ORGAHcg7_e7!rq"nl`xUU/I3"Ow;]-.?6P
+(iD2r86r`?9dY11m@)R:p4
+ArGFH(pzo0vzS=>:-mp3GU+"j-`_7Ug[w[%k8%[,w-75.=,erJxqk~-eonk`
+9b%hOoh[lx"
+EWKA?m4n(&k4
+7lf,VFVJHA8#N%es7`lv@;_&A:?qp@VDlGiIxyI->_*GI!A636b&k0UY?>bFH`Xk_2xNu*Qie#X<yynkfDH+/>F-["l(XQlZyCc2>(;DQ6w+f"4cGpl+^+LO7`n&@D-{X<#Jx4bcAy%LW5`u]=Fh/GxVB}`0o,T97M"I6qD@5`f6J+*Sy.xOT+W~<5@id.G{averM0`@?M`zyv;$$4*w<nm:Q5u+s->^(7PvISr>uG>09(4&BiRx)WXVL6fYnrGXX
+g072Bam~m-Xgq~_#=zIjL6+1U-#Bf<<Z2;yYo4K<J<41U<)8<
+X0B}l.k$P
+h(b+R0>J)k)fRffTp*%I.WFVD#/eG;i](>fyq-T1f<:1_a`:Z&i.1Q>fYrAq
+g(~umO"wdOQLQgKx!2uG3!Bw7G&K|P}E&abqgv=9NLO2p[2YXS#,yR?({b7ckKmmeq1"eO0c5[il
+
+hI.gjTxpqdHu:*6p[e#i{5_k4MccUSC+^1pMuOU6LBOI6YVz!#g[F>)g;_nCV<o<RR`?>hZ3T?s*Ex%qb[=@_XzJDJ2IIn{IuKz.f.!t4JrS2t<D
+Xc.N@o@_Q
 A
-"RPK}9NBKH69/U1HuFO6us<2>Oj!}^0)84[gIeYd+TUi:!R?Fdgb1)D%@K@H-J^5m+l!YgY?3xK#mU+#Qm]0g"V)XSM0|uEUQFXQBk%K.*BURB
-10iC:gT=p:fn<{1$Zp5Ovs@e;!HiB|gIW:-0v}QHRYkl1<T*o2TX81n2`o1uT)@|7jq%"/7@G)frLDr8H3rf_Na<86aPUN*MUbTee4EdGd"1t=NaEF
-;iySU?Y;v.4>
-RP2b=1]Ad#4rICDk=x"Z`z?~X!`9<#2>$)ds-gMK0Ux00NP!8ZqDXXp3GXgn;Q/Yh-#qdOQ)S}u]q?W-CFEV(7eTC:uKZPMYS5$i,I
-2[0ov7,YH0pH6R`n,nr(8U[C-nTMc4~8NY~#n])3`!4/vklG
-N%[#+;)i29O[fww}VbQ]rKi%y-ZW>Gfjs~p(*;U,"!Nb?-U]j|.+n]tcTM&fIT9Txd(Xod^%"{+[N9i2wzya_4MaMv!mcFuYxzK2uWypf-Yk^aYCxviP2qUT6}5(x~cMiq^HyEAUC"wnB}[#@KK)25n!nubey@KY7vpFug_hT>MRR-PyeDx`nbnx+Esrx8K7s3mrcwqM21p|blg?r41.s2Fe>OEZ`k/JpHne&Us&nDhatAWZv[y&$@`;Qn@WmZnmpc6]Y4TVtMp;4DQvyF0k8pZD=5bWwf
-&@wXiEVG3L~r9x>f
-DJv/ymXPyEB_ctnuw=s~Cw_nhh`{Ej14p4<A."no_E=r?V>
-X/mcPhtkK
-SHlA[=3)jxBjTN?Fe=K3mXc[JfhI)O+H?s4z>nCQ1zsK7lTpOp/EyNykw~PCe>j:YBo!af6g2s.elsKdH90yhlW|`Ib;pXh[h8+thI)*3^^VMelUX,D7=E%gNYB|!Ui(a%<e,qo(V~,OVWBQiQa{E~JjL.l)Z)s~SM<;1@H4S=U(RF;7uOW[""8dG;qK-cOo"FZYYl"dR%j%1)P33!1_jb2My9WJ$HcX;,>3z#p{Vl.-7WAo(snORM+[dimjqqHs6f=}g$mcji$bJZ[:XSHOb>Xmtx/<NJHc]$bOxnwttNq~T+A~i&.dMyF@w]c8_/6O8XCKwJyFbyBn[4e~Mb[,2oL?
-nw.DpU|W%F+RddY/Zd.3$0W!sX9Lx^%b7@mO2x}SPPcu5gdBS;rHC:7^tfOQRKVQD&s)9oM`LZ_q;f]]#43gQkr=Z_L9p.?`P=j.yac@GbLQ^f<GGZ~]6kya;<8:F@hcNG,P!41@F)/:1Qq@&!L?]UN!3MG]s[~OAU`#nEbRUKQ*1(wpi7z-+cg_!Rbg$@^7a,TC#U_Is_vM"7L=&1(@d.AN*2H2hG(a<4JcT4QrvvmyR9>VCK0L;+;0K/BTI7@[lNzAgjG:)Y5`IIGxr!$lWV1aWii,3F!/{`s13+P
-WmZ/+Rx>/5kfH^HZw96+`+Kg
-d{skqlg_Z&_>xhPZN4XZ]LMvK_DQt{mZ>{EvrNTg9Ym"-?2=4,a]XVx$<gc$#&rc`0c@w"b
-iJmT:GD~_
-_*u!sl`,twN*82)AXsWx_7Chyn=14#77aNK<%RuEZMtV5bYfhw2RC,-2"(L,y<0T4qAY:ww{Z~<,Y>D}(Bk4n+&c"gcS0j9VkYQ=uJ<^:uQ
-et&&B>f3yfuUqMh2DNQD;mk?ce`(?3S-WN4Q1mQBHMO(Gt2+nYFK`tncD)YIlKodjnrl]=O|6G5>V:Ex=5w]75MD501&2,gCqF
-k]B*OK&O4=sBXd&q8BwW5hdkg4S1j#0X,E7vh8)NNmp6R]1curHvrKxu59J$S:1L6A;Mx/840/;]@BF)AkbJ~D"3>/"SoFH+&mO[y"EbOnY$evn)/<+-->rA,2QHBqRdJk;W4j#^S7AHal}2Hr|mYOBF`,Xw!J(7+RrSuO[aRC^yfg`Y^qE:o;0d/Y9/CaT?ZW{B^F/S1p:<?qS(|,a_M$6L5UzkJJXb=!>?qKg`yn*Wr@Nf1l/UF^3^*u?/3yJi?`lUmesKe.$4kv5*Ca(`?m[EX0/aO>(xbesGcRlE_Tzf7d<XX`)9G1`d>6VfK@Id
-n;HULv1;x]a+n|H5$GpIYWE/2@2bH*b~Euozf/VRryH=4fpDuUa&LMWGpnMtJfxRu!YDf^_3r-=3nMt_v[3Z9s%iTc/<AA
-"jF:YJ4c},/bNbT^[Ekpl"UA;J%)h%kQ4b*56aD9FCwnmmTb59/A%AR`60iM=y%Qxs_XZ)XQQ8O8pc7Z4-$?i5EYH$c#?7_-Yslj.FL$Er7
-c$p(GPo*@RfuCsbme7[v:$ZGKTl"_M_)Ym0h+QDWXq?4Eoh-R7bn~ga%7@ZBwnyMh7a');}elseif($_GET["file"]=="dark.css"){header("Content-Type: text/css; charset=utf-8");echo
-decompress_string('%OsbOb3V?!K0U*,j#-4V$+4lSl,oCh*02mX@fy~Y!-lFD?AZS5iE
-nM`YKnnN5@7$,h]yHv0]"r/{_.;5=S+SNKE}<JYs`q%O%%)irj"Ua|G&>l)NqxPHIui")?!f$TF|nwt-nQCaG&Tzq)X$0a:"l<uhiWpN+Q>JUl.I??
-0[m@%2{lZZ-SVaY0c(Abuipc;HrUB.?"L
-&fe39+`O>CaP%DBGl_a;sKU:Vn{vUd)#z;(-4/lH:f/yqJRLo1D)]&Q)#F_Ex@I.Aoq!%P+x`#:u7a*NRit]e+S_#3_W;B1:p*qj1n&6tLeURFTa*Z%=PigZV?!E,M#fGWI7
-Vby;v}uyiyNSk%!K32:q%~)Z7R]f7*[T1VD8GAHNE,gNAjPt3bJTq!),5tH82n<xEH5{06?o3=vyf/"d[Dx=^/`OW(R/VJpy<uN~pK
-XY0h>3?PG;:6W2&H^g`XJac/.2vy_[sa[I@2XZ6h^)(qYAo-$5uc0Ep%,GX=n?^Dh<AHDPP6:^cBoLiHv;/&f"x+
-Fxs2:m>cC)c>Lo
-0T]2{suTY+[`^=g^8K@M"IJhD,eB]&O05-RUzKB;q=jP@t>t?wQJam-T
-Ct4iGwsJeBb--L[GY@5KjZDe)KI2"iJ+I
-sFktJV_tO_ae<,6L%wV]]G$83G65)NlCxcni0jK(!Hn+6;A/K;bfn9xSp=TVCsf``qH7Mimc,xAY3>O[u4w?fz&Fj
-9f,[];aKusLC!8-;hiECD`(]x7[,6WvZQwb}-<xBhai*6z.x#y/,/,PfbzjJZY5<k)c%nD&#@k/fnmY$Bx2daWEELXWrfOnaM:!Fa_[qjXgtfwLcv6,3f~T:>3n3wR;MUKGkB;/1<=rsb.a0udo%x4L7HAUd8(4Q+6[S3/m5?BQNG}h9#D7rZ(C[A#`5XL+tAmR_k4;*wtK-0+ixONPclR9
-9Q2)1cdU5,ODCdgYd!N6');}elseif($_GET["file"]=="functions.js"){header("Content-Type: text/javascript; charset=utf-8");echo
-decompress_string('$c4]`nsWl1ptWOv_h:.%y>(B8Jhsf@ooc^S6O.cGC9BHMu=?3)
-3[.X?=Wv,ZyTxSc%"*Tj_GrEE9;FU$:J.f=X0d>JYBIVZj]D<aA3aJq*XnQqxcw)y-@0VgkGu?I^TmUVgb:3EfFdr)MNb!A,_(k]_9iV_"_(G,09n1q_nV?v_Ya}yH922HAvE)Q-Dca{7S&0T[#Dtk/#Bl_W&wjz.9y.XC]Yq%Jhb/AiQuuuIe`
-H[3+1Q4&&~EB[RStfa@oiB?KrvDpHs&j#r_LJL`Fqt*g"xA[A8
-[y~qK:8it:6_]`i&KGku1;72%Z|S"<"lD2ac}UGi{G0+g.v*]W)w>x/UcKbq9g^FuU`Cx2;l0o]3G78`XOn?+m4h40J%^y[,j8/jf`[Aa
-ekiT
-]!]LVm5+_"kYM9f,H8q4W[Pz%8**gF[*;oMUB}w6uH@/HF4QT,aW)t1GER
-6x,RTi^tAv3wj1,rPT[<m[V[
-v7w0=&nC3$Jan|l=tdXcXut7wuK[MZEdJ8uZSC^U)zk-h]L>2"Klj]:[sKC>q*P}c9tr,ySzuv&+rPNW!Ml13$YQx$tt6nbASO!]:H[_(b&6Q[7Z6!1nLF,X<wye,d3tfh"JO4b_,akkbL-gTUfs!onu3q,>=ZgGf}1)_HCzB[dxj}I&?d-:=[TFTqbm
-jTGDH<FQsW):/7(`sMu5uZF%cu6-t%h-V@
-S`nB8s;7eS9Y;P7uI*f%<Sj0e|;fCM1ZmLc-<V^"Aum=T-Xb2$xhvH+nfh%401Vm*95qb&;?hropn>:4HL6I`dBm#J4P+uZc-`3:8IP~y!z"&FTsPyc)eTPqO=MXC+&9GQY90mSIR/pOr,:dR/5J4sBQ:>.K8KeH)L2LK#+4%~avx><sm6t%D,?CM[__KlhK1M^6OLZafEXTfCH!s2s8;6E[yix:0<]pjSEtL^,m=iG%f?UkP|7Z?U:wqHDPQ|&E@>0Xlxb2W@Uz#x*yPK(-S)eaNJ&Bfs,vb8K*yQQ|X}s<m-Q1=FGg1p<:F&ULI@>Q[e`8]J$im:dY#D,Oty]u%`GZ<wZD7Xjt0(^oqGR6X7Z0=W+;g[FPTX7mbv@m_r1ox}ydcD&K2!q8$f3E8nwpiXvn,vJByWtZ*SBob5n7z#
-Soub+!!"]Tv[d!h"a``]uxL);"fsAF"W=cgDso{(r,~(hkY9Rh5@}3F25%HS?"~>G!7C
-%"uliWhZ[zfhK`&ZgH<Be(t5m]MN&m;9WMsZgD#j2/_(6tud34LhZa+*Y~HlkEP}LYr?I@k?[n=~Id2|"f]`<2x7^AP:DI%9+IOd!WwG+"""F_;a@hkicZ:FW0u@]upbdFl1*38IBbq
-?l(~:S0P=gb<GY^t<5Ask!qJ+|d&0FR)XOV5eBb_yI?dmXVklmow;eIhOUyCO.K:RPg9G$j
-`7se]e9iOE?w/B(R!V[CX4"("i2i@Cx>R9m+&8+Np3Y?k#3)JB_BEO*X1q?83pC
-=aF2cPlq-e&L,
-:~g1O(5WtRKTi$P:D:6-@!!7=oO/moc.$>c+]/hvY8Y*6wf_,+.k]84!J"
-BcX&_j6iUX8-L;i(_oc
-":03Pk]FuUv/1o9Cq+WNKqm74;VqvrBBoxm)D2@G_YjGVRky>9ao0pN;ZyR,*e/,.mchZXRZiND5i
-E"R3/XkYDa!("eoNed99?<?rk_#
-iVH8:NO({5N"18#lhc)O}F~;jr2kI!-0>Cr+lgIabnSY*oipd7oQ.o"#uh)+>"uIeuQV)jAuy3s5?twVBbXCdsrOQ&Qk(ayr<H3if)vVX.5ITL*^F3nbnPBBZ7ajgZ0$vMz?9s:@+JJbXAVS/fu7V>rRAKR)k_9`2oW"nT[fFAdFb
-nfog:`79ePeSYtN0|(@-./s.v%_RmkF/&XLvK0VP1&b"i_<ph?o_-5h&:wB`lcI%,$7Oy?E;gs{en6s7o4mRS_=bi7KSrpZT=0c%ogvtFm#tC9kQ}3NamW]apPHV/#?biJP&JSw5O+a+`a[":"&[oMC2^D^IBZ&eua?IiB`H*N80:Wyg916?Gs"X0T,FX!]EJT(lIu{M0GjVP;/1F^J-Gb:WllMX3/_i/>RR:_*slBC6TlZCpr0k^yrGk6F#zwT
-5NyFB@&AFGK&}sIdH)Z.I5E^tgYyVXe]%aac:aY#$Z/NGN21r0Z/vP;@%t/miyd_J^?.,ekJFXQ9V!f(|uaIdBA[cqr"eQ|<kX"OSE?C8AR"{Ory90uHYdR8(eh;_%U!2j.$6*}AVGI(7-d%5NFhUfL!(!^@CVR_h;znlt3qIg7pj0+8u"?S4rxvTN-o*;yT&9$PLZXT^T4=wI#rfRv+K&oTL:%P#_65sg#B&->[aYmIFSO),8W_qxe)qFk,)_M8ktxk"(|Oe/VC"DeCeu:yn!F0n+*&%&?;][YF?*sd<l)vWe*b5W$VZ6eC>Gx4"8+ah4^-J
-n25m~hPP:vHJEy^l%c{?+rP&{c@DTcfm}au@$*6T@Kji)pM^*?ChLp6^q4wa1`vW&12T}HDNc_xr$5ngo_&S^7&#~nx<G;(BBeLmq/3>MY70.fj#ABt3.;*7!f&gM8+Ye!_1vc6pO9~pj(0Ek.xM[8*[Q.Z8&J9W|#4j$TWo(^V1Vo+Ktb3i1hP1hLUqcWCr2<r:6d+EK5PJ+f=U^e;D]lt,%Bq8zrf33%E!<_P+lQKg/SD%/wS_BS{x#?c`<*:kL*/5Rr^2}7ePX;w&T5LTYE<XHi!?nN^Xf,:*@iWD$+;0Lkk@IGn)3SUiqQL)b*(?{)q.DY/+j>jQUc>:E?`qx5OsjF,5I!P_W#i8.v~;0-gYJBFn(rg+V9o]mcEU<X#UF%_$fwL4aU5`Oe~bk$gqe)MU9V
-$%FQc!`&W{
-lr%*{wY@2ExA,V#x"@?XGZ@bf<lgg!/:&)Z+dh.*P5_kufS_7
-<9;44lAyM+A,<!ct#Gnv~Vf?_yj]9LtEu[*)^JNY[o`QNRc6>UQldV;L;`;.
-v`g$k
-$f
-$/-Q}N:3K[>uE#5O|Oinj2+0BP!cJ;^7/H,ssnkBd/[R}H&JsK%@n=bD8L@x`W)w."?,340*%8;#)uAq1!;))p_!n<%ni3Uo:7a5E>FT~.NZjZ;!f8=uZW9mU1zDyls0+9/"c0[CJeb#L:5C+Z5+O9J$+t)A48NE0D`lr^T,6^i^}wm98fNkUdg6bFdC,$LmQWoj`J;*XocC=w8*Wi^VupvA,BN8UQX&b*F-:xZ5j])T#PVpG(1.~Q;=S!&NB__=k#`C:2Rg)4;,$"d]-JasM[qu)**cA$9!NdKn7@N3@E-()VwmNiP8bNvNLV+abS)[[s:BWw8de,ZUpftEbm=)x?jk?+PG)^qO!M:b*UC$/_/Z__[=qT!6iq;
-|!YW4[vC4
-#?nRJG.t3k0n.YWkX*)1zGd+ol<dj:!D<.l,9)E>RxG",FBGUi)OoV(mwG(,?`$0
-?g6:2wPTUSR+0aAEUlOaO"&F_yZL<65=WXPI5G*"a(,8PCYXvGiGyyIZH_xCI)5JNg_VeEM0+&n,y}:`.TL<W4(bX%5mb(]ZQ{a2x%E6^K-NJ*p0A@rPuXDt/U167_j8y1[R8I^;db2A%)^W+0:~Eu2fW$olA|c+1R:3KeO/^9`>VH>}sx48fzjE=ya:7)DP91</
-IUA+.,S80mb-7^{YS%JPsgCd<s{B81Zf9F"K-C>l,.?C7jWq`,<K$myE[ON5u1<?$y7.P,->,4ma7_B
-YOIdlna:sw
-MDuC8y64K%VC6y.`a}yDe.KL8{C9oU]KO-U.aC#mBp+NaF*!.hAq&Cm&XB1XbD=;
-eL5)C5t!}b72K_VP"l2F/hLXXffHHkGPaQeFFWZOJm#WaGLF;>:WXn2j`RM(GV^A36%YxbYsptKiBM{c4y?xq$E5qqxNb;gor*gE]0+T^IvNc96^0sq1{<:1#x%NR>bO*d{Ao5i<^"gE_ouy-3r8<SbS!/B+Eu=OK^{yJ3>f&lBk>pLM#(="v>WddPU&T4m@oZ{d0_WR"-8_(F+7ITpj33^n"9,]}7(>nUnbLyWdNL$3QPO_/thxF(|!{R2TVoMC!1;Ea*O<X?d0/*E0Yf@^YxfYV%xG91(!qP?>9i*As
-3K+8ebKu!%c?>rne@)bSu,08[pl#SIGZ[np(=yp#9)I(J6D9iro(^(@Gv;*9SO}>PDZ^/L:6W*]SLwEAvB`K]K{y6*Uj]e%^V0g]i&zFUL=u7n+g]W7m|8D){jO+vCwTe2{69)+ySGm<n
-{0c;sQ+q,#(>i^IL`dD),TtA@9"Kv`/?El$,0k&<;v1?v:BDZy(uJOH.#
-G&k^>5
-]mtfLphZ7Y"I(0eU5*b1]7$2f[Xd<cu&q"7HrfD:$90lgK`@,/yEH{TiuH[,Oj2V`UCrTF(XvwN|y6OI1
--(&Q[W)N!T#;nhXW$jTVv/8v+VR9r3D[_&$]Ua&>_2_<7.&1E$<gGG,l!gWEqX(Jy]&V
-7%p_T+*F3(`C{`dx9#q%
-16`Ay<6$m)9wEu5>O;a
-H`lJJ>nexaBG%_B/JVg#mKbSedq
-im_i$?)Ml4D(U)8rB3]?#XWDmtQ%_RggxOQ[^Z@`qnUE_UKLjj`9oX5puQY"IlbMa0HxdS9+jKe
-RHD+JgJ&Q+RtuR"I3bb&
-/LQY|b-b]uvEwg1!ELohh2,gBrW#ArHmxXs1>3/A$AJXHobi,yMYl,UgyK.gP5`Nv/E_jFlF|b[Yr&IO_IR3EqN0;jvaX-uA>^F<&t<&lDuH!k>^3ZkmI_w(<42hLdC22Rp/`_-YSZuZ9+$NQ(jH<U~5Xm9l+F3j1)sYm.=-}%5.IpWkc
-zmMgh^o_
-f>Tl_OLR?AU3N0V+#CrV3jt
-@B[/+11Q4X+eM&HMss`JL5`K5X/8!2N*v5u)]iDaY:M(c*M[vO/7a(O0j>vGXvGd
-P?dn(.//Zqu0,_xsjDA*bt[)o[&2X:8:NYy=!7KGpMaMs%}yeyy!J"CVW.6pQLRHX2Q[eqUQH;U)C;kj6".-Q)<(Eg*%uDVH4xCBm"X@|#e3*L8Q"c%N+c|iD)3FK0zXfg;m*T*5Wq_ivEi4j!eicSpqoM1FT/oha+<#dg6ZRj,hi(}J"_C[GxE8LNo-9^OE=%h73h}P)Y./k
-3_nR~_b>,&f>BK(V$9.X1h4Re^:UGPRH~GCka,is-mu<,X~hV&+(UX,&Q_D<@H3K"2sZeubF%7!dKDu`J6Sb6/qCgD{+Th<2:uB;3UuVV*F>3sp<3-$NBSxIgHg)PbItNIMk~J{MscMynGhnV*rj%I00!PSWyrrS
->aauDl@R6$i-h;-FE-$ysHS)T-k*]UUMH%qLpxb(]7^]MtvFc/=b-sLDv+VD!)eO:@kj;Nw/PqX
-yl&O<P^&@6<jYs:Blva5?(5PX<aZaiP,)du!37%e_OKZvi,>WFWxnfg>s5mj`n7$vtE0W
-PaXkC]CxUEO^a_R/Pn*l[~eAZPX==.cUE]&
-]T;Z`3NC732o1%?UP/[G?GAE5$#Q=4(Xa",cEaZ8Jqdy2!:H4c)"E|T^1yEDBSrHCyF.Z?V0dxE_[-sk1B
-clDski2xuH%B2U/[:#B0(6$<G_rK0ojYNp&H;NDG]u}"ap/]CU=5A2IB|UeJxpD2)(G"E8o8Dh3E<Wrda%
-N#"Cu`7Yk,geL=f(e[-
-G@?t2RTim#,bFCp$qc3E0F^m.X$LoQ5,ygMfc=!0SXf,7(eCLoM6%8HAn&(;-Vk%B5]-AUg4jTdOdLfU+rSvG5jE:|DJu=nLjsw;iI;i:RS5B2O#:%-riqBvao@49WlwtY)weIrtFwE"V@M9+Cd>GcP21ZT,x8bn.WFJ2Y(Bt"3(cbAF6PG?*CKp%w3[GGjTc>-f6;.nB/>@!^7mp!kX*ApVfROJ[F+=-hkE.:m<S7wh)$UN5~ByYQSGL=q7oU&uQGSrRuPB8O-<mPFq2}v$":(i8fPh1&E#w
-+lfx]d^E?8ppBl-"kq[>QFHpDcdG&8JjfR.LkOE^/R5b.?
-i"U>45/hh7NID!5eAV+#Yf7b?Q|*/$-oNXqjB":O.X*-icZ8186)6*FsC:KX]CRlXRB+>mem:q=3#yyWjuhVl-<l9sK&@
-0Z{_faJk&L&v-4`x?SmR;#f8P;&DAG7>MN+NRN.l5ohhtSe7_e5sD9Xs@O@94P#d4[zC|#VWSPm6E=wm1]u8enX29<9i$5>k6kZS8bu^
-R(jteK??Wh35N8/l`@Q2MsDp&K*r%=7RPx=D
-04{ag)pG;V(w*^d7
-0G[<LvZqd%UTp7KFdP8"LikLbc1^c.d$emh;&2#zRA`~@dL6gQ+C.V(%e}>K1bj/v@(u6O]}5OG?,%iw:P]b=:*z[.^~Q}%1Z}wb!},;R/Y<r:g4_<=}b<hneVm2t6w9wx[A0jetpx2.[t>jHKB5Mj]T9SMi.BV8ds6WuhP3k&$4(QT7y0ZUQAht=gj}ZOnH*SEk-Z2KJp!_Y7]wD1J1"|TdGMf_@`w(=*/D(E<AULJ-MgX.PR<Gc#YXv1#[VM[1&7i+Ziu2)By%M(x<khZCS#lVdC8cBz
-kG12VDkau*)1"#4ES*mJ0Wf7^[elz9q".THy*uhgEZW*YZu0%^=Cs:jAkDO4r6GSl@fnxprU6!V#a+mH%UIjnIJ&5V,f75#Abt"*ual9.A[[98/F"Dw
-NVYho^293i!lJa/.O9o$,.Ks_5p
-zPasn]a9l/kWd
-{u[8FVbG0eBwFHCmv[z]2009X^;Puv
-6~*/v*S/pM@"YC47)wX&J)SMYj-kr30Xk$-IQC"BsW]eoP@;o7<B;2^T%+E=Q>8`S7oBGFMssFj7eKI2SM2=v,6ai#?m%^Yv?eqR)+?u5(Bcrhnv&J->o]"iD78q#pO_q?L"u*U"xB>k9YGy
-x#}ff0wj7?HfgAn*q=[53MAk4-T6$mYDwABaJ-UZTds#s<W&pIU`9WkqOI49BJe07Vb3AEZ0JCp<S3s
-L=mA+f]itDR2f,menTLR@4%@x(8D<vp=x2w,=SLBQ;0U+4X
-$21a$3=s?GBuNR^"N)~$y5O"q1w$~F*0lv_#|YF-#F:+>?3
-aOD!Z*0/**enZI8d&Ik:t"]H@20B^o=LZ"l/TtunLCOYHu?XXkfqskKZRkg5f4NOxD6?d4D(<"blmb2+x"f?46
-$%mNQs<)AqNbX4<!;Xkt%$&yJ^`v5H15*yi=?YrZo!A(Z|tKIz.`yS-<.GUa^^VbNz/huHRR,^8o>m<`Kqh`,nnItHb;)B:knHf9+iVo#hGOkjRdq^ZzCS^{*j`g,Bxdcs@d)h7[_<D<l._HhugO:=p9W!Ur5z+Slmvfkvu#3#uy`C".b2D!-/bMoBeoD>#hN6+r)QETrGdoVk/Mm.qoD4@=&?wO)(D,5i]_,{,RB0=X?,tPaTF*S]UtU4AvQ*50sNK,?VY!?0pP(ZJ8c$`_gww=IaTZ:F9#^>"sGwu2@/gF7Owl2,/VT%<<KjF&IU$nfKV[fAKvAZS0s~mWQ`[-L7azaMGRmP5Vi/Afn*E3945&3SJ=Zx:fG0?A)@15*/l!Ru7Z+`B#7D_ToMQY,SC~+l:^t^24r4yUA/i^x2TZ2"Uw1SDHt>;aCD?$-~Rm+o2gv}FxhnXTk<b@
-Zo!L#_}H~E:*me>iT!0:is,ewa
-gGTj0SDNW&ulC!?8?8,!ljnoW6=XK@%^>Z.;vVFsKJ(K8{f~/,<qFKpZ&:.0v;AvMRw>pGy}y%yeFYL|+Sm@$]:v)6]-".R|3^E4vF**y^o.oFt18,I7>0>GncxKf3xD(z"/@$dx,7)&BQUrCMWcN$6^#="#H~n;Z/,k(SX_Owys8&mE@)gdVpQ|m"xrEefIk.8EpL<CNq!d9{(TinvL[vaiaK5_.#"G)]T.FT/0PT[mvRg4;n2j.;mf3]D%a]sit|
-QC*;8`wmyk/ZCv/Y56Q-ckcy:&s+5pvNR(gyWP{OPt/ZHgXAU^|H,Pg6q-tS4]?7w3ld[8tn7B:Xi"&jI?)+H:Ex$N^"8DSEjy8RDt{lP$Jr,w$&FcJMA
-7in9R,aV
-ip+6U:w,D(LQ4]iUP(`/]_WB.9M+
-C`s05tcx3N|[
-clJr2p8V)$&3Z|J{dO*-<HX/]+l8C4hIJG_8o[Hjs;wuD;8T!rG:<,O9ISS
-E[%B"z>/WUv?%BCN>3D:NsN)/|<I1;#kET,HPxUl-6f)`1f!CCGR6u)sePOzOztxA@g>qbXs"VCR--@R,:"msy"0dlS)^qEneOwf)u-,6u-u[mHARm+Qy:]Cx""2?#/sge?sA/u1"rZSUO;;smjw&k:4n2y;gB4{LD`eHGbi_49<":y9K)@N^{ra`<F%10#~2l8NxR[|_,9;qD65X8EwvwtB;tF(
-m!"VMXJ
-1_hyoZg*U9Qv~d)Yi0qt+LlEn2@G%0"46/FV+Qr^PYZegs/7G$F-
-caT#h41z%iQ5Ed5gi{Qz5TeK?$Q[XD7Q9`;NpOv=g-OEIR2P&OS{4DkH8lfV*:k(a?b"4;lip^9#dmZs%?$"/OmFmvZ#l[B/A)j0]"[Wt*8,*fdZ8dGW]:22;}U+!/iyGW4rFi#0FWO@:xI}TGu^Z?`Wj?wB4JeTLwAH:bf{"0J]N%;MZ0NFg$*}Spf?DQMaqD+P:^Ws53AK*9w*yxyo3>O-Y3XZ._xgZq0PLg^9[-9}mrD
-oH!**=ypejPnT{c%`74|dL;I`{gn&;<")$3NtM,j5b1]i.f.7H8iw$xxntul`#--NWiY7$IOD^u#^~$f;Zi-_WP6Q
-,7R)L{8-F,XL/I
-DVe"]U~<YZ`("4PXYl<-lv8rd35cxSqIsU9$_]E
-5W%:n`ITymytNMQY/*/x15T4f/_AlmQ4@!ExMtSR/Xe`fpJo~hbJvynsB)H$IG"kK=bY$;n`J_>XpHWdcwuQq$CIdZV.#Q~@iB+%/)T$V99@4_>K0g"^(CYJ*Uj<7[EsWQCQe*&y-E[EpC(sN&GnfFuw|yX)Y7cTqTH;|#A?_O=?jb<G-_=57aCY[!ZjhCV"NEP>1d"IU78_s8w$uhG
->aq+<N.%!FnNzQ+#!vTWib>;m1om{&FES?0d{a)[gQb&XW3:}m-$<EKf!Q$YDi1J#*8viaU+ZE,KxQPnN_^ka9Kr!E?;e[dG{(a_DZ(^&hFeNi#rVF#8).b/>Y$XRX{cC9Ny#gBW=B0#GX>CKVH7iLG@/Rx@|5}dOFSrCf@X+npef/aYnmuYd`CQf/Dg[3[1sY6AG2(_wu$wp:@QUgL+-$YwWd}7SDU8H5</sC?3%
-/SDgPe8!I>dfplqV,mw)Tg
-Aabewj2E1I/>OCJaa
-W
-:US6MJry1=+HDV]|nldr/v2%hEqb8(e0o#OV
-2BU2X<Urbr?>0,IAc3wJ3IDIG_iv7YkeHaU7+kZ-*OL%_QjCR1~DK(:G9_-.r(-yX
-l+wLb5+YX^xg$V|nS=nxVUjxxh.,ZqdW=_dmoCDD"=5:P9ZHIFP,#&"7t8[>h5lJ_^Y.wckNV61CRF{kFXKjIK{nTvl(EBR!>
->[q4L.FbIFz^E=kXP=v8@c(Ql$wQj(@Fx<Cam&wU)mdVUf?<]LdwH&v)HBDOgftwN4zPO+YGL?J3F:oRNiex<j_A*68>AK"d_r?:*PFI7E4r=a.Q&-iv#]{>0W(`lb>3L#;,^F9nmY*gT118mlqb|3iV{c=Q<pHA:D>x-RsqJ])"9Tuc`8C^,vLJi!>%>uPD%^/2_K#,V`q+"rdhr4Q(*=WMh+!cS/zW=ELI[Q8
-3_94OA,;XQbAKSJX=K4j
-_!l6></x3{4X%yFu$,UE@FL"6x8V54swO1M/%njfP*RW0nQ}P~db17`Vmkt2
-_Yq;n?i9sAV+mk=`~rW:&o;myY[o4=nPLDExG:hnIsaLtpBRe+^ljmUQZjl6pPgL8H_sVBH/y$G"M0V2vwx9J%=80Z_Y!AvIDQ;^fBoeTeOSu9W9kJuV#TR^VG9Q-Fnz#qkne1(Tiy"Vsn9_u7<S_58nPj:u(8ht9lY(EVN:*o1$5"Rd8]xW<v/QmR+_t1~wcf|]khLb:e/g@9-lIJXOdL.w{.WcIAIm9R{ZDJk,YXGr50o>3J2PPd&9zG_M!(+f:E)cQMMc5OJc<)WyEtm3]tdgKF@"f%U*(L[;_CgKMhx*Y6cB%kd+jRa)&kdb;=A,<Q.
->]DM$75oX=CF4h]s*9,"JP-n2tDs~Yy-wHAdv6U,o2>.B=F>/=pV2V&]hV&T~&)F|p;5<*Wj
-3J"KxuDq<:t2Y##sH*"w+XoG
-Mm+/pnn5@U$?b63CynIo,
-is*Pjplt3+_6LDn^)PKH]i,],Z%]6fiDzT(FdXdup-U_>9kb_V.+$@;xs<yG1K$/9,5b)Z8[hz#maLV]~w$w<`rH3GK-56#%l$EKHMybq"<LHaG=M,tm,"`"Dh}I77nOD!74,qu&]vSwIIMx:s=B1g"L-HRt):E?$-XDoQsH~R39w?^)7TR<A]!jh]1HZ#uODr<7-B`iE_o:gH%_~D_LIuXhI3,yZ$kfB^uvs^sut61M"!gnUs?M5,70ZmSJo5:bR3BbX[0kWw$.=HN3"!:nhz(aj^=:ydP3tO!s0b@gwpJr_]up&yVpBs+TGK>A@4>pIP=aX4T`_f?aTF6-g%q6Fh+FY+9;#``cjy(FoT3CaMNivhrLNvyj".7!wx=mjILJ5Pz0}ZY9)L]IoEIA%S5.[;C]^_NNPq0?]9/EWJb=K9iS]xXB%ie7?./wK3k"vo|OeQe_Wc*+cgHyF!)a*A:AXP&L/0:iJo"nhmNZ5$[AK,0>-LKV;c`QL7hKFDW"EI+5jY&WK$rCC"Y]l2Q73;!LYBy:#g}]C$RAQlN//S{r&CwC9TuGiV;kzA;"iGU2l74t$9GG@&H!<"BKb_S0+j(rOx.kiNH*l(KkjR!5w"NO8yObm7O60dp={uRa4gVV@.ekG$T_lcVHZ
-H>4Y;UlW@I@0w5Tl5<Nc%JOd%H3T)yRm?T0J~yQ0guNk_s5&.U>jnZ!.1q,c$
-+E"P>[%k%A4on/Xym9
-7Rs"Fz7tk!mvB@-5Li0ci58GvA`Xr%RekZ0r,GaPAr-i^>d_2d33mmWkU;(Ss=q4r,EZTb$gwNJD^CAMbf&.xH9~OAHU_G?OK5Rd4(b/q.&cTlSbmrN.AL/Jw2_RG-3+=AxT0:EK]+?@r4H^)C;/>M=-gpd6K`*M`aI5
-`g:2}lYf/q>GihaE<BqiNkBA7MIxk;?ng_y+rk[5?[M)}Mc"V2$L-DvEy^dMJ$BA;K_
-4s">2Y~E,MpS"*eIP?<[EpL*1BkpjLcTBFMcnqgz)+"6^U4JFhnf]sr/1-D)&=l/BPhJAeAX}m~0=)r$lJ([nuqeIByYz>.UziwUWx`2DCdG+9ApHE^O&;CWD%usIZP^0U~6"*a%h6vQ;7(;;G
-.BZu9jj{l~62>%){Thxc(eI]6>&7%mJZl#g}-!%_C:7Fw|fWJy
-=Jqw>sGPn53`"w=ZKaNUj2inFSqv$`$_/*"J9g3=ViF;TlJTZMSNcVsvcE
-"CR#Y|GfBiP+kDcDhkMV
-Driv?<.l$)Pcj:"I(TXpXe
-Yu"cZ&ypNL%muRtiD/^L,SQlB5o1u8&q_RV;CFpD_L5Yn^yA@&>Q-snu,_4syTV@sGgyGC,td$r5w&[~U62Qi>`Sn1$kPr#?@|=7_HyE+MyMo*[}Q}<
-"V26WMN;*/gn#}W3QrwNRARzG
-w-7yl<FkH%XRJwt_Y>YA,E8h94x/Df2H4LgA`3`n?;P!5Os#
->dG_an-rRJwbnREc+ub/;pw7/ns"/3{LJrnD.a3R=eK[kFmp&xOESP!^%AzaLR:pZ!,l2eF:XK"s|PW(HV,-zHVATDH300yBz`=gf^2w-bl9KLL_*].Ae5/@j..Es2x`swqv{6],~n~,~I-gts1hZEUEA4on=B{p5;z$kM/>sbaozx2>.8QbU_8PRrllo(c32tXl_DVAB+ctRFa93Wn`Osp-c[0$g;.2MU[1|
-Oh0(*xE*O0X$0@d;}?2%7"WtiEK@/Oy+~7~Cclt5r&!eOX`m6q)5I/u=ItEtt`ovjNr"~*G8)?:M#hyk^2Bix_?aXkE`[=kn:2zOV%{G6LOe=FUBb$b4$kw4*$0sAY5uzWa#6/Mx/"kV!(g9-rydb%~:"^E
-~U/Z-y`-t9>,;JI*E"y
-DY">-Q0"/ai&afGGO+/l|x|pfT{s|"{0Lm|d]`<g4meAZ"3#h_*4sWU2;1Qk00
-O1;=Pi>#S@H@$Z1l5uw+Vux/L|)lxF4#UW,(%9-QymPL2<I)5louCT;ntF+g[dj|$h17S@oVjyVa9|NppHE,dk>&"50-k,N*)"]Z76I$.r+-!ubTOpIb,;T-<~<u,]h:@DNDr~d~ZC.A9YE$5D6%*x>SJ^?kda.y[EA`W&A=g#Y
-NZ-gkDT54&),h#lQGsnIHWbO(CKB]9%1Pw5>[3gEC{Bq&+,R5WW=_pf+g7OK$C"$6,5GLk%7g7xD$ZH9bzW)6CxMI+%TQs2]x<RMAz^[WVhOkB&3x%^v^VXof&d4+br-C`<
-Ix[JYCS](<kU,{WJiRQ$u~fD2W[mCuaHR./Fnnn!ndWBD_Srl;T$jbD(G=6-QXc8lNS<QaS&f5C)gzZ?GJj_RN4~_7MOUYXGxh[OHKThbhu<[;7>k4Z`VGOest@1o{0/0I&m%)LmY?fq!32;*xQ.H8EWC)!EdQnS,Su0DJx^DF
-03UkJ*7>vueTS/?n:-=1$(%l9XIsUHSgD68Y^G)lU%.;6qAeUJ,6W^W!g%pjHk>+$d~d^L*a7MPkK.D#Xd.oBunB%kQ9OK|mYh3jZU{tZ::xX/lJHJm/>(/S"FV3S>Zl.[(@stGg0$SrSbpwH[OTC
-*MbI`b@#9hox#94%qYYNsxz_]YgRQoE');}elseif($_GET["file"]=="jush.js"){header("Content-Type: text/javascript; charset=utf-8");echo
-decompress_string(',hk^Cxq.C.!v]nv=zWMG2j|t2>FvB-FF,.@",h%m4:W"&E;d@35IO>=o(b4a6lp3NncXrLYyDW&K+
-MMX?Sb9@&iRnVnuh3)Rp1tg.AubqM5N!O16uh+ccl8
-T6B;Yf1|hmb9#V=;HzTwbu^+WAcei4hekzw`,jT4w}13g(%_tt"vS!<.RrrVdu^RIMfIi)jr.EqZxGV]f|5Jik^uTXBr`.<1b#M^"GBUf*Rr&w+Nuwn1PWe6a%pzTzI$K8*qrtp{Xn+]Mgx7ZQC3d!,Jm<^}!xiXPk[*oc+
-KT,EH<hpw8MtdwtdD!l6H;_iU#-bXbq*S5B%ig&}YXP=.8$#L>(qxUY#H(1{X"T@"Fvb0Ng$I!q[SRd3?;5?jJ!V?1cc2_fbjrh_T?yOJLwo/)K:mO,(7,u/@:&IM(*c&
-/ZxrM;LO*4@<v"jv<!Tgl$tPeC.stddu/
-xq[YH6C,%l59J1lx<
-&m_)?^R7Q_66>ul$!Bu*>$7GK4q_`+O$(v?;J;DG=Bj$taNXpKS#SziVV%>E!Dr~L4Dbn~P$AVcKp~=r5(rjw-q8w^X_Y>RbQ+_I6=@)qz:8sDoHW^k>u!!(a^qC[,i4SZogw=H5c|:Bto%SN6htni/o9f2F<WP_bpDbcQ7#6"m&tT[C/pE%W,qe*Rec_7
-[&hY3&F&e^
-MQ6jro=<qH*OO!cX8q7U,`;(cw;-F^V~nrN^a<4.3/UA69`2^dDv)fW
-!=cGX96><txrIF!fRLYm"O+=rc_59{G`)}MM^m*2w
-E!o(U$o"DT8ydq:VHSw
-^.(rKnXxl>Ve9!5mxJ#J$&@WMk.B8}?W
-u?BTCve;O
-:PWQJ#"7@xTMjf9@1<tABDA_"9k9BLOD7oc8Z44@j7`i4jS5o?..hl?eo`<HhBs6iAum9KlL+fEtJ$)1!r(65]I@j]U[Tc)Lw%p%IMK,G;Xw&U*ttasf8#UP>FpB|^VcLn`XUy$n)^JOVcc,FZw^pye4vBao`&4PHycR.k79<#[%(svH/Sn9OZ<Ig<M.[>yBv+FN
-PI[e`i3_taGz<.N.4gl4K@[tJgkQ)jR$12*LOCA&8grQmaHb.;xc[!)`]mOAloPnfG*V_HB<N;=nR2
-20zJWM`ffERK5xP07_r*8af!OK9tvhro6;#DQO&)8fgaVl;w[!i!J;sivoT$hmwLk^7:Ktx;}](JKWi$.&|M)W0&%(<3W(Mee,sq~F}!AHCR&`)sE)J#iMSef08?-DgK{5BLXZI%xhBI$<uO[4AS}Xg`YI2ZtBFX(/FF#^=DrTaDC^Ud+YyS)fJ1IK1#
-ElCI>LXx?B:JXxpFlv.K&oE,j?D=.NC,BXRMt0bnopZ8>vk^>^[D%T$uIQqT9Q@y,$r(1RGp8>Dh%DNb&5P)$P`U/3it]5U=c5M-TPiRh&yb"
-&KxAOkb3A/iXXpFtYeT!vDv2cR5#WXg;:k?/RQKG)6"Q*8G;13:!"q".fMJV3!B;"Sq[;f>MdB/+ol-fni=5AejBZEP%IQ1*McLRVuw~Vp!9ofB[.!gtr#?Q
-WY1@F1w$-S
-/^$d9tfCKD(E]Jf)uq%`F#[}Uy9Awc=P5@*2Raxf(4%
-8%"?@3MR,YSEPvPZ)N[8<2]Q^~1f(E4uC>Rq"[+F"<oIJ@=wdV")8<.1=6(%BqSttPGQCjnPLVSP#tj1[(2[f[LnnuI)))YiTBGV)/[y[#O[NkyNP!sD!rMM/yZ~$dB2w<3$wXON]&A?M#?PPL/+(3f5aW`fOC"Z%|DXo2;fIVAQ(2>nZD!):0RBu=-5vrRCk9@efi1ab
-!1mVTXhMYu6iT,sD-NPmu1(mQ%c2F?A9.x;aak)sg%R_1J!r,-AN#)E$a`js.D:1tZ<`Eev$0l^ElKN&2Xi<#-[6Byv*%3w>ypMjSzqNO>f}<fw>S=ah,+y"sqDDWoBS@.^`FtCpEej3-1c.^{2E#p?.NIy2ij
-Ue1+_p$0o$06W"
-29D?<]#%BHU{&G&XvVtWbpVDM8MRxB?*IuC{"mW$VJ@*1QFvE"Qw_r@O#E&"gYIi@nVcOtAs3OC:uoD]8
-Cm)@/6oJd.@J@$Xug%4H!_BtBr"ATw!O-Ldw.=e5tP$|@=GJR8op*
-Z%S|^hb-D,gANF6C?s
-b=ZK|.=^o;7vALa="+N"2O;f5xnB31J&i
-zp4TKo:tDOJijWCk+,*3o,FwNr1X34]Lv;cqS=HQ#uGijc}?mcg%vabPd^U$=eB8"-A%%!.l0YJP(JK"PhL=Q^?Os-`<bM44tS6p]@MZYc=,XXVsS4PELgj"8C5x$KHPU/4&;2;KE_
-r@rUi=a]8bx5CXU!Mu#N-enP!z]ZPBsWg
-ES$phK4LlG_I0mx1wm,djcZiGdPy3o>nui9Zjda$$R/Ghaxx:7dqTQCnDZv<ost;GCs7JQBIH7tV!Gq+sdO1k3d|[4_A*#90D+17Qj
-eS=xjXO#"SK80^ABXiO@
-_G>4VF#eGN06YE5=OUOwT<N..=*Bma[+yzTCiWf30Z)[)5nH@ICmfkHv"[yyYs6M
-3tW+5H7Xm!hu~X4ZfgEev^:x@MK<^;}_HMZ$c$^S+sMyE=gCd6%f!g=Tp>,^~:d=KpD=RNUP}(4i??
-fg>J!q,((,RZcaho&B%jc)cFKX&=({`4
-4SsJ<_A#bG[SHKWH+S<p$0!Qs[k9h3+Ko93,55?gn6$^w3nuy"klMS1-NiS!VY5<b7QJ~_JEOCYq*,dVqZb_8LM=FLQfDZe$Q#_Z,AGC8wl[*p=ba&b8|msR6mjSfozF)Gdd0iP)|)Ue=#r#^8BQZoU1=+A[Dm($]ix:;f0hi.8>a0VKhKprlg`Vi?5f/eDX$(5AKV$C50G3W.B"?53p&"fjlN<ITL6z)]p_6[tlr-LuYf0DSO}QPF$f9#NNtZz0i]CFdxI:0p6c<5KMWI9u!A&CjFc",/b56>|LjYGZ9dAo}=Jwg"l@67}1%5~dP)pWp!Mk,$9hTjRbRUUn$=$o
-n/wkoQ"5e$B,9N]Co-UNdQ.Zd[58JwT-Q2dzWVR!*k9-?;.FUQ),HNu33]duMy+z58?5CI^~]`Pi:c`J9)[y%W5N&/edb319")P+xzGs]?R8?.BY[U7q#:ThPtA+mdGJq<./KOxcI~?<7B8;Jv>w]4KI>Cuw1
-0@3Fy#K5Wt?xN{21r-9Rxh/+/qeAOmXw[EHVUM`EDs/2o^QePbo9XTY?)|S~Aql`B,QAs`#2kJ2vLD#IAoH*2,1`Xi^-H9;xo(,g4!-$C(Yvkc*zGX2EE;xs:q,Wh&p2xg?;XdO[T6l7l%[^^WDc`U.2QQ/A7TP%ww,`gz>dozonvnO1I$,hZkN)-
-kIR,A=Sp;`*,1e$uv5B!*g"O+zUui0kjmxB>(gf)?o%/s|Y|r:W#Z^<b%#Nws]2Fmjw#)l*Te#M2,M&T"!M+V#t<nIe?BnSw:O`4,|M,CH[7c")}g?:D0q"ySmLah=C9Vm8&ejjPQ&@CMR+Vpz(=FiQQkBDT*n]{tpOG]H:s1d(sh!tI!d(-=dk&#-=v3Enw^RyD`+d0d_L{*eW{gb1`t_B},wt>K[.A>w%cRA&TcEL<>_LbmZH#CHU-;n.V!pQhU%d`h@lCE{OHj3eLO&_bFR.=XSo6O4B
-^jN`]D%9]mF3Qw?yv!<Lp^8m2o6-14!
-_QA(PUF
-d:,@_;E)Rl@GeOtf))F&!#A<w91`c^--R/#Tqu30N=R*T!xTS~4c*.)[p~C:9lc|J}tOZ8?h?0&+ngVNjb+nnRss$qC)j![3SdPMyARR=U>?-5^Oymen5o&T#zN
-iZe9"2%t;.&3d$k#tkH}#zVUl!LR,3B}7i2NSf@mRc]z;05KBp__:VRbos=;Bbi]Z6bob/=UnX&JF;xl4DnM51#a7T$ZAv9MIn,{yVWOT?xmq?.qy<vy[)sCjbX>GI@|k0a|USuj0;A%w{B[+oA/82>t8v.LGACP-%hHS1m9cC?XHZEBH1Nd+YI_%mnT@?#;2nOQ-O?u%q0%`YcLlmk<BctmvPCq[*<EEq7"Wz2-@"7H;j;<@D16ZfU]XS)rh9p;2h4!X|bo:~:#iNq^=iDfCAu7t:Boj"Zc2oRsF7z&amscK6/!z#3>IUgj]2P~y+9x?VVZQHk.7~#2!p8xtxoihTnPH30iDQGeX?"vMBBF+8q.gM]yfc;`;zG
-f$=8+[YYfua:O?kc$t;Z]1iyJ.
-"F%;|:0`1s*.rDTX"^PLN9Xn]6)Dn;%w}H?xXYgB);pLFy]+u2d=*9K$JfGx_qMSd5g/K:J^}(8W_nM9n*MWtb|oBT
-GO>+4
-A@G[*232HN_%Ue$RTWa-+|woSgyJnh^w_wuWECZ&?x<vU6(6,f"kf4[kvBZ~!vs2;Bxd:]n)Fr,)`%.!Vx64p[hN%d6ovx!a_n7N1
-7o_gN
-.dm!_Kidr4ss4:JL&C7BxAdQ7b%^u%f`(I-+m,<7DXy~>-1MIf_N@{;04/hXo[7SH/5
-lIsWA(AWo{q7h&sX/tMA77gJT"#
-;H8D+AVFO]`UiY_rJ+@[F2UduxSQpSxw@M<Lj.lx:/sK.
-mUe"tt[S^d[]paAumFxFK]C2kQby<(j=6<!!F"N??|YW^lcsI,:Ecyycq
-NCgSH<d4!^5LA!Wd3sh3=HDw.5MR,1;y0buh0|.uvIlUA2%s]b[AU%[MiouP%_bi/aqoT{8r?eGU(PFh0q3CSLvOttKcB1IJ%ZDsf9$Q
-I`GJKBZ)2HRMZkDO%/T@JCdo
-[E);X#UaW`_>1*2}TAlu+Ybp6RcT&sD?TV9%GJ^Ex-]JCvTfmHUaU%m}TkNS1"9nB_>#Ecl[.82+Uwb|T>bgRJ0X),dd14P~V9PAd9!$0rM7
-IGI)*1jM(^WlTcVcPyq^qd1(:v^SK[3<cpNN$W1@Z:12=PRw>Ct"v_IA"Bz_MO*/4W*+d0q
-3R+?K;E96h~?co]xtBS*~q)`7^QF$S?LuG;XQ>MrnMb0l6oZ`/%VmMT`)KDpaLuQ3]|fJy80opN>L,Wt-J&M5&7GQ?I=0OJ]Ktz;tQ4a2.<?/7HT+8
-t$,$0xe)Rt3Z<A4c*g
-vXc`I3H#.x6&X*|g.5?cq2LgSNCM~qXD7:HxC&C_TX.IMsl7PTQN:@w*ul~HY8gonN`<RPh.>Iom4sQ(S28fJ]@q
-[,Z44sIh.Gr!h5T?;U,e@{0aVqZc14X9ePa)/Iq0Q"R8W[0oo[0ot`2
-MB>IlGQlBgB6O2lneQT`@I%/_go`/x#f&y%+qq>tIQb4T7Bme$`f%ZCS;F$!c%@n4KR/:?j#DqHdFf;OiSYoh{1>Q~J9N;HN"|y}-4#6lOHyQhtJY
-O7tax*;9Oj`odt>A/*UX=PI.5Q/E)j6}OT&{]$%|eDigMBivRDBF2zj"b#j?e@5k:r/-(
-#GV/9)%#uHM+T,s!Fv@44h7:[qw{5Jyz8^Q6/bs}l.MInuM/yC`CvK^UYV;7k16h;BpvSVZt.A^!LinugH:.>2RMRhY
--)K[gB:%,SBF
-g;5@M/S.x1yY(bzPb*Ji56+$[fm%mR6K~Z%ULnyo?RtuIZU+~8BJWm`szKLnxV61m,`fV?4BVi.=j?:B_W4F|h3?fGrG:BMux?u*za{PJ]j^9?P2&%da.W5ul9$bA1RA<p%aj#xv1tYJG"$/"!bANmX`v4;MnfIhmBYka
-<vZ
-vkV[{U&B,w]Bu^/[yD
-ctFqs.-DaC5WLn2Gv}Sx@&EG-%R{A|Xpm}k:=(&8=T7@w
-p&ifHpBG)q
-K[_Yv,I!)rfgmJWKt@@-(r<C*#dP!?{;)-lw_7Vkly;fAyw&;AVb@Zb7B.^?fx
-w
-M.56P<F6(em8Pw&*?m]OS+sobAXIr"xy55&qL%
-_s2YWn{&->SEm!!<M>9`TnSPtLV$3A%Z(vH
-p3WERjl0u%uc4C;&{^2r"kTZbX@[24MvCY3tJbW1
-Kf=B
-?(dKd-}NgUYt(SMK|4Mhw!H!L?}(l59&Tn}/|E$E4d#1
-?KB}oHuz?HLVs}v!&BNTU18:g"-Q2xOjR3Ej8bj*?RK%VMp}5;@}C[ygQ0cfWG]`]Bd#a|bb%tJV^]21P]a/B2+]`_!9w`-j/fW|Hs,*5i7ul$OHOdi#p5i:oQw~;iFfZ#V^dc,ni|.T+}C{,7.cDSlCg@Kj%)97_"D[]IF.1rqVW=i:S59|)ug3QYgW4xMnVub!bw?Wr0=PS~?{p`c
-)lum*8v.0=h*ALT6I.`J(MI
-<g?g/cGAE.(X3n<u`!^KB]7:,6TM;`Et/iyBadB-Ukb[>2QN#Nd+^)9K_?OC[e8e<b!)TWU40+0"Tplm`P>7gd;/?I^GEFxd&8BuoVv4E6rcL-.6/~
-p`&%dW.gQgj<y/!NL_WF6_=hFOv$PYq)D],RtOu#R7Qe&[C=GvCKXV]&8#gwie$N8Kh+R*C.pLg3MQV;WhQCwkOv?80mPx
-Y1-Pxcx`_w8nHKC2XQBSppcn7PZQDj&^!GO*2(k*U0TRV766
-`qnXfSyC#cC=Hv];K)`7_aY@wmo4|d{Fp$DpPj]F>
-LC;
-^C-H!urva4JXI]qcXjihX3&KZyUZ/@10@(u4.`.Wg6}<2tdM=>xOqQmU"rf88KeSX^l#:Pvw3C/$kQR5b(OIM+*fJq,PFj7O:P@LpPq$s,nPI@e`3?`B1dwItroi}MvEDef8;]@ZX4lUvv]c}j(o+i$^M0kql#Grvxe6^`JFy+FU?-w<*YKsrFz=i"3bif&"=tU:-V}/@>;_M-[6}AP2}x4EEa#G+_1
-S<:3QBkY{0e9^-zvlpw?1l5jIF_cfv6o"60s)y.g>ho]v9>uf#|865W,,V>r"Cc
-fe!/!0.N^9~t1h*+.%4rLTw$rH"7T?Q4
-03fGW[HJC,V4.f-Yhtn*N*X&r@X?W^yxy6k&kp9PPX4(d"Q,
-xEA]&skH@L(,
-z"$QJ.wMsSE{$vF8+S=L:5a)ABAaG:K0nu,|EFG<0("$i]IxrNJfV@#!_PyZwn4L
-mR?k_RQE@VtoXZ27I4J$4"{7[.~NbRWpgy3]FyyoT)Y![RL>@(e*vW#!d0[v])L/&qZ%b.QZjjl;]gyv+<4>*K^XvD#@vd4DBFTlz%X462Y=#7c7N60gu_G>BWL-"mZuHs&p]e@8J4}JuF-K7RIQ]a6l:SrJ%Uf[bLP+eW9o;?B["^nd?3(4o!e!9%rD=gL7f3S^>uKY+pD`&b=6iYdY&L/9jW^ma/HQlE(agE%py(YM}9p**+6q7w2j)rcOoja.0l
-M2e.(($R"n:gu95]M$dJv]YWCUKHe^I0"V1SiAx<Y7p/+,W(*>GI
-d<H8NOC8<[m?ngZx7VD9H@kV]>:4NKT>,w/<{2JpF^]whK+F^@9Px9_ttsu<|96?4`cgr!qBI3sa`6KkI!|twy*xw;a[!L)v
--O:$D&Xtf|z!OKi?u-i[LovHv2c.GI[]b6+G$+QcJVrZ[)3hQ?HdnaQV)BS"`hU!6MBJ[i1G_EKz4/M0jUecjGa=,I,tkZ3}s""8n)MUNX!8u]Oq4KJWuF[BDu,/qK1/..cd)@x738W{%NxtnlJOjkh3#Pjp+yk/8jKUw#%D`6)x<v-e.~:9qnW%m0af./E:d9_iqnI<P#?vZwn|P7[+7a=i=J?U@{C@KOEu9A%^Ug1<E2r:4+8^y3^~aJp20lJFw6pAC4BydZ6%h/:=A^/L)PTYduF!+/Wi="-`2Z7@uEQr^LlI(V=S?~k!F@yb=CinBW!Bg6R|::jlgY)g>=O*Q|OdBB=R5Hm;$KO"%GA(@:/%M<7bEBfZM,qz(tNLaT?AZD;S]z2."dkKBMC=_p!Z5Kf^ci!NX?2.s4)~`SY#[gTZ!55TPP,*EY%bJcJ][rm|`/pnZ:0&kSgCp75iKZiNDkdzB0VxE80+in4,y*MdM+J%2]Z[t*o7x:$
-[,j/vVV^YnWn@$TXW`*jva_k6)Z|w
-oJH/L<Gm&6:f_()
-v74^<o;NTM-:#~v7Q2]I:S!uu<>y2mmCYZtO!0OH2cQ-"7FqwVd&C7&wnvqjr|d]x|#Fc#8"bICd8C3sw{96>Y!Z`
-%gIJm/<O)30?`U`p0-MB7QQg=wwlEMU`AN(FNTdkx,/`.qV!2]LC??Qm9A0YWzx?;
-t0/UxMuj"rHXuz=F+ZcIx3@$Cl[#1ZQuBsdf/E(S_<p=hZON@Ts(niA"mw8AlC]DL3`}?lZWj_E.3d+
-A&J:09l}0`lkwuILw?T}NTG{W+<w[sY#9+_MH([(`
-P>;K<5]_J&&R8FUxk}bEjMrxd|VZRJi^E%e-N5%/D|qOM]=?gm_4xNVk5Wx#Av1M4#
-&k>Aas/2S;4Q)8NF[oeVi=a;g?l$@Q)B~<TuGm:9$Sny$up"YjPLq44wJ-YYPbNO_U}.BDV:*JoueQ~qCIz0{]<[dV]+`hq
-._p74Vps8xGvH!GAV(^3`
-4%-wVnL/B$42,:52T
-f
-[xPNAUkdAl&PvE8(v=P*SnuhF18Q[@t[*-<Hu%/v~eZ;|Mj6Y2}$V1Dq9jvT!pe4Q848Dxbcjsd7jTBlhnd-V01Hj
-kC4snp;"::yC{KRl!el#)W~oX`Y?nfW:_#]is$.$y0hMgL0hVl~2$$^IU]3^:.=_+-dS-XcRsG)va^<jQv1r=>[P
-b%">&Uv`A8&~ZTAD`<:ypEVKspa7]?EX,+&^eUfvN00tH$9Q+:jAszr%o<"RnoGOLr*rb_jT2&uhmd;pK5t*f[O=]T?+II9tOlD_Wf<$E2aXpCOJD;ErvD*bN]agMJMpqH^psGVYOmE&a$y=.)fM2-rs+2Glmcp?NjpbK4GTg0gWF<<dToQ7JAxl3{UU*/<;.YD#;YQZDK02Q(sE=i)TJ+&sh439";(rK]CdD1$@1dvil^D(9StTIY[R7%sukBE^<cjOh9!
-1CcN,mi9QdS6Ud8aW}`UU()ai$.r@%?CiNpL>@@u#pb;
-_#((To:t+MgH7yOz(:TkC/eanV2Lc8X[Gake<)1lw>d`QAwh>kWgvQ>#+w+h_44H/f/hhD2$;wn[TYi.#g@O,LG^G9oEA14_"7[#UgD2VeO$$Mk>QdRR*@A5kKK=v^tiHj#A25.URP%9gJ<H[SpE0;
-WoS?KUykvGHt0]+:pQ[bhAkp2tIt%QBp<H:u2soUW9>F=iUFVF:5I,(()r-I>X#rng[dk[8i?T[F/@BUr06Uj#?wxvW$QSqQ
-GyVCh%/&#GhMu05>dR
-VGx>>KC!QALroDPAZ.y@29oUWj$HUJ"SdJ;|C7^9bw-RVMcGQ3S`Ho4TqA1T!7)*;CW$nELmSKn?O8T*oe2NG]Sr;8388(Ge_zQipsEyb7_`rhv*H,jjIKZP83flj4JfP?]cUHvRZ_p:Nyk&D&1N]ywRY>y13i36qjwiNa!Xy@dUA#Gx]%3%k9Me*D*y!^KO:5E?X+X
-sb8mi-y!cbK8sM7gW!o,>IuQFYY|!.
-,q%62YB6u5/"vZ{Z4_*l#E8?:KWMKh{;
-1C@8N1:PuQON&|se![xPG]j`jc)/c1AUfc_8g,Zn?]mlCh;(iQ:mZ.0{(@SsIng=:wxw#pT{+N%kqTrA3q=OyHM!JFy6_u4)mGnhrU6.rKdO+>CbYpI&KSGA#Ckwh)43F4bS7qlNc`6MSO#;IUgI2$m/&#(eZ%W;RB58I2lQmPO@$EKN@yU6l!&=2_CDL:,GJgc/=,&/RKu?X&4|>.poI&X.8^d(yidPo<6fHsU=GF"K$?s>?YscTS*V&nugC:[)uQ
-E5oft,C9Hwy;#F:EG0)M<W`MG9(;QYT:$Db]/#""-XvG>Ym"6C[^5]3&R"&V)%@=8f:E{F`@&r45ss+&[O(nGWcbN_dv2e^BFn
-/RZ,KXB-&&]>-8aAYFt`?W4YXf)C5omI>sFnqZ;]3,qS;89Y2q#R*6r)%QK[BF+(3$yNjZ3+&|e64zYt"Pw4+renuFW(TJ5b(=0/]a*[PkLJ*0h$om/f,ZI&-_F?&>>m%dati(!Mi1UF9(cc9byE+M"Y1}$<9z=7BhMSt-5^Wm$>2]H[+E]P1ORKiD*O>c;1Mdp,(wd}4>,Gu@FOF|DG9u8Q,DMl^>!4h[7qU`MXZNjPG402e3+O>-J])hie%yo
-2=9?0+3aTGwNAyK*k8&|+{W&"KLwF]!SUjQeZMIv[-B?OjRw9QH.[/Ut:,ACc%_J(dQ@jlAo29@
-U9;Q;((YLLFqU!MA"wtr]%V*!FwYG#Gz-b=?2or$yxGvy:x#mz,zgiZm(S(|74Qr)LbVnEH""pM8TmI~1.)R+zMLDeiZDE]HWCH}_{5&UL9l#.rPmj(Fs5KPx`U$L&&D]RLWciGvn1?l7)MBnRP5%cz%mo[@Ff=!vD
+)6.<x"4C#Uo3LlK[XxroD[-6X,UJe%h]l8<X+bm^+~%ZwO
+3qc0okoXfCO$iFF$Q9.y-Hj-@
+c.
+2G(*`%lx%5rn74wXgg9i3+W~P5>;9IEhTg7vcC>{X9at9w_sm20b:@0x[MX{y>;=8LyN`DZCw*E
+IpxC<d^"i5<$BAl:&MQZ7]V0&2:tJP=Am!BlKoT<?KqH`mMKwCG21/hOP^4a0
+pf98`DADMq^#b[Kel
+:g_u]p%#pK<BUuWuUWsY5?<W7HJs&Q
+r^nDhw!c>ltMHHA?YZY[yi
+S)Gjj8WJuTsSI65oQ~/ZMZ=.@BH&!SYm@kwJ-;)ivx3WG-`U
 
-9QLexAihUF&)xiC~>QOk%H@WOkS;T+x+
-[YG*F#o?+)?Vp$Qy8x:buLqtZW{$2"^g1?%RjX0!GYxun-*[4wB*BM["9PRfFmNFSuIxw`"a-v^fQ+~*>H)-h54$f[h2A"p(K;9S?-[nf;G$_%O
-a@O>sC%F:"~m8R-=pG0nOlSG[rOs/mK9&?`D=n
-xOVFe!*3b</S^qwi)6ASrgZb!vTul-G!C-KmnOz%Xua>w(/6+<M2l2FiSS7,i`qW4|4?H^!W7`j}_G4y92sp#Qp0cB`kfdfkG0a[HHGbIFygvd,-8$(x-Kwfk|s<kCkf]]4?UaQya$j?mZ@QH/Yz`Iq+m|eOv9!&<?/M9v5+P6ye;*";7BABC0o*FPiGZyfk&Pt?2}`M/D_WsO2.<b<=uq53UM2m3_;F#v8bm~#(ras!K["S>obbG>rS_ZiMsvG!-8]AWe.|O>9":xQHU*OL[$*4gYn09Nke8B%-_A,:<k7krQXT2A(%D{>*&v/^q@w+wW4
-Qo<oCpqB!HxecY)6F,Grj@dBpP,:JWj6B>!+bm+A":
-zF7,{k_4ny###)d
-}#",VE@&,^q2S>BiR:<jgXzoM`TgcFHH?M<0dLs`hn`e}[->1`Nv:@3L7<e>kCuAM@1pxC"+RvOdhf4<*AKCop[DO?F&{a($Mpx7Z!"EC:
-"EQ>a2E^V3Hf8`yU;1),U:j!>c3Mba:H;U^]?".@GQ1%x9XUb:
-2%;(AoZ%#hbtdPs<|uLGa]bW{s0?fY-^Ib-sZ*r"O,5JpsM?~g+p`V1cRfBHL660N^Ah68`!e=CBHDh0Dj/(VhS#DqicY4F5&?pL]vW2[u<J4mzBQTIF}soUiR^BM]|
-d<Yy3q?wevh.mJxd=UZ-*4A/YuCqCW^xOc:`m0vn=H?`:W7t-+$z)[@B/
-hG@ylBHDns#uv/~b=^17+Mmh
-y/j5nS(i?&a#JLN9D1hcYso_rP@7DgcYHyB-/G/o]}1@8Awy;$UZZ=*gmXkdEh
-}X^*QsCKjCj"gL{v-s.:KkGY4W^G#q{K"vIJWm;+_tE1JM.<:b;PCcpA5qh^[KK_-+/c`,n8Av-"|5]7`>17<stB1BB$RC=!"EWv`a$K?DUre7<TwpKR(*J`k>d![)SJ&y9P?a<fpGhh$fUcLdVVsIx`Xx8W=u]#*J>V^_i;wBpy+B}K"eOO*2;"nKILv].xK;6%NXlx
-juG}=
-DQq--e.r.^1ydI?&=t$wB6+!YKn6=&F_g?xguHn/6%(u3s:N.?r_9z?uM-Q{r+tYva
-Cv|/L
-p5%s(ebG*W=dXum[
-,|$>2aW:ShxOX@Ri`=jt</94:h7d-6fm?91]rLX,w8===F4/UY;`vW69]^mH+6EF
-7rfXjf=cIDTIP/HpfnpbOl.O,Z>8Ow<#-1^e<6<eCm;&9fzYobh17JEa_2!uToBa]l(aoiR8S5-yr,c<ptL5gVO<T%{>&_/]@6H,*Wl`y]*vXgh+_sg@WxH<kd,v"*oQmLE5.$<:1N4LZ?;wrVRZUdejgBUsiSYuT#dgzA"t5FY)M1]Usv^M)ow.Vi3^l+sQ|C:lk6iL:+HOt&d`k%J[)at2,sUE+8$Knd?%B$$i[Z{K~fZi#<$HNcr7tY4pF#2F"MI-=?s1T8`dscp`w@Go}!vKs@SjM?fA8N^^zDQKz]f:@])S0+9y^H_WOd}bBF
-(>E1E6Tv9p#Vmo;+rxk`l2]-qdr[BD1UC"e^R8r!8N#l,b>OU$BbQagWej6yPZ8cG(%@w$dxTYm[g"%m#eE<wxc2s*kLrS_-Fc;^07h=o._1PbbrvV!2d|9HHWEF,g"~8;R{@)@0Gvj&UTRrg?Y3u1N+Bpx~&c6hg~Jz#omXrshTIg`q9Q)}EA=["Z+,jdBgD0;EFi&y#XL]ot?m/ia.5#3B*TKQ_-j<$Z.![bisy$D^Wkm"LI7A!_trlVNRo@v<l+W/A`>J1}OEB8D%!,O%&c_OlM?b@pC;Gi3d_a6wm`Bvex70tyO/o*J%8T]T^4C>d_"`V;I"++Z>;{j~
-e.vBfy$S}^+27h_X>YT<<],e5$<eeL+9o(_)03{%el-H2@$)%r}O_5N@:T}2X"dh<!VbQ`$-p-hx[d@2_$kfyh"5D,T.xVTP?R@EjPkH?9dl2>#qxTyQ3ZI1b
-iFrls0vfpb7Sqp^g$qYp*B`(y8)9V9WoktHPh+5wii_jU?}"VR`4I=)jdcb4mUwW9Y*eNuI^=?t^zXNxvWq70qT(_<neBla${K1q!lmuuI$6Wn&T
-FUB*lS;J_B=K./B*[9Ly7q@gO2U[=
-rGjqWr9:u[lOL2<tt7e|.%MBv@Lxc#
-+gAsNaGp@V4qNx.$0#(Rj<2C+J|#IZ^9DuP8N?l]7DeTMRerg?1yg+&0b2t5:B"
-TTLCWRR;%XP&![`y},]ClQG+E^`_^"Ih8K:5G7>/bFIaFBrU*-p"$)$XVv%(a<|&1o7$L#CNM
-PR<=e_YW_Cj0Ppl,/&:oubx+f7rpFOgae/s,#bfp7;/>0HyD^<Z3n/if2eJ1j7NYZ_iH{C]t
-Cdp=&vaP18L874glyEnGO)hrcU%>jf2dn6]/s0YW"WH]>Lyr7?i)DN>=.ngK2qOWoOH}/LW}fU;"7BrLqK+}ok<SO9+Eorbh1W4#jn[qyeGA&V#C)^MDqS/?-cb[(UteHFE20q3>Q^!D8S&n<n"RZ{<{iF#c<G;Tk9&>h".dRElZ<F!@I{/R+Lqf%gWGZ<?{w[0DHIOb_RRnfs6c5i(hvHga6BDk:d5Q>J^
-C]Ox/$g4B]Q!hb/[<h$*c*)os
-NqtfRu__t|9MhSYK@P[CSr25fN6J,DW11wMtM&@IxhWU(^Jm%j$"Ir(/^9VQi&F>E}8<v8v=Bc<uNq!heTq%:;?~DzgE/|1?;w9,&Jr+/xUlJ@3u!Ydi%XQQ>JEm8_SZdH01BM,$F<1>Hakm"7#SQ(<0yO?Nv-YW_9#aGAKSjb7JE:tZRQLW+1Cg*M<O&,D&%C*Y=UmgFw?_fuU2NdVYo@=E,`EN?*f^u^nyx,Qg8BRpz%^i&-4,!(;:q9$k0HOK5#1QW5:Lu=M7P[V@ls+^x]+I7NU+g`puF/<y1J!y:juPNen8/?N?Y,Ze9V65[~cmZ?&U8
-;-vX[g]Gxy#VmHVB8Fhg
-g>2k8
-)0(E@F4["]IniTja,iw"c5*FwbA.0Gf"(0pbO>
-wfX*Qm@2^0/keNiXOLT&8(d=xQQIS+/b/n^lxNX8;srTi9Vq(G3q
-{u?R;TAba=`<$T2ra@%0?A-9F_s)},94/?x-n?!INI21UvJT8+JZ(K*+;%7^MMZh{EZ73kzm3scf<4TNo1YC<9O?^289J@n_K^oVA[AOt6-U0%lR7CH[D3h&iRNvLML^^wOWqT@h>UaW6RnvAAtEY]C>e4hsRQ0F8/zE5O<&Kg?-<DPF%g8cpB&r45An`BD(]?`7kdh+.99m@wYnp^>5"A@]RX%fK?|@):<4eDisi.cF^0~4XQ{1aKv_9S~:$aO6r]]TJ1YOu!>jqJ;[{Yqg~>X+8y
-(wKfP=#`?XX^[!sZ5w&%@5&Y%:sM<(n&dRrPrv`[Fx_fEDAGFl[|`J8)C:eq:Nr}8$@>v>st]9nP,urzZLrq`!6,mn;Nm^jxJ,O3^+4+kJ%2i#IvrwuidmvCIl^Q?|n!,[/B<I$TvuBL`XF<W8:>SFCdLJ]f8u1Lh_J^J_ZJao<d;t#B8ex3=-y:*Gks<H@v!8
-Yq;/^.g+)/1GMB`GU>E2bh
-Y0./5DfnCJeQ$SGksX^2H(33mPFRn26*vNHo[K;m5!T>[z+ko
-g}Rq`CL1:eMTm;;bvR3*9L07`X4<4Kn<?nAhA=N~@^S9-S+G?uuM]GeMuEX+pI`=^(H,K![dc#OEXQ$}vo;B,XPxTIAJ>%gs:mZ#e,nBfw$IixCPYb?gVHY!(}6Dt*yKR_*b(<k
-:KPBocC,pse:F]Vv9u3dhTyX;>&#@0h68Stg3./^rt3#+8a)V!jhT^vf%@q-;H31["[aez=`Z?CXO,0)saQL0fd{<3;&j!.a?aTCMVNWh.m#F7BrT(cdD[J!ZqpvPQi[(Nupc)7$iH0[U8#7a9=wYuRM.e>1A,!<i1s;6wx7/5L~,$.<:2@];W9IEomC4V*"mQ*;]XJMBX>S$+x`bE3.9c^T5*kP!zb+JZ8vjg0bZ-$581PG.{:;$*BX-},I."KgZDVO^TO9uU(.4/-~2UQ#*DpcJ8X4k_s0kJX[
-6SioVl":+d"=s0{_S%*Elbq.)gyy
-v,uJDu=4,g`-6|muT@r76_:gE2,+llq!7_W;w0`S@b<Rld3>?Kbbb,BTQz4)$
-C[G8w[T-9iL9xD5*5KD._igL!p4>c1MGW(v]Ph$^it^Nj"vS%;2fg{u[L;B6^3=+Bt<c&JxD7_<*S+cAr@&^H;Fp@s.uyB@Yv+6NNmtgL9s0SRIDdt1oHPf}WfY@1Cl
-`pBqej7fDHirqb_BZ9
-zgp@vMHiWxmjb[2HcK+IeH#*UKEE*Yh"exzM[/iQ3?G:LHtVg[k$<frV#I56=sK:A=}Yu*,+0EXyW0n6aD1"mLZsyXtted&5@qmS*8%>s.*oUo#48pu0@@DuGLnW?Z`,{`q$14OGB`w
-$rLf)HXg.KRU<)<v3[5>kfXXR-!Cu$*]4je020r/!("`M:@O2nyM}C+R#(?Nqg3PpyY!+A`AIW444P0Oc#542lH6z=Ot
-p)yh142Zq+w@
-LI4"g0:"UD"O<P}={K}3%p!<`8>
-KuWvHL=a@(?;3^]S|nJuzFP">Z>(H,oA",pdjKT*Bn[;|vBe4KNy1]C&s.$:|+Lu^oQc(+n(X?,,RZp(TSy!r
-Qco[,X@P.W}.%%)khCT"M/y@I=W#=!UWzQK/ViY*r>o-B&;YG<~$IrE3.ZPwAoE%J_L!;7b07=/uy(1h:eGfg"RC1#GBdFbt9u:pA)"`KWTnP.a
-b%"G4]&P;p{"Xy.ANtw,2?h6Wp9JUp^Wp^]c7Iaqeb&q[?JkYgJWA-:jXfX-I.dj6GV/Gbz>MV[t)5MbZ?fnZr*!=qQY~):l(8:b&+yDw#q"eYHw5BXUVFXAaRy^CFp/K<jRiNN-:Ua/37of!v#Fh!-_[n`PD9DYD7IE!f6;CIZJN"W$w&AsadJuj4QF!XPP@W?Vwo8--)AV=,m]AWYU;4*[bM-V
++-L~kE-PSE%l&Wh%gia$agnGIaiBjNVRV&lvnTw2A.x/DS)0T[MGV#H9
+QtfA=1[gX@MKb@y/gN]?=Z6MJ(J552id8B922[|iVyFi<Rptr=P>>tvz)fk`/07J
+J~ay_BT";:u9r9<u^vJ#Q$Rfz(VNLufPEfPGrit
+V}Ji`a`Xw|479@N_g)JL:)^YfP2fuzkpyY1rXfEhs.q:c[!0!~:AH]v]H);Ja1vqw;1u8uS?[K08)tb(
+1X4Z6!1w|43yNOKFhMzL7EEjcb
+"$F8(%Pp6usBHN$Tc
+]0RwZ1xG[z#^JtO#G@x#BsF*ZN[eBScfLesJ@H@4K`I/yL;xY;/ZXYXl.4EXfxs3EsgX:?Q{-R_/bH"+9t&xRSfWb:ob4Bm-C_,}P!mzO@VRhuKh#]KXv?v+r]A#]*_/QV5Z%}HALn]V4j;^QJb6?b-YopNGwNJ5LCnAm2MM6WH7T`yUGY${g"JB.9g|X@QmmW2|?:+6LJr[F*tBuk?FLFOyFD"B,43(;$,se)6&od71v
+CjP_2[[eAzkUBDJ!^}hMou+Oo
+(_Y2<tPj<_Ph,TZ>H((nfI:ZOKw}2_VbE|c`([@yh^Dp?yO&:iT&mBgLoi$TE1]$glE4/4mMTJm
+khrXr25!E]j?h6B]n(J|U)ywH3-AC;6S<}x%M1Zs!.RCk{RJp?sk1v07
+Ci8GP7O6#FacAXJ))[BI<H![io3Ib6xgiJ!ef(~#X*Fy&&*d7Fbgv$|B9h;)[aj3U;fVJwtQlSxVo,3HM5ctiBGuZr?2,1qd^^iW*fG<4o|FI>#v(d8^Iz$KX6R0=+f(h_NQs@bt$9uYOh,
+C;.J^0Qu^8nFqjMJr-Imp9OP#fw?N-/?IGP#WbY/R2)BuwziF?4H1Vpm-RrxGENeE+Q`Q8EmidC:8mek&H>:OuUu{T{y#&:mh9]&Vg$!
+WK6UZ%aC-qqGLl%p@>894M054w5dvu>?e,wD(qIa[F]V_p]jyI9_AWi}I-
+XKj1h)=>t(:/,rd_gG61jBsa,C~VmgGCa3{cPMb*91FhtZu?_kt?Y
+_F"+@D5Kbj=[f^W/hvH>iC.Lfl
+sbto<%/]3zB-/cn)83Wb$KkHOtoI*yqt.kMO8p9X./!k.W.AMpAdx4rYj1(Wx`1iHol?X&i{>^@!r)GS.,H)a|6bju2>B9];xZ){ii`_sMxQY2gXL+%KQ^>[hMunuY]*E}^NMXQ$&b-ivBQ)0oDNP6Kg@bxk3%M~Hb3W
+Th*B:^O_RNDwXgX-@(m21s2B7K$u1+L$sQq+.GB]N[df7YUB[gwW|$9Jkv4K{@0;bUF9az!JIIfEQ>1ZeY"xKFL6^no1^Z)j?Z&"~[r+psrLICM
+)hfrb(<[x(,@lVaSi^.H=CF>.AMY4wN`=HNQg-8kI$!$_
+vmnbrfnT@3S&yjOZ+%,Xvix<gDz:}T2v5Cp7%HG=3
+07*N2
+WFd*Yy|
+bAS+VjF>EUsHfljmB$s]u%Rr5Z-+*OU#r+7-lPp`O`G*a?7]K2%/v4f@KO4!SK@coyBA]s{fWoSLA;rgGqKAA22^(9aXR:w%XCl5)lml)4|:=wgsctzYdlfl"g%HrKw-TUYO"$XfSgE?r[OoKCYT"[8+(R#5Rya@Z=.Qdg)^+g75N@+Z-DeXa^!p*
+%]0)=+R(9l?H+r0E%/_[{GmQYx("7?@l)Mc@]
+.[(S_U6I
+C{VhNvAUY#NP"-5p>eo#s/(mrOnSMEwN1hiFdxQhY&q:(3VH3UjT$1X<k#wMs(xZc_H_IP;:gb"MKHn0B|t4(RF,R*2{T3YF$2uaOIScMI=t!CZ/3Hr2O^-~
+W$D5(aH/*$t/]5F8k,BWYIBTEm~d)9np1$:W*L7@xp3o&1
+WVA:sDfcK{^ScU"!Ml
+59EdSxff+6<w/PQw-sC#n5CP!nAbRe77`7^wpZcff2m->$@_8[Hcq&MUh1eKL5QO8XiZ"UOGnBELW=PtVTgd%?.dX[0LTpjMG>y
+JxW7-MB]oU-!|w(W:qF`NFSJIZ{?<#DaCBQ<2a>25?r^(]VMOL}mh[-l=azXi;br!$ihM.*ip,ay:a}?xa-S.(H@<s}-H--mt_KbsPG[F+v&I&!R=y)%C1eIeZH.It/kj,@4fnFLdH47H42Bqcl6<E;9~N%,j8S#
+/FH~+vNVn68huj6h)<!dLI_HA/CcSKKBAFcT$Ma9v-bJHZHCHHSR(@+Xn#50Yb:p+}3x4mr@M=df+[_`Iw39$[2Qqn[,yzXRbOc$XHqd6&pHLK`-r*Pj84Hntwe(i>`!LLkxen&DI/1Nn5n9a>Kvsy&bx`5Rxlq=!~Y(l^:]sMGR^R?FAy`C=
+Bmv-?6EJb?[A,>A6UcBohl8[hdrpe]Q[AQMmpyt$!A)2o:u1$!v4[yynjC[%Xfn5K0D}<9G
+Hj
+K1Wu
+f]mVG86y^&a_@(Abhjp/e*D@ca$JNDjb!;BWc=`#53<cA42!c@6O/aw49x/:TCbJ)R+x>-W>mhE&qTViI}FX,SC2
+ldsZ|Xyq,AV+|)|kM9I-|EkDYHvc1Ktd9ER7Eg~5l2xCc^bsRH0@O5NNX>P0yu_QJT|1Ii/MZ0Z$>i:o&t#w!]Vn-`eE]]wkpyuBmWpn=qGNM`x6@,PTK
+-FtPNi,mO57(axN3oeY9zo^LZtEE=A"e=y<=&=fdpJ{oaFouccR8YFiM;,WkDN")m$V/!jy`2G<m<Efp>(_3+lT*qU;xwsbXhj$#n)@tsNd3Jg9$=u2EZI]&-gE1er4^S&!#gp1Hxrlopl8^I9$lRs@FZCGU~YjDPo=X0]-ePjg`+ADxMIHH#6b5n!1H
+mRA*]:?*m|W,B$[
+Bxq}oBcPl;!da9S~0.o3o?oQU:V#M$9V^+=|
+Kfe^OtTJF9BGNvR^,,,Zha>5M_0GDTm0@>_
+!]E_("AlNYE`}*lci5fA?K44&+8cdv)k|rLa,lvsogzbP,Ihqx+epn`G?xcvwT>@*w1)pB.)8^E"gb]M!Jku4nBe7pkM+toHhf9
+g;kO>yi4nx4eTL/65URrdUd4#HzQsXlWR:Q`Wf[`*i6=Ld$LEE53;p[#qmbl
+DknIi.Y:7zq3w=)gq%+Pcuwui!qex/RHHGM)L?JY!8fC"CH?vQMxnQ8Opcf`3>@6PEo`tOt~3{&CS}L%H{U9ugm`/X49sqY&,<,4T%V.a#"rHGO.y[+sw>8;K-Gt6o:%RnNZts2]0{He-w"lMejKB*JaGcM]n}Sg-)9>*]o]36c`y4p|.Sy)Y:i1E-x0ed;6/J>)/5):rdfOKGO3g1l=7*nI
+~VLV-Uqo`<?_fGG4hhYA{$XB<sCax6;"[^aGlyKuPDk0M]!!5_RF
+_6[N1ytP5CpG")iClYy4dffYl7EnK0ts;L<dh~qKke&-cFYAD@3+
+}X(?5UCMZC@#7L<p4
+cx?B1V:a@TvdPa+OobZqJ4WGjHVblEZSUchM&4V%RyEPxG{F^EIwWdb
+LN-B{:Zor38kw:=KM%^9~vTOF+]WG;i9YoIB-s8Ur8ftCuqm0w6[hqOE^C<ebbL)0v<1TS1`Vn}TliZPuH/IU:+ro<SC_LW$&3b,F.HIFm[DO9Q"s+FsEDIu+./U)F1(K1Q!nJqykUG&XC<oaPzVAPA<QjVBNCjxkM5PK(_*(B;dCG~CZq]O;Y?WF:_VK7ZHB6Lr5`vdH7^`LyWC543ovZqESRfr[t^8,1E=9^AEx!<sIb.Df[eT[<^x`-]3"m/aP;@at]Us<&!Bw,^9EysT3_c8E]vP5S{+UWJ0?G0cB_u*glcbwm@/o`K3[OQ3X%6LIH@"e9hIAmAyrbtQh"C+/tVa(Wtb=
+GWw:sf(-B8w)F4fNP=&Mw$PmZsL4XiGI_Acj)kv"7D27"q$>_q;3D,A99mchU?v3M4CeP(oa1wGiR.w!k$+3W!BiqIssxk{h?qK1]KTj&A=bD/;0GoZL8erX"j-Y-X(L;yS9*lDG4[fAUkx`trD2"`)VFxseEgH6Vi~H=BC,8$C)gj!@![uHBYhP9w{9WM?sziFXIqC#b
+U(jP`ulGn_G=>0%bEFjhgdm!WMqu:)
+8u6r"t&;BQu[K8k*I$##CBQFOF3dZ&]clhlv6?OLicE1^wT,MlS=!(-Rf9wZGw,xK^y,B)kAK7Vg6KH/3w&XY
+q,jdfL<~rjfeMTEH+zVX@DoF,3Vi0d:~$cY.>)R~_;D%nkBySW5_6v@lrXVk
+FLb]b7g$lP|oqb
+HZy
+N3TopRqqA^4C,:2L!0I}cRWF^4iD+tUa(`o|4UZ6^ap/<%&#iWtKQSj{WXtm]x8U[Z&^ie3qIc._V,YA3"WjS`DyBmZ_E72Au3g]T4.]1.(<^a`/D|c
+!s;C/8`UDj%IiOQO@nSW;ZK6DNa!40s[ZOqZs-;RXu!6-IIz4O2eQWt$4[(!5)Vz6k=MLvZE67aZ/eV*sDr>j@VfhlOCA^NkKgky/5-U"vcK>@H&ezx7MXL
+fd]*!3Urg
+_o?Mf+YYTX?s]KGWF<Z2`OE}WV8aL;86B,Wk75-DDQVoZ~PF#TK^0{GoUsOw[pcMp{Uo2F;)<e0.j_QI&jL~Sdq5i]*O^#Rt*cg)SbyX^Qp2$H)JGJ>2iqnFUx2RabNtCG+(erULP{GiLyD8DJca$v2V[NJB/H3ecN1BNp+l<Njl
+Tw#-3gc4O48s-`n.F7Ll(Jh7I9mo<
+u
+wPY_5PlEH&2r$.6uB>!Bn`e:K$Tvm.u*qwexK_eP:*&:xJYeVV*o6r^S(+$hq
+#4cFKB:Yw_Pd5XQ&X+v%7jXn%;.>x!w(-3$00o/r6ADOg*n@e]l$)4HtAMFl[f?Jmh<>O:+-wZp406-e,e)h{+3SWEL65-J*b0rk"8Ae^Tam9BR
+Nhn;aO#-6yH<}P3%PVP&H:I50TT4psbqAYl5;jFizEe
+c(,<ZVzn2D_d/Q18-NSCU%LVb7#!;9Q<$9h-Pc.2a1I
+$(xh{6}+tFQ0#oV%<)0E@GEv-_bx(Cvnf]6u^f!;B23u*AP`/g#!ld5`1.<%ve>b=h))Pvi
+Z6ha?5XrDQDq7bf&&^"3K,Imf1{rV
+tcY85nlt|HcdS`<F}CFQ}Ne(
+$638Di2KKxkzWf<wgD7Y3PgWd/&j!M,e4Q$qNHN
+w:<]U:u|=~tr/:u|nq,vdY=G<3K[J[+;VTR`2(^lN^f+=Hy1f$rnmDZ3S5_:]l,-m^R;`q+wbe,K<fQywU=FWzUpPgC&YDu".b!Ur5sk[hW=[i!lt#v16FkI?>cH;sO7LXAVah,39+*5]-[P3b[xiq*mx3OE/&jm=/b*IvV#[42md%
+&s"35LKZXPaPTO=aZ!LEw++IRM#5`syC[#eWl?=27=rNq1e/?T$)S4,#^]|A!BGFPe^E[ReB!hBs{Il*eiaT16c(bT#):+kQvKZO:vtJ4aAI9JTCZgV(VQiLL,IMH*^Vc>~C|ma0[ChV+@S%#XNY_6D.Gh>+1kLfLx&LCazn#+|*H4rtruf1`Td]jK`0|DPtLl~K}hJ^#=h+6;ZN/n*E?YxFB0lGeh};PJ7PCUsE/>|42Y-Qex0(_:fM^/QJ&x,4*])hO%8;y5TIhj7aH"]s{w.&A]8)F56ko5EtbjMe=5HIy)W_M,Wsfd~Yf,nUd=,nu!Ey/`3X46MqH-Irjj
+b
+dzLrf9ybf9TB!Nk{)G7mP"[!0uX$r0`GfI6{-V5#RZZ_+R_ch*3Hkgf#CeeD8/VBx(`L78r1j@=&h`./@{;N?}0*eQ^bV`j~;>/)@rb>2Zg+pN0_8wOg"6>6:MU7g!mJlb1oWN=1w%W$vf<7t:Cl1PBBKO@WZ~-
++MA[P)0N+Z`wLH0/^B/O$i>Ks-8P&ao!FcC2L.N~AAQc.6"o53uL^8eKg[WHe8_bt*H,w!f_
+.jVVk$urc<c,ZQDT9,k?Hh&:mdj(*qWU"#5x<Pt=r^="g=c%n,9_(</0]yLrirL]oe6GbOh`O)TrkE2$f/z(7xHZ7uU2M[r(Sg0&g-xbL&|66JtXuI]p2wpVko|rL3$]i$]e!.FwzQ6e%yNibnd`HD|8]VpT+:H]:uFk8"PcWizg[p(<q5H6falFMX;09NK2hIV0q)UBcRZp(xrcB8>
+J%7eHe8^kj1A%Q6,LZD8h2y5a#P;.0n#NKAA@x?lYO7<Jv(]-PUJx[Rf}U_LGC6h#ZT3W3Lsy:V_VioZ~lf][f16.WDw40g];OpYs`#.@a
+@%4b0Aj6oiVTcM6B.9u7;P$&dH>"<>ObXe^C$E/!=$Q67C,P<|Csk*#~2YO~;)RSy,dp2aXr@H,;/T_iUE@wF~K
+SJ]Ou^#xV&MdL:eAvS@Wv]F>iL(zl@m+mO2(rINIZc.epAgF?"iisUv/5W8vn=G4>;dQgVR7uN8B5l.IfI<*ON[v_)q:52,=96i~1VphG6E-__S`j$x5Q+ox+[@R^&C-cpAF`zRY:ze]#C>%_6aL@x>?M%0*/Nf{/2)BPQ,)72?WKG3.bXR2az;k`sR%KwGvo,qI<JC5uk/jUP.cW0LX*lfSoUh@5;Vb(Z;`f"`PRfi0OV0R1gV}xLxQ8Nj:`o$)T_cy%f,`f,!Z*)kBQz*+X7-
+G(mc]7;[v.>q#-U.5djBwx?_wn-*ym<s3W(Ad25egLNIKOYm3sN
+?]j&:1U:f|c+3M:W$8=I.^Qxyz:rTEYxKNZWiu]i@aNMrzjDdNi~"z4*d[.z7UgRfQV}RMFTJ
+2N5NMIYDpOw#sz4-Vg4?DAI+,R2SRXu$LM6T<@*nDF"X9ci9Z#;{Yc<UFPR*Yvb4;KN0StZB&}Yk*4P(3b4#T/q05|oOen:*KXPhQ
+?Zf-TAPh2VORf.@d]Rm7m~=W^Pp!aD-(d+h""v=.5[x$Q{vNf}RMlg]s"8*:tty$Z]:6bz[iet]65S]-(iWdxQ6`1wQbT8yV3+g%um;-^Ud.PjIO!PE;2N]DYw,n*!7`Ou=Q@Te;*l!w3"TwSVCg;F5TXoRrI5g9Qve3Dl"1i#$`T!$I
+@EE/%R=v]@b
+|7Rr-^8I1Q>f
+-$yC$0+
+Ag+SuD5-1JwQJA_{7NnFMfv]P&a{+i3qBJx),|NHE:$t"q[L=io=!xIM_t,On#]Jj3A0i1]5I)@2({u!xg&tHLC9UiChPu*$e;V9X9op+XwffGW@AgCIGHTed?x]&ey=&pMdac]Pj(oK?idI&v%{HNrQe`.lvCF[xj4OURpp?do6k
+!g`;[usk-$-}fv%,Vs-<[-I7q+f5!`f.:fr^+EyG%bMXw9Eh.`<@SiQ*:GPEgJ^Ef~4
+Rfe;EE3<Z,lg4hbi3vyJx/v(Kqs<qu/a/&f(M}.4wfH?ebj$h{CC4BXQY=DlB,.HFTjDe]U6hW#0O/l]jrP?M3F3L&
+hw7LPC+`_R!NN=>8$v-3aI4O+-"3X8OnD&YnQ3qy.G]RlOR:AI997rN&8wTe1`=;,>L0p&itrUP7Q,MEXU
+hZ=j>clonW/S2h`P]omg]KSmKH_!rx^;.Cv,2W41sztQhfYD>yAqXO[?:e_tOE2S%r+D1V@/X|O(cuIbQ7JtD|;(g<Cpk0AWEKcDR]<$;H,?^iV"VFSN:UwFxT3.DD%|5Z?Bw?)9$Z0)WXKoR<Gk2
+C-6gcGRn_B1?=|cnbMK+<FP8*AOQgPfaRQtP%jn|#dcvC4?T*0R/;DNc)SZ^+_4[=f=oQI%)J9Revg6Wh@xnrs-$a!Gqp$fj8TruH)F+G5B-Uj6}N[HMo[="rSe&h#BzgCH,[@[>x/g5y=S&[Mbg/&!:ae%Q>}Key=@s),xm)B^an25j`537D<V:kV]QosKm::l{x^"^6Z=dU^+XOM(in{&gC+V}llAfcuupH(e[m
+lk#,QqX:K|1KK?]&ta@4dyME!X0.sN"Q!v[0xY3%@bdD`m(`Zc^xBd`7w,^oSmdBhvCUtMrm/gN^N%TUfA/26CACcuEc2KTHv/621u@P[VQCp,J&x5^QwyrsDCu!54tt
+`d
+iF(e:v
+Nf%wHwCH!7(26#tPzPss6+n9.28jN7-#B6DF/j,"!Ol3We}!:vChK`68Cy{9N
+4Fe8#9o/)Ttj`p<(^*S"<!+R3tfBJ&^/E-{-;W{9:GSN+%=qpkF.t>
+@6T>"`Nt^i#w4mZ1K)&R0eC_atBku{T:U
+lhd5@r*xoL65FsFatG@ndky]O
+=li&$>)!9Bo_wux5p%=CS%78wI(YfLZ+<q9E;~Il*
+IeYbdyWc)+wk
+*o.=,6,#-LOKgW=6C3&J@q=r$!4*xDZRMP(":5Iu"OUVfMvhKRF=B-aoDaAI)ZM:!@m6R!)H6FhQYGINouxdIPtISF"c}z(NMw`E$D+D)JYdwmRCpQA,*?X`R#]pdE82C/:"?@sy,_~uHJ=Cz5sP$nUDvI20uH4C4,].t]s=yZGLFCc:/<bOh>8ULbn9A`s=Y:LgYb}5>Q;#*fU=X=$8.9)hc^hRJ:E-9F4lN_b*+x@"Z4ZgOC?Q4ilpTTpjV/E7J
++>S$RCFO%F:,,G{-~Zc(J_"lCjhjD[?<gyq4b10o,
+|QsV03_CrA1a8c#2#R/WsVdbk
+KE~XUf9+TVd"Pq/l)49s/x%YLZ%<G]gLDICI)-,)N3|Ypyn(5gYQY=.1&l03aZ1f52s.}e|)K),=5[0UR_MP_*
+WZFViWV,Bf*Z+uhce)R[hK/vaThgCq,;.2u4Nqew%&:d
+u(qU6RcRWr_j+w#G[x^)9f>k#Tp>P/+6+@t_GkIe{P}:1;
++|:NlIU0$-jf1{11K>4VV@.%cvo|]-FZmhr<3jY(`(4|NLIKGy`r0PTb0`ds@c(-Zg1I+l_#WK+5Nm]A-/0O]LTkke"AR~QbZ>.^ga0|L)t;K82kmkkjUqXehW*er,*lJ$j(&]%cg_S]"rtDt<%Vi-ik!JUaJ;fdv;-l&.2pdKZ8/OsIha9EU{QDA?T]3-/NA[]6q<PYb7f;[[UrA/3G4tvDYko3@Q]mnFTt(M.=MRcrQ0g@l,V=1sYl4XGam|JV%uAiW:rAFgV-n
+M|=A/AnVjvb;
++d=C;wLbstqy#)-Mg&H_m:8:-G$j^EUtua38r"{x!1Cmj$*/[GS=R8p`![,0<Ox>d_+[}O/5j#@2Dyu&D]MLNY0_lLAK#^@8%B5.95|2
+.{(KO?X?-]WTdiSIR4({!w_|wImX<HUQGl!F+&Y4lox2y4X%&y(/)-&;m<9T1L6!OM_X9"%{*<2YoWWyvCKWVT=S?:
+S`R
+jf+]gRb_1@8d!4p0uMJe:"q
+5*hpBOM4A-UIVKthaQ[W#<kx;!b<lb?iiA.^NLwW.9t3TdpYGghn"<obM
+&G/U[H(DA)eK-S-Ahk=v]pur$nz59?_)5_DMo*%Ib(iEYm+0Y<~(nRhbD4b7;>cBN7mX/A40vmw_/U*A[S/I<If$s]t^5JS/lpm>P>9f"_MKGm9"-LVe3Nv`,PKrTf{jo(eFj]4sdt;8CtqO7yU+b*j^X#vm4rs1?X>K>gcBi"A*T+vy?>%WD.Gn7eWkVDsKZV~MXW|B<?E(<]x(:Gtx~uF51up^|f&L8.NHE*O]rc(O5CuY`;s/cm}c*
+}nDvU"gjep?:A8:5buv_wLLEFf<p"[;gdc"`&@:6q6XoCG&F=dKNZ$CqlR&fS68w[D+BuA]Z;;~+_<
+lc2.j{:|I[,Xj%iefhe#yGN}.%*NRKw_VGUn.v<L;Lee(#s7Rn+(v>nKN
+=jOG1G<P4xfF;o+!Ao58&oNul**!=
+@yB(uGNn,@gL;.q{Rt9i/y)?@?F{tz`rCF,m^hC+6`<LVbeKc"Q`W}EDP&O^hqTIK6F`)Jo6U+<=D-/ifLo0%GRX0yI?#_gw]7f~a!>`IX9m0JeX4R:FOLQvPjM=F/%MqKNKaBC3<O^Il<*H0
+vP2`_CqSE0!S##K"_U=}l#F=[!9i5%_R>Hsxwdk[EGg.p@vA(`5@@U-`wY+z5WKih!B.[11.H30CAfx<u1]Z9quSSVV<vddGQ#)nyu!CR~!In{X~;4w^$?M9?%:nY-Lr7{cK7@n|kOc.FtCC.T?eDw38fu%2;Tgf@OQtMq6#,[g=*">+Bu:S3-%qjTK#`n?~A0oa#9AB
+y@Wf3LbxZg=MU?+UhL85jL]gE>;Fe4wsN#LT-84?:<H7a[69u1ZRQ"Yo=UI&Hl=,q0B0eLm^vH(?+]Tk(&3ZtZ_&5i>=K-hx5N64n&G#S86:nLF^ypG7%>7];to<EQT!~*SQ5W&idEM6.:emZ
+TLpcM496WJ;AcVR5DlE0^@c>,QAO0t{xfv3:[>ql)Z@.y_eFNTK<5jZ8xL7o=c!,`a%24le.j-uE^U:CZ_49xD/pA(z<mP^r)=zQr+NZ!>CqJ@gU:UsOh[apJ
+$j8NI5U#[SYy1C}H6m
+20,*W):`wE^B>vSb0Sljg7R5Z&#3B%$Ff$nv%^aWMT
+3EbInx>17r~j01G=;/YmsP=/#;Oi#FNo,a+D~89v%+vi~i}@c_CWfx@/#Kir|q.7PxHG0BnBIS+a*A{<I1tclB^.p;GambGZ&[
+u:RM1:dA=JF8@_*SvcZ3QsH./R^j:7?dq55t=J?G7%){b)T";w_
+(NiJ99Z#Ht`HlFAN0+].0/g)J]-XFQ;9TpPzJcsZm!QH(oNDU<!<5][.#@.k;}Rgcfl>V7r8T4vs<OtR9ZeUubKl>y+<L7iu]z".IEw6qkN&H}_|>f>@a##Qa%HF%EnUpS+7V^j}prv#BtfK+YoH;4@Oid>|]cEZ_*Ab2"*~,_*;^qm$)v3.k
+^BU(U3=$Yv0~wtK^9a&Kj:d_:HP#qYtY%VC??wqHE4w&_W.C_%CXC;?USOeca{<or!$H^2co"dhAv#;~*u
+)f-W>+NdlxbvJe_-zdr+:97scdv[VDZ%|N%o{U4vDC>Rs>#CTy)JK"~7.8tC$.S3ArmyFiS@=?0g}Fa$HMuXyVV`9
+H^iyPb@P0GFA&Ne@lK}-LY:AjI1qa?~(=VXhfb6,nHm>d6O&72d7V0_nNl=6`G3M_N!gO)jxfrxS~-h(,oUmpqv`UQCB&U|tzaG*zeT(_`~SpSOa"vh^J5mEDt5#!
+:nPVhiX6b:p7F-4IWlH[id+<bs;TE
+;vklQ>g1~$}bH2}xey9]_sQL]3y1<kBe1L#!
+<H/HxMQP;.(N>WB*<gOdT[4[sAyeObxF8XPBBM=Z5YufFmiQ3dkf6JS.3|fn8Hj`w~.gw#%lAq;~T^0]dz/~&Q/A>(Q+ca%8@7T^I7Hc:#Oa5!?N_SAp`a@VT].:WYKmo`"_D-psd7Ylijipn{9mH8=7g~gg4[QgVhMemBY.uKs$$6BzS{`SZv2=/r)$@4
+Z8skYbKymqDBT<IY{`22tOY7=4JnDwIAfV0ca$6Upgfe-1MNXf,u]LE2r/XWTTI1:l*yu[,,-O&p9jo?TS5";g9Ga4f[)P!yk]M<4#77Qea4t]$VGosCaP*g<Q!NMp/u:Cd9!ay8XhV,QKR*QxdQBqc*+C}UgQHZ-IOLKe_Ul@VWb78&3/9&h[k.NF49w(^p:Y1O;RSZu]W<HC?Lne`=wB:;zXk[gf>5?Qq">I{&S?ZJ(-eZV3BhVZg:sRSO2vE_6_K2DQs&?>i/C4/s?Q^NC3`V>L8)("~bW?B*jt%)<vv7-S[_f!!l(EV%Y5B?-&^husRf0*^ayXq>NDo.N:=+FW?=:+3%4IoL0E8<xN2-vm#bHb.e4CnSaTmEs-;V30=a}J["x_,:NVQ*Sd5Z_CO%Qj?+e!C:::RfiN9i9yV;x"tL}%MCYJ&uE:dCN;:sP$3hbuM;tR^7ON;e(4(Q?3,A*X&ic.JI:u^Y0ZK5f+XT4Vbc1T2v[XC8#M0L^&cp+.)0$m+;sP"Sz=ki-sA.w@y.Ye|X!1_2#xFo*R-Jx5<^PRjqsPdINg1Q^8U_klLji&kWHK^6XKWPm+KHxe!<<F/:kC^]!X=M$@CCXQ]-XON69NZwAOShxr^<veA!hq_[meAC`,x]$BBVtB`1E5n3Vi/]/<|?Mmmp-/*K?9])g2!Y+G[uw/AUNM;2]?$MT>Tmkkk12!3a&Vv"/=mre=K0-<*wl9p5B6s=iGk?
+&~76S|jVHjIz-9eFA9jb1;="1HILv[f87sZfL$0|A&lt&YJ?@nJZT@8EO"&?FHo#?[
+XCw!4M$-Jnn[v3`e![3;iw5`@Ks(H#s3B>BS~Z6HQJJ9IVfyqHK$zS827G^)%[s4v"Pt+=XKYh>h14dk"/^m7(4mfttha#uB+]DTE6u8PHkgtG
+Pf>&>UfF7&Rfy64]r1:B>Di$<"=abt
+q=uE-G$.h0
+S0y,4c"JWpq`Tm%D"0GXYpP|+=Lk<K(7Al5HrOner9gWYMk3L|h5l
+&sjk`oAzEB
+U2]5wI
+(Z1[y?g>OBZ3tk&XQ%&aNF0F]D<5J_cXY:QS+JggG#_$UjXb9jPFom0`20L+3I
+nhcXP6CLoOW@>
+&o<GcU4-pg=#n_Qj@^rB};%+>],S[9,xRGwm>djqB7f##2$90cha?iE"F(2Vw/`oJE=*U(
+h})^9i>UCYH(mk&(:Q*+Jr!y;cSrS!eU>rx3f(C,4Q3A1`K:Pxa`q(T#DZj>UK3.("mkVe[4+`qeKFA&dYZPn:@Gs0D|=|hM7sduK@Iso2WhEApaf@<8!D`{0]L)(?et*"d8-PW#k7U8+I&qq=0v>JAls0I%0pk(*V0S&&bffU4Joys<H^bGY,[fQf0xA}1_p-.!6M>w<N1_,^%(D+9~QV0HS?L#&#)S?E;W/5u$&[$a)+0_Z[9WS|=V5w3jNQH$K]<Q9b(R"xl"ljY(P4/)f6aG19U_&wP}ke[VHpwA>^CQsvoB`O"8<i-,O_$pqK1y0n#{nr5u5]SV)9aM_z
 
-fw/v=DXF/,k,+m>b|MAXJ.C:JwqjB
-Q7fH>+B/^V:^,^Z-Y.LyCGqskW}E}9Fj+ZR)4DrXI59b;a|SqW%TlY_1vg4.N#-SZ#vdZYk13K;m`C
-AIw3M-bb$8
-ASM^R_i^Tm[qbpC(_1jkr@6,lL5cW&Bt`mq[$vI%{+)eiet.Wc.]P0%8DPY2YI-ihY*y79CQT<$c"$q>l
-DwOGd7(2Zym&;]Qv=R=0On/M-8"@`B|a~6k+.>]I2_md1;%]"X~
-w8tcF1H//j/6Cv//=JJ4W^tF3]=y*`EhG^(O7X>3;GT(Oib!eXI$f2P-dPKeASEa)%xeONIIQ4cBns32ff~.ht=9=nT-D+!"EeKX*dbedCU%Q[3)8OTJLPG"E2V;yBMJw`M6I"U%C1}6C.W;,i}
-y0}t}v(/vD,th2Ns/;}Hi#s,PQr`;8k<`Z-`0oi=RyC
-fC=:%5qJUYzKAE.qLd_aBtF8",?b+]b1xhzB(n<MuNh:]7MVgHb^drW#rJj!jjz*k/1s+1s1}c5>MN"_q2zK&$Ggw9%j:E-4/y@$Iftf.026hiF)@;}vS%!.:1{-
-jM:`jc=SFNTO0g)D"E7?=_
-m1,r
-"UmX"s-59<Fx_HYEU]!L;m*cA;#"W!!>W]kN)=U%rG&*?KEGoaIT@JXL4f2<b_AL989NgQd7@*1j*8xF)4^miu)^I!.-rbLa+TNPPR4y6^]*Fxm^fK&6&t6)(`yn7L+0eVCW=S/EFR
-]RQ=Yg6v85w4u^uP8Mq"4RA"1g+Y`$c[S(M,~8/(&;L*F-s!o;Q13&)6v"[E]/e.B)`DH(o"H3mT{FAoDg!CnHDC>yS_QgCiEu@<wFe0-/ieG!uB/^}FZg1FJ?=#9*xo0x/%1[<#),(OW)*s&lDtZJN5CdEw;/J:88[i33HT0/,"*2BC&,HW(GdH7fn><fB5bz%8Wk_n0ua`E^]p6E^Zn],nl`eDg:M<LfJe>nw`OpRC>&Ho@Weh^pp+HiGEzIeN0*f$"+T!z"jCSz"!`Zr<lL+A],~QgWfx26f2rA$Y::lTp=O
-to)xqqpnb%MIG?}+Mhtie"LlEypfR*q5C!%5[[Vh:izxox_(Sgg8QN*5*+
-8?ab!"uLPhO8Z1P03f2^9w,M8[yKH_jzb4Y_VTp
-?@1;CDD>Gj/c%U:G&1Lof
-ovc"%WQ|$VPr7DC6w5GPix@E3!Z6CwZJv8E0ORimFV7[0DH*c|Clw()J"`eGX$^c!XVFJH5M6#ExdUyIH0+Eb]_0*bGax?o,I!TG!S<1ZKRx^E>"Dzw-E^mvR|DFZcXT"j;/g,LD&(4I:5q9J]uuLsQgPZ9,Ia*![]2gnRa_SyI{jbn]a5&[?,ENM(B]5T;3!i7q9QAi7^*7bZmtQ:GCy$j;ROIVw.jzgF!5dTxJV+33Il]_h#U%4OhXs[O:qT@eV*Lo+|)Rq*v#<Wv;oR!fsruopLlr:&.8V<[bPgTOp^YV$k*g:1UjBHJe
-;A73QRVAOV%Ydu1apY!1W@mBuhVTM
-B3p-0)`_3=j3i%*m]9>SKLb$!RE,dJUXBP._y49[*#FWb,5*sQA&,lzqoF+y$1oVY-
-z$D%#0cJm:=S-5l$hCwRd3Ef-+F
-9v0H=ERkGlF%[6-fs~RDfkSG_"_k"MeRU|8&I*`]d-O?4f.{=aI(:~VBu4)]4i!wR2L]V>L/#UMLDCj}F<^y;@t=`jUC.
-rf+R&4Io
-VGXLib:T0Rgfg4>/I&F
-=)o4[nRxuVJM^h2<bEaB3Ut*AudaO0tB]3yUQq}">u0_>o^T49b5praZ<$yV
-u@HD5,X!WqYp3p;F
-5;Qu_+^BM=$RZdnm>&"op_zlC9!IEwO7"yR=@p!5e*>C7>wP41s,PAkbbpj#D`bA%FAb21eW
->asR[ewlpZlrS}_#dQSGLSDW
-xA)iiKoZ"O~^X7B%%:TYroPCyn&7~^v2+Mm:gEX=_NHX"XpNCp4OE+]gyekbIN][EL9#1,RI
-4$dw?Y#>sY&D^ABEp6.TZy=Jsds!8b/e[hweg
-=geXDxd~w_<;XjgBTB(l;DOW-R,:g|jH=Dc+tEp2)-lI+qSX"7,^yiu>&N4A!k&a)0bd0(NcW[H@0%/];nZaw!4<q-Rq_D^rkuGJf0;[GQf1xWUlY*Zui~9
-&
-xF_D)PFZ;`7*:/P8Lrj=V*Ql.EqenrQG+v:t]$DCVkS:>]baH,"xyVeb%UD*,IMZe.;GI+F.9u;9V}L9iq;[8
-xo?umSo?mD9N4XTWK5Fta]r?U2TA=)5@kl:Th"ax3E$2+7T&Y#nX<RxCS)_B+r.rWmRP4M1"tUw4`sReEws(?gV`)Lb_w@_*C8trA467!~kC1"oH%Bk}p2j{!ox&`gy,,C4t48QGZ|4Q4g
-ZPL(4pG-C"]eX_qmMmE8bODFO;&lD+E$UN;:aYYJ]PDJ>g,e{1NO?-a3"(s"Yn~cWQPr2eALHx;$o]gvV1g29cdZ9dOu8eJSIX#1{cE:6O}5]W1s9XAm
-,]=#6$X5k+pSMUHaPXFX=V$lE/j##3637y>Y``P`(ca~%/nvcKI>MTdx+wf">ymZM_Q}AmGZR2rWJ;KW-f!R05W)pu7YP0<tIk(RH
-TGQrr[/%oy$pss_e"bI0pDwbS2&2>,*L4z+FgU1o5DRaKKG7fmot4byuJ3Ty0k?5,*[S0,?~u_pY#m0d;.XHs{E)dcf@YlS3,9yZuUwty2*|i{r)XOD2I&$cm^R@X5w#j-
-0R@-1Tki}!GEPEvTYdj6.5ct_)Q45x#`qU8;v3]^ZI]#<KO+=*&2qM<kS5qgJpB>4[A
-#e.BA>,SXtL^Ko7[*,NY,)Z"@c-I$_<F&]c+{m(SJhJ>O<95hq}Kk$0h`u:ywo9CkQej>/;N`)eJ6Y{cRlNxdXy]
-L?ZCpyeaABiM+1&dD5Qi,tbETjW.0^C.N]BiaI$Pf~=-td9^gzawZqM2PZw:;O+NprDB=A8(v_o"pB/@n/v}H2
-SvwQ4n|q9jqL}-[pr:ijd;IJibH$m<oZq*5sK,uGF??SD0Yj5$cFZip=o2MIDlR/uglELp).rN*I;yX4uFp)lZMX5nvkl1=Mk6;t=t1^W&zD.LYArx*N2ppfOXPt(446VK=$hK9[">N3lhaazZLF5?JRlcO*;%D+RXlt}![!*IHMG6dD*l5Pw,`Tkyn3dN1Mxe#I$D}mXp,Rj]{D12lG%=z2b:_]qD?kI:Pt2v2fwq2pw3XRjQ#(cMiDyK(7Xsl.EH25]faE
-Yu
-dbg7r-U$F[&)n8QRO4wGp>
-hqCy[i`0]DsCy*W9[an;S.CMRP
-[<0$Jx#?+paActuay7#4<;v6s%H8V%xr4%]Ff58A8saW!9.k/r?0.4r,<!`BZ6)@nIOw15(&;Q:2Gbbb,sZd:k|PgxoSiQ<Eg]ByeDQ?$1bMur:IGPaK^_PHP8hnz]B$p,BHu?m*Mu[?*T4&qQB1ClEM8Et]Y5p&>+WRUjQgQvFLZL`1](#!>m4uj1y([#w*"E}xH
-FTemqs*7>0+1#YjsY[8oM%(wYM{Q2m%-%(JRqNG[-R&/>pwdKgkt#y8C2K&E?:)wX%u3LR
-^E_Pz&8s3Ck(HKT_y]er6U4K
-=63yv4l/{Y1o29D_|&|m[Pze(,_mB^<U6h4CEeR;[Muy4OH
-gY<+l]r@
-KwoTmBw-C%IPb-9AR6PkE2]^:>]X=LMYC^D.?I
-#yTW4%%Y,K_WmHOc(-QdU)WDzh38=fa7EN*5=I{iG[}vP4G9)+#nltXwT_ZyDxK,EOTNw.$JC!Vs|Gm(2+ankd-_)#F`F[dC+YCH1k:nE-_/.t6-$?mxd#g9LEqlpu~"-8,)qRr!<G!3(HG(&OxQJZ4N/>p#q%+t!urv[F5`^nS!q-a
->%RVN#y<4=?0$CN-i?#>!SdF/:]"n@W%JjO^XG94(]Z?0!++91dM9/~L6I["e/Gxw3Tp=w<t?0qPu+z3`p12D1f-x)"<;NJ
-%E];0Y*WZh,Y%dZF*?{#ua2AXX<jn?FEwxs-o,X4yxP@Ewcqt+zqxj6odTsD#f5G.g1=zg3o3c}=BeyKVM8"yB~GS,#rulKT5O
-OjBAgk[}t~i>48A1R+Lr`2cFP)e3%)0x]i-#X+pc6:+CUr;Vd#gONqEdb$vpLHV|20DB3*_,yk8;!4gr]WV4-zX`!G+*GdCXnI?vwhLHVoncJ&b%A$ijR,;1&2a2l:uF[Q#c[*.v*$o.0P^f1:j(EN5-Bc9Bjsn#juj>TIZGZEAgOsRK2N,7?o>;=l@Zq1-O;GT:SpFpHtF$fp4-J6N9&4XgUUTq:W&diJpKZ2-+71,Tj~5MBbaA<YO]]Ks7VS.gR3bG@C"_jM/;
-z"oi$fLfMi~u)*_hCV`K}*`"VL=?AFNQ!K#m#x~V6a5.envb*Ed))3|T|4/i8@_T{2xI
-2j"Q<;CFk]mo*1EdJ^0Zrm<%]}Q#3mD4"-SUq5.-^h.
-IC"V0l6Br3fUCL[2&voi!b+T]y6;)9#-RG-ze)`$"8j#SL]Wp*cO`]a^)<&>JKoWUlU++om21Us
-6K6$!#EnX$b4#fTJ^uh<Taiy#B"?$(689w<SxXL&"RA8_~<zMO]PXWbSv+7P1a@"DS;0&}Af"Hhg(?Yu5|Of"Oc2Zl-#;L:ihE@[wPV>o-(E`5P^F/eFqG/<@Ften2Phm
-uA/>;N*WTs<v#b)/Gr5)pCiLga"i5?Ch:s>K_oU{"3FL,1;egn=|wu0L"%G5Piq#Qs<K$>WE&rh
-Iq0i(e)dZJ^nsU^dOX>@51ic?^FM);J3Xe&19jnlin_|lS<Pf_A"fW$u!UrKRiV{y~rg
-PHWc.=i]-kp#mLK"%Zcr(!b/OD:A:p6R>f
-]LD*uk:Af/qmV~iGry0<&aP%PwJ{8l#fL(G7pBTd]w9waq@{qa>?[~iqH6Q(hIu5se%XM2pl$Eo^&tK_$inykd/%8dr2yr^<wE(5*!@hTfYY20-`Vd^(r:aRqi]H`YR{`PN&KLy85kUw3VBE.hL.v>mj^^1RST;}1L!!yy]4wl?Rk:f^wVVXTpNAK^)^-I=#
-A.fFR2+z%+8,
-+,Z.:dv&/rHN<1WDVNH-8nuhG`/<wtgoFDc_V%UADg(d4.,caOq:A|EY6FF%(dJb:WfavR3r1nubdD5+![GF"#,|e_;c-~u4sd!BPHc,Ude&Sfw!Hn4/+{/=s{082<tHn^qBa$[aDC##(P#/h]m2UV1/AK!v&lj%<xQufOttU6PTVuc*=iRk17QBvWh=if$^*;nKq|w5BD?rH;bM;a0UO0^l3:!cxE_mZ&8/h:4{ijSnSgsV5>VrT<wG^#I.+YRKje8}j[qi$C7edi(Vo-C(nsTcJ0d<$T[ev
-GC:StimK=jZ1Ik3?;K:PM;<[$RAxxDJcYcv_3(SZUHWZKe;IT3(dU+G325k3WsY"KL$Z-
-lj?H4}Gh0aTZKG;b+VN~d/luu@&vEL0}A!G?;BAqedp)+gP3Ts(H"fx1GMtXr3+Fbl5cpX90t3nq_PYuBFmFT2m65NPD?.P^"<;-5.Y:@D:EqA#]>z_^Y>G4O_@,"l8N#kqRvb@21gC)#~PJ$Hl01
-<9oa]f&Vh]T>I$C*8d34u!nc-=.TGOlc?>I;Dj0NhDKOKu/a0u/K5R`C
-@d*R!3%`z>OU$Rs-9``C4yH7?"LZnA0:j&v%%tx5Aj~@T%>z"f$*m9W+&Z)_|,Vd8P_=DF,RYaI/-Q:RW-&Z05YVaI}8:L
-D}e["]BJhFmH-BB7#joQjp7#>sd.O+#<tC(,"vp!"oS&Go&1NeXkELmG1:
-dC0=J!/:3J*H(_W(%A&UkOZPO?No:m)?5ZNSv#<.2n*41SSC!g%ycIKTANE4q%T7-/q@tu>:[F/`C<D%<hD+)ks(hW6F_WJ9X%2F"v2-K.(%nl|NAkvW#N#RXv,Z:ZLuiN*<*xp-^__+MsYt`Y^Jtd(b;q5nW"7drYRE6@@_9ER.^,4Mox|h$K&^wgH1W]3C|gV+)lg0:y%Rbe^nCb
-Q|E3KH[iEk(|9XCOx%$|L7vK$,>AQ|D8V<[}YI<u4E3{Lc3C9`/-_tq"n$((*((3DOD$hJEt/-VL9M2Y9u?6L6H4AFU37d[
-wL3]Mi1i:0qvHyDeGBj|
->4|1(TmQ6<N7kh+UPd1CsfYkgrkD
-bU-d(1K>?$n80GHH3D.Vrc9`<tv/.G3tgYfG5<m3P>9;GEL/oV*ddG0i,63Y9v&u^VE0o/RzhChl%+ep*AOdJ+F)<R%kE~S-$TlWCJdn?74_E!e.=;1oE}c)3+8*e>(0wqXum8YdM#/CSelkTdYpF4o`-0c6]HmCqup$(5^-@|T,!=v)_ckv"j)*,NX.=L2/j}anIdkshaDUkwhH@`I7N<QuVUI*rC_LB2sl(5ngiJ9|fCs5_M[*:)VJKxcftFdD,[ekdnVZOiu;iZM;ep;4mK-zkNXj.[Nf?]Rw$I=ju
-"CTd5U$AiT/)ET9+-ht7WT#>XFX^R{3>Y;/1AxKfAI4X>K7R$px]"`pd1v30_OSkU,z#3.K=)c#[LA<~V.b9@StXNEK
-eMVmCcTT0|pCGEwmgA<(9sGTHICT&wR[6w;GH_e{,bH#B&g1;j7b<H@o0=O;t^T]9}9TeDHB6@Un^~.=%OB="!+r9aZ)eg=J4Dv2hQ![<reVYr5#Ci@o:qSx00%T"Ol8d{;W$@ZkJF.:#yO%)8Ly=c@Ol2DSrI)9cT+yO>w_ASurR(/tS]dAp*nqI(c6NoKf./@b]xA(<zSjY/Y~oyEjINhB7L^olYeZJF)Gg"(1hDP_C,8Zjsn3_T`v9o"+[zPDOA[0:V.NF@N[H@Rs=[h0s!
-!_U-sy/_eNkBaors],2oMaWTc2>YB$7kL3LG2l{wU%Js7nR#A41ROyIu5]tV.(q<Ki:Yyf3Us:mwfnL+nPkhd,&d?u,6lm`e/9Ew1YM-g
-Ep_q`Pv(Tgld1[g[+oBb#.QE^TRTE!-S*O#[ifwKHIP6=EgWfYIEtJ33D*3#IqX0)Fe*J0ndI$I0-s-K?GO3rTF<_u)"OKZq(;$Mh*Pdr<N.(:gDL:gM4Hx$fw;..]YIP!/_M:=[!>i:X#(0a;=Hb&3mzZV4{Oog}dl<W[N(
-7}7d(L1w#J4VSV4*IY$ste-2T8LFm)3nAg=HBpOBCi6?--/u5]-TP/T-Q$/mK55}vP!}c.6v%>DAq($k43GLA&"/0d:7_}NZ#+aY1;3
-7HWp2K0QAGH}
-c0@:?B_Fc;b0P("H}/@2%YooZJ]gn01Z}]!Vtf?(<QB>,Q+jd7w-kXI0`Ci3hC)p~:,GnE7
+ciQP&jV6fOb{9(f{)1fPNj[8Z]h;-A``Cl%YcCNPpp@m=Y!)&:wR+^rT1;+ByWtx8A(0$J@Gnbjo7-Eer.Rml8t:VsFX(=@@r+P/l.GBwL0k@G"[$VZZ5lKY[wx>ggE.&e.D-h]K(ap?o`RkOZjd(*.]I#tussjf");gW4:*1N
+^uaFp&eQXKF_S0bR6R9*o
+PC~XPIM(8P}ngZLZN9zuXeT@WaKON3a5JuUNrLJ!WJE$3hpO#+CJ(ea":_cli_B3+OwjL/+!G4Tm;C[eN[VF94M_Z.`PNssWE]T,<mc>yKQ^K3hU~!UoufRl0k&(!VVjX%KGjQ{ACes#nKIq4!pxG6Q
+;]yU2(BVH#MnI/u3O]t@{9:rFD_flu<G]q}@u`4lG=dYg<o"X@TD}o:E{:{?o6bny)0%-u!l4ipo20J>^`/26?tIo7A:5QC=jDeAmLlDA5Wd.InDt<MP5Kk0=y3>a^5a%GrMT4TeZ=_rv[z6snI^{!>$M[X&7A;0^kaQ^SkF
+qa4_F!@Z_C[V3r&/@O1_aj,~3,G9jLdaGyo9jr_,ACT=/wG3$J>oKs:.f$jtoE)u=D)K-orCh5;jA_eX]UkjoWG?NHoiF%<S%;(S=5eNC|N}Q@CP)eXNGM
+2
+%vf4@nx%*1oG"wUMkJoesp.iN"W)k/RDflDCPVE!}F#Jr0$d2P@0UIk("j8BSMPA9-!"PiP&#;K5"vNtBU74e_d>YK3T[)`+o-ENPG"l=UKN8bAOuKy.W,wi:Btp3e6Zsx-=25%L".xc=6d6^F>_[7b#U9E01[F<EYz,b1~@>4_*e>=#JPNBj6`PUSqG2untv8}jK17^qb8[1uc:P1`hV>+),fyEIA5l]Nr]AQ43-m,&ji;1oslv+1
+AFBZy-Se`<2l2?7138AYu2%)v3(3/n3Mi4lnta^uE`bSsAE0RdAy#<O/+Z6<
+s?#AtNWr))]bq"k(l$/!&?&5Zp0_X"huSUG@Fk%%,*(jdWy;^>
+KReNKS-ftfW&M<cXtq&hj839K%r~@/<T+V3H[GLH4k+fPz3vtP2uQ92l1r;^>#.L*E4dRWU`,8NMx.B;aKU.LIG:PeEUV3.mJ#ar.R/I$ms.$~FrOp5t0;am;8A(sU3Y4]/M,BLn.c5/j=EN8n2x.I9]l%/--s(IJ<iMHP^AkNS%,
+36rd+8+C!sM9j>ZRKl,88Lm
+iou&O"T}h[,qY:WBhLxzKSIN
+JW4MO^.O:Ie3[Mh"A_9oFo_R(x
+f8K@K!/gl{+TcCP0fMF0pIUtyY<nE-I=gxg8DCUT,1RI-GP%-1u7ohf.Vp=jNKPd@.N]fvpyUIQuRR1n,+9}ZF.#K@K;qCV:I;8I39vzVbRNP-Ik?7Ox
++DExNp2S{@,)N23
+bXO<uP=?9(mSINHH8q1W>_jf@ZB!?%S.SoQ8_+(kod@ed1:D)+k.>0t4:gx&ItF^ZjY(X4!x;Pvt085EsG]!CK.$pEYX`yQo8E+#Qx0
+0%}j1O[rd+s4z5Nuh(&a(Wjar(Zq;<0sakM5y#S95",Qqi
+IO-J)tK1INPv3+nne|E0LB%1<M8BB9MC7]S%Gd3/&-y:Ld>I_fS
+@$.y*<qvyq;@3^`306keV+(aZ[acAtR>GXP|_P"ef6c4#+U/.OjbOdLjQ.r,YLD[2lKqAn1w>r:J`7OiQ<(;P/.fBAXX90IA`o`V-vC*v_5W<}#JS:=mSOg>NmeDP@rdoPRW1lD8]B%%%Jh
+s&?Hig]4#m0O=rSf7%:N"XSia&dsV7C8+`wBVEW.1="p88"jHZ?r7mxE*X6t5q2O;xV_h)dkjh0d:vMz>%DDfpg}
+,l/qOm*lY8/ILC@HrcWmxAVe"+eZ)x<7d%iI/8D][Ny$zbpk!TX(EnS7%C_lMAriguoh9DpHeNugN8UwD_V61K#DWO.n&<YECVM+j*r>dM,`HkL#*uA9N5xpZRlTc,IO)e,(!_l8R2jq:Sz)g1axxs-eL]L^720A{lbv0f.Px#w3W>s&K7Y2)nrQ-#q@(+p)L$J!m1;Z:bUHi]KnedCouro$x>C7,FE>;$8_zsbgf=je
+u[4d[Rvd
+LbxdUd]Y@=`Wn(`
+P^M%1E5)NEnT[*Suf$$g#=j5vwzR#NVZ7ot2NPdM!EMMw;pTzN27=`n[ryJu,9l(oq}(Z7b.
+?JJ|WrX[qE/2HB1t>/obIj=F:5:Ll$?UWYq66N>btWZSKMhI;LSsVB`L(AO&tz>Ogn89OYUNo,V+&w,~.+x;%-y4[99}^UUObx=_wJ9H$.GG%n&MFPcP#zs9;^GpCR9"m0?7+Gsup{GV>@*t>%l7o&yw>z0ddD2Lp
+nXCD:^]9Cc,&]"Tjv7l>ZP:u;?%bTt:J1abJJY2Xw!<{`KOD1#WS!aD)+ny[
+/u+9(;W%S4q4|S>=F_R7{Yq]sFy*cum+_@(C|a#YJRNDJQvQIeZ9$lh@"?Bm%s;]O15WrVAAs@.q0lRku
+)Ny5w7B_I19?cfTJ(xy+ExNZT.xG/)$$
+1kn)#vCNM@![J}$Y_R1LPEVv5Eh9.~G&*A4*SWqB1r9`l-f}kqf*csn^5V(*7UD~9cnVY[F}UqMvro98[NwToFXovO@RdNk4f91qUw_XL`MMYVdR
+wyZKztjxIFUx7RC!"ySt%,xp$60eoMjQKcC=Vu^.q#S1e$.wT6me-ppxHJBl|W+,-&iRvpICKOAAf?S*^;pu1F+QqI0gHGm)yqXk718l"i^>RsbGFPW,f40;,Qee}`o(}=.HYU"kJ3n^myz`}8Xw`jjS35P.fDV(A$sO#^NO/bNYM"%scJ(]HiQfXN_Q8.7KB4*sDeFA2u9jr`]TTLaRM*+Iff,I_aQIO:?UY:enIQS[37gx(Hv07>Cp5:_QQ1>/FrLBrDT<=@Ai+Dus;SG3,)05g7MSKyJRT`;7cNeaJZcNdw}
+uf3$j$26Er7gt+2/vSLO;B3EaLuUnbY^HlBnE";$U.6D,CogL
+rP9=k^M.S9o_Ky5u?o
+?|faW<"6B36*X;JR-Mu$aW>Et`2~@G2bgd]CS])of6czhI
+>WIu{r9OD.,/4CSb@!&E$iYX`GKS$+G!+R,_T?4+lsZ@4I
+pMn/)5E7q)$33uy
+/syKX6D0
+9Ki&
+3]2
++{eFc{?_@7eRm4i%;XOZa[j[:$?%2Q!`C/.u0%vZdhNR[7K]^VV<66PqAI
+Z?fJ1KTF~@+Ws^wU7!/I>(&q4I@S+9&P$cJ#6)JDS]41S4t;nuSP8.%c]iD6o]p2+TYETL6]%bwd@8*ik&5e((R?HR%p=u<<Ij=T5GOOfL0(pR>
+LB#B?WS&L%QINDnfQCx54oZQaj~u3:5,5<:j|8}9=2P*KF~qpxWP86o(%?wT^qQlT;rTKE@qS.xx.hMXeW{Xx6s9m!BgAigjE<#P{4yclEfP6P
+h/ZN<@r!riS^^+xNa#Cm]+g}Y,Kq/mY"4pyK4gXYLH?`]@FFnm8`h7hR!<Ys@3O8g)P0q
+8Uz!_%K1qG!OfG=|EbDV*u]R4r
+%*wr4!B7WmMgMxF=_EYB&a4e~[ZK)/OX`Qim]
+zT4w
+(E7BgNb8]B"hh1c,auF3
+5-*6
+uaGJ*1G}A_K,4
+d3<,EU0}YnF}5~Rp,Yn!-oo[mm1
+Qv("oyA6=X4U
+vQDkX`7v9_QM#rJdHWd5XJtX=L$sF2$[9VF$V8:@aj-Xwk$)mxjF>T.qNM_;8^A2&A}@q(U+][ear0ZG8r7&DHawkS`c@L.#w//kB7~uoTsoDg!;cuo"J*}=P/o!Nouz!Y2y=RdUD6)1&Ru9IZFiXcF=5+,;pN^FRAq2df4*]o7BYp;C8h(8=ua1qe~/xqZc:=!)
+mv*/M!#hiR1cjV_^gL%r]Kh7*IUDWBd,_NNl>CG`cq7;R$//w:mxWj^R`WqMg[NkZW>["0qHVuulZtt}T/J#)k=zNanGJ;-Gr9`%SV7+p:FzUp&L+XvwMuA1@?-$e>Khq9@$Gp-8?#bF0-O0Y#@l#*QPh<p2*dmR9w;kthOV,vFkk~A&M;Q~i)q>3+NM3")hbx
+[8?u9</nv?Z__3j`j*:5dZEc^(ZllDBqA0q[K5>uqt(vD9mL"`
+8*fQ$TIynSIT:[)=u#Q#pJ&76|3wVvB_v8P/:86+qA3w1b(x9yoUyY?
+-#I23g7sa;cgU~q<mzhOyTwY#"tnl.IEMwoo9m4]B2lEP9Y!<P.bZR,ri(VORN.AC(+2rjnA`H)Y5W7D8:?Ad.am*seo&#ljCIQxoW:CSN#?Jd<g8bmtB`NBYn,B8sG(CZ;XnJL2h"W+^wl20#l08;L4njnLjgah?]9gQIx*w`;DkPVU*Vn:HZe>Gx=o&/OWRm_I/=H@A@^`,H(*ACo7fp;X*o#A_[/z;]g`w+Cwa)
+X+JKuBLm2*Vecvf-h&dO{3)1f+H4&/edOx<j<4u]R
+|s(Q_`%X.do/kGq8Z!+R>/Dw_1Cayepj>9$QMxXqs5O%nk%HvUCkfEf
+s^TvT]DmzRmm8sL=75
+H"]ixF2Ns%_D@2(XeTinXi<
+j$YRNHb(ioNw4L7e8FTy:,AcRzY+Yx;E(D/;aHBU9q^>(Ds[(G9i2zZ]ey)!O642g5::L.<1383nrMjq$<U-!@;2ij_i$372Lx01aQ5g<-7NO8.xo$,s?eEK.E<Go`$2fHt|4aeFF7hr^{O?J<qXFT]xnqz(<IU5%tEv?)+zBBPSiA.zI=o[/q]lI5<X!<e|%QA}>a!]gSRcF^Q$`WHv4}tM.vE@(-36rOu4sdR8nkECXMWGW]kIMcJn/p3ngcOQ@OR#YHvSAy>g/;/r@AUCknM1CqReAxX}H>]U<HB12cPX1r%&**5%M`q:ca%!%9XX0Pp#<Hp|tAH~SfDo?wEal2hs0H$=Zwko
+2O0o@-ch1sn8:#b?MTTr%E?qmI(kd$O_/,!sI;)I:rJJIn5M*m_>i&leq>n(ms7EvG"Q1rc4FMglREmgJdY5(geTZ"T;LC@Q6[d#AA6/ii~hx2aY2rR3N^r1+aS4LOsm0?rj`b`P%^Z6>dETS:X*KsUb`,j`a%A?]BoKc76g1q-+)!VEfLI-AuT"?+?;.6?#wic5$*m54F74!Oe6g#GkO23/JYajCVV59/lIPn6m2TLT~C{rlJF;X[GSC;WE[%
+*gl*eZ"U+KI5JM^{#(`x]@mM>!,Z12KgqR)2wOgGawIqc<iw[VQd5eB@)at_Y|3che4@3aZq94&$Gx0x):jOdOg~Qe8"f(8[QE`GR)w~*YQQt4u-Q>MiPYsg5(X*0{P(RgJ1rdZ=W!^n
+":ni&3BwS:Dy-Yb2F0)rU[-<B&+={(d:68j$Lk5(b:Y
+eK:By;sj-QrJ!f.nYI"bLwB;N5Lm$bKIyr:F"9in5w!2m*4I-Fh$`@o8tBqlcPCpc29/M`+DN9?]F9G)mh(qA%jmTH~Md2m)DBlCgt0]!:cA95nZdS$S+9^1
+u4`>?F$)"kdw=/[5^P#sG6/`E&&LjiZ7Kljf`iY5:R/1@m_ant#u5v8]:#J_C}:]iioU:#n
+i"*`i{.tUDm=6AYTuKw#!l&_(+@9WU7qi9ona{-iTJ9e4B-C9$bs1M2Skfi<s1>!V5QN=sA*5,>d^b5;,1%
+>3+e5z"jW>KV/s2_14,+s4ydIFyg
+cEg%}2w79p$n%nAB><1qEZ`bPkD<:QZlE3"KI]>Ah/M,yunS2qV$4#4#>kXh^[gJ~7;V&y5.xR!9DO6pKgK6,iM;5gF-nSeORgE^[8`,x^*2Y-C6qF"Ta,0aVGHP7Xg^u9C!^ULQ{OF_@@.<C7LiwO7;$L<D~=HXeS1R%])16uiYWlM?a;b)N/MP4#tW<Dz`$0|tQr0gm#{RYuua6M`.7@a1|]FVA`6>QR6&_
+@!7f46+abTkS1D_X{/T$we5fQ*7.(1JWPni5xjBO#w2.R%#q=HpAz#{7ilbg>S,$5`fE`,Av&V37+<z*V0kLL#
+BX[48`l]8sI-xtX@8hYs
+9<S&E@anm/7n<elb*v}>ktB:j?~4,Fg[c:Q_dh]+("?.m26)x+AN`S8hBZRwkCqFVe8UV_?f5m6K|lVeP4:oc`muwbib-y?U[Ag,<m"rwBWR^cW7}w>.[3OZLYvV4%u]I_lvmFw?:1PTp*RH:7=DTR=hnaoWE@cnvjs$<[|@Z.3-uh"8Bx"$Xc=JwLZ>e[rE:8[PYVPF{t*k->i"qtw:>Koo_`cGrKKcuS-tLAtM#ltR/6_Ap[C]:tQ$)7%L/)^gVfu)^/Fry?|XhCE!gL}JF*?WFq/1_*3Z?]xvHI&NBY;bn6yLT)"[6%%aLq=Y?BhZOgp^s:GJA6
+pSD&KUF}x2TwJL>*XTn<6LA+@-B9?}%*e:a#9e3Hz(o<Ty:bXjnXA^4y=2o|lF3Mb]Gb@s,
++XBhd5Ol1=Uo=#<FY-?i)!-zqaZ2oOA^,2hTG#C;DM5Ej`.cO[ao]Wbu0j&4R:cUtvsJ5mT#0nZZ)varbNv/*68Qlt2X2g*gZuvv=?]J>0QVl)xh/mszQa$T9U:LE7+v@$ZJ[I-;^yuNhSQ%q6K.O9$K3/<*jMvBg)RP?^Xm4OaW_$ZK#geu)
+/ij9u%+et]TRfNQgsgrwS&461*^:ej1+f;@p5!>M,n[k!QL&x*3heKbf`$[GQGfk)V%rhQq)CMUp3L)vU[8Z4<e<t23C1yn(xg/SuwV0p*K5kFv_7rx%7-?:]vap<+&w]l.(9SLx"xnTJd0(BJOu^"9m55K*Sk8:=]sVId(|4G2]nB,fJ=$fu0yv^`]QeGS94s1Y"I]V/U;#`C<^Y3kA;47=8Y&hT!*j4
+K}*qoZ/+kDFx)Sn9Egkm#t_V%qC[m,&vL$g`4A7"tZ0`ueg$O~"t%$S_P9W][um2p*2+$1o}kH!OKzMsh+r
+,D9U2LbcxZy0sYU3tf1nT;jMI(k0*|nQ9?BE[daV!$E@[i:U0v9)t>vH9&#m0WygkwCg4>n-plAT`WIs#O+asBsflJ?
+owkxhhZrSRTNdfLI5%`QxX@vBfer;[Iq!#*P1eADXnpQ(l:6ITU9qBjVw2#5H(p,OIIj"^e(@i!zHg[zJ<KM=wt+F!.,e9thqXwJjm((tl(7QAN9AW
+e)!BDLKgB7+h^R%m@O#i}7J/;BnT0.2@4-&@@DLG7gb1,*VFp42lzd{SD5<@!2(cMxJ.R&X9)9U=nCG
+Cqbk,[j<`B!=V2MXB0T1.TO4]Em5e3*OD&$pcPl#~Xl,148poA#cL_>3QI7vfD*q,?k=U`%v91culBHLd[5pT<eKMRhTkov^*]mJ
+Dlw
+.}@:CdF5=(7ak9$,<HMXuQ1hXR^7_ss(8L3U<#ObUGX,ooq`p:,+dI5{BV"2hD8oDm`P@GR1ee
+$Xnq_T_=WXOE$(VVlnhaW
+`j;Tyd7?a[Q*$
+pUE1Kh3y?.62Z?$18_])5@>])I;k((RrXEPk7d,kbKlgYqQKp;JrGlDdGmtwOUaLCW#@I[e>~R~9j]%W2B[4zC/v:UTVG#p1_*gMIR;7J)dIFIppNH/byM.h?Rm.!XBIjs+E9_IMnF<iU5#h1Hlf@A$U.@i8>6G%Goxo$u+-Y1Ufw,]oV7HxtE8P<Xw_=ZgV6`t!iut?a$1J/r/r=:-H}_^i)-vEePbA<q*pZ7UvY:COH+HsnsgSF&|V:;B-:x30YK%]&bgtI%-rwGR=8YNfq4P^GO0Uz7UqL^C?VjKnxlJgX+WFs)b$|F{Sav9fS?UpOi3A/W<7fwsePo8`yR4p`S;2}LZ=c(r.bO6MXu&;y&!2!!f<KFHh16WhVyjMlJ11Or#cFGy#@CZc1tXF-VnW8E/-rly>WkjYij}FP$tOtF`">Mb
+}f}dFP
+oIe]aHDDby9c7[yoAJ0{`v6EHdTR!KL7LGDGl_cHurPhC4x1Z*<kvB,ryf+4X.w!O3nI]cB:yYsj^dw"^=IXlMv|t9-@M_r(eldA`K<&0BiGkZs3xGwwP.VzZr6K#@Py[dM.>e+Jo7)vE@:IxcQ:BM9ms$4HvT_eRMHI_MHOb<[RUQMFkoo~d(V%_*u+SCO12Q3pg37jMO@aO&t5m@j5u|R,HPdcn@M)ZD2
+v]WdbIp<*mB[XVrFL}Y<6Yb[r?kESt`[lyhO?hxZ,GtTeIcdk^k@`hleAI.(M8wUY3y>x{A2qc_T8b^k7<6J_[sRWS%#GtIpv_]V8B,,^u4x^u6/Qcq.
+kOMn=&^WDPe
+^W)({_OL,RXKF`H7EqDs"!<o-k6*|jWF.6<JO<V^t_ehYuxRmO2LuAE
+I7^n?a=4d5(Y!R9N=IGFu:u@`m-k9$aE(I&^IuHZwo9*u
+^j?I84,PZ
+zgCDKU3Gb,4YL)ZffFIO3na^Du1n+A72YN"L4h8K]>{X@e!kqb~C]`X.#E#8nFG)PIRSwBSec465t@bdXbJ.l9L?mK:]d"ds_.5^SY%,ep&v"&do;5Q64y=/aQkm>coV/Z)mU$SBYv
+RLr`Zz=`Gg@)L3]-
+?T(_~0h2-oi9o-?k(Z0K
+g_]H_EHWtc4EmPc!ShBw7),-bF=fu
+LIIosOhw
+Jh3rKMsf(i48;_Vt3,Z<bHk_|FM%3n5
+C3X4@adM"muvMMg6CyUq0v?[&l>hIsHx!1-siF!&@i6gmI;Rba^ihT6Q|)ERBu(wPGG#cwKES(;g9eN@x(~5.o?>G,E(lwe!i>e>xR6U%
+nwjkmh]MR[+LLsTmnMUFmq6[pW1HaS.a6W/y|Jt48sB58L1wBq:
+#O~+G9,@:kq7&KJt;PpQ5Lq
+8`]6qH@bFSVHC%<1_FQ5SEh?"1#!B8`18(CT-z#?Ao"Sge2ePI!Ql`u*Sfad>;rY`IBW!d^?QL)@B`"43T%UK!-A~b=m0:pWA(Bp%(y:myx"3b++ajpPlwiftt5;lm|M
+!ePNT
+T`Y@]#X0T;`m99:qwkK)XsmJ3.g<bnbX<GgGn"(9l`X_G1/9A~mn+V%~JDAH<G`SV`7OoR(K/6A0lB-XgmN*kRH@jEVer+NspEH9&ELR<X^PUt*_cOCo1!ZxC%
+)T
+/z]qA<:}EMlzw
+l"?E>D6
+sZL4USs0uD4N!?bwN>rRw1xX-9"*Z=ylj|U"Iv;N>DZ}yfR`?U4[GOn|Woq:]QgVA<dZg=wYvOu+h3CC:?t>W8cL78OBlM-[+CJEZb2J;qv|mun3V7jGl32Dsg?^MYIH`@4Z7{*P_hw"1)WD^54Yx#rx<YF"NRu
+d/V)WTEQ0%a2_r^PeW_%qWiV`73tit9&gr*:,^o`/4n^6%788g4w1FU%pAbNrho[p0
+qS8?87J&ERF[3mow4BS<T-uS4@F!8CKU3?|c[!dv~<mm.-Zq4u3vR.U)WO*K&V*(H`_YYnUT;R{U/$S[<I+mmEn)G4zQWKr)1(UY-mz6e@j>N*vYdsy-1e>.!_k@?E!r%fg+V!<.4cR3lld%x?2&KHn[c<ymMZ:A,x(ha>7oZTsE[tj<I>rWwQ4NDE&>v5+HA_Uh)U-OzTeF5-sO_ogt3GDvI9;(OM]E1bJmUqr]+kjohLhkj54ZDSVp^0BVHk=0X;:.0O~YLkjx=O5J[JZhI2:Qycb,V,LShGLffn}BZglxVCL.<[N-NZXq{PlV)VCvI!XF%RhKw3S,4n|[[bRFj.Sr%reN
+mRA*]XXAbkR{xfhmT7#|X7l-ldoz-ba2`7[ax^@GN3]Zp?BQgg7:S,PHHObXFVM:agvTI.k*206EhpIO,t!D4*w}HQFQ5%egi}MZFu[lV}AgNsxN`w]J+dDh42vEMB*r*7nb7.Y}K7]%L>i`<".?
+_b#Ik5(]uqjhE0gg~O>SSIQn.E)xNd&5U/QI,Nc*PdgJl$4q+*=cdH!A_C@be@~$BC4rRoCWgl5
+U0?PdtRQ%KC6+U9Xzw(!ml@hH:GEGxXy4sMc1D0IB&ajs49sxl6>86;XX..P_`h#O-hRrA/,M!$iT/VcI]ig~8Twt$POnR{sE:!j&hhJt$lOv`~.!V*-hCfAM/KQQP7Q&CS%n%M$~n&C;8YF8AH"w:uLOf|Yt,/$s5,msPC"}/5JN/5yYAm]7&D=;9*
+qEXj4V?v]bEZ9Rth5oSdI/v&[Nv${=!=BQPO
+&GJu=s3Vhl&,7AL:OQ52&~2o*P2rHKu61OQ{!2udw.2ya.sa:/=TfXyT`tFN-|Ai^y,+$i>o
+deU82l
+?A%%2hY{c64D!_J!%xh]":0<2~BO?y/~O}g3(>j.k-eso8e#/}*S*7Uw9o%>l$YIZ{3YSoHpDZ/ENi;-7H90K`=LdFm&2s)4$$Oc)_qRtoip^dFES@4Et"+<r^A_ZO9<_o0Tj5V;`"PavgS*4aQyXWXbC8aB6/b=n;<
+C_k"L:n;W.]BF!xk^L>BBxcbU.nY;d@3Pi_Tbh$L9bX6ny@-FfM89?XR%6:{IaMn<mt+1(Y@U`(u]SVLP]ZE%Z9B4Y7M8h?z]h8ThQI5MF_o8kp@i"@q<]i^G07%CFq&G:_#*G3,L.pVG-%a(.N*4C2[gV@RIhuU%CcnY:z#W1gFTaQeoV[/6lSQgQbQ1V1cEpSh1--ge>lIQxEf#^>g9-YJ1iHL1Kcs7nb7gspqW/A#Nb_Z2B!2WFTg$Pp{rN$u53^@Si,?1Z(oEx>=e"$9^Lu[h)=a
+Kq:0][+gyu"6js8.,u`,$xmZtmXmxVF?:(D?P-)1B9UP6hl$.cDMipJ)!]>P[R|W
+YPUDHyOS%=O5Jk^[*TUfSBYT4la&JP3(y&@CY#B@Ie0LFzZJ:Z2c.r/(ax1C2$7NJl5ZlAOoqlyP*&)(wqGo?n28K;a,5:"SwNJQ*.OSt`9j+bl-.~deH,B$UDf{GR*P4EV|*Z)#CTfn8kqA1YJ.HM.hg8F]s7MADFvo0)aMv}*~k<"IMU<LTSV`,n)n!`mfCqd"BS-2,YIc!y?/@5DJUyRF&
+k(_db=[r)YXzcT#Ze&^88~d4oJcA&gHSTN,u[Hl_x~iNg1]ZJ}+DHK@%?u+fRsDy!e6u,EmpY5[jSfi#Ne^Rx|%E^0<&3mjI<uZ}Y*<64$0_$uQVoOk.gI&^K9GkfPa{N#_sWzs%-LW*o^=MA+X>?<&Yf`K
+@nr9!xV/?QIJ?UkQ#m6
+M81HnabwkSrkN3e*3*pss[^FI_O
+8N0<(*k7^Ps%Wq[MF#T[(QQKwJ<]OW^:Coo9RTOx=oh>^{tH1gW7Yy"wDjqr_g=cu#$3CydfcW33#@gaHhSOt8h9Tr;It0X
+h6tBbr"Gbrh8byLbU3f2-9dw>YwMG-9(8&#Y&5.Vo*1M%,6j[HMtbPU=;1/U%wt?/@Mq*7pX[_;=D_K`MvqKNpmd</$>18N/F)+389H$"XH2NW+*$?qOPfy/(gX}c;09pVi(suC,X7oQF>OCn->9gD`o"x-|cG`E>0ja8u<
+OD1FS5nnJaG:s-+MnXump.&pj@IyUB]Vd4e+d:/-5[VFbouTV,)9xs&Zx.0JBAP8+lb*;XA_,$#xj[c2O#lCFd/qbERLc}`@r
 
-.w4!4oV2Eq)LifBe,X`4L693.Mx*aGxW^x(kX!i)._)#JV>"pT1Et|e.3I7rY;:i?+DNh0"PY`aCQ`6^<8#pg~U}Sqoo")feRW%dk0+=:XE
+v"_
+g-F-hrC`f+
+3^*hD6fmm290D
+51#>%7m$`^4?_09)`BoI>k!CQhn3[~=1S7;PUJ/lOZJ]
+~dF`64mLY,R)|8L&S+xdH!bfP3IBxU
+F{`MY[(-]A.ad"khK]mr3V9HHz6A
+lBi9&rvV~aNw3L63:?a@IDJR~spQw[hG@1PXf+zcUe^$Y8vvulNw.f%7RX|4CfQ:jN3ry-!W?q#eRP:D?2-3(il<|x*>Sl[_L1<w<8qe$OjI=1QJs&m4,uL:t`5]1-O
+ri+09NNtaL`en1`U*s78V,4JF5Kb^Uc!u22O32/%2>=OJyc_M)WPh!F`x+`i5/1MF5%pD8=lWAp!K<)Z"7=_RP)=HHCXq")5rgC_YG6YrU?"20buOQkbjmPbg@I>yo)UwWd"sS-<I>x)nQ>4^3zilo+Fplx4vKGTa!cHn;Fqciz"p2oV/Cs=oWqp*QMT?*3hvhqwKxGqbJRDk[8M6@)3Xcr^]e5*q6wu>)a:L-da]vEX6%9D,8+mzDjy;W)Ym&m*gdIxwm.]w92[^yIbb""I%Nb?{"T?X]!k@-jG;_UW
+1(o<<S_o?$KtaGx%4KBijr6)2v>Tw[LJ.0wwm6]ta;<FN"^~pB!+I!&*Gfi-+XZ`$Rhfb7Z)a5:qt*H*WFJHocUpz":=wM4jsJM(b5^8!b@*n]k#k$w[B*2~#VZ&PBnI+:hlHTTF;1>~Y3RS`Zlk^kqCGJGpw/!1d63XV3l/_A7=(QLpp1T<&_nuHdW0b}tNAy#D=0/htAgJF&HpcjS(<.j2,9R-j=@/1R>FisxmQe>Kq4L5t!lA!Osx_hl??!bOq:n&(N]Xv8D42k,SAcnhks!+_[ktPpB-H1dt+<s1lG9<VUheQD2ABw3o]PRHyqy)K@vMDgEP@puI/`KRBh+R*eGO[[kyvT0DMBY|ss]Zc}Fgxd7R7X77RST{20B{cLe+Rmidi1h[kDPtE9rvb3S13;O6!*oj(xDFXvY"wkAGb7*Xv50i,V7U9trEWk7TL:M,nSjB!0FB!;67[Lc]1Rl(qmNX!.(C1%!|1mM"R[YoUR7EB8j$NI4arQf
+d_TPr5m{HNEU3NPNv<pH-)")y.lmrZ+d2htK9PyU]ZcbcB:a?fP*1CK&8j-^>!<yIxMgiGn{JM3%R:fkV|&*%aCHY%uDX}7}.5v
+h,OPKX:H3Hx<sk^V6qUCwW4cmj]+9i:`yHgo/MmhQ7c}!K2HEOY]J;Y~>Vb&$Mq{R%GO>&t#l~geO#K"q*MAS{sWpdT}->3e.5Vjr?CLuWTh(Dsv%pBjyp!+"&<IKXS24Ngvh$xk9PPp<iW"K4)nIdx/HbX:ulV--Aj?k~<eCrw"61kOb#E|YU<Kkj&Ye_pdD?5|hCY=q9me.(ToOvIWAW!}3z+.t-k}))<Ehm
+wwGk%ifQ4lN*"V&a_,sOCcc>[4cSej@^"qNo^Tn11X$0WEE!B$ae8oD
+yCJ;r3}Of&Bf!*^+;d:=*ejuWL]<68;TY,)4BT40UC&m5;Im(:cq?972*(qVZ?-F1];_lWlhcDKbf;g(IL|
+$
+bo/CT(N?z@DlbC$frsUVH>nVRNg@X*NuItARFg^@0YT1aQYGtTe&EgrPPII$;S4qUedNe"ZP{hT*
+%~:54d4;G!;dFz<0D"m&R(.)<R4]mrH82>(Ef5(Q
+;u^F~SZP&9ch,lgpcEi9&5;qy
+)oi$&DQZ:Z&eIHB#jFV[S1aFiP7-TZ?q{`njTFwtq7P^Yb>lG7pykrUMrco_*6(VOWYg&AB?<"vRSCY=v-""2U^;,)
+sIICe6u23J4e6AMJ!4/qcLyU*Py<YiV}do!nN(wm3f:%TNxSRl,EnG6<lS+sj5N`Vhl|xnT^0bj3I/1(fRRF,y]O1y@]YQ(bsM:_HFm;!uWsRT>@i:^YpT"Z
+oiSPXTj7R%9-qtm=/.qZ=A)ZB!nX|H=Obi7AO"kgDBWAt[H5QfY)aL1Gu>~]iy#terT9(Ci;lwMHPTk&)S!_/.wL<LuWg:C(tQq57C(-xcInJ_c[heY>]t-r,C!9tM<l3k(rq3w4?!{xq%1,8T"<8)9<4p`]VSIcJF;(k%tM1A`$_hm(r(UB%CnWJ-8`4DhFHy?@8,539G8
+-Ub]oEC.sbHBa2cJ&mBQ*L+El_IY,Y&*,*Q*9SD."3t7}3JJ1"Zl
+%X1G.D8vwQ2A5=-"[xB;VW]r(!/tfQi"FU9K:i${ZA-jmmu|c{M4!|4[Xg;[e83S2let$NI
+uC,J)R8WNk/3MSZ.7`TJSF@pC[`(JlOYj6jU"}"U%W^0%*/5/Y9!k#a?6|)uIKMF#6@"K$[@/EZ&!Ur{[/o-eTw4w>GHspT]w/VPftj4@I/BxuB&;$fky"!BZEL0E`ip!lYmMf"YkfKQ$T_&"DyM&Bguw1GX&QQ.EeF7i
+P@TTw`&[vv>Tft:FlNjP@PV;);3?u4IF<d&)Ob&YbDC9h@d)qQ7{,IFx3=u@Ce2C>|33uV/g3-r^tT?A@8xtPq[+;}TR=W8(#}"[wP<)/~!Xq`EkU}Pr
+xQ:)C?"H^UZc/UoC
+7C%EV46w_.$H/qT[6$3fAy:[F%YucUk%aA`yxgmGoGe-$=^>K{l">S*#vAvWes5OU^$RdM@]lVUR^HQs^BgQK_,n@F*IUe/4&)Jl<e5K:Z)oAp.dpp*y&|+HT?@E9e8@v4c$>u4]%GFXZX>($
+ro`nPF9SmDPa]`OyfZaN]tl97AG#Hj<KrP)jJxpYy]:!kKK*C_j-o@iOF;@1p?0
+OLh/GcX5f[1eX*7pl:$_BGF#6
+/SY+^oT#xl01pHKAq2$NKu]Q>k@d2%Ka/4aD]-d[r/9PE.uqQ
+H(NXV`EoFbycPhI8&~WwL9e47<&W.p;Cepbh.;f]gJRUjZ+u>NX/,;i2-92s^/Kg-EqpfGaDVC97e?:;9:Y`QVOZk.6HjV$N8dM;>9t.i8$<&yO{Sc2&9C=i-4(B##%@I6pT&_EYoZh4_0&a-q8HZ@A_I`j#l3U;/;u~ms#oaoNuiprS
+a%axwFg)H$.r"_;e0<;D4e
+o9
+a$FWa5MZ)X{.MGP[&2AB]juQiJq@xlK!v^K=WfJxTN+Qin6fA):hKiwxBu
+^-ot%j><d8GW9spZQIiZdrBZ(V^=H<wraS^NC-937=q
+1a^D]KeU=Nlf3wwEYum*a
+b2KGV<(:5NOseQ(N%yz#wTUvMQ_+B,bSQS,Ef!5!juN.3XoL2YVAECwwi+W6l1Y~fa4_Va
+_.w+"OU!-A9(vro($F^wu``IeaqcSHh-#%I1ju?Uo<-QKW4*{)Ohe@l8}]73"R@gHE6+vdO363t3G#FvbwF.S6"De`F#ae,-3D+cK2HoXg?TB;:lVn&
+)R~bzX|)3%+:iTV@CB$tkT[RS<sqPR`m<gyLS=HVQZ9[)!Tp}uo5.%HoBg6t{v[]6u@<!3g*LvG@Tw9W[`V&Q^xsax?9kS/<#&Iqc6zSi-C7dA"rWu-Vs!GENfl9H&XC<NySS="MPk
+;h,Q?qR|a$#N11q<B4P6L,j<VMb)c+)l!;@&"Md)e(fk0(AP4~=&:FAt3As?>I0Prxv^Hju:;U0,!|*#Zg_LFTQ03N#7.qY{j&f;UePu(;r*/47t.+6MYnlM!S)kU4/>u[=eE4^bu-ua7>%j>VLh*1kixt=O4j51E~XjDwkHX?t
+eJgRkXi?+KB-CDQycTiga}9CTbdSi7&WJ;$rQGcS<-KqX%2FAE+TFnIY$&<_lnZ1^^-k%/n;v:R-:8+hFPYlG1oQ<so2Z=4[9~mH/lCi:o88+|QyQC<.quGh1XbBHN1yZi>ihX:MHqr<!?`>jf(32#,W6bKGp3`D7:4$3F,C-b#$H6QmQ;Y@tb6xOz&oFluwY:W%>v8h:FhS!^Me9u0
+/F4mKC?%R|d--uT}
+i
+aP;C=*[gM$o$)E,47Rc$jU
+_$YB)=4KS}/9Cq<2?Vt_AH2gh;cgih/W,uy8[TkNb
+t8x?2CKoiVQ}>4>2c3aS4>2OV<I]al)X+g@Zn{?CirVku_0.3I@7n!]<f<n"j9%A<8gho29EE|+o(gR0-;r{[vL
+y-hv)6KTinJ#-UIv:H;q2xH*>o7"140#)i@Ta$K>S{o.l(
+^a-(-ei4e
+7w$)fA1hMpU]DP]KKpx;N?]TK)y3{`&O[95
+QTL:8a3^Z7G1gGQ3mUGj7WHpUJLo-_<f!`[F[j8M$ji[b@NCru"qd9NvU"Bp!Q4v}S.CaLc<E3VERIjE)Z2S5vFH5BMI.xvW+8IyI:&s1!Iw"cPLZ
+hpFm$R3(K23>MHeV5"WRq8h_IomAm;Ro2epQ6xpU2muRAM*4zeZVp%Osfa
+Muy-n.Od;jEyk5muKqmkP}saTT]=F-I(JLkd5iklCS7$#b8wL.ahQ7hi[IY
+^Hgd^^K31#8,BL(&7%.n(qf-BaMzq4K&O3GvKEl&&_JHvW/=,n:Z:cVyxW]Us(jLpRQ#NL0ULse_p2b0[iK>sRVJ"=C:8eyepD+MR[pJ!%)N,B6tI(+A?tt>g321M-1M5pZ%9x1TX~:M(oole4PXbymhR,V*896HI"84lH
+Sxd0Z>GLR_$4M!(gSx?N1mL#Ld~7*Dc^Zp7RG*T@-nGJBW|1L:Kt
+O#nV)=n7H4fw&);IW?J|+(M:h.q8@*aI![Uu?NlPsm%l(sHw6~[AK
+k4DL>;=Q0Nc^86?s"+FX[)lnheTa/]6k7QG;`DC!>dLQ$bGT
+I<dl_)&>9lGeZ#xAY5FKru*l17e?W9,2inR<U"RvbL,V&"[*D;[jH3e1GyhQ(^}t5R,x!(:Nc3%4)7o0?7lFZCeKgWh0JwvHCgqX(UX8c@o2#4tdk-`^c#AtAmabTkOG$[aR5r?_ET8&WcNdz
+i`#mnSWuF@lq0ZY@VhjwwisQ:bQ>6xn=CrUfOgI5KyEo9IgRT*O
+,N+j&6>4s"WOBd,%_?0jF_=sT0wWAw=kr4!cqAbo:Z]lY^IV#@8<F"%$.N<MT0[?G%S-ed1E=";d?HB&jv%^uw~<Jf0Z0=I#QxR!1$L99gQk6;c(M7a2h(Rle
+=pm4ii"!s!qhkmA9J<a!u`Fcj&JpO7I9OX9`cpYQqJ0vb<d#jFn<k@IfK3Y@rDIE/$K$&lm&8jy#m?0U0nZ`:hk^^]C8T%@yk6$6nHkk-,wCL;VbH@Nh];C5Rup%[4isA+h^ifx%xto*s2GEkL4
+j"?0*8;(KMP=c
+m3<
+YXY&1Ytk,8vcq$H^W^J4?D!rbba7
+1Qxo6LDIeID4@O7:OW6(U6i=E,0ws.dU-IB_#]
+I*12nQe&&"C;@]Q-uqyHRj-p4j&=`d9q5S=bR6>Guvt8ZpMkig^9g4?qNLD54tPj*+Ix(>u"]ZaIRBVxwW_uq/csv=53zF2^NVa)`VFEQddo5-J1,ashAG8um*(oL?EP_M"S`OzclKFbehY.ULtrEL;%h2n6m*~+YOaD<j?^")HCwd"DolTvj.@sR58h:E(R~4CT";GmAu?wjUJDx6`D}6?V%PbI81FyNU8jw5gDQV/]9Y(Gm79)E1):S%7D}<3jWcwJ.sD7t%8#Sss0PaP(Ih0yIu.A93i5o<)^Hw6crc<i;NHTq?r,&o]lg-gfbH563E&U3/!w6"w#Ay_-;ijoseXN5kk+l#A@m3}MbQv$t7Fnm>Vt^&c#da7E4l#1hoC<b=r2WaCJcn1S=B+2)b44`fNSx#mbrNWgYd}l,Tv!~<I3;o:_,72V(.>N-v:Q1t(ae6|+49<0=nep=mx3&0TwZ.@uQ4@VZx>.tx2o9*yWlw{WpQo&}+rXB;:qB^Y
+;:,
+%w}h0/JVCWqlVxPd_EhB</{S`EKK;s;UB)~WHL3G[nO-NJS0&D>D$#>f^IMq
+)D16i
+xPVJP["VyY##s3a9@F1ZbPPmGqM&P<aWBe!WqRV2gOykk6$^:$KNxlZHo2DfON62%~NM7bIH@eb33nLEL<N+8W5Uh=?qIQ?~Ni)n&!TFF1XDNfDMrvG~5P1R25sFZIL]KbaGeDZ4pt].nLSs%C@Knoh*c`8_-f,X`|<Qbc1WQMNIk}e=Sz,ejaj!TNtbv~Z)E%5P))505.,_x*XS-Pon
+Hk@&cX^CF%j*;%
+ZBi#xc(ipBee>jHwsHyl)?sv^}K>R?et;<r,qv$+<,8[UDWAx*90+eLzaHYmSp7r*RqoLy8W2WEx(hg8jWDnnnk}qbRl@AQFC^2QXGC=1U^Y
+VYEK
+Kd[=:Ua[YT*r]-k:GWtr18,)hNT~J_gTHMr!8=u~sz:Im{7B,vf_YlU(On)zJ/UPH=LW*YUzOhN@"/qkGllE5}^[sog955TI2G5e+nmp9PnDIF(f*T4!KrQM0f#aEPc,O#P_tb8^6M%t]K/M[5C}4u(lyku?L5QoZ7Y7GdpLjVC{vhC[xQrQFip~xN"q_k1
+#c4{>GWQ@MMB5oUM,r`y1oN5NoZ(pAI_:n-;-j>|;yegujj<m~2,TbWC
+idp$4RpVjmro#D4;o[F0vEx>`[E($_uX%9k&}uF=*ihW>3#e2%:yB,,-?K[$aG~[~8n&TQcN`2**w7JL/"V)S;Nip.}d*aD_+AKQs/Y9V:$7a0}_rtzO}=>d]h
+erJjeDahm^&CH2sO,eV|k4lDufp[+odVq[MXv[puh~:a8~3GU[Am.._"<kfz_H#]p
+>M%{hiJ=0|2sZJBNlYNN`oOy]e>*akBFfW
++]<P95&HbUdE^!lS393D}cGuiupUwkz;bnbkzOd>m&$_("iENZ&If^w?eU-aTjF5<]O>jC-.IIu<ihb(brqB4SBu6VC_;0.@1b3Ek=}ge&
+0,0.*43>Ky^{nq<84(&Ld[M`2I5bP]>kgbnU;L]!Ouws<:?`=e/p>m8+>;HLp*.Z;E<e$$f!Xquz6r8"W(1Mp5(+!-2$N34<EmSg2!+ir)WmQq?R$n*0fvskCLF9I(%)gbvq<wt~;_<DWyCS&?sP8/%S.E[OAx4ci*>HvQa_+kHs-XlbO.q<u%f_eOjThIiD0fkfcf*Fwpl%,F<EXk5XH8Q|#YWw./W";.hl6@1TO~;m:;E+b|@U?.rqIPCf5ajTFAj>l,<t.aP(:~x}&e8X4n;pyU!cwwOaHWrKcD:X<w@2<QBe,"xe(#T=,iK,8l:CiIwq`kj=WCQuuei=o[8]2p:yxT-Yet<b?jrgHO[6m|<ZbOBY^1LkcY=f0cBSvdBMB!cd5~VHT@jVB$VEBl`3S`Bno$%GDkp
+C&CNhAqQ
+Pv
+b)$eLeM:aeOn:?(P*&w5Qp@hq7@!^~b|oUS4NCkm$ZD[f.v
+,4GoOAuZ8*BC#4PTdqX&EkM
+[#kBo@xAsW1Mu_Msa+NKH|fQ[X^AU<+5"@3T(gU
+=Ps2N89]K]tSkDS7P64r$M]a(RF}<Z$&LB#t=XE|r:OcZ4Pn([!r$$
+M88O*Cf)C=@J@8Ox]=sAN8|RQDB-qgrGzg|^|v+N:Jm5<vFS8@=U4j(LKi.4W4w=Q>38I>SQCIA,igu$H
+os/LABX14;:nG`W],ei.0
+=s0rH3NR?hc&Lb4wEItO7,x*HMp`]wR3sO>t.d+C$,RbWecrQdN#@3o,"]=**2}7vI,(:bSVPAPl]C`tNR*mejhv!oDvyAT!*yX!&ae>"q?4t+7mPXJVP:=0BA/n$HA0GQf,$Jz
+JffSwV<^_j8ASEEtW]en)ZRBLA>4CF^uzxf;yU~VtyUx%^1?Z7?#AM(hV!r,biKu[M/B?!kdXMlIb1vZDaL
+i-]cA.S0`.DE4NM,aHtv1AhO:kgVqd0N?#rKUr?p{$@G/wk46Q8cKZ^a&94:)[G66ap1si-+[
+[.K*E@pP]xZ(pl3.SM.k|BBn#5f0:=yogBvTTO~J`MANxK,tbsBj<IKGK"UI<H!Vm4,dT]}Kz7wE,h8"yT<jqa
+I?FlKzq%!jt86BZG-.wK2}GC5fj4QE"[d&CGokE)O8u7b5lZSk(.lZah3U84ay6]U^.x<t/861KetksWJk
+[JIk8=z!34$F|qQ%m%)e#a]Roq+&6Or["haWw>mcdSU]d/$1}mx?}Icjob&1TfJhb2hd*"1mdZ0ITg,>;pr2l,IO~Y3;YGRew]O"XKI%=mpqj2:67e:VRAWPH@pB:8OTDaTX,y9>jyK^86lv!-ls_Hs=7L68e76>Yv;G36z;Ne1gaBSQM.]^gW%vbf9E{3+$X?U?}Nnm}V}g+P4Q!9)$ILAg#d=cnn2,?BT&6aDVTG
+dr:X2=HU"p:9u61kb->2o=tt.:R#V+v|059rw;@v&?Rx4)^Q]S)mM
+2DOAar)heRn*m9*OM>8gR,viN7<~mrU"cKQ.c|)YuyXRD_@_4MKy1NN%&hI"i8Kg27<y<zmk$&og
+;QjxKDGKfpGP(a>JYuxgoE-Tg*AdQ<Ni2Mzy`wPiDO0i(a(0+ksrIt?u$+)wFvAw4u(3~GHvem2"?HAH>?#SRM+=hQUtOKfKdRA?t<;iNsB.#6?7EmqItrz@_=SI^#~Uj_WTJV
+;GZmj)1Jn~CUkrsQb@/zQf8,][E7?>.2Kx;v+PAPpvo8bq2mwfmjUJW~#QT^ts$[tjP
+_*i=kmCOL;#Hc>C#v=ct+~BYyU[K7lh_^F7VBPAfTn(Of0@;t6x]yqY.cS6S)ufzkh=;P_1v]>kpt9l~G?FAVuRfYzhru:5O?UZv@/k(`HUA2|CU8FXHG4,1x43[=tD*EE0rLk:=[4w7xS!$
+`FcjS:BCPpZ>BNt1PQcM0bv"g3Dv&)Z9umlKp-z*7e8K<)W_U8F5qT~qj_&&`L4s~;vhsGTZQKOfBI4CAa6=6XU6791JuqNKC*hGf,LqXr:*Tn[@A_D6cKT,6ns!LEto5vZ>mfexO->5rZlhSQ.iV?,HR61y_X
+"qLk#fo/)^c(jiHXW;tmH3;^=n=o)PF7>sg.2s+RIP%I,:b%,Qf:v"-2MTDF*w/y0+NI3+/%hAP`?.2N.[]t+2E;xtl03[N+.QAk$)^_G
+R@^@cefPT
+fAcm/nw>TNPm:
+K}tDo{=OsgZ<ygvgfb,vW+n
+g}K.NA)R7d&Fc9i(.rrue#tiupdkqfo0ZRwg?"!]<OLrT2rVH3$h6hy1^sO~ec4[@Z?H%@UVeevSn2O@oiL/oxvY-6m0(l4by(!x7{/e*fV4Ba((Be8r,b/~
+UF$2EKG?)ye6|6q.VvRSDlr1Q9E)RD~F@SvlOI2Sz4$$^#al(^PYmcg)vJOrfB`*G65R1SdJ{Tl1r-!gG,PPymMU[sh;SZ)7!K8Yub5*]0[PCRN;Ent&fqkS>OMQwf_wjIPw22&oW:g@@bkKA!,3}#BGW>UOzC#+9/baYEj8@25-8Xo1.+<%Z_yZIwo,1D&3Y&+S}@~dM>3$W00iwC8(+OVeQ4=eRTtQ=0frvP~+K4WbQ!
+x(o`)*nEf4?Ag"x7=oy:_*opx1pA@MRC=N&4)`o80WhNZeed>hr1P~W8w?w!DO9;-VdKi.!UI
+<jN*Pi8Y8ps0"RSUFeE4=CF6Xs!e!/p7>~vbbjfA)F
+u:BT//_(&nYVT>3"N2[Q2h9b1GavASc[$"<jhNeU&ByvIQ,1f5?+d%fO~8V=95,yR>cP]z!7dv46mh-@9L[gu6mJf;4b_lqqcjEy%K>qW03XA=+iNa^63lCupYEW4h?^HUq.p"{HQJA3-PMmJ6d(3c~=RD["4lw:#*Urf?@lgJlo8V!=v_O/0:@3s8;YIu-!8?6FIy4NwJGKXdU`
+TfW4cg)vK:L:q_]JLWZ8tNBHPf3s$!YL-.^%0Wd/y=]~uW70sWb%x{>@0ZyQNCo&)o`;o#[>n=idWDH/xRrmI^L*y0h_`[4Fa~?xX"Xlmx6$pwn}A@bHV9upBYUE4Pd!H)!9<?r
+yR_<<BW
+hj;AgUV4I99g>Oc:"D/l<MV/IB.[>-)+oE
+;hvVP&Y8tkVqESXfgKXCGe
+hKSO-wEYKOja/>*tiV:H@el
+#<:s)gZYf#9gH*rCa.&fWH5/IX4gecc?13X0.XV[m)5Up1E^Er9d6vLJEvu><:uy/}LJ6(d@HSkgtnv/?_n{ZCijCee6FDnXJ3%t9x*z^P2BpaN#Y4cx4Bao"iNi6ygt/?Iq;;`:wC)OYRS@:bwCjm87XgvC6wVVqRLMltx@gS]l4F.$,%2g,CaTblq4NOJ:d.s)^v#Q`K,K.XpzJh%vm$yG%B&~%6hz&!WjmT4Xj^`sRGFMOVncCt1nNnWE`*8{Tm"teVVG4w:u74l}%;R.J3$:/5L^@xU4nA(CT>"Y$.<%?g/At3ud`oMn*:KGw11`p5)P
+8?h/Bb[c/,yli*=<3&tegiA[ebp*Re|hv(IK",$?P.4:6B1E{H6Z06!-.R$a>M</]3l/=h,f<4}AS9nhEAAtPS~V9v4(b,.2b<h&q+z7g%<a7tJ!(DgRQ%OaL1@p8,2h
+@:Ww@2[p(4V[L64w0joE5Gr)ZTQSsUrWR`
+cDpE|x*l/@+c0f)cM`B_P4qDm.ty*rgrYawCQ/?%uf";=T-ne7eatNRye
+Imm4:_OiYte*4I"/4a$G1L_pP5"1?M2=h:ZsO;f[%#@ej6mEI/JDH;"NpVH&a?f?ZVTs6d-luo*hw*TxhR^Ck%@0mNEX%0WU#I@vn9/(J%Nlb!fDaT0>*iD:@3Bf;k?quIonV;>$Vacof4E1)VKF#cp8_fdNvVRtyZ_@2kInhbQ^4K8kKH?/9Mr5
+dSV(p9(,mFo3(UY|2$r4Qsxl4$^;6mQz/ka45.c:Xeq"Bg<b843OSkc4sVgee.mq5WNb:=@HydxQaIm5?1R;vC[0[He;I|&m,Ky!-vZ-"exS*{r$qx,J:0!Fp;Z0/>rNlD1K`wN.v!TMv^Y;0-/&,XrP*i@XJ$)UbGB+*cSN!03^x-`(Q
+o3kM;CUEg)UN(Ds]kB
+TV52#4rn`&S4Tr0/#tF?/R*vzVeLmpg7;_wc,L/z)KdM^XrlGp[,oUrb8mfjpLGq!c}BGi3v;k`J8o[2wm6
+kTr/c/IVPI(X0l<07((Ra1jkx6B#4Z,&&l<ADNB7SGzFA-RlOIdZ[c%hK.M6e@@w
+U,Yvkj0c.pf~M7gFs?+)0v)uK,nA]KEWy)c[^cF9Aq+7PhpoMh8:FZ(k$=rhAXKx9Eg+mw+
+Q3I!2>$XGS0hDnur;`.M,r4it.d90$Du3[ucdY>D
+n:;KiT&2?kM!~uq%
+Wb
+cVq[lXOlC&#^"9bPW`S!keyHyrCu2n$PA((,nsoG=2}jSLE80OVFRl)`=P?*(jv+LL<%wE72#)9!GH0OpDaB`+d(5Wzsn4l%BW5W>F>7n@}:xo$[E6(>M1bF%kN`:)_[yKba(RA//H@98ap6|]H0VMLDq@^8x7k*h@:=_E=$6]vT+$082t6Sh2^Y!)P`(npm}Vv2#0diZI5^es?KoU
+I^H33Pvqoa;9k!]XdD=_vuemj|x
+4-fz<
+nQx$cWV
+Ut`JbuffSDX%
+K7DAA3l@=A9(l3.XQ7|(loS>)Z%>MNmPV]$.Ab=6zGw.QG`&"I~Pb>sZyP+#qJIl^]/3.(^+{y42or/&Vd(Rq3g*z9@nRdH%I5$WBB2mjRQgvx@mip;XWQQ.P*|JeOAFkXrrz-^=p6{(iOY=SvzH5
+IscnLn0+^Vw9oy0ode>DxvKZ."Pqk]B2<0Wqg5bc)8|D#O--.w0E[)~EK=A(Eq|4EyKER;]e:AO]KI:N.Io1C4~o_+SW@bzfBCMCXcc=Sg9yEp6v|-7U3ErsIJJo_0DJ]sK4Sp?W}4o[$,p?(@LR
+b$]Hinok@4)4K!4(YF<*Je%VnWPVTY(S!syny=mREpV>Scnp12R9h|Z|O|(2NbcOeYj!ZrSq#S<Iv`5H$:ruxn!iM1?X$%EqdAtgG83EMs?u3iAHNApNbI(82_!.M~*
+&Jdki$d36^q.Fx9Vs,[5F?k=afX-9Pqcq`@IqUtMA^qQS9onQ;Y#,`:)8OY:TQ+ysO!AnVR38Yx"ohZ8jGDgA/vh9G,!4LiuTU*<#e[=<>NeH!qGp_>.omv~p^CCpJwkB}dP=S$/MJ#UGi9SI/7A*h3%uF/a9g3MN_P1KDshsy2N).qOq.H(5`nrqo`{gSq2$HZCq0u,5`x
+[l+}%lWBAqQ#d(1g[2oX3gX^L,q-rkI^]ko&>{;z3y$s^<CW3CL&A::Bu]s5yGW)OV+RWkW3KA/kM2_-mO:51}Jr82o=+V;"qe`K?5!t@71
+MVok%v2&_w(md^Fq(q>n:^vDa?Y_]6
+T3K=k+s_$s%CiVb>@^sdjo)he0Er?q1<a]+qwdEV*%2%#&#&5OJ(
+_s4J%@BUjT7ipeFG7H<dwuPk<:sw^|FiaOVIK,lZU,exS[y<!<NJb2>6
+M7H1b8>QU7H]m4TcZ21_u3|p^7BykBxT*Tw]"3>GxZmZ/`)jly`Q9p|YGB68$%]aW,:Erd)ueR}fcp/_:yENzD!4yYa#1#z75W"tt>j3[kVoI1.Vf:]E{/-T@$vdMr.v%(GJ]<28_,1C>TYrSc"]:bdx?O<#;G<ez({GUX&179l*KL~R1v5:o/9`p2s!9w(D|@Yv9t:#D`{EbO?n=bW[g^51?OH?E$2OH.K;+t~v^-TS?hbi3N6Ge+@3q]h]{y}j_7No^EmMV3=%Db^rM"<f>r1j4b#3.7u:q+`MJ@qRM,-$Pu%U*Ezqxq0p6ugvzR@-jx3Y#&mGgVGnB`bY5JJnmle6+,vIFEqJ9wA;+So-GK/m>JZE,Qhe6bZA<kxJBHS:U"MrJ;5%;o;0KP(1cx-K*_pp
+?ko,Y.cyTE2*,d/+#p?Wuz%w"/"gIY,%BrLHe2hT]!m@=
+KC7!Li/E.IPu,fAzoj<@6vB|6}6q&w2S`)*W[}*YGi"@;P&>3!<j*,0%[{8-)B.F3zfJCij}h:3xsKTnK6:3h0L.abs
+Orv4
+|Y#qdJBy3m*G
+B0eA+i]$2qb>d~Rp:FFNCy]q%I"LPi7Q2
+0bXwP<VyRSd`so%ceA"x1ie3*sM!4*IP:x^z,lO/lJ!sP0Bd^"G)Lj!D($q"8d/x[jf5>jMP,OuG&Oh[o*T64b8Is"vcY/3$,UR=D1Xe)$9E3>q88}#`
+1#@fRo]6Q[5+u2Vaj7mta;(.%k)=K(.1W%`wjxLruMvR8*r<ji_!7_YKWS=Rq[`2j2O19-j_3n
+hNWggNGD-i6x"nwT0p#M7~#y:O$1mcd"8TttwC%NNMkS<jJ?@]O%E^oDVEl!M~KO&^vR83iN=XaV;0R15jsx<W4^DPidNT5j"aIoJq^`erAc%QY+0iA#@&!di!g`x&&^q%>UQV^58>2Tn}TXg?*%(nN&2p$!mnuF1{B|JX*FLOfBL}icDa+S..p5vflb#L^rwJ6(:!PCJp!NH:mOgQ-=c7Mb.sr3j8bkWA$
+xYZ<=nhHnP7kQ"]4(:MvrE>4&qDf:tegQP>Y+=+Sd]ehR-,^hHpk&9j+WI5z01%IM`@E0,k(li
+xA~?+i-Kxh7P)?:1A`5ov`{0Y#3*e?]X!<}%i^>#7jH#WNj
+2Z`>0qKI$t0^(b1_lDxRQkwPBXjlB"ECx
+(tCmgjjtH<o
+zs2bLOzPxN8%Sud$8_D8Xmn^+e]UXvLyyWlt7z)Gz!PgZ:(Qs;lUS<Qq3O}_"Z4*Jrk?!XK[Otv32.>szR}<qJdJhBPbJ&:-SaXRDsz)OOEB)A#D>%I,11.^baQVlgiTVV<>C^]LHQZeIs6GftAody0R`..Ato&(GWLN=3?FS@sqYU<4(F+XGrfBsi;s5p|5NL>YH"9COWea>[L-$"
+-PEqR,k$c.A*^3#e/
+<xuC2*Pg=6fG46Z$C!
+q
+|`L,5TPA?VLLPk6/sY@oir2%7Rk$c.}i}gBS@2M9<[-&=wvSZyuufyN,6nCq<%A2T1MTFl"QVZ29>/*Z`^N;Q+nth!L-,;rRvO~bzEH;DsyJu9]fe!2,)+IH/F+)Wwf2.*R,|%+L-j
+EIs1lGqn
+GUwg[A,a5mS+=,C3&wWY*.4XQ+u`jMIL#1K(,@}%W/9]|6#Z)^k]t(~FVrM?;,rBLe>,Yr)9X+2YnpYc0YwPBcI&.fe%-oF%"l!aq4F,jbCx-X&*%VEyx/avysPL%fG5e"}U[NmD02Mk_r:53T1ObtTkgG9N@-<unYVn4Spg_Aw>wrr!;!H%=Bd:X_[,.Clh]QhI,q&D!E.43Ss)^bF&{6G09qUu8^E%)d-h+AT40wROWh,4zZzqqg4t#Uxp~IN$RvJ4%hra{4DIkfEGs+F(IL4V`+H*GlK3S<T!m`ScDn565c"8hg"&
+j+Ut;a:
+aWC
+Uz):61_zF?k~CPK%Z{E(i|Sx//,H__htScHt&,q0W+d:9yT]2KfXcA`8TRCR?O:?RuGOI)G=c]g
+Z_-k-5]_[p0Ypbaf4bCa:~/%b54F6?DAEY+#waM9"/x
+qT.e1nXULaag:zV9-zi!eB(
+a_xRd3sF:XmtUD;DK:3.4k;Yqvi|:rB2xUifZ-FLiq@2UYpbAwU4vrU;B+>RY!7.G{YRE:kC/~Q;QcE{"eF
+f)
+l=}<_m:cw-qccd0)"Wv%}!D3xkD%nC{UffSK!Z0^SgibF4}dN<?Dx?v_%2K^pPS*1y:3L6dDWk.ai)2vs:!)OUR0Q34^M=,A*TYa
+RQV^a<hLH=0h!7x1UwSX8*6D_.F7"f&^y>&nO6`&5|b_kZtOCm*j//EpU6C"J%8asIP,&+?4Wa+ug5[=na6ukBmwWZuaOP<!J(3I=+6vw*t>cbM3vH/V@x7kg~c%gRKyE+e~sp&oOu$CfCV2GxT~Z,7zlqY(_h4pY=o[a15%BN@>711[VFyXwHH2:#B&jUL8da<T_E1~Os8KH2C]FbsX!]y_3vtC:A0Dy"m)5vdHtJR?U2UW${g<[f+Si.s9AsD6A>jO6O();F29AYcRO1FboS<7&V4&@(YkFJmhQE0z(u3?7"N1Jv-p=z2}wb;]mg%>V".4&rkn["lO+h+M>,pn&D1Tj-lN)Nt9IIYL
++r8hEh>#!NSd-aN*C$>pe7=#?wPMHXSZeca$8tJBgA[3`[!kB_:VkI{Areq7+^[T0R"#|tz#yfqZ
+R@AZ03c+kRN+,?Y~9t^r@=pGjb?4X]Av"/"tjXNP*;wVY*xL)p"(xq)!ODa?NXK+#LgPcI$x+d]e36SAoW?Ai(w=4143S43{lfnf?xU$;8t|Gr$Z"Qj;wt#&i_XZu0mV]A$GX9Q]Z#5@Q#Yi1oN/yNDDe/;qQRl?V5dp<L@$49ru#+a(/ny]=Gqs29FC*C8uipvu9=H$.?:mnz(RdD4Xj"KB,
+!~cx`ek6d
+*-,3lOGQ8JuJ$|sNWtb]I:ha%A0>fqC{dkd4k0x(pmVu?y#+4W?W/*j*FQD6
+p*K)S#N[`=5Shjly=GltmC~2&kG]u#=<M"eT8KX$]um:v-`aY+tX.w#h4?3K%f#-j^=.&6F%a:<*K]]aD[%h8XZet-jTDa#^%?_[Oe4ie_@k#y(k#(M$.TJ3$403T1fE]wkf5Qt
+LL;$7E1p<oX<QbxH"$h#4Ov9!SlM-i6nU[&X2v5OW0sbE6Ulg0HXnO&dKBk2V7(Sy:<c2-VL;]`n`%!ItJz5#SG+1,Xr:UJ<E2A$jAMRxf8QBA8M%6tc2WaMia?q+EYve@snm<02i@B3(g}f*)ZMND}x~Tyx<PKxIp,=kfF3-6^EB62!zN841ey_V=Bnov6+>iCd<>7TpJ@fa
+nv|1oHrvyC4C
+r@<ns;a+_yvogRdc:))eO+hTC
+F`.2?Bt/UWKp5K+LWjZtaJ`!RnJPij42G~634Tvo1Y!2%:AltY]=6)#PbIWfVb7X_8>{O*)A(0VK;zT_*P(;hV/c
+3i^#"UXiWo!Im89]hl/gnq:,,2<nrlA4DG{s>G&),;{O)]W$MO//^cm]1e:w$Y=yX0"S@MlJ];EQci5=x02+4q:CN2cLG*$w+7id"9f=pRQlVmi5l2kiJq&I*(]yM_(D~lLLFA$c:#RKhOulj$>
+FtGso:,u1Wbwxcj&e+Xn%$}5&S2P`*A^U;I=R7
+,ceJe.xaVMRrP{[IR-hpnm$[:cohVQTv^YL]l-
+m[XU`?TG)t)n2EY;cfNDuwM)B]Wy#][i]eM-VLOiU^&,W+l%9uxx+k]YK)zGp$QGzhNoxmyT`]wq4npy0$.jc4w+<h9QD:Kx}NZH}lL2q3{-?)6ism*/6Qro5_rV/i"xfmUA7>imTSA@]_2w/%SIl/FP(P_fn3nqV]sU5U^r6LZWyv~X}i?eYxSK(h
+v5U`:W[t^TC=nh;-v[ivdM"5<HK[=61+Aa9;H,FtSXamHem^YtR,bjKGa)`1i(ymmap%n$-u@R)^DK,FH/1wjdN-n#x(hCe3^`=&4I:3kV_zmY.Hjb4zt(,Qe%mij0mj/Uwl0!#-*3;+QqERVR">I{m24=WYf"S#F/B:VGTv)$o>S`eE&i<dSY/Bxm?IaT!tFJ5tatw$*T,ad6$?aLllvNaKX^6lN^7/V[P.go>:?>p}mVjP_Mt-"Ma_Mqx7]+;b;G5w;*l,
+%1&Zrn2u1f-QU@k6lobg{qYc2?^wZEq09fOGYY3=+2;"WA=Sri;*_rChIi}c3I`;^L(t2G<>LmusFP?]
+D5aJjb2#UX3hm[F6Bq@Yc*KAv>BpVhV<1aX&>RpCy/WcIP6^Dva01WqqU<hX0s?|i_>7Mi0k(b5MDl4JUsL*@Ov9+hvz*G%fZ:lJ<+=S]>m(,{kyc;H^^i*iFK2=@s
+Lu%UxL6Y)ha:Dq&^@`&>M]MNZ0AmW
+fFD+Q0f8Bcp>*2;k*w(?X-z]<UGEZm%p:=I#H2(ZbmK?MoTYdA+V(`9%5f$g7sd>z7c_VA1LKgzF[b/
+~j]Z$B(#
+r),6%wa:
+Cb5k5fbbI4V;X/pf.r>
+IZp43IZ9GHGr=-"C^icSK`(h=h*VC]oFh]]I}[f;b$5_TIyADt_Dn5?Tq4YGW1,IIwCF:A.rklf7m1*0b9B6CKwq19|&*J<.p:Qo^psMWYHMU59+<]z,Z;btW!;2;aXead&+aZ1%nji)~h)WrM/i7>]de@@7T:X0|<cweS%bdc.uw<MN[7{[(Ky$=&&ufG`wWQ!6-"3HfR+:q_s+St]sn%wrp4C2v1UCs66rp/!n+Xy3#]6h}d((5K
+k;b(YNe<NVKRXJI;?=*1<CxqTo`dajaaddTI6v#GNH6`?RhTP53$VOFa60l[L-cN+eKgDH5Y1V!ndjC"8yKDu_8[
+Rq:Od]<UYfeZKa"Abp5y778*YYR1"tl].HNT7dh(3a(Ct)5*yjFw}vwnTN2X
+P$hRLjxBax_A%iW^AX8BW&pWmJoop_P]-QFbVd(*57okgAnQ8DJ;Idk$)fTkviJXSBnj;oU@f0.
+Bd!8,tf}"7v?U-5Pvlts@toWk[.sL?r)L`%];krk"eEQ(Do`;c=%,r:@I]M(t!gWwx/HGqi>TV8.JRUgT^kl(Ojh^NZv`j9(FHd
+fh->*0ZoA`OCMjuDi9w~!%oa?{JLTo=j;"LZ
+O^wmt*2YcPd9a]{A+(gnm-T89S0`eq)UqtoVX<]gvuH-OBD#^yK:KHcW%u>T:,o$[2je+,#uc>A2W3&>f]rZJnr;C@[Lh,79vxg
+K<&ERFt03^c<1mb3#La8"ylOSHXTk7_0#s1pl4TpPx~R6e$N1@,WwEd8kRMdG!tXSQ}dV-Fb8=crWh;2|t?,rbYUi0K1nxzXhlDfR8s1FE>g}YrPVS?fGs{D/"i5YZQg}?iav<*C0p.rB4|/%,!h09r&Jz&dVsL=_X>CN/rYs`41z=Y]5RrMi!?eK2hjIo?ha`9isEs%e[pkevf(^^m!ve">OpmoxOiGHwBXb1+79c_HB4v;=,ZQFg]AZAMkQR|EPQ3Bo742FexIc,.=o^uwPwSZ!#Fb{r3HF^zC{L86o-Smh?#cMb~1R,~q6ixvc??Mnce;w<^#8LbH]h"(U@)6f;3>[(Cx<D6/(Kaq4b0uzNl6uuL2F$Ef1/~$)mrdfsGi~Hx`QY)%N/xkrE1+}O8UbCh&0(u$67v2qY#x1lSk^vS->k^dkp|r|q[+?xe["3uEOv(Kr7]OQu29O,EU&[.H*YjPnvG0%UrS@f~C:OG<e_B13e34<V_uQ_-8gGS9xQl&He(H^Bb(`<r3~eaCHd-QzWt_xQ/uD<%^U`}fXfJ.0LM[;rC3m(n1:R9Yi+SwH`zKU<@N[se<@MeELusf`nYWfxnwo@nX!ypPg#py8df*T%xe1f(#QqO7J/G:1j
+a9cW]f_Hdzn=b*A-CYaOo3b^XmTwTg/l6BfgR0;glbM!_%*-ZL2Y8WMfFD;N@aBF$Pdeak=neHOtI0!?8;B_!}=x.dE|tEVU20Uf<evD2qef"Tyioi*uBq?!X6JiolB!.VH%OpHJxagdm|<OuxLW]*&^R3W`]KDqwZ3,2nbuS|"4CB2qv}BxNZhdllCc39p-d1tNkD/QMa#R1`&M
+)ZbBynde?bqY4RTi$p-XIV)+5cV7;nMy;+#/
 
-V%GE#__kB/vd^Y0)gaYVtN2wQ#E/bb4U;mXNj`)Y-I$C9jN:#dL8qO}s_0PS&BB-lxNjky^)PYBWBZXE8qsF0_%tNVW.Ef<<[2p3"*p@TLOEE%i-/#l5<IWWe&lTLg{GtpEB|dA(0+8vP"m*rGM]p,(yB3|g_*t,t-2OQ6.M#uuOIqR<
-Hd#[o?D4pxr:]kb`(;<<s7rvS.,qZ^^H8l[#l
-=Gfc7`.H8ke]Q`WM"z4<r.Dtmj:qm7+[0,]H)r1cRO]1k71O3lf+e8K#h8"`YL?<Em"A]RcPu[r2hDbtuw!35RVj$jJnML.YHW)jSTi`R*^vE/Y6/]MfZv8dTalLt49W$66eh*;IVyrQP)l5G[sK%~g1I;9$gJf<6)E_W=3$3/8lXh6"!Owy@(m/O[4<6u8!&Ix@s0YY(}P_+bT7!t=#*8WSQT%*BoNHdfvnk}<C6VRlSgTIurH~I@j4IhSTLh*miiq<bP[^Tfkd@X]*"4Q3`y53)j:?aHwamWu_cnGW^"?A<9W}e;:dDKA`>!>K
-eV;0V(bF?j2!_VJ$(v7(,hTlu0c1EUy*Sy.4`Faxs#=3?)JL/2(ND>9L7Mfi>Z?bI:!D4,Y"pehf%cHxvWQhQC`5$]2)"ko:6W:teI=r@1HQEq
-:JnB0`yZuP5Y,u8&"biS]]X)?CQ{Jk"cVh:b99L_GCSsQN%6mF.
-5).G$J;5dgq18uS$jLBHgcTqIW[>l>3tLNCHem/OB##wDv!"r"Yr3
-8)Xq&>GHF0RTrHXI4mD%6x=,Oa_ET@NA:88v^z6eI5)a[N+Kd{1U!jGgSk,D_
--A.}GuWj5>$r27yp0e
-VRG:&a,5#40)IF.IP.!2Br,4O%x4F)rON`P+5$7pip%iDsGmyf91qEF1Jjv#Y9BOHTEQAe5;E495h#j*h;0GJl*Y%J96:rDM~iocss(w",#A%1I#km$6}&@H8mEJXgCA-*oFI^>>t#KOAS
--:,~hkcN>)*VE9To&j6@bJpE[1upFQ>Bpyf!q[E%Q{vp:QZv_L8rJ[YVI@qtPw`nw>KyIy[55Q_7,,bF!a9,Nr4|IJ8rSoQ]hH7Ul,qIZAd*1A*:m]-GarC@chFEaj<QB6H5[lp4bY-HIHqSQ?$UZY9q`d%cGy3~l:vSVVT=iAj-.@9x$,SL+#-Q>@YPc:av
-+Aq[%Yp5}_uM8thE.&l)`$ch[9v$U.@)GNp;-#jKLl[NIg^mz!8;"2;C|lvgzB[sRo`"
-.PBSb[f*FDj2O5n/A:9r1=8m_T2ghp<Gx)jf"$E=W{:Q5A-@;R)[G:rS%dWCE.;/;?)h#O2]2CHxC{fEn%5O
--P?Ec^m?HO{
-Lv$!7/tTf=u#{[b4W[)<wU@kzUJ]6EK(Ha*x~gys5,5;9ck/L*TF
-;X#8N|&:fTCnhF&),SD;uOEOf#j2AmMn0hgR*5_,!]g9h*8ulHY1^lmX*c@dGQI?f3EWPZWfJYNS!z<hvV%/&D2]lHy,tRxpNHJRB08^e7k~cGN:a`W.7d<So&3etb_q(8io^Hm/Ig.miM
-s#uZnTA@(c]pFOZ_aNa3BPd=:[~6N>D<Fr.Xos{)GA652V`3(=&"4T-UPth@~1R_!uVYpVf3:MV=uISsXI@h:Sw!{Cn5ju-j>b{bNw}p|(IjYXwZa+4t{ZrYh9tTB3M;o6VbhybZ8x6AQip/]PuSr0zqH#A6KG>wz,RjS`$8RlJ(yeZfTBAJ.ToAv5/!&i56!q_+bQMBSqFOfac(gcud)(KxSx`WOqYo8vl;g>sw2P*^oj8rh@9t[L
-N~yrq$aJq"0RXrcK<eP)BacuWw@/.Q;{]]$MQ=gI_gBUkN26-R>=TmXQqH-9%Q,_1zWsV#MV9,E^Wua$8XySm!>*hnm1qRb]TeRD3qu9()GB61ng*naWPc`7pu4QcPbJM4anSM+D$h**h[BV:Y@o5`#9sHCQ"QN51KFAMyjA?jpQFw>!p)M_ZQ
-tl"-15w[oq2PMQ=B^eRmD5#O8u2_O0J#1?PC$Xp;Aq;aBI,BZH~Bf#^>wGd&chF0YuZ:T
-JCB.)F>GB*Iix*8p,C"S.V8e?)Rxp5C5{h7mWR@9=vD.[J^rk6?xx1aVkD9/{&o1HDgEu@<l_E!1BKiR*e**!jVX+-?sv3^9
-F46^&hlJ5k;UX3Et)pCQ92HK.|dD^_Qr&A:(NP3R
-FL_iQbyn#Y02u)Z8WS%_m`o^wk$u
-btlyv-lSni@_.bx1)Y==8Tsk<5>3N{7mTA0a0<=SjAqY={xbhG12JE/=&Vd1w<DmCSin5U#QJ,E@LgT/hd)<=V(vETj9qC%*COrEk?sE=owDCY<UZ!j8mrT75,@oE~vKCx4iSGpkP=ks6Y0]cSe9BYyYc4&_Or*I+u)!-$w;=Yivhxj.-LaR.?$CbVtEQ/Vu+LaX=oFtV7Kv%7O}[z3O0&3PHO)7;-Ay*&fiOrOCbhP1BXU.;XS,R2[K=Mcb!de7c9>"0E8Tm!Yg$Z?]=;o?;F>w2mN1^*>A5.YSkqN@/PU|>;UE!a0gUdf7O"Jhs&8zL+CD9WT576/R
-13a>,-*frgIjedwBo4ba0V<(Y]EsXyE%sS+5}gaErW9L*a:JbgC%rBVgws_@Vy!j+sOT9;2:%s<O%5^.@iHrz5,!}s9<y_O*_oH:,><bg$J=7o*/KN^,?PKWDInr
-S+lTjBjk)*Q>VU^zW-dx4vX/?MWD!ogPE{s+aUFD)]^0ySG7TbZ.C1`w$OP-OjO912Tj:S)-Pt+2g^:MZjG3)4>_RJX|T(M}bnbmZY4?T_V6C7n)T*uw^Rbmw~1nWQE,;ei*%98[^$&rFx*p#GF((Z>>lHe]+Oih"o^h2vN3%L/M@|TJj&x=Do2rQRk53B.J_-TC6NR>RO<H2eZMdF3>^gV~<|]o?=aI.t1g5[10S9l@j<P4w<xt[ew;=AMcLxa:+wPU!j+=E(`3Q?jG7r-r]<?g(!]J3g@:Hzt4r.S#gcV[>;Y)WRIyVm!CUl#YrwS^0~s1(47Tf~>y46Tc=_u=Z{Cu=L`YHfV#tO6./?!j3FjEs.nS49E]weiPc8B<H*Ms%sZYX0D`9l9Mv|gYJ*qUp`>*NhGV"6DA;"#&:?eEoXXoT?*i7_.hRwR7p>1OGZxZKlu^=#LMKe?r
-h4+u]2Um+5C;r#^0WbR*m)qx-<PUP"8a
-t@_0?MpX=@,L9s-W@}&|
-SscRUkT]MHVr!:5Jo&Fw8wl%FJKdj55?nF;eYAW^vnhlwBM^7*XY7!E97U+kNk^GGNe&iV>=$1e"
-6@4jnrIN`#/ELCwhR-86Xd4EfoAJ^W0=_
-NM]FYv;PC}2]4e0KXRe#&!,Z;Nn#Q~HEeP&-
-4*M7<%d#b!o.x/^YxwH$.uwtr/c/Wm1*a@h7+"PQ8wUDI^5Kc>3`b"O7wJ;ykt_.y7>$P[FNb]R+H`%8j#+YP2+)fZ,
-GuO]aSrnTeIX"Q:lIm7Yulc0aU$ITZz&yrFXR]9Q-40JfWL5S&Je~KaM[HN?;RF)i5,oLTO_
-Mz/hc<=mSic!fE:!R?^4/194l=&j2-s3?&,r;
-9Y%F2kui&k(/oGXT51<lK-f@dZCjrJ->f&id#}e=(xsIr|.$vu]xvXGSTTW~dSTb2)K*-=:CnC41[$1SS[_S=xjy`I&^MC0r]Tv5QD/jvS@xD!>lwb_L:BSU-?%sDhUmC1Nw1$)cjIJg*u<;:pPWp
-q0o?NBE4nAb2,3&.].MUVhj59:I=n2;2nxaQuZn6xm1JID0@B@rpc</hlC^Qiw(*IBt"DL>vTQGI31^qruOiB|>mliUa=8Q5@Y(VZJg[h0]d8)afu=*5?jl(;o;ixC,e&ulxUma(#(0Z,yXFPa.OnEIxu1Im7YC2RTI)MTj]-&FOibZ[c(]3WqZg@h*kGu&$GGK5KxWAt9<w!2U@jFK2#hIfVr3-t^TSp6s`!v3!P[KU`t-HGLdt3=m@04v;Iul2olf[np%pw(5|i^bEMI+3Q
-v{<@!E^DM&f2y0+DAXyD3eJ2UGGu-fI-0M"`>(kNSGejmmA%19H=sXK%>7`u";c98^;ukWmQhs.VBK8;rT@4/+CVjos@<dpzDz,EN=0Y<[kF-JMzTwdYMXK8,ntf
-#
-:"6kciT[=rCX)VH^/&>m0Ta0,g)V?4<0rZ%^o5cGSQ?xLW9<&,Vli7jV[[>kZN`X@>f?~`cVye^h.B)"N<;19=^=UhVT:>c`TOe6KN1E(q,Puck[t@+Ns1An<&)BOq.G8J,tynIYmWE>"q5R!4&c1WGSanLsm]W5ntZ
-"ajH%xFlshR]SU=!N.[OLmBH
-*~q)?aSs26<29csgu1fFPI=?dU/1QIrG6`hb8}XYk:QHYBo<L067ZxeuZsG4laaz#kB6I{l]wQo"h?0;0c4-N7c6v#EnHuK5+_U8W:-uEWeDlOBVvj"[773F[1cDONtF>w4onPM!`NKP?nb/IO:X;Zu&S_E;^R5<ys-HFJUt.B3TiQ#<IA=qSad-v|JY+sb<"AYDxWsQp1@DVcp/wLl/4F*g7D"<E$sWY?CWD,"g#4Y:@xG-Xo=sUoul_U29^a5G>0Z:mQgRN`IG<ExGU*my0l+kDR8U7&OzRQm4;s?"!oRYVH(p4CR/)M>5bRrnF3SIiK*~;][%a)yYAV4bD@%n`(wso1qqc1W-(oayC+>XUb>W/r(][no]F:*unD*vJrAZ,3<PF@C?ZOKD
-_X|Q1vcj|j?iQS_,5aIP?JHi#4=CAn:8eRMH;kFy/<q2I%B9[UO4Ml_IGI]GkK<a~*wdVZ^ozAas=Q^KKj}XNsYN;Ac0rDED1X}NYxsnIKO&Paou2.UfFTYFC,pyy8GJP:-DP(gkTNSN<Ru_yZ-_R)qHTY3h$jRrtcH+x_D^:6+p_`A,3j]nKcG"XRlSiXuAN"O=T_vHE?%z%S61"PT1b?"Aj`_RX@F(Wc:/z1fIeGo"51(o
-=D@h01>#N=YcO8+_9.Q-Z]u}O5xE%m3&-$0sbUL1wIKOix$}
-2JJ0x$0S$j=.I-XnGPkRknooO
-bJt4IqTQk=+J-pS9,gS4}e/s6)!V(Hj#Z(;*2P870]x%3rPK/M=ge/S4^aIhO)n<YNpFsp,-NFz.CXQNKWynyrTH8OsXX;.JrY!NiE&.)</0$m/Cc7#4+`ok([FE^x2:_O[1}OW!=6_w/*Pkf[no@VzOXaeqXQ-2X4.UNAfgswt(~sb;qS*W7PbbtkH%gH2w
-lvvsECEqokhVhUb<RiIYwm-bDU`aZq2Apige@}c[+H)C].4B?xG<EN3i6B
-k&s3W:@(*nsbg*dh8fa#VVJ(n>U>FC!iQ"2R>2ahVfE!60T!(W9OX?!Nk(bG%S.E?Fz/#nl!GuS/e8MBdE0_%#<MUW?VtXrH.C3O
-5bF#a?Y[g_$%
-%W%8$r
-*RJB3NFC*mle`tt"t
-Jgj:h:I=3l7DcD.q$(C2okWYq`mCb.wW&d&8GGf:)?LwDWVYYQ)h4+aqGJIV=VQfJPj-NCpr"^;J]~?DEc@`_^@41{[W1yk*#j;qAXWy=6X8/a8pTlCq,++
-3Hw9Za(@g]4jG%fqngwWLr=>S.8+TK)]nR$P;7_lW(80k./4%=(8y@[i_AOY6M=@5I2M%gN-*IN-19<V^)wPF;OY%92)#|bE=,mQ@4wclr`R;nQT!I@`*:sTpjkXgajO,Np[gO8v&0Dj_@Kx=r+8`~Fw
-&?[k#$Qk=d|f1AM]Sp-Ashywvlc2blIt/A?2s]40V>:+$OoZ($!S@29*+i|FWG*g"%4c%ui8/HPxeP:+heiL,G&tId&q<eeC]ks0EjHcr:r2Gve]h%rGmP`H>]5Yt[C-&(_iQ+dbCoa_D3JDaS0x%BqxT1&08g:)QQci5W-)<nt)E*80!5pm:<ZjLDK]qAWRIWmPCriwZnk*$b;
-|<o^;rPJF*4Xk/tMb85C1@%h|7%vy::4*[o>d>zl`//470~F*ne_1-z`f^7O;uX!]a6f7-d^.6Me_Ex95Y6E^RK2]F>mJ.J,V&t!;UJUu*Z3AkDe!/wet2>l{637YKOy:y$`*wLcQ^A:CC
-NPvQ[`Hj:<rOfZ*BvCTZ_PHm
-%-y5g0|!FnD!4a<#J>y#PFG`+jf#KX!o.VZ?Ku))%e#Oo!{$HGQp:y>)
-0(7(ukM:1~xMCgQv(dD5]hR<PlK-qR5?H?Mx!DirxD*OXa#nmRA<uH64]e[*S)+zN`B+N`[$#LfX`|B*pKj2-K>nr!c|qhc
-twZlJ:r>Js=r-rarp#5zjD+2;|eyJ3hpm}I)Xv>-#BB-`k4~NOQ|#7X1j9WdxcMlj&Wh7ia@j[#Q:C"yR8Et_Y[%+y9sE"=dJMvxGNc[=9kScY9u6^V
-@AeSZ$Zt=~,!o4$By$OJbWvl8GOsBmuGh1f?xi_}q<)i09pJ/-B1ug.d)8Hr(NYQVh>=[I)
-;i*$o8%c:(O&)NfI-MuV+s?*VRYvW4&z3C7i!m`ny_^Ff<sXj/xI?&H)Y
-vS^3Gf
-kO%+DR_?6!6psfWkpC<S8>aw7
-?FO_85nwrS0FZPg^A7omgXmkPGPc=./H:]2B0^*)<t-<2^[c$=[@1rP3`)er~rs"|i-o57
-X{Y"g~@)<ejus?f0X+l=hiw/kbq#Fx`pw>XPWDnDho$G.>D@63XXQ+tOWh+twq3Qyv&a$3Y};&vB^mT{^/=x4Ug>1g#:qj6$MP21[]pGvi>FN#KtH!p.l_3D>F3pw$&u!O=_aNXV_iu[/M&LjC!*Ycdq:knd:@t>7OBN-(ykl^ou]&P"S;Zi`gI.*nxBe%hOwO7VK3alA=sN@Z0<Hy;yB-W3f/E"C@4-=-MwpVm"5p=#o1Aya(c2ucO3iYGx]r%.r:ZvaJ]hm8*~Y:0B6,Z)5)`um9N@%@bO2u?MGzJ7l{Fhq]MC0nQL]Y_:2KQVFNx"0]*JwX#`#L@|o~QtV0$kma^U9m/#]n@O]qjHdbU<E|
-SkxF|or(*kWv]H.s(#E44N]H:*{U.qFF|sf8`m8b
-%R[G#2?WZu$)tOvLn[*0ay[32(#S
-M,5K3Zdn_yv[XA:KBxZFw`:F9ktF)Rx;i.ew>c0Umx<Ws"]A+fTby<ZKYc
-Rlmz@+>Nc41*s_p=]^hnrq@!V~]Uxw;4SJMp<IW7)}%>`YA4,~^Q:O*)rhcb/62hWag{k&z%C9B9@hv}gem-^#ocOlX=./m,br
-}w6[O@&h?Xz/Gm!kE]^xBkP<M@y?xn"3~i[F|c?JPMOZhUT6;_ol5<$o/I~S*Q/JTO:?^60rh^#K~:VMZ/?.qRsWPUMneX8#?dhLB_tBee"]Z.zvaA"TNGWNqZ9GF`XSnp4^vm.6j0YFrqP#:eM=^,/f&y3.{f5E,[W
-KB!J4:WNLX]]?.4t^dm)JRfRuC74:<[8M)sxwN.WQSj,MCEQh:M3BkG>1/vfvAK5"+N(v```We58&ml]C2lwSbX<>%`(>le
-0O^ZcbJFj$@wN:JnM%ww;<q>P0%G2YX-5:IaG+/_b/I_jk3:Vd1_++XnFCVaMSnYc^F/,9*HHC@:gIihi&UU5UwfjDx"f2G?If8d_9#)8%&>@_ldR^|TP
-hD-!S@mIyC_SJY/^L;PRy<A$)VcZ(0WQK]<Sz),)xNxeqPd
-P8|i[9^4;%1Yl=<Ud"dkGVFF:Hg;b>W#i"},"Z<<g`|@I)3N3J-<13:Sfd1[g*p%`*BkPA=EaZH#z-+8xLB^fZV7>LJn<EJ.{k!gH[xh&ld(g#+>-G*`<]@m-#tFg`/:?=5Ms-?AqPonXs!jiFg/6?oo(
-Qg9#HTV4EIknk_Ytl=5C^D}!`h]c2K3`P&@O+fB"TcH@NyMQ|;.RHE-@}GkGY#jI}]!kp_nK^h{npVxb9*8++o~6=PFr0D#r_cC3uU)3E.Hc1kI.Z@jij@2b*8z==9^(x0a_hqql.[lFN-?=zPjO9)ktLm_8zplKvN0vn[-(^ob(ynqw<Rq`>QBk1;J(Go=d6*9N7mWL+D)L>/z(koM:2f$vQ]6=G
-SKQIS18@:D_D]mtazwgr+l~l%g|2`
-KK%JkHYJm$<]$d8kLhSMQ$[g6V12z%jw";&qrEm4LRk--FRwDjhJV5S<Lh>>Yuk3Us@j}(d<RK}eCI_Qh2RaNYw%BeacF#;3uLe*EGvLi(JJ6W"hgZ%ndv(/_Ny`uIG8irS>?NXcy,LcBk+6xV|TQU3C)BX=>+n"JpYLlb5Yz`R)W>$Qmd~82w@NXC|2=TxLp_M&7Bn$D$_^7ZjC;/m-""IkBa=>
-Xj@hc(SUu>U?m6@c0]RJ9=.3V]d+`)TXxg-R.T&^5<$)&1j_p-<ma<,=xP:5fb>$PDQ._HRxepO*g+LFX`h|y&4f&K_JXxL<%"oTB2e}SbR:8w?t/nH]d]q{Y"lh?F7"f1;$[Bc$O?j{-!viR.pg^d.XO-7)^m0fm#EV&_vZ4|!&lpCVs-"xGt-dwC=W,EaG;)&GQ!i(cJrKZR>>C(&o-[3V+.bWW!q|MMdS-5!`AhxX
-6Y%S[)n"-&/:O?K]s+8$)K#,$?K.59Q1}*tL`]XB#(Wf"3,u[9C:Ln%LvJJ*YD10_SX:r/Hv07DCN38)l4YY2?Pwg=B4
-f|v)(<1D@F%o3uH",@r}2Ylv!{]`Uf_+N;$%GXvf*j&ntiAX67f~X5/14~-VA{Ps!dUJCo5E3?9Iv3^]:#6{VmjC3zKE1/wuF537c.3-I%[X->.<=n8<ChxLDQT>o4ql(B$F.h
-~w)w8MDmu":(<H%I6XlM,cS.65_0Z$SH3KwJ:x74|j9[f>`,0JRoNUD-zs!&bv+s`>I);<YUS;iPD,2TX?]<K"`LsJG,c"*F"woKGC36DN-R%[:86el^&!2WUHX!hOPY3kv[Vdf#KEI5VxYjzNW4I"A="vI$YCW^l/+o(&MHu;G6v#h)EiAmJ.JN1&gcXE#nxjse-Z8.rbc0AhHpNhYNR1c;gO=5U0G2c@R<tN"+nx$N7$9X2Mue^jv?Dk<h<T3q.PET:/Kfo"mcV>ENbI
-PTR@
-F+f?"(d_y5Ror,n@d/z&rj"v6@6#=bsx5*Z"%xx($5|4,f:SzJIsbbN<rBUY7uANmBdBC!QFZO9?;"^>xVxH%m&QTlRp|?OK?tANMMkZu^u2Zu$FDbWu/&^7IDK
-Il+FCcswDB3V^a3K|d
-Wu8y>D/i9NUuq
-$ODS(Jrh.!l,]ZMU1l=w_NG6[&>,eCwEXCbg,vjCrjT^[t^9wDGnLjM0>*4O6.L&&x+Q)[d7<^#/T?gS>xRS]mB-ipr_[fJUv#M.Of$ba>3|Zd@)#C^f.EeS0m_7YJJ}IN7eW56
-,88"7LR%?I5kj|SN,jnL(EAul*cN0ncH]_/r
-Y1]-ut.Z3Ajxq3nJt]nBOH0ExQYJd0i#,kM7wupV%+LR]:nsq&Y:/5xndH,+wo#v3^5CK^K:JjR:^q7BiHW`Tvco+kJR.W8?jQ*!NfaM+tF@iJm7;_dinJs;NyesM<JJo*5AVHmrAtGX,ed=5K<u*sFdw^yB?ZZ4EL1hJj/*1$~X&Z?50LP
-6"Z;RxaFE^@)DuqPO?[JCZ$qi*O]8L2;n#@sn=jX@Uf:HYZ0i`yD$of4vdvk+S%OM3HIZC|Bys[
-b.rf_E
-YA]L?:Kk2mQ8eU&mNOmXmh6l.!tWyK:jxkcZJm[Vd3-,`8`_*9G)A
-pE&}Mzm]w*YB*1W-1p]^Pj+{2.Pi!N7:K-CsQ#"a9F8R"~W[>t1.S2-ByVIS3r6mbd,qc%6#J?T;0]txCgc&[3,>X+XW,<2$!4:@ykKXv)5D6v8+%6abSr#H.!type&X#0ta$3WU6h`X,K+[W%mf#e(jo1,aV^Vj3
-yH/cXzi_YnJ};nx$#13c.]fpm$W`#gwJdHv(87(qP!kh+~d&.>F(nYO`;-w#9>r
-JOQeo0eJ1%cdY(7]=(b#p~
-1-
-n$#M0T7[0k8b)j_{Ph)tqF9ZDA._mHD086cN>vy%c@=^<
-nr&eO3<v1i8c03.DRBut^WQb4JA`7b_-&]04AEo7n%xdipI$C}Z~iS.<Q;dbWw=`O,1+Wdg]Gs_1T;omYeeTA0:h?`!^BO0"7#Y,%;*&:#-_?;Ct3|cyEWGBKMy:OgN_n=0L
-7/sEbl^69Aa)_Ph>TN"9N0@9MQ0DNk&D_:CQuLcDb0U]%L*i+Mt!|kC34IwYox444I.K}Cm+UU>2KN)1=5ApP$ti=U.;y&.9|b"1Gi$4I=~e&N#Fqbtja0&tEA~c^b3[m5}[_:jjf?X$%KhoNCp$inM/nBnjqiNT-t>-D42eaS@CNqiDW4xUuG:=`H50jmUlc!Ml{?4DoAx.+JX8[cXI362er:2]iPdr5;!wc!-33g}Kz9$k5_lX6N]45v;5ak
-Li&nyf)GbQRrb&"9d8B?(+XP5;rCT@st3x/y!IpPueSO4aDOTcUJ(3?"T]`|YLJ2=8,LQ$$?!II!S]rPeW:I"e]|$.)$=7BUMpf8$GE/Zn,x/bsuCEJy"
-1?PiNMawX/#b,FdPPV(WJs/PeNAmc>S<I_uI/Xi]nTSW55@YbS[:0]cu"*-zlE(&X:mQ1x?WYjo{jCy/]-57P"AdX@]N:Kb8Hs5L=[^yI=!uP(ID#&4I#c3yN*kBKeIGQ3`_>[K:*tW[
-6:arcPnoL[E?.CR9ZQm0:8W!/NP"gGskynYD)o*=u&oD3#1KOqo."<6qooYcC${`b9t[2!jo+DTlA;pmH+/miZpSRS:@q8(g$t6=tY-KijvI
-F*t_y;ajLdD,$xVIHeuCU{eRFH"Qpb("[-C;vM;C4CPvG2,z,jOg)%RI?^cW/EA51/BJ(7-n,;J/;W3!I3pZ1U.5k4N4Ed;/x[`9T+`fKtZAv.K;THnXB]dwJgHZKWB?Ld)u6kCqPWwo$RnwblJAbWo24AR%Bcj=4:CP#;jmparZ2nKYjAV3Q6e:pe9[CPx})51pPLd~:Qt|MN97PzNCyK$:9Wt`$H_T"iiw?,4#djktv@/&h<dk[1hU/#`Z0isweZUmi[de_;A^9cm!b&y(e79QvvuQb|65nHC-Ga0UMaW=H$0?s&a#]6%:-dTekM
-+f
-9I!NL:,XD&Fz/]I*ibj6F7-*cX&Hg*9PpUTxKyYh0^0<eX4?lDUZ_%E@CNf^Tfp|$6lk.6(Lg/R7+Eg(c%cx4dL1G3A"Z[tT<
-oH9!$=29X2g~ZPTlmXvN4b@8S&if;-
-55RCou9W{6R
-:,cND1/;CLUPG6SS3,@LV<NGAP:uNR=8}P9ooH%f2!x
-.IBnzHzTlO@LvJ@$q#CJ8W:9<//RejE4mvbNXI*>^`ej7K`YkUIWHry-J/Gps5r`OmQT=;I@NHQ>+)m!5h$)&[k[94_GiyrJZmt[Q,m87e^2<,-OEd{D%u)l(6ee%IVlL*Cq/X9ZUsRu
-6:gc..xk!;`epN`?xX:3<60SsYS7`v2mRBLER{7%o]T&3mw"E6jFn&F~&kvD6lhB`+_/=M6u>G1h%3"C6`eta0DK9(jfN-!>E>8BP2OIeh4#,0)y:.W}A")6a`Mb"JpR7V8B&Ftx^^^|Dsbn0`,B!&lcV?4:B<"FQB8&l
-`l-FxWH6m6U)A<jC/Kf=<W/-r6o}al3[MG4O#WZ|&OCL9nZPxv1@SU$tHP2CR_Vz_?^T/_JMk;]|6)G)-Xv=4,8C,041
-="
-7)Z_TT:]h>eRb^PzE"A=T(CK<|xr_3d+drJ|GWL8&zyX5S[L&FPh>OiLH*^<17k+<jVh3xgJq4D(&1LwWx*wP|^N&G(7$5,EbuqE,wuEJO7CCU$cIf?DOcqCh5o?XI(thj6Ch!GulyURde#iw%MLU/-LHnN`QSo}@i-},(,2k|"q)yK*gW"R.N8Rk%O"$xr5al^7!3+YR6PI^j>^R%1-rd:``^=pi56Y([D+^f5#S66^.NWt`3-J2kVn3&l,
-IwTZag&1?sht(@XR]18Ut)PQf2J%W"Q0x8GVHgbyx#JtJxm@}dJ8"OD[9AXoQekhdyzlC-S]GV-xy=ly]A
-)6$0blXDM,-ts[#-tGJ
-HBx{k~bzP1uw,z9`hhKG*vx|U7(rKi<EXi""kO!f"isti>tG-wdvpjTnefN[-G<yN_!+jDHFZfAoP#`2qr)@edJZS)V8m,g
-^`GNp_L}@Y<<X*^Zi2g)i3V8kfdp8W-P+zS.qU+E"lOi1X.B/[Thme"H1%=b!`b4m"#n+A5KC:o1%
-D,%W9("S
-AdTd/wSo957_@D(%_H;_;Ht7xc~m_Yvyd7Z)hA|x~B,yH/SGa/f_(hdK}rE6&"~waLjb&
-WN</#OM53nbVp%aFT8l8W[WGIh<vP1%h(*vNg(414mBRA6JhTBw/[N?"J.-NnEouHKO-6/N97ShRv=jQP^Jj#mWX.Za1+d@>))pMSq[Q-rq68X{_%LS5BbUp?`{&<qkl/Madit=p/TWweUjk@?z.X,^^Q7"E-m-HS`,7t$qO39,3;G=&|:TLbuD8jnR$dtQNV+uQ8#!_cTfW9=mx-K@P1N0#YE($J
-=OuX|?fx//`
-%Y{2X.sH~XCy#U-!#O2Zx$t=*(q?-iRT8)@NBrL<i%}5UqIfGfc=FP1?[F[N#/Q>3CU5=5L2!F9:XKli9ZzQM%tV#
-UiZXd@/fX0U3R#iiS$8ty5o=6&kNYr~<C3,;??)$d(l9"sB&Axx1|LfQ2E%V_Pjm._sD1U&3;8<XB#wr!<yr46RO}xL;zfGWsPG_*(_g*udpumEO`;}ReS;1)>@<pm}Se
-*bAd|)r(G*aPF%mP~h_lrwJV)1>1Ora3lv]0cq;3zu^k|Sfg/ePvt@[h+&Sx2eBf+JHi1=Oa/2LcPOc2+VJI1ucwCv{<?PS@>g@tcX$miWH
-@t#^vtI_gseq|=d>nxx;
-PxxXuAd?c{F&N<b+a._?NAcS>!cD(NAnSqrF4[x0Nd278,_]MV
-b0"jOEnkB3.SAGjvnBDQjgZL?3"IaI+&EviZ-ih
-ZHtt4R3;3V/
-_kT(mUIq:Wq#76?h:<N8gjt8.WXD7*)z%qCB$D%o)kUQ=C;S)o(4t>|`h*aVqbY6HcPc*w=SqwA)h9UZ$)fN]d>jI5}h#QmOc"%5kuu)ZZJZKS[0NaDCxW$q$u2*JScEmqNoWw<(Wxe<
-)qh?
-ny)I_M/9/E~r9Xr>a7*K%%
-`G)K$tOQYvD_1,T!#O#+`<l5Ql<X0IDfXe8@Q"i+/
-I=40M,
-3M:CCZJW:RRpRlXD#ZO&MLyYK.MrIj%<k`r/Wnkh!.gdW0T&9O^6
-goA[!Qy#wO8N]qfz$Ar@?Gj(^Dm15P)+;fU-HP@NpnoDk;l_o506oa#8>q[dyNdkK
-I(INv,a{`pLs
-+na!Ew?(8ZyryKM;Y/`ce%OE)GwN/rR_?#SnLbcg!fm%Z?,PU-fl"BUZOgBNZNeJl
-7AIDj&gX`;~i32{hVl-mD&eBWO~NWO1+7&AM#!muqCz=q62a[&kD_W=Kp
-.ARI,E&bWosxX0dz([7
-wB(F8]9I,cAK)n^NC&>oT*!HnafZm`Y-m8,]V@lX4R!Pu8*bBULIDD227gl.PMAwP#@_hE7J|umi]O46M562`n%U
-]Cq,>&#xy|DB0~T8.r9)CF&f?>okc=`o8[s42y9OI`9TqQsGmU#!]@9SYJ1rZP,"c;;oA]k)6^sW8m5d:9n6Q.&}4?/vR&[Q-Pu>p~:FhQ82)UkH_}&X2Fy^*L&j-+c1:,h<2XYUQ>QkTo#e?HbSRD6}Asuj@_#&q*b*J&MP..W*Gyy~CoUwA#e8TF!9QPAtkWH:vK*+W!%8td*c1DD@y6(H"T>/.u_oIFo]><9XwReb-4IxA]tdq[^X&.Ex)VosxtLNMiQr/VCW%7Mbnj^q"8bjX*4o8JXOE>yOh^h=_L`FLao6vpM.J+-{D27I[!(#ox]}P{U{$fOUfIf7#t#S-q_=/G9#^xY,!fMIv,j5_6,Df|Sk&rK6i678uYSD8RB5NMVV(_/(o:$>+
-=4b8q7FRHkAYgdH6x$SFxdv?0)L$GJvfc7)d^?1U<s2AuL)Bl1S=PETtbd173~.be+pfx8>;<2qNpk8{CPAtw~+NJOZA(cL8?~/$;51`?6:>yOp0`&B`mz1:
-NW{#!dQ>UcmDtE.SUxB,
-+sUH.=#[(NYhq=iP8q5^BSD<:EHCka>~Q:llyDNVA73^(b,u7T!K&Z`b&_Mk$t
-tY9":GXYl:fE,*OvNIW6UrA&j=;xt-T
-:/4vWA6A%WDDg!y6gMa$kf<7FV$D(Eq,?&yBy<C2!Th.zy+T4
-2S[H$W2e}2&O17h.w2j.|uzJ,.LQ($RW.TE9%_v<O1CvmCmw12;w8xw?R7G[=I
-6ysl+OGxYII;>/c#`60S7`Q"M1rDwaiFin(7n6(=U9rw.Dfara*k,JY.vp1>Hb"8I9<Msh9]SLK(-o9|Wbo"jTDHrQnAS
-LG8WW?YEWm])WSg~DuK%ZqQ9JHM[fONCS
-cRd/DEmT!?jfH+be@<!0fP+e&gFrpB#3FtL#Xs_G:zy?gZTuv,D?#.$^-v
-R*x!dtFdE1&=YL!6ecuS]e^PaS;nY!%Rn?;U)(^`k!%PlYO<3r7gZ?k=un`y.:HV8ZRI*3#9K],D97q:nP]ivc`F.+iT0plM(C0kCY!mEE].N@}GuDNMv=cEe%fp=cJq`2OtMl{K6UbG:ooqQ2~8i
-H!SMdeY58Oy>v0"hA2DHCI[BE0u.Iv_ySQcJ[:|M*y?unI2o0BbdXo~).J|b?6xt
-Nj7vA_dKmyLF4)=Slq80NALM[t%=Qy
-f
-Vb(x4h{CL%Xeac`Wh97J
-ib0&e>YmH2
-RX2#@)IDTSD@:3@_dH
-/wC#2qCiZ}pMb_,^N]%66<-`s=J`+cHAR2;zrM0%ZU?JIURqPe!Nr22=NAQRH3p}9(P[",3Eb6ZPO"K-n}"kEIDH5?6p=$#07+hd)kKC>b0<
-d7|Gh%,7<75jFbFP@Df4c$_p]-#s]U
-ET9ZPsVJ^.1?lUf*:7kn;ts?or$3-
-NC#YEraz@4`^*|A~[9GZEXj:#1TE!ft3VH;}+5:TP2GITRHFECb;m5;p(IJjv$LP(X+pP!xq+!-w01G~)A(Hk_!aKcC6I:3]vO^Jj;`D
-uX|cOq=izIks;U/u"+U-3@+`$u"rYP<>DL{Fz#/(U/hF@!RMV>9x{[IcR2~V&<AYTJL@E)m0KRL*w^zy@f+C_0>oJMVSML%u3A$$R[f@fF:Op!x+8M(NdI`x0x*SRdCh|BX:9giTBcAf2S]`#+Z19Pr"_Uh/fNH</9fK^-F/=K$qR0$1yH-NwJ.=Abb_5gk2@X0i2if`NA:Uv_DE-HiDK_m_qid,r;wmpeAh%lZ"d#pmw-/Njj`C~@MW05g!*e,M*%OiKSyj%trw,.L=XW5eM-8dq#yeecSS:.`BT[MiD"Y/=mvk;rdTmTjc~"
-A]oz!"Rf*-<:Ms1g(Mlm6igvXzXDMCY`p(yB$}m]v{Fy@<RK)a?}#/02dPmjby5t;4@_9[2S1`NxQI<N?CUwG8JPQ+(;9quR)q9gy>_]#SM!#z.h55J
-]F)rFc5h@pqwo<Pb$3wi(NEI3i!m8-1kjVuTJ?)1;mdwE
-?zsV9Hq"Q$`wN#5Nk1[?8-"^eKPn(
-A#^[*NYBisN;%gbxJH"Ih.W5pFdPiHbl2CoGP9<0mS0O?wItJ;%8QwR8y^+$d![eN{Am6zI{D}Cim
-,_yyG/S5,Ym]&cXL_4C6[L1N=*Z.J`11!CCmsVDYEPugYBJv_njs_PG[kRv=;l
-$7^=?P`hKE"Ib`kP>);(btOgt)fTVBM^8pmqhdS,r4H;[8qFD%?$M?32U[]v-9.2@=tgRA
-)J_lg^OT(qgeEeE54@M*AgsK")rk$I:Gi
-.+qV8vao?8R!;?Rw;A%[:hU$y3:gL@d%KXsMV+)dN+hy0(J1OgcO!vNik`YEIHFKx,sr,iP-2A,#I
-/mFQb(Pvwf]][0F/VDcJ9{9;Y9Z&]6f7O5xR$wugqi<pQphZD]v>Q2]PP`NS6XCI6^vR4(CP_k^J&3$:/D"v*+U?n=m&qZ3n^=l~u&d%q]4&x"8N2pURCxRCtoa20Gp<ZR.$:aQi]t[OwbuHD3mVYY/5FSKA`VV*C`o|C;e#D?l]#ll}"I+["#PPkMlAS6fLa^-_"V5Vyum`a!/
-E+fP:ct@ttG@PkyV;SV6/hW#ewa,s2>%
-+tBJ,z(l3=34sjLe`5lr<C7%8=:7(36[D^x<4dTePPJVz.^I)yaic5`^>a@e;N^tb[*W?ZUSnd,phWzMu;X7Kfw(>H,c9SC?JDp6<)5stAPkrUpog@3LW
-|RqGz@{5a^^U7r9AYl^Z>Y@E(:L$2Z<IH7@eXxO+6g99xpll2c*=L*0Xz[2l5,I<QB`!,`ul@S.?yL[@)t2`pP9>ixGQ?jRRB5b+xX.pwnZ>{`/=w0a3mIH7~MgD|^(Po(S>8D44xMTh#eUy]WL^HMu<RcO:}3evoQXqxr&"Qw>J|S^=6YJ*o:]3^VywP-@w)fy5:r081CS%hq&sph~R^0zufxC7ytHS?Mt[ds*s^3/)LjnXnp;cZ!$`3<fiZw@2`<(f;$>O/`;YjurTQG_sbK8-Ry{O7<Ci,:YR+lXnUnmy|BFP;8{bCGI<MX)LP$",8;+&D*,A,+RQlp*N!io_-*dy=/-i7=vC#5lQa^-LvXbC0y>F*rGAM
-ktl.X*8m/F+-W[-VqPqR,BHE%EM"76;XMLn?=MRJj!{NonbJ>>kaI/uE
-K0Wwh8870SB;;HRbW{T:H,???zhu=OM-uN7munYQHQ@a^KBX*sL5:HtF_BA7Z:%b5&U8J9B5gPkxj/jwKOfnSd<OWkQJ^BMADDEpx4C_f#?l]]a|iE-
-)V>#s]L)#(],DO=idwVcX=9;!oY?HDWi]7MjF5]}va*Q6/B(x$P(:72#+p
-+#Tu(2#z(Fq_gbT"*FP:T;arX%8#`^P/Ei}&.m$fEYyvcNAsPj{7xN`iN(j&Xf-pC,%b!Mv6nWv%t:$?N!1uC5O>esz"
-G
-[Be
-5tk@99x(.>OG:w*4-D3NF#]7ak5zp24ynqS)Tn2Fo6aQ9IVAUi(C5OrVKTSTRVQrJ@SP0C58%.(3Wo7itk&kBzb@!9ZnPq.OxK)8#mE<#J-c4
-Gr7l&Wb7xtGTc;9~i3-mk)S$^_HPp<h>8b&kUy3ydQ
-nB)nmj-S"fx85?)N5Wx]86kZ
-Y]n#
-I,>,;#;I4
-&j!"q,^@jV)TuB@S:7cr#.;MGmDfTty"%:$$rBM&@]pyGKuce/$4=Ol
-7=7P2x;S3P4x%[0]9OQrG
-b?-?]&]q6(TQnp[a:9Ns>@Wh@^!CoH(>nlY_L?,)3D6hz;[_g<uSrWm])HBI:_`JNs+BKAB,dY`t1+^cgwe;:p]QFvcAys>n2p?L5rp+amQ7(.o:}n2Xc)sC)4#p
-c/@
-M#vYLq#^Iv)XnAgvLTFUVv,`v!:Lnu/".)ogvn<s:&P[W/eoDoHcW?rcG)e?1_nw9W`9]RD|p!<Jd|Ut;:"PHOEE8@ofgxU4o4r>gFln+DxAj!v2Yp%2#}_C7Cc$+n;VB!fws~y0
-3M<0-J;l^ttItomqj6|d|PAa>k6iU`ju8J@]TVlw,+RZgyZ(SN~6XorkLG&]BO8b-,ry<X7:}KqtxNK[$02"BlYe$`t_h/CjTWc#wX"0=&,EQ5*C;]=fQbhKgsNj{xa;VYJ8C
-^aLbz>N1Z$7jT8,_~#,fg4U$!RU=w9.R2#asUM&V2G@SwKnEANwf5"?f$;ENlQM61#tN+?~p-KLI9`+Lf_dLkKl&];r
-vg
--/1aSY?O
-}LiR}4)VsOCc!foLUil[RF1R)&i27vvWn(A9
-Vq:sRf-MIpExk-hS_]m+NJlyHP6+$Qc;hrOrK*#>rEc@5%<I/40fGxx+mF1;#U;IIDa
-K{8e0~2Z5<iG.EN.N-HXmQJ$?(?*et%tp!A&W^aER+G
-fojX!b/tpP>c2BK_3japqaHzXkN"SdJ!jFrv/cgJhl(]oXuyMQgfIz3rGy.eoh)W-[.@dTe}dm.pAMs3&#Mu$pJc-F;oHD+gqc^=1&aZrUiEYUw8mosO"9?eB1N>5,;4v2LOEYnxekk?@e0&tU[i+qP!dp3m=rwE;6GQP!cwggZkkm%Y49u?gJ+FsH!8E>+AE-g+4Y:8vr8xJc2ZpVHVx;s&X/FF3=AL/}#oom"&kh-qi}SMf/w.U$H4;cngA:1!Zdf+DgC8Qf/Yv,7^RX?GnfDhi/XrnShTkD_0&yj0HD9Mx-6qUT7B-4<urFH2y)OMqf?v&*u8""(s*,MR1lh}d_c{K3ku)to$?F.>2
-LD@,K,t5,3^3c4dU`Sv|fOqGm~A*#{O&nEa6w#`]]j[bJ|nh[
-yo+r"T+gOqrsk}=BsRRl]~gca5gulJ529!n`nA
-
-a-HQkJiRL;8Rt1m~:/a+0A>.lRC
-tE]cJe]&4~?Wr|+p#/mIToMe^E=JJpj}Cjw8!D#-B]jU?<<BZvqLX2u8srD9>*JcEZ
-gNEs`78><,]-b_$6M?9]phobWqEm6*1J_=>2m6Xh8[suNkE(+?HH$,(<WGZC6N+L+?rdY#=6sy@P`En$&arSM4vaTH!5:a6vLR`3bGf?CNGN?s1UKFD)UqoyBWM[bb?4J:*B?=Y#er_hmAEk7Yx%NmGh!K!ZVlpsGAdNeeHbB[da$H@F#)>`<:i^3O.[bD578iC+`]c[[sr$~mi?v9
-gI=TKZ+ZN
-!Hv[,3YJ!7gg*F33mIrO-ysjja!/d[s
-bBBkwoA?XlBBCPF_hD@5r&):G2"-+<H+=Nx_IeVDX7Z(Vggd&iGCju[oi
-+hVjF?nV5+]Os8kC2#wx
-Dv?Ql6KmESdQ;cD`y4)bVn*rn4K"7]
-Ucc`$52(pi_hP-@yB)L;]1*:_W`q?IuQeSOmX_GLVYk9Hba5lnr3-*S>FIL%h4hy<Yj:SsS(=9Ko-j4"^s7q"Zh3=!!.5HmJ;yriT
-):%Q"TjH>Sj7KH9,B]m]P:na/lKJbjlVk$lJlxFz+4K6
-x^M5
-W#c5+8_eXH$.o$a4`zU~H.0`4!GVr4dqTpSt5n6i/n+wFkRcbo]vu
-EIElQd<VpO>M.0qv65=?2-PF<hKqF[O5
-u0{#{@v>)lCnCa4jJG]mII}TN&jsr:"Q$838}n`>mL}qzh>`:
-`G1#V@[&,;XJ5bqGLf%&Hq>Up9[A<<z4SJS];s~=KN+Q03|x
-jT"m[h8V3Ra`1&8=*X*WkmU<NS1673H/MYu1eFMaN[78+tO0ltH6W3:k%.efeNprd)(aJ}-z29
-0t-m{4upA]ikz2qS>p[v`^nOl.p]!yB_F$1SdlGWQlv>[_dlsdK`Ghgxm^p!6;n(?r-)J_FSKvt"zjOMqB-d,3O"|2YPk,;[ux0oQ7<UjU5H-l2I#_0E`&bW+RcDf-)33-?(P8X]@i42(ismG(NTG&ntg.&J0bHeyF,bYEUYC7yeChW7Z_g1L;^@uE,#*qELVvLcBbY4>b+3qC.
-<x,gpL6<6v}5(A"]1hx,fm3p{atfi6AH?ir&>R58zocjL?I>|i};"-K/65EjUa8)F[?2<Eb`zTyb-+/!
-i|[bblYdMo*nUT`hGdH7F(Jp&DT=,T4(tUjgfuFROxGtFlkT={<{kVYh6Y6)>_2agQv:p~qGoE+DdnLc2mA[iuFq2ELx?Fm~61Hr2ah9:Zda;W,@0lmzmIqYJtCgK,*ghM4vmx<ZIeAA)>^c?vsiC=b/GLL$!*`Py=/!R3&_f&BdMDj`;&GL=.4C%Sedj@c;LT,E`[alH6mh>#:7F~I^pZ.|c+0gUaU&/K_gG^_Q5ah$ylZ7`Q%kZP9Ltp`2Yg-mGalxP=
-_!>=JpcFz*=v_c)<]r3O`]6)<DCS9B#8rvykE4UT5oFv<P*1SDvGOw@F{_=b!1f@2n!!3lEbID><Q0(VF/_djDImJ^Lhjn#1SJ*MO+KgB-n/A
-pHk]eYzj^Gg`aL9W$%If#Dig~7n+dNaE%dJ>$&#e&4?1
-8qp,bOPVcyTFfUt;(Y"sp@#w=^0q&`SxVktCijEoSu_c%sHTewncd]eRVAO0tsXz
-"w5xOINJ(Uy,[12=AnX12u<AD
--_$*05|1,-0$xQdm4u_#~rI2tU@]bPb<1-<NrlZ`mxIPl%AER%{coLBRk(9O6/O:kAY_9K^U6UQ>=F)EB=24%bBjXaLGTMZGE`s(Sm~X_(NZs*ZFra3XLmNglruy`nlal1%;6%:mI=aoYOcl{UzpfYw9b4
-JdFLq#,2T1OvWYw2SvQGpMk#DerxS.5*Df!A1h`(5Ht5L]eA$=@}lFg>>gU=#*9@o
-X"[m5F)8"@*tvwQhbO`%3NIRkzF[kdtze&jsKcjev&PYt5p:Qg4KR{Ai@J@d?/QpBq+2PFPq/mt_*}t02WrmcgWIk](pi^89]8a!O&Db=mviE/sgTi)oc5i`^62%M?DiX0w]VLMxL{X:]z<]JjOYX6
--L5ML2&TP>npg=[7l0)w`o.xNJH^4Y!xzW<cp^T#|kj$Crbsk+4LMseC
-+`r@`kFu$K:L[<lvSO
-k*xOkqd`1LkkYlm@-iX`>EMupr@1vYr4qaNe/Zugz3L`x+mp[&a)iQNE:$H,uNm&K
-{k3ylr|bf]_r,%s97M$j3yd__x?B67Y)WF)P|@QR8QyH_d#6e8T(x.D=DYv:>#eM$%h]9tJT{^m8F/iKiszJ+M2p^GKnuBN-d73IOK[s@5A/s_`^h"I4U"k1b7gOhOX$2Dd;O1xE
-]]sh-FQe^Q>kA,-)WGSU!bD`7GbTeQNO-hLjorvjGR>vV<[/"8#{?c?49I00vX^IcL^r$jQV`DAFfT-#R-?U&ZVp1vQ;E|;&
-(1FLaXwdr6q3lS8U3BL!`R!]f@MHmKi192Q6,Sch
->Swn@~`8o+4XC2#3t
-MSl_q3CF?Yop
-;B;QVy)c~[V!M(mpN==?{%2iSeRjbx//A!&5W?#K4&CnSXY[!T,Vl"9vU]BN//31HwV1{1ls!JUEX^@Ua?g=/r<l,K9M`y3>66kgSwQ5RqLD4m&<U(jP5*Kle*/^(jpUohFDbM[ho:wCDC(2ik+(3"I:6#mJS-O;LV`bm8.G_$q>80@FZUmXGmzB*%~33"]e?VjlW/,>`j~2$@eARQ0CJD5U0*zbUeQ-=3}dQbMaHTVT%lItC<fU20#QncJ(XAGnxnl+SfpTzl(?.,IW6M@qd,FK}j&)PXCYP1X4~vn0*-4J7j&9aGps6yRfE7m.oVXxHg%h|dMqn@mswk].|=jA_Y(%t="618MW3&8!|x/Y{-"7
-B?gf={3kv)J90p90[l8Q*3KWEl6@qE=@A@NcxQj(tBp.830pKeVd?KbAcrm@L3dAKk+=vwPRG~?6=0Wgl8oA:7qAFBskCO<wDI7V[Ic,<~S;PlN`?s^0JJDtB6MXJPmp"A2I9yORgwrep~nE=pig4vJ=1:MPO5Lja&:)q]B
-Vim42KFwZr9*j_?<Cksc&.I*96[Y,>OT(u5`2IrU
-J[qPB/KJ&@:Ooq<H:[#BCrQ&Ped3,jx_EHGqR_%3%vzx$pz`9fbbDhwYJx;B
--Fq!J6lBm`EV>71&d.PMe*a*J7kVk
-Er$q[dgQ4m]>?sv3!$qpJf7V]%K(
-Y`BBXgy4Xjw+Zc3AjRgM_RLQY
-Qd:^)fp)/`CbrY6<.9=9m+}l)tjbEp4a29?au:l.z!9;52U;vO29ZTagm2(+b1{R
-nYIhJ-Y?=x$Y+8q0O
-7o
-{P6eog11y-l.q4`T(hF*Z0;.W-l1{-k"CZ/:r<`P?^jOZ-
-1/>H%)*YB55IHv6CjNQ+"-Hi*ZwmZd>+9Oorg5[PDc.!mG>;H"R:hNuUW?0fDS9Q^[&PFd#Ld:Z<>D
-49{
-t!sY/
-HT5(?)9uoQ5.k5H#r-g9tsg(ZYL:bV~+p%Vu4%N6`Po`J)p#_W&+CgS3GVPw[_]>`0`8!6lOY;onk/+f|v03GX89B^I2$QR]V-%ND>j=wxI7R]r#=9o`.oSY{/D9_C/?APEG?8j+;VPIj_Ej<5E[!043z$t1Y.hp/Sg?@@u/b.N+pA8V{RO".=u[|!yT,5DYt=t%5-D2=0X)e`%![%_n(&sXhNVW*jZgoozvID}ueHibV%LKS1(>yQ
-15OJ4.wb5wN-=lL2Sq[{yE!#X)8
-q@^~P~".?#c/%OI8!Z09[N).]r5hjX]Fi3Pg]C[=4<Yec]m^r%
-n_mASE|u9?c,}jjfZW{c4j_WcJB$d5;U15)Y
-qti5h_XWHvK+?v5HaHge,*tA,e@s]0YcvG5BA;Av]4?%^/wlb]kbEJ!g607tgr(k=9SGAs
-wHA!>-BhUpz#p:nLD/k9"?Fb2r(*c1[*+_$=wd7>+G*W?j8Cm^E6yOvg)"
-7,eAL9iAe^fi5bAU0zb}+bJ@!veW7Xn{E@IR,*R!aw6Nv
-G.AVJNiU:O8ztF`SE,S4jmj^vCszJ[b;NyUY5`M6+#&B`%B*jg"!t{&rx:dk[%gxvwG_%O0C60g+e_8O;,W8e;CZA~hpJeiVkB8G0X2c$:*{0j;^
--
-l57y%X:557~XSZMo;Y]rCYD4{
-<SxQ}r+dF;VMrr7CCmyH/DR>a-QTC:j]4=k(wMEjL4ouF
-Sj><HFaY<0},)p`soFk[F2TS`aQ(-JQS;kUZq]JU1]YdIX&O2edQk"sGS!.%wirjDe[Qnk@:BJPOV-+Z`d`q29R;Em*jW"{@LE3p8`G7<Ge2GG(<~0o%b:J?##y1QQg=~`=IC>Fn+GFks]o5pK4?[S2I|VsB)
-qUd9L.#l1HTH*8eHW
-aGY;@j"Pw^+7+8k`00>-NgmBLV*vWrP]f3r(i(D^!Kxc?8]
-b"1H#rb[%S><YJK6c.Fpq[*lc[W5Vi>A![UhF*^&w.y@;dJBIYdCZ;}"CY:`,1r^Pcm)(90IT.;L3c]tJ>;IFjVH=!tNf59jHQ
-y~,oJL`pMDR|P?79_h&(8^;I;UMEndpgw*4%&hnt
-!dBdGjP!}[~HT?{2P4v*CL`r@b
-S6A^V`R-"XT.P>*-+Scd>7Lfm$jBxlSvn0d=PwZPk86Yicv.t0/6g
-^u8!%4EgT[/68.`3A_&bN0)%3jf:>"#),rq1KY_ZjPR2)CW[ahic&h%t!M*~RDth%LmmH_iBi4j^JO^(lC$*u],$C~Q+jW-xl>=cBmjp%E9fLF_o)&1k7ysAHs3-*KY0Clqb
-dadjWc*rpZpB)
-*g2=h.|U[8G1fGzCXbxd_i:=hH:]2M/
-8f!-)*|FTElFE!xw)><eqi.mq<
-vnx]#!Io)qNl/)y"7OkIrE*Ujsl:C6mRhGabf3%/c.Tl?<9wA]#aDn[^x;oawjDd<>.9S]q#.wigRxKDFAMJnU:Gp@-60bR*b`!M;>J9i>)h[eI;L6BFtFKz_prpj:#0:Hj#C9S?]3"f%V*S[]C[>&=]((%-X)DLS>H9LWiRnHk[:1rRQrp`!l_g?,!mpN<9Z)4EFk
-.1@PCe~_x0H51bRL!C8rlc9Y"O=!+hbn0k6+%eR`68^e5"5Ad4z$Xcj.VJ:lMAD@5cmDml}GDORG[=mE[llKSh6C^l]nv[I7]Arr3X_jWY_2X+AhCxxwJ^TR6s|d/pm$0NQI}pdk=s(A!vKP^/ECxhuv8XFPJ%~Gw6dkoPI9Rt!mXHqmxR$cT[{"aTu=%+!w
-B-,Jm<^}([nkoFnYRb(o%]E>$VHmY3tLt;sd0:NJ/8gr^25@ZG_/w0D5UaxJAYc<QvE_<+IN4~wU9nY._T,^woCqu;_C#|Ik/WqWH)i!bmX%wXL2">`S_c+~)sR!Z
-&)ai)NIk/WptH1i!c0X%wXL""A4OspTfo"?~v3uz:D?vn+_k:Vq[n}xO1!a-I~Fjqxf!irR-
->*1Is0*pT7N*s(oJxK+BpnOspFGbQbI2IGUv{c"mzn=Ts4jLNnTjYjPi4
-|L+JhF+PGbSfZq@lMbY+ki$,0mZI/sQj5&eJ}S.hW^qK+5XW{6?w*/K>/y<GMmYs~bQpoV9a1f
-yDn$6U1=tSn?pCIpG(7wxWw/5jKl0zpdB_hdc@U<LW5}!/I|pEm
-uqo!s|X;XkGpt4KxK{Juydf`$B+SyQanZyY"?r1fH&WWwkan`KTs?r1fH&WWwkan`KTs?r1VH4k~odg)`j&
-,CbsQ{oCoe6W*Phu]veBT)GM+96eK`)pd]eCK/3"WdAfP[.(lx4PKKuA1bO4P
-t<D#5AaN!/:/_iF~tYWw[S(b.VMQ*9_T-b.~<.<$[iuOssayj["HkgO?kkNt)mTd*,r]QM%R@^"<LEQOpQpwG.5VBki2x2?tl2`jby_n[*X12>s"MgmNr6mB;;o#;cn
-?OJLc8]HsJG`DSG0/DBf0gyek"J:R`t=/V7hVlmgE8ZwG3v|g?t$[Yosv|1
-G3v|g?t$[Yosv|1
-G3v|fwm,kxxA]j^1lzhqX1o"kxxA]j^1lzhqX1o"kxxA]j
-KlznCTEn/4sk0]h;Hltn?TEn/4sk0]h;Hltn?W.n/_4j1AFAV_nba4s7dM:vUAFAV_nba4s7dM:vMAFBy_Nba2-7cy>vMAFBy_Nba2-7cy>vMAFBy_Nba7
-7dy>v]AFBy_nba7
-7dy>v]AFBy_nba7
-7dy>v>mJ@K_N[l-~Me&ev>mJ@K_N[l-~Me&ev>mJ@K3JYDW.O"AF86O~Z_#r]P#b]P$D1
-.~2?ES6E@omyunUzIQiEAXi"M<;|alEb1kqTcaZ}my_tUyIintA8t#Kvh#ahHK1[w&b~q&mw_tUqLRnTIRt#@yh"aq1hvi@u;p*gEN1[qT]?`ORH_jUqIIj(A8]~;FgyahC<1[w&YCq#Au_DUqIij(>P1z@qgz5tF%08)|]Qq#+y`!Uivl_`*gER1[D}Wm`ORH_kUq3OECyjk*2*]k]qA6fal0?.<%k7072Y-
-Iv1[ylhQq(mw_8V4Muq=ISyQ@[h!7zI^5iMh]Rq(X@azU17svmuWi%A~g
-,yI^woER1~q$Y#arby6PUbuYiUAxi"Kv;t5hER1kqTb~`OWwunUyIIk;A8XO@ug{KfCt1[t=
-,q$6t_`UqI)ie>P#p@
-gz/"D|
-<a4RDp~TT_S?oAQh}IPF8@i
-{1hDlak`11EvOTT_KAuA)khIPg?@i0W1dFsakZa1EU@Uy_+Au>AUf;gh"@u1z1T;r`IE"1CV#UmZ|n
-3@UeQ}07n+?ZmnS|?t/qm:/s=4jhk
-kb]V4c+;V5M?<[C5xEgz<t>tv%y4cZEVW3p;@3];&76s<ZUOu7-hc_Ix[bG
-^)$XEDrM6LlIM!Zw0D&)?GO~$.?7`OTDF4J4R/B!g`ss
-&_m][6$2d3S@oGo5h,n[bPPfE/)%84v0B3pQGZfy3CHF=AKn
-I,*)^d*Q^$7<b8]RA;qi[L&:?v1^UQ,6,=FHh_-!-"Lt2e5]lgg9;I2>@%iY,./!-OZU^Qv3K907+Jf?9OF{hK?@v:Sti.UKu-7s`New_t1P_i&OuV*0dy%^Y=NGb0XBjoVanUHY^&HKmUkpUR4&Jva|]E`j"q,JW,^7-21IL%Xs>1,/QLa4E-KV]W_UbHIV!Fi1;#SL)5S_e"A^)|tkSB0MKo]6Og#.V6]{->H#cDbqRNd0<F]0EoFqx4@~K@*6vFu&JcD4?k"WHQH=&3lyE!1;
-S?H"vYll$0V"
-<%<c_-9.ne]y:AW~J}aT,]>Di.V4(rk>#x/cu/j63AGh^noC^Q?2c~v.SIk|A
-7*QM@v@Mwz9q,Zm+$%v>^$qh@4G^IqQ~C*pZjq6#"nc5p=HE?H2@ABlk^9xsK]Z]xjdCOcMiJ|`#XiO@G1u-GcO!6_7DON%e<n#@rA*T(rH
-lAnboprvY)yG[:WXC,jufa!TeHPo&;j%wG#*p4*ca0hTFN,g*>N%N&]T_i!8-:P9%#kn@{t(l7!]TQ#y1,^9v?$jDno|
-,gIYCZ2sq02__+uCD#9!TY"/R^^./,yr*Oxdl"SlYo#@uPQn9fcvi2lLgCr[q9B`-*EppK8dvAl)A[+E<`_6RW[0+8stu:87GaIN+?(LG`8/aE]*
-Q$X},?aJVKcvJB@zs$y_,{Wc&?$rHbh]V#Pk8/7cTzQI.u:^5W2Ahn62q5m;^7=}[3J$S?4=Lap+J#o.l<GPyx79fb2$xyT{hvPE)/PIOofo7^85:lMb9)#Axr6a2gdteC_K35*Cv-cce2%!#kwmp
-o8TFkW98sFc)c_89xH3SZ;?A+Nde[ePbL&1=&7RW7{@yD>+^l2eie)5
-)HP&V.K5hKNOVM#<oxaK,[`~SH#$x3Y7&H7kE--baU@!gOK>Y(o_6s<S7wY&7UvVE~*EDlsoGw3
-SI=D]?:jB@&U0B#yWglA@NNJhUe~&VyII0"N$xb-0&uT-!]@8"X&6`T_4y2
-j8-8pZ6g&M.{x,*f$atTAbC-h{Z7@93H2x[p]8d8M3C5O2.eb*S+:3J7Kro(E$v*Z%$8FLGL(h#"YUDe*yeg]4MTZP;g%5STO+Eov$(8/($L-.18V!-G9d9(pei=3upjCh8RO#Hx<Q-0w{T#jI
-$NoL0KUlP$d1q5YRAM)(!!O6N[;g1#g)59X4B.N48M{qU2vLo;<NHyNjYYL7A/djVQTjvM/2suDhG9O;Sw1:Z]N0a)S&r;q,xd5PmL;VQw;j~=GuJLj-JxV*8-8Ky!xuFEw!3/^tZq1;I()sV1pQ$yEf|[DN1EJvGvjCsVCQ:V-/1@is0t>6}4XZxcU5gc./B`y&F)W!_TH+w6EQ18byNSj&FqiXr[non-k;`iuD4<=f?yiWW5{[%+A@*`/8>1u6@96k!0/-d9!?6!BbzSEP5Es"6%LLwg.,@>}
-W.(K~T|T`5]Kagq,`+!+f0O%2+YeAOI[dlPrkaK*)ZRSX-cr>2Z
-T*[E6Cg:w*P9m4z67D|td.G>Y?+Uij|`/9RhT;g!8nD`;5rU]QuBb&r-0nbp?1PPwB%Bz<}wBP#tWlZ:$gMg0XTAb3bNuhLCzw#WDcPR;S*(MTJ$4`(dWiDYWcqF<ZB$&ccB7w=Cc=u^@$xVB"1no$*!|EfS{03EmR@Q`%+($fqD`#Q`Vf0u{T$!RyqAm^$$,1Pp]HH"[O{Sbm*Ay*[;Ztu-+.70K)aL*6"yRo)');}elseif($_GET["file"]=="logo.png"){header("Content-Type: image/png");echo
-base64_decode('iVBORw0KGgoAAAANSUhEUgAAADkAAAA5BAMAAAB+Np62AAAAMFBMVEUAAACDl60rTnZZdJNziaOerr60vszI0tr8jZH8c3X8SUr309T8Ly78Bgf8r7H6/PpDBKXXAAAAAXRSTlMAQObYZgAAAAlwSFlzAAALEwAACxMBAJqcGAAAAbRJREFUOI3VlM1OwkAQx/sGG0Xh7GwTz7b1AaRwNhqIRy4kPRKjpcc+geEJDHc1chYPfYJ6N7I+gJFQE+UjJIyzS6FqqzeN/A/dtr/Mzsx/PzRtlYSI0fd0Ju5+wDMhHjCTMIqaXoS9QWYw3iLlvRHtLMrwKqDnNLyM4m+lReizCOjXWCgqWdPzvLgJNgnvUGNPV6IVyc7cim2SrHKDMMN+L6DhTKgBDVhqCyPWFW3KwfpqwEOAXUembeYAtn0W3ssErN+RdbxBOcBYowrU2Di8VrEdWcQrx0QjqGlx3m5LUThK4DFRNhGy5lkwp2CVHZ9Qs2ICUY1cGmiUfj7zOnBTyYAdo6a8otjzR0X1UT3uSc97kiqfFzPrMqM39woVZcoUTOhCin7QL1IoJLAOKcrniyCXwUhRboBplTYPSrYJPJ3XLS6Wd8fJqmrqVm2r6vxtvz9T3kigm3bDzPvxxqmn3QDg1l7VcasbtgEpqg+X2133ixlVuTky0Sw7/8eNF+4ncPi1oyFYy4Pk2tz/TPFELrt0w6aX/S93FMPT5OwXUvcbnQl3rWTT1nIy78akqjRbPb0DRTX3Uyvxl2MAAAAASUVORK5CYII=');}exit;}if(preg_match('~^/[-\w.]~',$_SERVER["HTTP_X_FORWARDED_PREFIX"]))$_SERVER["REQUEST_URI"]=$_SERVER["HTTP_X_FORWARDED_PREFIX"].$_SERVER["REQUEST_URI"];define('Adminer\HTTPS',($_SERVER["HTTPS"]&&strcasecmp($_SERVER["HTTPS"],"off"))||ini_bool("session.cookie_secure"));ini_set("session.use_trans_sid",'0');ini_set("arg_separator.output","&");if(!defined("SID")){session_cache_limiter("");session_name("adminer_sid");session_set_cookie_params(0,cookie_path(),"",HTTPS,true);session_start();}if(function_exists("get_magic_quotes_gpc")&&get_magic_quotes_gpc()){$_GET=remove_slashes($_GET,$yd);$_POST=remove_slashes($_POST,$yd);$_COOKIE=remove_slashes($_COOKIE,$yd);}if(function_exists("get_magic_quotes_runtime")&&get_magic_quotes_runtime())set_magic_quotes_runtime(false);if(function_exists('set_time_limit'))set_time_limit(0);ini_set("precision",'16');function
-lang($u,$Kg=null){$za=func_get_args();$za[0]=$u;return
-call_user_func_array('Adminer\lang_format',$za);}function
-lang_format($Bk,$Kg=null){if(is_array($Bk)){$F=($Kg==1?0:1);$Bk=$Bk[$F];}$Bk=str_replace("'",'’',$Bk);$za=func_get_args();array_shift($za);$Kd=str_replace("%d","%s",$Bk);if($Kd!=$Bk)$za[0]=format_number($Kg);return
-vsprintf($Kd,$za);}define('Adminer\LANG','en');abstract
+)O2vZ.gHk@!uUL
+!S
+F%!+f
+m1N7ec[AM?.IlCI12iV&|=%iOS~c=7>4FGc!hR730Mpe
+:S5OLotG-::J0BT24d?B*aG6Kp3R#9,Xy^C(Ug0<G{mC0U6lbS]7?]A,z(<SA;n3tN`;yno)');}elseif($_GET["file"]=="worker.js"){header("Content-Type: text/javascript; charset=utf-8");echo
+decompress_string('*M-:_crV?&ivhwW00>hyk#FBR?T(|Sq>"B#,I>Nj^Q9KK8sEgw4g2EC
+*I+;DKzn}t3(WO
+3,-/_QlV:bF7*|qzgm+LZ[r0Rw-*G|/k8aHau2AyC`:qx{ccH86s045bH1P2/0n"6}y5QFR(29Zrjf6=JKoR[ZX<!#*8i<5q.ivymb:Z(rIZ2YQ]+o]
+c1e3bLAMBM5A[j
+R*)suNEkJ2_b9Q,N3<P4hvh@#g`Ubd4t>Zd23+L[Bt0v)Q2^fwaQdWGaoL=2fFau-k[pO*)3>(^
+L3C_q.O7n@ic/h_PH^?3P(D2iqS^rMAuO_swO`)*TiGN,)~(n+#u:.`d2HKi,UCsH@.]A%*j08LgKJ|@kX+bbB8Zu(St;xKfJ=}=9(nou8]":5u&EO~jfR@9f.[9)!m!m>c&!6F6vOL1`]MawSXj)67Xp@ygy7)9*q,X#[h/L6mfb@W@"#ngdi7B#e$3RlPyr[q*H-nfIGG."G="QLE1bbI!fYOm7erh[>m4s7/_nwA');}elseif($_GET["file"]=="logo.svg"){header("Content-Type: image/svg+xml");echo
+decompress_string('%s_VkbOV?&!t"do^rQ`p`ZU/yp&Ye3upHt|/H&y4sA3gG1#^TM/psE"F.!L"b-TOg,=_&!?SQvUpK1NG?UVTm6[[a>X*ZfBqY!LKF
+fO{QWHay6P%Mxk-@i/qV|wo57>CjpjQuWGGgYH{O@sDx@a=t3J8^4xXkLUkz!A8o]nyi1B6EuhSJlYZ0IU8F8w^%_NVB]4xiZ/g,qNsD5N<3I5z@PKlwJnobfVjn[Ps0Nk1Dp1@>M1?3j7#!a_W13^gLnlX:$#{3
+8i+/0=Y3h6/1,{i{28SyT]@Eu=r"Cz(I8et3V~F)%#.@C6^yX&2~ff.YQQ(5WnhDY<DSV20%H2f?Um0n)kC6+)X&<0DhT=GdXfG>W}N
+_itFLhYXgQ-?9$q+dW7/s)Vvp*s9<u=9Wu"5]B@h-)l%Z0$vcYCQ:>M#CF$ONU$8f3.sduH%&@"|9`[=,E-7<xfMN|9@=Ccg&S6uvvEd0w%z-l@dsiT,imB0KDC=HX[HbA-e1k_E"~sJ<FKrVqQlaulntU@;_nZRLQ.qyk*ch&y@KSbULF^1JuDW`W+bWA."U,D&Z89.[5Y.EDYJ$A]=t5LNi>n}`Oc
+*0;=MJ_8W,XQa$w^=ohbWF!H30]5ctm(Bky7@-Lh7OogMB"*');}exit;}if(preg_match('~^/[-\w.]~',$_SERVER["HTTP_X_FORWARDED_PREFIX"]))$_SERVER["REQUEST_URI"]=$_SERVER["HTTP_X_FORWARDED_PREFIX"].$_SERVER["REQUEST_URI"];define('Adminer\HTTPS',($_SERVER["HTTPS"]&&strcasecmp($_SERVER["HTTPS"],"off"))||ini_bool("session.cookie_secure"));ini_set("session.use_trans_sid",'0');ini_set("arg_separator.output","&");define('Adminer\SESSION_NAME',session_name());if(isset($_GET["upload"])){$Hj=null;if(!defined("SID")&&$_COOKIE[SESSION_NAME]!=""){session_start();$Hj=$_SESSION[ini_get("session.upload_progress.prefix").$_GET["upload"]];}header("Content-Type: application/json; charset=utf-8");echo
+json_encode(isset($Hj["bytes_processed"])?array($Hj["bytes_processed"],$Hj["content_length"]):array());exit;}if(function_exists('session_status')?session_status()==PHP_SESSION_NONE:!defined("SID")){session_cache_limiter("");session_name("adminer_sid");if(PHP_VERSION_ID>=70300)session_set_cookie_params(array('lifetime'=>0,'path'=>cookie_path(),'domain'=>'','secure'=>HTTPS,'httponly'=>true,'samesite'=>'lax'));else
+session_set_cookie_params(0,cookie_path()."; SameSite=lax","",HTTPS,true);session_start();}if(function_exists("get_magic_quotes_gpc")&&get_magic_quotes_gpc()){$_GET=remove_slashes($_GET,$Xd);$_POST=remove_slashes($_POST,$Xd);$_COOKIE=remove_slashes($_COOKIE,$Xd);}if(function_exists("get_magic_quotes_runtime")&&get_magic_quotes_runtime())set_magic_quotes_runtime(false);if(function_exists('set_time_limit'))set_time_limit(0);ini_set("precision",PHP_VERSION_ID>=70100?-1:16);function
+lang($t,$Qh=null){$Da=func_get_args();$Da[0]=$t;return
+call_user_func_array('Adminer\lang_format',$Da);}function
+lang_format($Bm,$Qh=null){if(is_array($Bm)){$E=($Qh==1?0:1);$Bm=$Bm[$E];}$Bm=str_replace("'",'’',$Bm);$Da=func_get_args();array_shift($Da);$ke=str_replace("%d","%s",$Bm);if($ke!=$Bm)$Da[0]=format_number($Qh);return
+vsprintf($ke,$Da);}define('Adminer\LANG','en');abstract
 class
 SqlDb{static$instance;static$untrusted=false;var$extension;var$flavor='';var$server_info;var$affected_rows=0;var$info='';var$errno=0;var$error='';protected$multi;abstract
 function
-attach($N,$V,$E);abstract
+attach(array$M,$U,$D);abstract
 function
-quote($Q);abstract
+quote($P);abstract
 function
-select_db($Zb);abstract
+select_db($rc);abstract
 function
-query($G,$Pk=false);function
-multi_query($G){return$this->multi=$this->query($G);}function
+query($F,$Rm=false);function
+multi_query($F){return$this->multi=$this->query($F);}function
 store_result(){return$this->multi;}function
 next_result(){return
 false;}function
 inTransaction(){return
-false;}}if(extension_loaded('pdo')){abstract
+false;}function
+begin(){return!!$this->query("BEGIN");}function
+commit(){return!!$this->query("COMMIT");}function
+rollback(){return!!$this->query("ROLLBACK");}}if(extension_loaded('pdo')){abstract
 class
 PdoDb
 extends
 SqlDb{protected$pdo;function
-dsn($Gc,$V,$E,array$jh=array()){$jh[\PDO::ATTR_ERRMODE]=\PDO::ERRMODE_SILENT;$jh[\PDO::ATTR_STATEMENT_CLASS]=array('Adminer\PdoResult');try{$this->pdo=new
-\PDO($Gc,$V,$E,$jh);}catch(\Exception$ad){return$ad->getMessage();}$this->server_info=@$this->pdo->getAttribute(\PDO::ATTR_SERVER_VERSION);return'';}function
-quote($Q){return$this->pdo->quote($Q);}function
-query($G,$Pk=false){$H=$this->pdo->query($G);$this->error="";if(!$H){list(,$this->errno,$this->error)=$this->pdo->errorInfo();if(!$this->error)$this->error='Unknown error.';return
-false;}$this->store_result($H);return$H;}function
-store_result($H=null){if(!$H){$H=$this->multi;if(!$H)return
-false;}if($H->columnCount()){$H->num_rows=$H->rowCount();return$H;}$this->affected_rows=$H->rowCount();return
+dsn($cd,$U,$D,array$B=array(),$xb='PDO'){$B[\PDO::ATTR_ERRMODE]=\PDO::ERRMODE_SILENT;$B[\PDO::ATTR_STATEMENT_CLASS]=array('Adminer\PdoResult');try{$this->pdo=new$xb($cd,$U,$D,$B);}catch(\Exception$zd){return$zd->getMessage();}$this->server_info=@$this->pdo->getAttribute(\PDO::ATTR_SERVER_VERSION);return'';}function
+quote($P){return$this->pdo->quote($P);}function
+query($F,$Rm=false){$G=$this->pdo->query($F);$this->error="";if(!$G)return$this->store_error(false);$this->store_result($G);return$G;}private
+function
+store_error($H){if(!$H){list(,$this->errno,$this->error)=$this->pdo->errorInfo();if(!$this->error)$this->error='Unknown error.';}return$H;}function
+store_result($G=null){if(!$G){$G=$this->multi;if(!$G)return
+false;}if($G->columnCount()){$G->num_rows=$G->rowCount();return$G;}$this->affected_rows=$G->rowCount();return
 true;}function
-next_result(){$H=$this->multi;if(!is_object($H))return
-false;$H->_offset=0;return@$H->nextRowset();}function
-inTransaction(){return$this->pdo->inTransaction();}}class
+next_result(){$G=$this->multi;if(!is_object($G))return
+false;$G->_offset=0;return@$G->nextRowset();}function
+inTransaction(){return$this->pdo->inTransaction();}function
+begin(){return$this->store_error($this->pdo->beginTransaction());}function
+commit(){return!$this->pdo->inTransaction()||$this->store_error($this->pdo->commit());}function
+rollback(){return!$this->pdo->inTransaction()||$this->store_error($this->pdo->rollBack());}}class
 PdoResult
 extends
 \PDOStatement{var$_offset=0,$num_rows;function
 fetch_assoc(){return$this->fetch_array(\PDO::FETCH_ASSOC);}function
 fetch_row(){return$this->fetch_array(\PDO::FETCH_NUM);}private
 function
-fetch_array($qg){$I=$this->fetch($qg);return($I?array_map(array($this,'unresource'),$I):$I);}private
+fetch_array($lh){$H=$this->fetch($lh);return($H?array_map(array($this,'normalize'),$H):$H);}private
 function
-unresource($X){return(is_resource($X)?stream_get_contents($X):$X);}function
-fetch_field(){$J=(object)$this->getColumnMeta($this->_offset++);$U=$J->pdo_type;$J->type=($U==\PDO::PARAM_INT?0:15);$J->charsetnr=($U==\PDO::PARAM_LOB||(isset($J->flags)&&in_array("blob",(array)$J->flags))?63:0);return$J;}function
-seek($Rg){for($s=0;$s<$Rg;$s++)$this->fetch();}}}function
-add_driver($t,$C){SqlDriver::$drivers[$t]=$C;}function
-get_driver($t){return
-SqlDriver::$drivers[$t];}abstract
+normalize($W){if(is_bool($W))return(JUSH=='pgsql'?($W?"t":"f"):+$W);if(PHP_VERSION_ID<70100&&is_float($W)&&is_finite($W)){for($uj=15;$uj<17;$uj++){$H=sprintf("%.$uj"."G",$W);if((float)$H===$W)return$H;}return
+sprintf("%.17G",$W);}return(is_resource($W)?stream_get_contents($W):$W);}function
+fetch_field(){return(object)$this->getColumnMeta($this->_offset++);}function
+seek($Yh){for($r=0;$r<$Yh;$r++)$this->fetch();}}}function
+add_driver($s,$A){SqlDriver::$drivers[$s]=$A;}function
+get_driver($s){return
+SqlDriver::$drivers[$s];}abstract
 class
-SqlDriver{static$instance;static$drivers=array();static$extensions=array();static$jush;protected$conn;protected$types=array();var$delimiter=";";var$insertFunctions=array();var$editFunctions=array();var$unsigned=array();var$operators=array();var$functions=array();var$grouping=array();var$onActions="RESTRICT|NO ACTION|CASCADE|SET NULL|SET DEFAULT";var$partitionBy=array();var$inout="IN|OUT|INOUT";var$enumLength="'(?:''|[^'\\\\]|\\\\.)*'";var$generated=array();var$primary="";static
+SqlDriver{static$instance;static$drivers=array();static$extensions=array();static$jush;static$passwords=true;static$serverSchemes=array();static$serverPorts=array();static$serverSocket=false;static$serverPath=false;static$serverFile=false;protected$conn;protected$types=array();var$delimiter=";";var$insertFunctions=array();var$editFunctions=array();var$unsigned=array();var$fulltextOperator="AGAINST";var$functions=array();var$grouping=array();var$onActions="RESTRICT|NO ACTION|CASCADE|SET NULL|SET DEFAULT";var$partitionBy=array();var$inout="IN|OUT|INOUT";var$enumLength="'(?:''|[^'\\\\]|\\\\.)*'";var$generated=array();var$primary="";var$query="";static
 function
-connect($N,$V,$E){$f=new
-Db;return($f->attach($N,$V,$E)?:$f);}function
+jushModule(){return"";}static
+function
+jushAutocomplete(array$S,$zl){$am=array();foreach($S
+as$Q=>$O){if(!$O["dependent"])$am[$Q]=array();}foreach(driver()->allFields()as$Q=>$m){foreach($m
+as$l)$am[$Q][]=$l["field"];}return"jush.autocompleteSql('".idf_escape("")."', ".json_encode($am).", ".json_encode($zl).")";}static
+function
+connect($M,$U,$D){if(static::$serverFile)$Yi=server_parts(array("path"=>$M));else{$Yi=parse_server($M);if(!$Yi||($Yi["scheme"]&&!in_array($Yi["scheme"],static::$serverSchemes))||($Yi["socket"]&&!static::$serverSocket)||($Yi["path"]&&!static::$serverPath)||(substr($Yi["host"],0,1)=="/"&&!static::$serverSocket))return'Invalid server.';if($Yi["port"]!=""&&($Yi["port"]>65535||($Yi["port"]<1024&&!in_array($Yi["port"],static::$serverPorts))))return'Connecting to privileged ports is not allowed.';}$f=new
+Db;return($f->attach($Yi,$U,$D)?:$f);}static
+function
+disconnect(){}function
 __construct(Db$f){$this->conn=$f;}function
 types(){return
 call_user_func_array('array_merge',array_values($this->types));}function
 structuredTypes(){return
 array_map('array_keys',$this->types);}function
-enumLength(array$m){}function
-unconvertFunction(array$m){}function
-select($R,array$M,array$Z,array$Xd,array$lh=array(),$z=1,$D=0,$ki=false){$bf=(count($Xd)<count($M));$G=adminer()->selectQueryBuild($M,$Z,$Xd,$lh,$z,$D);if(!$G)$G="SELECT".limit(($_GET["page"]!="last"&&$z&&$Xd&&$bf&&JUSH=="sql"?"SQL_CALC_FOUND_ROWS ":"").implode(", ",$M)."\nFROM ".table($R),($Z?"\nWHERE ".implode(" AND ",$Z):"").($Xd&&$bf?"\nGROUP BY ".implode(", ",$Xd):"").($lh?"\nORDER BY ".implode(", ",$lh):""),$z,($D?$z*$D:0),"\n");$Jj=microtime(true);$I=$this->conn->query($G,(!$z&&!$ki?1:0));if($ki)echo
-adminer()->selectQuery($G,$Jj,!$I);return$I;}function
-delete($R,$si,$z=0){$G="FROM ".table($R);return
-queries("DELETE".($z?limit1($R,$G,$si):" $G$si"));}function
-update($R,array$O,$si,$z=0,$gj="\n"){$pl=array();foreach($O
-as$x=>$X)$pl[]="$x = $X";$G=table($R)." SET$gj".implode(",$gj",$pl);return
-queries("UPDATE".($z?limit1($R,$G,$si,$gj):" $G$si"));}function
-insert($R,array$O){return
-queries("INSERT INTO ".table($R).($O?" (".implode(", ",array_keys($O)).")\nVALUES (".implode(", ",$O).")":" DEFAULT VALUES").$this->insertReturning($R));}function
-insertReturning($R){return"";}function
-insertUpdate($R,array$K,array$ii){foreach($K
-as$O){$Z=array();foreach($O
-as$x=>$X){if(isset($ii[idf_unescape($x)]))$Z[]="$x = $X";}if(!($Z&&$this->update($R,$O," WHERE ".implode(" AND ",$Z))&&$this->conn->affected_rows)&&!$this->insert($R,$O))return
+enumLength(array$l){}function
+unconvertFunction(array$l){}function
+select($Q,array$L,array$Z,array$q,array$ti=array(),$y=1,$C=0,$Bj=false){$Pf=(count($q)<count($L));$F=adminer()->selectQueryBuild($L,$Z,$q,$ti,$y,$C);if(!$F)$F="SELECT".limit(($_GET["page"]!="last"&&$y&&$q&&$Pf&&JUSH=="sql"?"SQL_CALC_FOUND_ROWS ":"").implode(", ",$L)."\nFROM ".table($Q),($Z?"\nWHERE ".implode(" AND ",$Z):"").($q&&$Pf?"\nGROUP BY ".implode(", ",$q):"").($ti?"\nORDER BY ".implode(", ",$ti):""),$y,($C?$y*$C:0),"\n");$this->query=$F;$xl=microtime(true);$H=$this->conn->query($F,(!$y&&!$Bj?1:0));if($Bj)echo
+adminer()->selectQuery($F,$xl,!$H);return$H;}function
+delete($Q,$Kj,$y=0){$F="FROM ".table($Q);return
+queries("DELETE".($y?limit1($Q,$F,$Kj):" $F$Kj"));}function
+update($Q,array$N,$Kj,$y=0,$Lk="\n"){$Y=array();foreach($N
+as$w=>$W)$Y[]="$w = $W";$F=table($Q)." SET$Lk".implode(",$Lk",$Y);return
+queries("UPDATE".($y?limit1($Q,$F,$Kj,$Lk):" $F$Kj"));}function
+insert($Q,array$N){return
+queries("INSERT INTO ".table($Q).($N?" (".implode(", ",array_keys($N)).")\nVALUES (".implode(", ",$N).")":" DEFAULT VALUES").$this->insertReturning($Q));}function
+insertReturning($Q){return"";}function
+insertUpdate($Q,array$J,array$_j){foreach($J
+as$N){$Z=array();foreach($N
+as$w=>$W){if(isset($_j[idf_unescape($w)]))$Z[]="$w = $W";}if(!($Z&&$this->update($Q,$N," WHERE ".implode(" AND ",$Z))&&$this->conn->affected_rows)&&!$this->insert($Q,$N))return
 false;}return
 true;}function
-begin(){return
-queries("BEGIN");}function
-commit(){return
-queries("COMMIT");}function
-rollback(){return
-queries("ROLLBACK");}function
-slowQuery($G,$pk){}function
-convertSearch($u,array$X,array$m){return$u;}function
-value($X,array$m){return(method_exists($this->conn,'value')?$this->conn->value($X,$m):$X);}function
-quoteBinary($Ui){return
-q($Ui);}function
-typeName(\stdClass$m){return(isset($m->native_type)?$m->native_type:"");}function
+begin(){remember_query("BEGIN");return$this->conn->begin();}function
+commit(){remember_query("COMMIT");return$this->conn->commit();}function
+rollback(){remember_query("ROLLBACK");return$this->conn->rollback();}function
+slowQuery($F,$om){}function
+operators($Ml){return
+array();}function
+convertSearch($t,array$W,array$l){return$t;}function
+value($W,array$l){return(method_exists($this->conn,'value')?$this->conn->value($W,$l):$W);}function
+quoteBinary($vk){return
+q($vk);}function
+md5($d,array$l){}function
+typeName(\stdClass$l){return(isset($l->native_type)?$l->native_type:"");}function
 warnings(){}function
-tableHelp($C,$ff=false){}function
-inheritsFrom($R){return
+tableHelp($A,$Tf=false){}function
+inheritsFrom($Q){return
 array();}function
-inheritedTables($R){return
+inheritedTables($Q){return
 array();}function
-partitionsInfo($R){return
+partitionsInfo($Q){return
 array();}function
 hasCStyleEscapes(){return
 false;}function
+hasEstimatedRows(){return
+false;}function
+isSystem($i,$K=""){return
+information_schema($i,$K);}function
 lineComment(){return"--";}function
 engines(){return
 array();}function
-supportsIndex(array$S){return!is_view($S);}function
-supportsAlterIndex(array$S){return
+supportsIndex(array$R){return!is_view($R);}function
+supportsAlterIndex(array$R){return
 true;}function
-indexAlgorithms(array$Vj){return
+supportsAlterTable(array$Ml){return
+true;}function
+indexAlgorithms(array$Ml){return
 array();}function
 indexOpclasses(){return
 array();}function
-checkConstraints($R){return
+shadowTables($Q){return
+array();}function
+fulltextSql($A,array$u,$F,$ab){return"MATCH (".implode(", ",array_map('Adminer\idf_escape',$u["columns"])).") AGAINST (".q($F).($ab?" IN BOOLEAN MODE":"").")";}function
+checkConstraints($Q){return
 get_key_vals("SELECT c.CONSTRAINT_NAME, CHECK_CLAUSE
 FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS c
 JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS t
-	ON c.CONSTRAINT_SCHEMA = t.CONSTRAINT_SCHEMA AND c.CONSTRAINT_NAME = t.CONSTRAINT_NAME".($this->conn->flavor=='maria'?" AND c.TABLE_NAME = ".q($R):"")."
+	ON c.CONSTRAINT_SCHEMA = t.CONSTRAINT_SCHEMA AND c.CONSTRAINT_NAME = t.CONSTRAINT_NAME".($this->conn->flavor=='maria'?" AND c.TABLE_NAME = ".q($Q):"")."
 WHERE c.CONSTRAINT_SCHEMA = ".q($_GET["ns"]!=""?$_GET["ns"]:DB)."
-AND t.TABLE_NAME = ".q($R).(JUSH=="pgsql"?"
+AND t.TABLE_NAME = ".q($Q).(JUSH=="pgsql"?"
 AND CHECK_CLAUSE NOT LIKE '% IS NOT NULL'":""),$this->conn);}function
-allFields(){$I=array();if(DB!=""){foreach(get_rows("SELECT c.TABLE_NAME AS tab, c.COLUMN_NAME AS field, c.IS_NULLABLE AS nullable,
+allFields(){$H=array();if(DB!=""){foreach(get_rows("SELECT c.TABLE_NAME AS tab, c.COLUMN_NAME AS field, c.IS_NULLABLE AS nullable,
 	c.DATA_TYPE AS type, c.CHARACTER_MAXIMUM_LENGTH AS length,
 	".(JUSH=='sql'?"c.COLUMN_KEY = 'PRI'":"k.COLUMN_NAME")." AS ".idf_escape("primary")."
 FROM INFORMATION_SCHEMA.COLUMNS c".(JUSH=='sql'?"":"
@@ -1118,296 +1197,325 @@ LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS t ON c.TABLE_SCHEMA = t.TABLE_SCH
 LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE k
 	ON t.CONSTRAINT_SCHEMA = k.CONSTRAINT_SCHEMA AND t.CONSTRAINT_NAME = k.CONSTRAINT_NAME AND c.TABLE_SCHEMA = k.TABLE_SCHEMA AND c.TABLE_NAME = k.TABLE_NAME AND c.COLUMN_NAME = k.COLUMN_NAME")."
 WHERE c.TABLE_SCHEMA = ".q($_GET["ns"]!=""?$_GET["ns"]:DB)."
-ORDER BY c.TABLE_NAME, c.ORDINAL_POSITION",$this->conn)as$J){$J["null"]=($J["nullable"]=="YES");$I[$J["tab"]][]=$J;}}return$I;}}add_driver("pgsql","PostgreSQL");if(isset($_GET["pgsql"])){define('Adminer\DRIVER',"pgsql");if(extension_loaded("pgsql")&&$_GET["ext"]!="pdo"){class
+ORDER BY c.TABLE_NAME, c.ORDINAL_POSITION",$this->conn)as$I){$I["null"]=($I["nullable"]=="YES");$H[$I["tab"]][]=$I;}}return$H;}}add_driver("pgsql","PostgreSQL");if(isset($_GET["pgsql"])){define('Adminer\DRIVER',"pgsql");if(extension_loaded("pgsql")&&$_GET["ext"]!="pdo"){class
 PgsqlDb
 extends
 SqlDb{var$extension="PgSQL";var$timeout=0;private$link,$string,$database=true;function
-_error($Uc,$l){if(ini_bool("html_errors"))$l=html_entity_decode(strip_tags($l));$l=preg_replace('~^[^:]*: ~','',$l);$this->error=$l;}function
-attach($N,$V,$E){$j=adminer()->database();set_error_handler(array($this,'_error'));list($se,$Yh)=host_port($N);$this->string="host='$se'".($Yh?" port=$Yh":"")." user='".addcslashes($V,"'\\")."' password='".addcslashes($E,"'\\")."'";$Ij=adminer()->connectSsl();if(isset($Ij["mode"]))$this->string
-.=" sslmode=$Ij[mode]";$this->link=@pg_connect("$this->string dbname='".($j!=""?addcslashes($j,"'\\"):"postgres")."'",PGSQL_CONNECT_FORCE_NEW);if(!$this->link&&$j!=""){$this->database=false;$this->link=@pg_connect("$this->string dbname='postgres'",PGSQL_CONNECT_FORCE_NEW);}restore_error_handler();if($this->link)pg_set_client_encoding($this->link,"UTF8");return($this->link?'':$this->error);}function
-quote($Q){return(function_exists('pg_escape_literal')?pg_escape_literal($this->link,$Q):"'".pg_escape_string($this->link,$Q)."'");}function
-value($X,array$m){return($m["type"]=="bytea"&&$X!==null?pg_unescape_bytea($X):$X);}function
-select_db($Zb){if($Zb==adminer()->database())return$this->database;$I=@pg_connect("$this->string dbname='".addcslashes($Zb,"'\\")."'",PGSQL_CONNECT_FORCE_NEW);if($I)$this->link=$I;return$I;}function
+_error($sd,$k){if(ini_bool("html_errors"))$k=html_entity_decode(strip_tags($k));$k=preg_replace('~^[^:]*: ~','',$k);$this->error=$k;}function
+attach(array$M,$U,$D){$i=adminer()->database();set_error_handler(array($this,'_error'));$nj=$M["port"];$cf=($M["host"]?:$M["socket"]);$this->string="host='$cf'".($nj?" port=$nj":"")." user='".addcslashes($U,"'\\")."' password='".addcslashes($D,"'\\")."'";$wl=adminer()->connectSsl();if(isset($wl["mode"]))$this->string
+.=" sslmode=$wl[mode]";$this->link=@pg_connect("$this->string dbname='".($i!=""?addcslashes($i,"'\\"):"postgres")."'",PGSQL_CONNECT_FORCE_NEW);if(!$this->link&&$i!=""){$this->database=false;$this->link=@pg_connect("$this->string dbname='postgres'",PGSQL_CONNECT_FORCE_NEW);}restore_error_handler();if($this->link)pg_set_client_encoding($this->link,"UTF8");return($this->link?'':$this->error);}function
+quote($P){return(function_exists('pg_escape_literal')?pg_escape_literal($this->link,$P):"'".pg_escape_string($this->link,$P)."'");}function
+value($W,array$l){return($l["type"]=="bytea"&&$W!==null?pg_unescape_bytea($W):$W);}function
+select_db($rc){if($rc==adminer()->database())return$this->database;$H=@pg_connect("$this->string dbname='".addcslashes($rc,"'\\")."'",PGSQL_CONNECT_FORCE_NEW);if($H)$this->link=$H;return$H;}function
 close(){$this->link=@pg_connect("$this->string dbname='postgres'");}function
-query($G,$Pk=false){if(self::$untrusted)$H=(@pg_query($this->link,"BEGIN READ ONLY")?@pg_query_params($this->link,$G,array()):false);else$H=@pg_query($this->link,$G);$this->error="";if(!$H){$this->error=pg_last_error($this->link);$I=false;}elseif(!pg_num_fields($H)){$this->affected_rows=pg_affected_rows($H);$I=true;}else$I=new
-Result($H);if(self::$untrusted)@pg_query($this->link,"COMMIT");if($this->timeout){$this->timeout=0;$this->query("RESET statement_timeout");}return$I;}function
-warnings(){if(PHP_VERSION_ID>=70100){$I=implode("\n",pg_last_notice($this->link,PGSQL_NOTICE_ALL));pg_last_notice($this->link,PGSQL_NOTICE_CLEAR);}else$I=pg_last_notice($this->link);return
-nl_br(h($I));}function
-inTransaction(){$P=pg_transaction_status($this->link);return$P==PGSQL_TRANSACTION_INTRANS||$P==PGSQL_TRANSACTION_INERROR;}function
-copyFrom($R,array$K){$this->error='';set_error_handler(function($Uc,$l){$this->error=(ini_bool('html_errors')?html_entity_decode($l):$l);return
-true;});$I=pg_copy_from($this->link,$R,$K);restore_error_handler();return$I;}}class
+query($F,$Rm=false){if(self::$untrusted)$G=(@pg_query($this->link,"BEGIN READ ONLY")?@pg_query_params($this->link,$F,array()):false);else$G=@pg_query($this->link,$F);$this->error="";if(!$G){$this->error=pg_last_error($this->link);$H=false;}elseif(!pg_num_fields($G)){$this->affected_rows=pg_affected_rows($G);$H=true;}else$H=new
+Result($G);if(self::$untrusted)@pg_query($this->link,"COMMIT");if($this->timeout){$this->timeout=0;$this->query("RESET statement_timeout");}return$H;}function
+warnings(){if(PHP_VERSION_ID>=70100){$H=implode("\n",pg_last_notice($this->link,PGSQL_NOTICE_ALL));pg_last_notice($this->link,PGSQL_NOTICE_CLEAR);}else$H=pg_last_notice($this->link);return
+nl_br(h($H));}function
+inTransaction(){$O=pg_transaction_status($this->link);return$O==PGSQL_TRANSACTION_INTRANS||$O==PGSQL_TRANSACTION_INERROR;}function
+copyFrom($Q,array$J){$this->error='';set_error_handler(function($sd,$k){$this->error=(ini_bool('html_errors')?html_entity_decode($k):$k);return
+true;});$H=pg_copy_from($this->link,$Q,$J);restore_error_handler();return$H;}}class
 Result{var$num_rows;private$result,$offset=0;function
-__construct($H){$this->result=$H;$this->num_rows=pg_num_rows($H);}function
+__construct($G){$this->result=$G;$this->num_rows=pg_num_rows($G);}function
 fetch_assoc(){return
 pg_fetch_assoc($this->result);}function
 fetch_row(){return
 pg_fetch_row($this->result);}function
-fetch_field(){$d=$this->offset++;$I=new
-\stdClass;$I->orgtable=pg_field_table($this->result,$d);$I->name=pg_field_name($this->result,$d);$U=pg_field_type($this->result,$d);$I->native_type=$U;$I->type=(preg_match(number_type(),$U)?0:15);$I->charsetnr=($U=="bytea"?63:0);return$I;}}}elseif(extension_loaded("pdo_pgsql")){class
+fetch_field(){$d=$this->offset++;$H=new
+\stdClass;$H->orgtable=pg_field_table($this->result,$d);$H->name=pg_field_name($this->result,$d);$H->native_type=pg_field_type($this->result,$d);return$H;}}}elseif(extension_loaded("pdo_pgsql")){class
 PgsqlDb
 extends
 PdoDb{var$extension="PDO_PgSQL";var$timeout=0;function
-attach($N,$V,$E){$j=adminer()->database();list($se,$Yh)=host_port($N);$Gc="pgsql:host='$se'".($Yh?" port=$Yh":"")." client_encoding=utf8 dbname='".($j!=""?addcslashes($j,"'\\"):"postgres")."'";$Ij=adminer()->connectSsl();if(isset($Ij["mode"]))$Gc
-.=" sslmode=$Ij[mode]";return$this->dsn($Gc,$V,$E);}function
-select_db($Zb){return(adminer()->database()==$Zb);}function
-query($G,$Pk=false){$I=(self::$untrusted?$this->readOnlyQuery($G):parent::query($G,$Pk));if($this->timeout){$this->timeout=0;parent::query("RESET statement_timeout");}return$I;}private
+attach(array$M,$U,$D){$i=adminer()->database();$nj=$M["port"];$cf=($M["host"]?:$M["socket"]);$cd="pgsql:host='$cf'".($nj?" port=$nj":"")." client_encoding=utf8 dbname='".($i!=""?addcslashes($i,"'\\"):"postgres")."'";$wl=adminer()->connectSsl();if(isset($wl["mode"]))$cd
+.=" sslmode=$wl[mode]";return$this->dsn($cd,$U,$D);}function
+select_db($rc){return(adminer()->database()==$rc);}function
+query($F,$Rm=false){$H=(self::$untrusted?$this->readOnlyQuery($F):parent::query($F,$Rm));if($this->timeout){$this->timeout=0;parent::query("RESET statement_timeout");}return$H;}private
 function
-readOnlyQuery($G){$this->error="";if(!$this->pdo->query("BEGIN READ ONLY")){list(,$this->errno,$this->error)=$this->pdo->errorInfo();return
-false;}$H=$this->pdo->prepare($G);$I=false;if($H&&$H->execute()){$this->store_result($H);$I=$H;}else{list(,$this->errno,$this->error)=($H?$H->errorInfo():$this->pdo->errorInfo());if(!$this->error)$this->error='Unknown error.';}$this->pdo->query("COMMIT");return$I;}function
+readOnlyQuery($F){$this->error="";if(!$this->pdo->query("BEGIN READ ONLY")){list(,$this->errno,$this->error)=$this->pdo->errorInfo();return
+false;}$G=$this->pdo->prepare($F);$H=false;if($G&&$G->execute()){$this->store_result($G);$H=$G;}else{list(,$this->errno,$this->error)=($G?$G->errorInfo():$this->pdo->errorInfo());if(!$this->error)$this->error='Unknown error.';}$this->pdo->query("COMMIT");return$H;}function
 warnings(){}function
-copyFrom($R,array$K){$I=$this->pdo->pgsqlCopyFromArray($R,$K);$this->error=idx($this->pdo->errorInfo(),2)?:'';return$I;}function
+copyFrom($Q,array$J){$H=$this->pdo->pgsqlCopyFromArray($Q,$J);$this->error=idx($this->pdo->errorInfo(),2)?:'';return$H;}function
 close(){}}}if(class_exists('Adminer\PgsqlDb')){class
 Db
 extends
 PgsqlDb{function
-multi_query($G){if(preg_match('~\bCOPY\s+(.+?)\s+FROM\s+stdin;\n?(.*)\n\\\\\.$~is',str_replace("\r\n","\n",$G),$B)){$K=explode("\n",$B[2]);$this->multi=false;$this->affected_rows=count($K);return$this->copyFrom($B[1],$K);}return
-parent::multi_query($G);}}}class
+multi_query($F){if(preg_match('~\bCOPY\s+(.+?)\s+FROM\s+stdin;\n?(.*)\n\\\\\.$~is',str_replace("\r\n","\n",$F),$_)){$J=explode("\n",$_[2]);$this->multi=false;$this->affected_rows=count($J);return$this->copyFrom($_[1],$J);}return
+parent::multi_query($F);}}}class
 Driver
 extends
-SqlDriver{static$extensions=array("PgSQL","PDO_PgSQL");static$jush="pgsql";var$operators=array("=","<",">","<=",">=","!=","~","~*","!~","LIKE","LIKE %%","ILIKE","ILIKE %%","IN","IS NULL","NOT LIKE","NOT ILIKE","NOT IN","IS NOT NULL","SQL");var$functions=array("char_length","lower","round","to_hex","to_timestamp","upper");var$grouping=array("avg","count","count distinct","max","min","sum");var$nsOid="(SELECT oid FROM pg_namespace WHERE nspname = current_schema())";private$userTypes=array();static
+SqlDriver{static$extensions=array("PgSQL","PDO_PgSQL");static$jush="pgsql";static$serverSocket=true;var$functions=array("char_length","lower","round","to_hex","to_timestamp","upper");var$grouping=array("avg","count","count distinct","max","min","sum");var$nsOid="(SELECT oid FROM pg_namespace WHERE nspname = current_schema())";private$userTypes=array();function
+operators($Ml){return
+array("=","<",">","<=",">=","!=","~","~*","!~","LIKE","LIKE %%","ILIKE","ILIKE %%","IN","IS NULL","NOT LIKE","NOT ILIKE","NOT IN","IS NOT NULL","SQL");}static
 function
-connect($N,$V,$E){$f=parent::connect($N,$V,$E);if(is_string($f))return$f;$sl=get_val("SELECT version()",0,$f);$f->flavor=(preg_match('~CockroachDB~',$sl)?'cockroach':'');$f->server_info=preg_replace('~^\D*([\d.]+[-\w]*).*~','\1',$sl);if(min_version(9,0,$f))$f->query("SET application_name = 'Adminer'");if($f->flavor=='cockroach')add_driver(DRIVER,"CockroachDB");return$f;}function
-__construct(Db$f){parent::__construct($f);$this->types=array('Numbers'=>array("smallint"=>5,"integer"=>10,"bigint"=>19,"boolean"=>1,"numeric"=>0,"real"=>7,"double precision"=>16,"money"=>20),'Date and time'=>array("date"=>13,"time"=>17,"timestamp"=>20,"timestamptz"=>21,"interval"=>0),'Strings'=>array("character"=>0,"character varying"=>0,"text"=>0,"tsquery"=>0,"tsvector"=>0,"uuid"=>0,"xml"=>0),'Binary'=>array("bit"=>0,"bit varying"=>0,"bytea"=>0),'Network'=>array("cidr"=>43,"inet"=>43,"macaddr"=>17,"macaddr8"=>23,"txid_snapshot"=>0),'Geometry'=>array("box"=>0,"circle"=>0,"line"=>0,"lseg"=>0,"path"=>0,"point"=>0,"polygon"=>0),);if(min_version(9.2,0,$f)){$this->types['Strings']["json"]=4294967295;$this->types['Ranges']=array("int4range"=>0,"int8range"=>0,"numrange"=>0,"daterange"=>0,"tsrange"=>0,"tstzrange"=>0);if(min_version(9.4,0,$f))$this->types['Strings']["jsonb"]=4294967295;}$this->insertFunctions=array("char"=>"md5","date|time"=>"now",);$this->editFunctions=array(number_type()=>"+/-","date|time"=>"+ interval/- interval","char|text"=>"||",);if(min_version(12,0,$f)){$this->generated[]="STORED";if(min_version(18,0,$f))$this->generated[]="VIRTUAL";}$this->partitionBy=array("RANGE","LIST");if(!$f->flavor)$this->partitionBy[]="HASH";}function
-enumLength(array$m){$Sg=$this->userTypes[$m["type"]];return($Sg?type_values($Sg):"");}function
-setUserTypes(array$Ok){$this->userTypes=array_flip($Ok);$this->types['User types']=array_fill_keys(array_keys($this->userTypes),0);}function
-insertReturning($R){$Ea=array_filter(fields($R),function($m){return$m['auto_increment'];});return(count($Ea)==1?" RETURNING ".idf_escape(key($Ea)):"");}function
-insertUpdate($R,array$K,array$ii){$e=array_keys(reset($K));$_b=array();$Yk=array();foreach($e
-as$x){if(isset($ii[idf_unescape($x)]))$_b[]=$x;else$Yk[]="$x = EXCLUDED.$x";}if(!$_b||!min_version(9.5)||count($_b)!=count($ii))return
-parent::insertUpdate($R,$K,$ii);$fi="INSERT INTO ".table($R)." (".implode(", ",$e).") VALUES\n";$Pj="\nON CONFLICT (".implode(", ",$_b).")".($Yk?" DO UPDATE SET ".implode(", ",$Yk):" DO NOTHING");$pl=array();$y=0;foreach($K
-as$O){$Y="(".implode(", ",$O).")";if($pl&&strlen($fi)+$y+strlen($Y)+strlen($Pj)>1e6){if(!queries($fi.implode(",\n",$pl).$Pj))return
-false;$pl=array();$y=0;}$pl[]=$Y;$y+=strlen($Y)+2;}return
-queries($fi.implode(",\n",$pl).$Pj);}function
-slowQuery($G,$pk){$this->conn->query("SET statement_timeout = ".(1000*$pk));$this->conn->timeout=1000*$pk;return$G;}function
-convertSearch($u,array$X,array$m){$mk="char|text";if(strpos($X["op"],"LIKE")===false)$mk
-.="|date|time(stamp)?|boolean|uuid|inet|cidr|macaddr|range|".number_type();return(preg_match("~$mk~",$m["type"])?$u:"CAST($u AS text)");}function
-quoteBinary($Ui){return"'\\x".bin2hex($Ui)."'";}function
+connect($M,$U,$D){$f=parent::connect($M,$U,$D);if(is_string($f))return$f;$yn=get_val("SELECT version()",0,$f);$f->flavor=(preg_match('~CockroachDB~',$yn)?'cockroach':'');$f->server_info=preg_replace('~^\D*([\d.]+[-\w]*).*~','\1',$yn);if(min_version(9,0,$f))$f->query("SET application_name = 'Adminer'");if($f->flavor=='cockroach')add_driver(DRIVER,"CockroachDB");return$f;}function
+__construct(Db$f){parent::__construct($f);$this->types=array('Numbers'=>array("smallint"=>5,"integer"=>10,"bigint"=>19,"boolean"=>1,"numeric"=>0,"real"=>7,"double precision"=>16,"money"=>20),'Date and time'=>array("date"=>10,"time"=>8,"timestamp"=>19,"timestamptz"=>25,"interval"=>0),'Strings'=>array("character"=>0,"character varying"=>0,"text"=>0,"tsquery"=>0,"tsvector"=>0,"uuid"=>0,"xml"=>0),'Binary'=>array("bit"=>0,"bit varying"=>0,"bytea"=>0),'Network'=>array("cidr"=>43,"inet"=>43,"macaddr"=>17,"macaddr8"=>23,"txid_snapshot"=>0),'Geometry'=>array("box"=>0,"circle"=>0,"line"=>0,"lseg"=>0,"path"=>0,"point"=>0,"polygon"=>0),);if(min_version(9.2,0,$f)){$this->types['Strings']["json"]=4294967295;$this->types['Ranges']=array("int4range"=>0,"int8range"=>0,"numrange"=>0,"daterange"=>0,"tsrange"=>0,"tstzrange"=>0);if(min_version(9.4,0,$f))$this->types['Strings']["jsonb"]=4294967295;}$this->insertFunctions=array("char"=>"md5","date|time"=>"now",);$this->editFunctions=array(number_type()=>"+/-","date|time"=>"+ interval/- interval","char|text"=>"||",);if(min_version(12,0,$f)){$this->generated[]="STORED";if(min_version(18,0,$f))$this->generated[]="VIRTUAL";}$this->partitionBy=array("RANGE","LIST");if(!$f->flavor)$this->partitionBy[]="HASH";}function
+enumLength(array$l){$Zh=$this->userTypes[$l["type"]];return($Zh&&!preg_match('~]$~',$l["length"])?type_values($Zh):"");}function
+setUserTypes(array$Qm){$this->userTypes=array_flip($Qm);$this->types['User types']=array_fill_keys(array_keys($this->userTypes),0);}function
+insertReturning($Q){$La=array_filter(fields($Q),function($l){return$l['auto_increment'];});return(count($La)==1?" RETURNING ".idf_escape(key($La)):"");}function
+insertUpdate($Q,array$J,array$_j){$e=array_keys(reset($J));$Nb=array();$cn=array();foreach($e
+as$w){if(isset($_j[idf_unescape($w)]))$Nb[]=$w;else$cn[]="$w = EXCLUDED.$w";}if(!$Nb||!min_version(9.5)||count($Nb)!=count($_j))return
+parent::insertUpdate($Q,$J,$_j);$vj="INSERT INTO ".table($Q)." (".implode(", ",$e).") VALUES\n";$Fl="\nON CONFLICT (".implode(", ",$Nb).")".($cn?" DO UPDATE SET ".implode(", ",$cn):" DO NOTHING");$Y=array();$x=0;foreach($J
+as$N){$X="(".implode(", ",$N).")";if($Y&&strlen($vj)+$x+strlen($X)+strlen($Fl)>1e6){if(!queries($vj.implode(",\n",$Y).$Fl))return
+false;$Y=array();$x=0;}$Y[]=$X;$x+=strlen($X)+2;}return
+queries($vj.implode(",\n",$Y).$Fl);}function
+slowQuery($F,$om){$this->conn->query("SET statement_timeout = ".(1000*$om));$this->conn->timeout=1000*$om;return$F;}function
+convertSearch($t,array$W,array$l){$ej=preg_match('(LIKE|^!?~)',$W["op"]);$_h=preg_match('~^(character( varying)?|text|citext|bpchar|name)$~',$l["type"])||(!$ej&&preg_match('~'.number_type().'|^(date|time|timetz|timestamp|timestamptz|boolean)$~',$l["type"]));return($_h&&!preg_match('~\[]$~',$l["full_type"])?$t:"CAST($t AS text)");}function
+quoteBinary($vk){return"'\\x".bin2hex($vk)."'";}function
+md5($d,array$l){if(is_blob($l)||preg_match('~'.text_type().'~',$l["type"]))return"MD5($d)";}function
 warnings(){return$this->conn->warnings();}function
-tableHelp($C,$ff=false){$Ff=array("information_schema"=>"infoschema","pg_catalog"=>($ff?"view":"catalog"),);$_=$Ff[$_GET["ns"]];if($_)return"$_-".str_replace("_","-",$C).".html";}function
-inheritsFrom($R){return
-get_rows("SELECT relname AS table, nspname AS ns FROM pg_class JOIN pg_inherits ON inhparent = oid JOIN pg_namespace ON relnamespace = pg_namespace.oid WHERE inhrelid = ".$this->tableOid($R)." ORDER BY 2, 1");}function
-inheritedTables($R){return
-get_rows("SELECT relname AS table, nspname AS ns FROM pg_inherits JOIN pg_class ON inhrelid = oid JOIN pg_namespace ON relnamespace = pg_namespace.oid WHERE inhparent = ".$this->tableOid($R)." ORDER BY 2, 1");}function
-partitionsInfo($R){$J=(min_version(10)?$this->conn->query("SELECT * FROM pg_partitioned_table WHERE partrelid = ".$this->tableOid($R))->fetch_assoc():null);if($J){$c=get_vals("SELECT attname FROM pg_attribute WHERE attrelid = $J[partrelid] AND attnum IN (".str_replace(" ",", ",$J["partattrs"]).")");$Ua=array('h'=>'HASH','l'=>'LIST','r'=>'RANGE');return
-array("partition_by"=>$Ua[$J["partstrat"]],"partition"=>implode(", ",array_map('Adminer\idf_escape',$c)),);}return
+tableHelp($A,$Tf=false){$yg=array("information_schema"=>"infoschema","pg_catalog"=>($Tf?"view":"catalog"),);$z=$yg[$_GET["ns"]];if($z)return"$z-".str_replace("_","-",$A).".html";}function
+inheritsFrom($Q){return
+get_rows("SELECT relname AS table, nspname AS ns FROM pg_class JOIN pg_inherits ON inhparent = oid JOIN pg_namespace ON relnamespace = pg_namespace.oid WHERE inhrelid = ".$this->tableOid($Q)." ORDER BY 2, 1");}function
+inheritedTables($Q){return
+get_rows("SELECT relname AS table, nspname AS ns FROM pg_inherits JOIN pg_class ON inhrelid = oid JOIN pg_namespace ON relnamespace = pg_namespace.oid WHERE inhparent = ".$this->tableOid($Q)." ORDER BY 2, 1");}function
+partitionsInfo($Q){$I=(min_version(10)?$this->conn->query("SELECT * FROM pg_partitioned_table WHERE partrelid = ".$this->tableOid($Q))->fetch_assoc():null);if($I){$c=get_vals("SELECT attname FROM pg_attribute WHERE attrelid = $I[partrelid] AND attnum IN (".str_replace(" ",", ",$I["partattrs"]).")");$db=array('h'=>'HASH','l'=>'LIST','r'=>'RANGE');return
+array("partition_by"=>$db[$I["partstrat"]],"partition"=>implode(", ",array_map('Adminer\idf_escape',$c)),);}return
 array();}function
-tableOid($R){return"(SELECT oid FROM pg_class WHERE relnamespace = $this->nsOid AND relname = ".q($R)." AND relkind IN ('r', 'm', 'v', 'f', 'p'))";}function
-indexAlgorithms(array$Vj){static$I=array();if(!$I)$I=get_vals("SELECT amname FROM pg_am".(min_version(9.6)?" WHERE amtype = 'i'":"")." ORDER BY amname = '".($this->conn->flavor=='cockroach'?"prefix":"btree")."' DESC, amname");return$I;}function
-indexOpclasses(){static$I=array();if(!$I&&$this->conn->flavor!='cockroach')$I=get_vals("SELECT DISTINCT opcname FROM pg_catalog.pg_opclass WHERE NOT opcdefault ORDER BY opcname");return$I;}function
-supportsIndex(array$S){return$S["Engine"]!="view";}function
-hasCStyleEscapes(){static$Wa;if($Wa===null)$Wa=(get_val("SHOW standard_conforming_strings",0,$this->conn)=="off");return$Wa;}}function
-idf_escape($u){return'"'.str_replace('"','""',$u).'"';}function
-table($u){return
-idf_escape($u);}function
-get_databases($Fd){return
+tableOid($Q){return"(SELECT oid FROM pg_class WHERE relnamespace = $this->nsOid AND relname = ".q($Q)." AND relkind IN ('r', 'm', 'v', 'f', 'p'))";}function
+allFields(){$H=array();$J=get_rows("SELECT c.relname AS tab, a.attname AS field, a.attnotnull::int,
+	format_type(a.atttypid, a.atttypmod) AS full_type, i.indrelid AS primary
+FROM pg_class c
+JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
+LEFT JOIN pg_index i ON i.indrelid = c.oid AND i.indisprimary AND a.attnum = ANY(i.indkey)
+WHERE c.relnamespace = $this->nsOid
+AND c.relkind IN ('r', 'm', 'v', 'f', 'p')".(min_version(10)?"
+AND c.relispartition IS NOT TRUE":"")."
+ORDER BY c.relname, a.attnum",$this->conn);foreach($J
+as$I){parse_full_type($I);$I["null"]=!$I["attnotnull"];$H[$I["tab"]][]=$I;}return$H;}function
+indexAlgorithms(array$Ml){static$H=array();if(!$H)$H=get_vals("SELECT amname FROM pg_am".(min_version(9.6)?" WHERE amtype = 'i'":"")." ORDER BY amname = '".($this->conn->flavor=='cockroach'?"prefix":"btree")."' DESC, amname");return$H;}function
+indexOpclasses(){static$H=array();if(!$H&&$this->conn->flavor!='cockroach')$H=get_vals("SELECT DISTINCT opcname FROM pg_catalog.pg_opclass WHERE NOT opcdefault ORDER BY opcname");return$H;}function
+supportsIndex(array$R){return$R["Engine"]!="view";}function
+hasCStyleEscapes(){static$fb;if($fb===null)$fb=(get_val("SHOW standard_conforming_strings",0,$this->conn)=="off");return$fb;}function
+hasEstimatedRows(){return
+true;}function
+isSystem($i,$K=""){return($K!=""?information_schema($i,$K)||preg_match('~^pg_~',$K):in_array($i,array("postgres","template1"))||($this->conn->flavor=='cockroach'&&$i=="system"));}}function
+idf_escape($t){return'"'.str_replace('"','""',$t).'"';}function
+table($t){return($_POST["schema_style"]===""&&$_GET["ns"]!=""?idf_escape($_GET["ns"]).".":"").idf_escape($t);}function
+get_databases($fe){return
 get_vals("SELECT datname FROM pg_database
 WHERE datallowconn = TRUE AND has_database_privilege(datname, 'CONNECT')
 ORDER BY datname");}function
-limit($G,$Z,$z,$Rg=0,$gj=" "){return" $G$Z".($z?$gj."LIMIT $z".($Rg?" OFFSET $Rg":""):"");}function
-limit1($R,$G,$Z,$gj="\n"){return(preg_match('~^INTO~',$G)?limit($G,$Z,1,0,$gj):" $G".(is_view(table_status1($R))?$Z:$gj."WHERE ctid = (SELECT ctid FROM ".table($R).$Z.$gj."LIMIT 1)"));}function
-db_collation($j,array$qb){return
-get_val("SELECT datcollate FROM pg_database WHERE datname = ".q($j));}function
+limit($F,$Z,$y,$Yh=0,$Lk=" "){return" $F$Z".($y?$Lk."LIMIT $y".($Yh?" OFFSET $Yh":""):"");}function
+limit1($Q,$F,$Z,$Lk="\n"){return(preg_match('~^INTO~',$F)?limit($F,$Z,1,0,$Lk):" $F".(is_view(table_status1($Q))?$Z:$Lk."WHERE (tableoid, ctid) = (SELECT tableoid, ctid FROM ".table($Q).$Z.$Lk."LIMIT 1)"));}function
+db_collation($i,array$Cb){return
+get_val("SELECT datcollate FROM pg_database WHERE datname = ".q($i));}function
 logged_user(){return
 get_val("SELECT user");}function
-tables_list(){$G="SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = current_schema()";if(support("materializedview"))$G
+tables_list(){$F="SELECT table_name, table_type FROM information_schema.tables WHERE table_schema = current_schema()";if(support("materializedview"))$F
 .="
 UNION ALL
 SELECT matviewname, 'MATERIALIZED VIEW'
 FROM pg_matviews
-WHERE schemaname = current_schema()";$G
+WHERE schemaname = current_schema()";$F
 .="
 ORDER BY 1";return
-get_key_vals($G);}function
-count_tables(array$i){$I=array();foreach($i
-as$j){if(connection()->select_db($j))$I[$j]=count(tables_list());}return$I;}function
-table_status($C="",$nd=false){static$ie;if($ie===null)$ie=get_val("SELECT 'pg_table_size'::regproc");$kj=(!$nd&&min_version(10));$I=array();foreach(get_rows("SELECT
+get_key_vals($F);}function
+count_tables(array$h){$H=array();foreach($h
+as$i){if(connection()->select_db($i))$H[$i]=count(tables_list());}return$H;}function
+table_status($A="",$Md=false){static$Oe;if($Oe===null)$Oe=get_val("SELECT 'pg_table_size'::regproc");$Pk=(!$Md&&min_version(10));$H=array();foreach(get_rows("SELECT
 	relname AS \"Name\",
-	CASE relkind WHEN 'v' THEN 'view' WHEN 'm' THEN 'materialized view' ELSE 'table' END AS \"Engine\"".($ie?",
+	CASE relkind WHEN 'v' THEN 'view' WHEN 'm' THEN 'materialized view' ELSE 'table' END AS \"Engine\"".($Oe?",
 	pg_table_size(c.oid) AS \"Data_length\",
 	pg_indexes_size(c.oid) AS \"Index_length\"":"").",
 	obj_description(c.oid, 'pg_class') AS \"Comment\",
 	".(min_version(12)?"''":"CASE WHEN relhasoids THEN 'oid' ELSE '' END")." AS \"Oid\",
 	reltuples AS \"Rows\",
-	".($kj?"seq.last_value":"NULL")." AS \"Auto_increment\",
-	".(min_version(10)?"relispartition::int AS partition,":"")."
-	current_schema() AS nspname
+	".($Pk?"seq.last_value":"NULL")." AS \"Auto_increment\"".(min_version(10)?",
+	relispartition::int AS dependent":"")."
 FROM pg_class c
-".($kj?"LEFT JOIN (
+".($Pk?"LEFT JOIN (
 	SELECT d.refobjid, max(s.last_value) AS last_value
 	FROM pg_depend d
 	JOIN pg_class sc ON sc.oid = d.objid AND sc.relkind = 'S' AND sc.relnamespace = ".driver()->nsOid."
 	JOIN pg_sequences s ON s.schemaname = current_schema() AND s.sequencename = sc.relname
 	WHERE d.classid = 'pg_class'::regclass AND d.refclassid = 'pg_class'::regclass AND d.deptype IN ('a', 'i')
-	".($C!=""?"AND d.refobjid = ".driver()->tableOid($C):"")."
+	".($A!=""?"AND d.refobjid = ".driver()->tableOid($A):"")."
 	GROUP BY d.refobjid
 ) seq ON seq.refobjid = c.oid
 ":"")."WHERE relkind IN ('r', 'm', 'v', 'f', 'p')
 AND relnamespace = ".driver()->nsOid."
-".($C!=""?"AND relname = ".q($C):"ORDER BY relname"))as$J)$I[$J["Name"]]=$J;return$I;}function
-is_view(array$S){return
-in_array($S["Engine"],array("view","materialized view"));}function
-fk_support(array$S){return
+".($A!=""?"AND relname = ".q($A):"ORDER BY relname"))as$I)$H[$I["Name"]]=$I;return$H;}function
+is_view(array$R){return
+in_array($R["Engine"],array("view","materialized view"));}function
+fk_support(array$R){return
 true;}function
-fields($R){$I=array();$ta=array('timestamp without time zone'=>'timestamp','timestamp with time zone'=>'timestamptz',);foreach(get_rows("SELECT
+parse_full_type(array&$I){static$va=array('timestamp without time zone'=>'timestamp','timestamp with time zone'=>'timestamptz','time without time zone'=>'time','time with time zone'=>'timetz',);preg_match('~([^([]+)(\((.*)\))?([a-z ]+)?((\[[0-9]*])*)$~',$I["full_type"],$_);list(,$T,$x,$I["length"],$ma,$Ea)=$_;$I["length"].=$Ea;$qb=$T.$ma;if(isset($va[$qb])){$I["type"]=$va[$qb];$I["full_type"]=$I["type"].$x.$Ea;}else{$Sm=idf_unescape($T);$I["type"]=(is_user_type($Sm)?$Sm:$T);$I["full_type"]=$I["type"].$x.$ma.$Ea;}}function
+fields($Q){$H=array();foreach(get_rows("SELECT
 	a.attname AS field,
 	format_type(a.atttypid, a.atttypmod) AS full_type,
 	pg_get_expr(d.adbin, d.adrelid) AS default,
 	a.attnotnull::int,
 	i.indrelid AS primary,
+	t.typcategory,
 	col_description(a.attrelid, a.attnum) AS comment".(min_version(10)?",
 	a.attidentity".(min_version(12)?",
 	a.attgenerated":""):"")."
 FROM pg_attribute a
+JOIN pg_type t ON t.oid = a.atttypid
 LEFT JOIN pg_attrdef d ON a.attrelid = d.adrelid AND a.attnum = d.adnum
 LEFT JOIN pg_index i ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey) AND i.indisprimary
-WHERE a.attrelid = ".driver()->tableOid($R)."
+WHERE a.attrelid = ".driver()->tableOid($Q)."
 AND NOT a.attisdropped
 AND a.attnum > 0
-ORDER BY a.attnum")as$J){preg_match('~([^([]+)(\((.*)\))?([a-z ]+)?((\[[0-9]*])*)$~',$J["full_type"],$B);list(,$U,$y,$J["length"],$ma,$_a)=$B;$J["length"].=$_a;$eb=$U.$ma;if(isset($ta[$eb])){$J["type"]=$ta[$eb];$J["full_type"]=$J["type"].$y.$_a;}else{$J["type"]=$U;$J["full_type"]=$J["type"].$y.$ma.$_a;}if(in_array($J['attidentity'],array('a','d')))$J['default']='GENERATED '.($J['attidentity']=='d'?'BY DEFAULT':'ALWAYS').' AS IDENTITY';$J["generated"]=idx(array("s"=>"STORED","v"=>"VIRTUAL"),$J["attgenerated"],"");$J["null"]=!$J["attnotnull"];$J["auto_increment"]=$J['attidentity']||preg_match('~^nextval\(~i',$J["default"])||preg_match('~^unique_rowid\(~',$J["default"]);$J["privileges"]=array("insert"=>1,"select"=>1,"update"=>1,"where"=>1,"order"=>1);if(!$J['generated']&&preg_match('~(.+)::[^,)]+(.*)~',$J["default"],$B))$J["default"]=($B[1]=="NULL"?null:idf_unescape($B[1]).$B[2]);$I[$J["field"]]=$J;}return$I;}function
-indexes($R,$g=null){$g=connection($g);$I=array();$Zj=driver()->tableOid($R);$e=get_key_vals("SELECT attnum, attname FROM pg_attribute WHERE attrelid = $Zj AND attnum > 0",$g);foreach(get_rows("SELECT relname, indisunique::int, indisprimary::int, indkey, indoption, amname,
+ORDER BY a.attnum")as$I){parse_full_type($I);if(in_array($I['attidentity'],array('a','d')))$I['default']='GENERATED '.($I['attidentity']=='d'?'BY DEFAULT':'ALWAYS').' AS IDENTITY';$I["generated"]=idx(array("s"=>"STORED","v"=>"VIRTUAL"),$I["attgenerated"],"");$I["composite"]=($I["typcategory"]=="C");$I["null"]=!$I["attnotnull"];$I["auto_increment"]=$I['attidentity']||preg_match('~^nextval\(~i',$I["default"])||preg_match('~^unique_rowid\(~',$I["default"]);$I["privileges"]=array("insert"=>1,"select"=>1,"update"=>1,"where"=>1,"order"=>1);if(!$I['generated']&&preg_match('~(.+)::[^,)]+(.*)~',$I["default"],$_)&&($_[2]!=""||preg_match("~^('.*'|NULL)\$~s",$_[1])))$I["default"]=($_[1]=="NULL"?null:idf_unescape($_[1]).$_[2]);$H[$I["field"]]=$I;}return$H;}function
+indexes($Q,$g=null){$g=connection($g);$H=array();$Tl=driver()->tableOid($Q);$e=get_key_vals("SELECT attnum, attname FROM pg_attribute WHERE attrelid = $Tl AND attnum > 0",$g);foreach(get_rows("SELECT relname, indisunique::int, indisprimary::int, indkey, indoption, amname,
 	pg_get_expr(indpred, indrelid, true) AS partial, pg_get_expr(indexprs, indrelid) AS indexpr".($g->flavor=='cockroach'?"":",
 	(SELECT string_agg(CASE WHEN opcdefault THEN '' ELSE opcname END, ' ' ORDER BY s)
 		FROM generate_subscripts(indclass, 1) AS s JOIN pg_catalog.pg_opclass ON pg_opclass.oid = indclass[s]) AS opclasses")."
 FROM pg_index
 JOIN pg_class ON indexrelid = oid
 JOIN pg_am ON pg_am.oid = pg_class.relam
-WHERE indrelid = $Zj
-ORDER BY indisprimary DESC, indisunique DESC",$g)as$J){$Fi=$J["relname"];$I[$Fi]["type"]=($J["indisprimary"]?"PRIMARY":($J["indisunique"]?"UNIQUE":"INDEX"));$I[$Fi]["columns"]=array();$I[$Fi]["descs"]=array();$I[$Fi]["algorithm"]=$J["amname"];$I[$Fi]["partial"]=$J["partial"];$Ke=preg_split('~(?<=\)), (?=\()~',$J["indexpr"]);foreach(explode(" ",$J["indkey"])as$Le)$I[$Fi]["columns"][]=($Le?$e[$Le]:array_shift($Ke));foreach(explode(" ",$J["indoption"])as$Me)$I[$Fi]["descs"][]=(intval($Me)&1?'1':null);$I[$Fi]["opclasses"]=($J["opclasses"]!=""?explode(" ",$J["opclasses"]):array());$I[$Fi]["lengths"]=array();}return$I;}function
-foreign_keys($R){$I=array();foreach(get_rows("SELECT conname, condeferrable::int AS deferrable, condeferred::int AS deferred, pg_get_constraintdef(oid) AS definition
+WHERE indrelid = $Tl
+ORDER BY indisprimary DESC, indisunique DESC",$g)as$I){$Zj=$I["relname"];$H[$Zj]["type"]=($I["indisprimary"]?"PRIMARY":($I["indisunique"]?"UNIQUE":"INDEX"));$H[$Zj]["columns"]=array();$H[$Zj]["descs"]=array();$H[$Zj]["algorithm"]=$I["amname"];$H[$Zj]["partial"]=$I["partial"];$wf=preg_split('~(?<=\)), (?=\()~',$I["indexpr"]);foreach(explode(" ",$I["indkey"])as$xf)$H[$Zj]["columns"][]=($xf?$e[$xf]:array_shift($wf));foreach(explode(" ",$I["indoption"])as$yf)$H[$Zj]["descs"][]=(intval($yf)&1?'1':null);$H[$Zj]["opclasses"]=($I["opclasses"]!=""?explode(" ",$I["opclasses"]):array());$H[$Zj]["lengths"]=array();}return$H;}function
+foreign_keys($Q){$H=array();foreach(get_rows("SELECT conname, condeferrable::int AS deferrable, condeferred::int AS deferred, pg_get_constraintdef(oid) AS definition
 FROM pg_constraint
-WHERE conrelid = ".driver()->tableOid($R)."
+WHERE conrelid = ".driver()->tableOid($Q)."
 AND contype = 'f'::char
-ORDER BY conkey, conname")as$J){$J['deferrable']=($J['deferrable']?'':'NOT ').'DEFERRABLE'.($J['deferred']?' INITIALLY DEFERRED':'');if(preg_match('~FOREIGN KEY\s*\((.+)\)\s*REFERENCES (.+)\((.+)\)(.*)$~iA',$J['definition'],$B)){$J['source']=array_map('Adminer\idf_unescape',array_map('trim',explode(',',$B[1])));if(preg_match('~^(("([^"]|"")+"|[^"]+)\.)?"?("([^"]|"")+"|[^"]+)$~',$B[2],$Nf)){$J['ns']=idf_unescape($Nf[2]);$J['table']=idf_unescape($Nf[4]);}$J['target']=array_map('Adminer\idf_unescape',array_map('trim',explode(',',$B[3])));$J['on_delete']=(preg_match("~ON DELETE (".driver()->onActions.")~",$B[4],$Nf)?$Nf[1]:'NO ACTION');$J['on_update']=(preg_match("~ON UPDATE (".driver()->onActions.")~",$B[4],$Nf)?$Nf[1]:'NO ACTION');$I[$J['conname']]=$J;}}return$I;}function
-view($C){return
-array("select"=>trim(get_val("SELECT pg_get_viewdef(".driver()->tableOid($C).")")));}function
+ORDER BY conkey, conname")as$I){$I['deferrable']=($I['deferrable']?'':'NOT ').'DEFERRABLE'.($I['deferred']?' INITIALLY DEFERRED':'');if(preg_match('~FOREIGN KEY\s*\((.+)\)\s*REFERENCES (.+)\((.+)\)(.*)$~iA',$I['definition'],$_)){$I['source']=array_map('Adminer\idf_unescape',array_map('trim',explode(',',$_[1])));if(preg_match('~^(("([^"]|"")+"|[^"]+)\.)?"?("([^"]|"")+"|[^"]+)$~',$_[2],$Gg)){$I['ns']=idf_unescape($Gg[2]);$I['table']=idf_unescape($Gg[4]);}$I['target']=array_map('Adminer\idf_unescape',array_map('trim',explode(',',$_[3])));$I['on_delete']=(preg_match("~ON DELETE (".driver()->onActions.")~",$_[4],$Gg)?$Gg[1]:'NO ACTION');$I['on_update']=(preg_match("~ON UPDATE (".driver()->onActions.")~",$_[4],$Gg)?$Gg[1]:'NO ACTION');$H[$I['conname']]=$I;}}return$H;}function
+view($A){return
+array("select"=>trim(get_val("SELECT pg_get_viewdef(".driver()->tableOid($A).")")));}function
 collations(){return
 array();}function
-information_schema($j,$L=""){return
-in_array($L!=""?$L:get_schema(),array("information_schema","pg_catalog","pg_toast"));}function
-error(){$I=h(connection()->error);if(preg_match('~^(.*\n)?([^\n]*)\n( *)\^(\n.*)?$~s',$I,$B))$I=$B[1].preg_replace('~((?:[^&]|&[^;]*;){'.strlen($B[3]).'})(.*)~','\1<b>\2</b>',$B[2]).$B[4];return
-nl_br($I);}function
-create_database($j,$pb){return
-queries("CREATE DATABASE ".idf_escape($j).($pb?" ENCODING ".idf_escape($pb):""));}function
-drop_databases(array$i){connection()->close();return
-apply_queries("DROP DATABASE",$i,'Adminer\idf_escape');}function
-rename_database($C,$pb){connection()->close();return!!queries("ALTER DATABASE ".idf_escape(DB)." RENAME TO ".idf_escape($C));}function
+information_schema($i,$K=""){$Kl=array("information_schema","pg_catalog","pg_toast");if(connection()->flavor=='cockroach'){$Kl[]="crdb_internal";$Kl[]="pg_extension";}return
+in_array($K!=""?$K:get_schema(),$Kl);}function
+error(){$H=h(connection()->error);if(preg_match('~^(.*\n)?([^\n]*)\n( *)\^(\n.*)?$~s',$H,$_))$H=$_[1].preg_replace('~((?:[^&]|&[^;]*;){'.strlen($_[3]).'})(.*)~','\1<b>\2</b>',$_[2]).$_[4];return
+nl_br($H);}function
+create_database($i,$Bb){return
+queries("CREATE DATABASE ".idf_escape($i).($Bb?" ENCODING ".idf_escape($Bb):""));}function
+drop_databases(array$h){connection()->close();return
+apply_queries("DROP DATABASE",$h,'Adminer\idf_escape');}function
+rename_database($A,$Bb){connection()->close();return!!queries("ALTER DATABASE ".idf_escape(DB)." RENAME TO ".idf_escape($A));}function
 auto_increment(){return"";}function
-alter_table($R,$C,array$n,array$Hd,$ub,$Pc,$pb,$Ea,$Mh){$b=array();$ri=array();if($R!=""&&$R!=$C)$ri[]="ALTER TABLE ".table($R)." RENAME TO ".table($C);$hj="";foreach($n
-as$m){$d=idf_escape($m[0]);$X=$m[1];if(!$X)$b[]="DROP $d";else{$nl=$X[5];unset($X[5]);if($m[0]==""){if(isset($X[6]))$X[1]=($X[1]==" bigint"?" big":($X[1]==" smallint"?" small":" "))."serial";$b[]=($R!=""?"ADD ":"  ").implode($X);if(isset($X[6]))$b[]=($R!=""?"ADD":" ")." PRIMARY KEY ($X[0])";}else{if($d!=$X[0])$ri[]="ALTER TABLE ".table($C)." RENAME $d TO $X[0]";$b[]="ALTER $d TYPE$X[1]";$ij=$R."_".idf_unescape($X[0])."_seq";$b[]="ALTER $d ".($X[3]?"SET".preg_replace('~GENERATED ALWAYS(.*) (STORED|VIRTUAL)~','EXPRESSION\1',$X[3]):(isset($X[6])?"SET DEFAULT nextval(".q($ij).")":"DROP DEFAULT"));if(isset($X[6]))$hj="CREATE SEQUENCE IF NOT EXISTS ".idf_escape($ij)." OWNED BY ".idf_escape($R).".$X[0]";$b[]="ALTER $d ".($X[2]==" NULL"?"DROP NOT":"SET").$X[2];}if($m[0]!=""||$nl!="")$ri[]="COMMENT ON COLUMN ".table($C).".$X[0] IS ".($nl!=""?substr($nl,9):"''");}}$b=array_merge($b,$Hd);if($R==""){$P="";if($Mh){$lb=(connection()->flavor=='cockroach');$P=" PARTITION BY $Mh[partition_by]($Mh[partition])";if($Mh["partition_by"]=='HASH'){$Nh=+$Mh["partitions"];for($s=0;$s<$Nh;$s++)$ri[]="CREATE TABLE ".idf_escape($C."_$s")." PARTITION OF ".idf_escape($C)." FOR VALUES WITH (MODULUS $Nh, REMAINDER $s)";}else{$hi="MINVALUE";foreach($Mh["partition_names"]as$s=>$X){$Y=$Mh["partition_values"][$s];$Ih=" VALUES ".($Mh["partition_by"]=='LIST'?"IN ($Y)":"FROM ($hi) TO ($Y)");if($lb)$P
-.=($s?",":" (")."\n  PARTITION ".(preg_match('~^DEFAULT$~i',$X)?$X:idf_escape($X))."$Ih";else$ri[]="CREATE TABLE ".idf_escape($C."_$X")." PARTITION OF ".idf_escape($C)." FOR$Ih";$hi=$Y;}$P
-.=($lb?"\n)":"");}}array_unshift($ri,"CREATE TABLE ".table($C)." (\n".implode(",\n",$b)."\n)$P");}elseif($b)array_unshift($ri,"ALTER TABLE ".table($R)."\n".implode(",\n",$b));if($hj)array_unshift($ri,$hj);if($ub!==null)$ri[]="COMMENT ON TABLE ".table($C)." IS ".q($ub);foreach($ri
-as$G){if(!queries($G))return
-false;}if($Ea!=""){foreach(fields($C)as$qd=>$m){if($m["auto_increment"])return!!queries("SELECT setval(pg_get_serial_sequence(".q(table($C)).", ".q($qd)."), $Ea)");}}return
+alter_table($Q,$A,array$m,array$he,$Hb,$nd,$Bb,$La,$Vi){$b=array();$Jj=array();if($Q!=""&&$Q!=$A)$Jj[]="ALTER TABLE ".table($Q)." RENAME TO ".table($A);$Mk="";foreach($m
+as$l){$d=idf_escape($l[0]);$W=$l[1];if(!$W)$b[]="DROP $d";else{$tn=$W[5];unset($W[5]);if($l[0]==""){if(isset($W[6]))$W[1]=($W[1]==" bigint"?" big":($W[1]==" smallint"?" small":" "))."serial";$b[]=($Q!=""?"ADD ":"  ").implode($W);if(isset($W[6]))$b[]=($Q!=""?"ADD":" ")." PRIMARY KEY ($W[0])";}else{if($d!=$W[0])$Jj[]="ALTER TABLE ".table($A)." RENAME $d TO $W[0]";$b[]="ALTER $d TYPE$W[1]";$Nk=$Q."_".idf_unescape($W[0])."_seq";$b[]="ALTER $d ".($W[3]?"SET".preg_replace('~GENERATED ALWAYS(.*) (STORED|VIRTUAL)~','EXPRESSION\1',$W[3]):(isset($W[6])?"SET DEFAULT nextval(".q($Nk).")":"DROP DEFAULT"));if(isset($W[6]))$Mk="CREATE SEQUENCE IF NOT EXISTS ".idf_escape($Nk)." OWNED BY ".idf_escape($Q).".$W[0]";$b[]="ALTER $d ".($W[2]==" NULL"?"DROP NOT":"SET").$W[2];}if($l[0]!=""||$tn!="")$Jj[]="COMMENT ON COLUMN ".table($A).".$W[0] IS ".($tn!=""?substr($tn,9):"''");}}if($Q==""){$b=array_merge($b,$he);$O="";if($Vi){$yb=(connection()->flavor=='cockroach');$O=" PARTITION BY $Vi[partition_by]($Vi[partition])";if($Vi["partition_by"]=='HASH'){$Wi=+$Vi["partitions"];for($r=0;$r<$Wi;$r++)$Jj[]="CREATE TABLE ".idf_escape($A."_$r")." PARTITION OF ".idf_escape($A)." FOR VALUES WITH (MODULUS $Wi, REMAINDER $r)";}else{$xj="MINVALUE";foreach($Vi["partition_names"]as$r=>$W){$X=$Vi["partition_values"][$r];$Ri=" VALUES ".($Vi["partition_by"]=='LIST'?"IN ($X)":"FROM ($xj) TO ($X)");if($yb)$O
+.=($r?",":" (")."\n  PARTITION ".(preg_match('~^DEFAULT$~i',$W)?$W:idf_escape($W))."$Ri";else$Jj[]="CREATE TABLE ".idf_escape($A."_$W")." PARTITION OF ".idf_escape($A)." FOR$Ri";$xj=$X;}$O
+.=($yb?"\n)":"");}}array_unshift($Jj,"CREATE TABLE ".table($A)." (\n".implode(",\n",$b)."\n)$O");}else{if($b)array_unshift($Jj,"ALTER TABLE ".table($Q)."\n".implode(",\n",$b));if($he)$Jj[]="ALTER TABLE ".table($A)."\n".implode(",\n",$he);}if($Mk)array_unshift($Jj,$Mk);if($Hb!==null)$Jj[]="COMMENT ON TABLE ".table($A)." IS ".q($Hb);foreach($Jj
+as$F){if(!queries($F))return
+false;}if($La!=""){foreach(fields($A)as$Pd=>$l){if($l["auto_increment"])return!!queries("SELECT setval(pg_get_serial_sequence(".q(table($A)).", ".q($Pd)."), $La)");}}return
 true;}function
-alter_indexes($R,$b){$h=array();$Bc=array();$ri=array();foreach($b
-as$X){if($X[0]!="INDEX")$h[]=($X[2]=="DROP"?"\nDROP CONSTRAINT ".idf_escape($X[1]):"\nADD".($X[1]!=""?" CONSTRAINT ".idf_escape($X[1]):"")." $X[0] ".($X[0]=="PRIMARY"?"KEY ":"")."(".implode(", ",$X[2]).")");elseif($X[2]=="DROP")$Bc[]=idf_escape($X[1]);else$ri[]="CREATE INDEX ".idf_escape($X[1]!=""?$X[1]:uniqid($R."_"))." ON ".table($R).($X[3]?" USING $X[3]":"")." (".implode(", ",$X[2]).")".($X[4]?" WHERE $X[4]":"");}if($h)array_unshift($ri,"ALTER TABLE ".table($R).implode(",",$h));if($Bc)array_unshift($ri,"DROP INDEX ".implode(", ",$Bc));foreach($ri
-as$G){if(!queries($G))return
+alter_indexes($Q,$b){$ec=array();$Xc=array();$Jj=array();foreach($b
+as$W){if($W[0]!="INDEX")$ec[]=($W[2]=="DROP"?"\nDROP CONSTRAINT ".idf_escape($W[1]):"\nADD".($W[1]!=""?" CONSTRAINT ".idf_escape($W[1]):"")." $W[0] ".($W[0]=="PRIMARY"?"KEY ":"")."(".implode(", ",$W[2]).")");elseif($W[2]=="DROP")$Xc[]=idf_escape($W[1]);else$Jj[]="CREATE INDEX ".idf_escape($W[1]!=""?$W[1]:uniqid($Q."_"))." ON ".table($Q).($W[3]?" USING $W[3]":"")." (".implode(", ",$W[2]).")".($W[4]?" WHERE $W[4]":"");}if($ec)array_unshift($Jj,"ALTER TABLE ".table($Q).implode(",",$ec));if($Xc)array_unshift($Jj,"DROP INDEX ".implode(", ",$Xc));foreach($Jj
+as$F){if(!queries($F))return
 false;}return
 true;}function
-truncate_tables(array$T){return!!queries("TRUNCATE ".implode(", ",array_map('Adminer\table',$T)));}function
-drop_kinds(array$T){$I=array("MATERIALIZED VIEW"=>array(),"VIEW"=>array(),"TABLE"=>array());foreach($T
-as$C=>$S)$I[strtoupper($S["Engine"])][]=idf_escape($S["nspname"]).".".table($C);return
-array_filter($I);}function
-drop_views(array$ul){return
-drop_tables($ul);}function
-drop_tables(array$T){$Kj=array();foreach($T
-as$R)$Kj[$R]=table_status1($R);foreach(drop_kinds($Kj)as$pf=>$xg){if(!queries("DROP $pf ".implode(", ",$xg)))return
+truncate_tables(array$S){return!!queries("TRUNCATE ".implode(", ",array_map('Adminer\table',$S)));}function
+drop_kinds(array$S){$H=array("MATERIALIZED VIEW"=>array(),"VIEW"=>array(),"TABLE"=>array());foreach($S
+as$A=>$R)$H[strtoupper($R["Engine"])][]=table($A);return
+array_filter($H);}function
+drop_views(array$_n){return
+drop_tables($_n);}function
+drop_tables(array$S){$_l=array();foreach($S
+as$Q)$_l[$Q]=table_status1($Q);foreach(drop_kinds($_l)as$eg=>$zh){if(!queries("DROP $eg ".implode(", ",$zh)))return
 false;}return
 true;}function
-move_tables(array$T,array$ul,$hk){foreach(array_merge($T,$ul)as$R){$P=table_status1($R);if(!queries("ALTER ".strtoupper($P["Engine"])." ".table($R)." SET SCHEMA ".idf_escape($hk)))return
+move_tables(array$S,array$_n,$em){foreach(array_merge($S,$_n)as$Q){$O=table_status1($Q);if(!queries("ALTER ".strtoupper($O["Engine"])." ".table($Q)." SET SCHEMA ".idf_escape($em)))return
 false;}return
 true;}function
-trigger($C,$R){if($C=="")return
-array("Statement"=>"EXECUTE PROCEDURE ()");$e=array();$Z="WHERE trigger_schema = current_schema() AND event_object_table = ".q($R)." AND trigger_name = ".q($C);foreach(get_rows("SELECT * FROM information_schema.triggered_update_columns $Z")as$J)$e[]=$J["event_object_column"];$I=array();foreach(get_rows('SELECT trigger_name AS "Trigger", action_timing AS "Timing", event_manipulation AS "Event", \'FOR EACH \' || action_orientation AS "Type", action_statement AS "Statement"
+trigger($A,$Q){if($A=="")return
+array("Statement"=>"EXECUTE PROCEDURE ()");$e=array();$Z="WHERE trigger_schema = current_schema() AND event_object_table = ".q($Q)." AND trigger_name = ".q($A);foreach(get_rows("SELECT * FROM information_schema.triggered_update_columns $Z")as$I)$e[]=$I["event_object_column"];$H=array();foreach(get_rows('SELECT trigger_name AS "Trigger", action_timing AS "Timing", event_manipulation AS "Event", \'FOR EACH \' || action_orientation AS "Type", action_statement AS "Statement"
 FROM information_schema.triggers'."
 $Z
-ORDER BY event_manipulation DESC")as$J){if($e&&$J["Event"]=="UPDATE")$J["Event"].=" OF";$J["Of"]=implode(", ",$e);if($I)$J["Event"].=" OR $I[Event]";$I=$J;}return$I;}function
-triggers($R){$I=array();foreach(get_rows("SELECT * FROM information_schema.triggers WHERE trigger_schema = current_schema() AND event_object_table = ".q($R))as$J){$Fk=trigger($J["trigger_name"],$R);$I[$Fk["Trigger"]]=array($Fk["Timing"],$Fk["Event"]);}return$I;}function
+ORDER BY event_manipulation DESC")as$I){if($e&&$I["Event"]=="UPDATE")$I["Event"].=" OF";$I["Of"]=implode(", ",$e);if($H)$I["Event"].=" OR $H[Event]";$H=$I;}return$H;}function
+triggers($Q){$H=array();$we=array();foreach(get_rows('SELECT t.tgname, r.routine_schema AS ns, r.specific_name AS function, r.routine_name AS name
+FROM pg_catalog.pg_trigger t
+JOIN information_schema.routines r ON substring(r.specific_name, \'[0-9]+$\')::oid = t.tgfoid
+WHERE NOT t.tgisinternal AND t.tgrelid = (
+	SELECT c.oid FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = current_schema() AND c.relname = '.q($Q).'
+)')as$I)$we[array_shift($I)]=$I;foreach(get_rows("SELECT * FROM information_schema.triggers WHERE trigger_schema = current_schema() AND event_object_table = ".q($Q))as$I){$Fm=trigger($I["trigger_name"],$Q);$H[$Fm["Trigger"]]=array($Fm["Timing"],$Fm["Event"]);if($we[$Fm["Trigger"]])$H[$Fm["Trigger"]][]=$we[$Fm["Trigger"]];}return$H;}function
 trigger_options(){return
 array("Timing"=>array("BEFORE","AFTER"),"Event"=>array("INSERT","UPDATE","UPDATE OF","DELETE","INSERT OR UPDATE","INSERT OR UPDATE OF","DELETE OR INSERT","DELETE OR UPDATE","DELETE OR UPDATE OF","DELETE OR INSERT OR UPDATE","DELETE OR INSERT OR UPDATE OF",),"Type"=>array("FOR EACH ROW","FOR EACH STATEMENT"),);}function
-routine($C,$U){$K=get_rows('SELECT routine_definition AS definition, LOWER(external_language) AS language, *
-FROM information_schema.routines
-WHERE routine_schema = current_schema() AND specific_name = '.q($C));$I=idx($K,0,array());$I["returns"]=array("type"=>preg_replace('~^_(.*)~','\1[]',"$I[type_udt_name]"));$I["fields"]=get_rows("SELECT COALESCE(parameter_name, ordinal_position::text) AS field,
+routine($A,$T){$B=routine_options($T);$Ik=array_intersect_key(array("VOLATILITY"=>"CASE p.provolatile WHEN 'i' THEN 'IMMUTABLE' WHEN 's' THEN 'STABLE' ELSE 'VOLATILE' END","NULL_INPUT"=>"CASE WHEN p.proisstrict THEN 'RETURNS NULL ON NULL INPUT' ELSE 'CALLED ON NULL INPUT' END","SECURITY"=>"CASE WHEN p.prosecdef THEN 'SECURITY DEFINER' ELSE 'SECURITY INVOKER' END","PARALLEL"=>"CASE p.proparallel WHEN 's' THEN 'PARALLEL SAFE' WHEN 'r' THEN 'PARALLEL RESTRICTED' ELSE 'PARALLEL UNSAFE' END",),$B);foreach($Ik
+as$w=>$L)$Ik[$w]="$L AS \"$w\"";$J=get_rows('SELECT r.routine_definition AS definition, LOWER(r.external_language) AS language, '.($Ik?implode(', ',$Ik).', ':'').'r.*
+FROM information_schema.routines r
+LEFT JOIN pg_catalog.pg_proc p ON p.oid::text = substring(r.specific_name, \'[0-9]+$\')
+WHERE r.routine_schema = current_schema() AND r.specific_name = '.q($A));if(!$J)return
+array();$H=$J[0];$H["options"]=array_intersect_key($H,$B);$H["returns"]=array("type"=>preg_replace('~^_(.*)~','\1[]',"$H[type_udt_name]"));$H["fields"]=get_rows("SELECT COALESCE(parameter_name, ordinal_position::text) AS field,
 	CASE data_type WHEN 'USER-DEFINED' THEN udt_name WHEN 'ARRAY' THEN substr(udt_name, 2) || '[]' ELSE data_type END AS type,
 	character_maximum_length AS length, parameter_mode AS inout
 FROM information_schema.parameters
-WHERE specific_schema = current_schema() AND specific_name = ".q($C)."
-ORDER BY ordinal_position");return$I;}function
+WHERE specific_schema = current_schema() AND specific_name = ".q($A)."
+ORDER BY ordinal_position");return$H;}function
 routines(){return
 get_rows('SELECT specific_name AS "SPECIFIC_NAME", routine_type AS "ROUTINE_TYPE", routine_name AS "ROUTINE_NAME", type_udt_name AS "DTD_IDENTIFIER"
 FROM information_schema.routines
 WHERE routine_schema = current_schema()'.(connection()->flavor=='cockroach'?'':"
 AND substring(specific_name, '[0-9]+\$')::oid NOT IN (SELECT objid FROM pg_catalog.pg_depend WHERE classid = 'pg_proc'::regclass AND deptype = 'e')").'
 ORDER BY SPECIFIC_NAME');}function
-routine_languages(){return
-get_vals("SELECT LOWER(lanname) FROM pg_catalog.pg_language");}function
-routine_id($C,array$J){$I=array();foreach($J["fields"]as$m){$y=$m["length"];$I[]=$m["type"].($y?"($y)":"");}return
-idf_escape($C)."(".implode(", ",$I).")";}function
-last_id($H){$J=(is_object($H)?$H->fetch_row():array());return($J?$J[0]:0);}function
-explain(Db$f,$G){return$f->query("EXPLAIN $G");}function
-found_rows(array$S,array$Z){if(preg_match("~ rows=([0-9]+)~",get_val("EXPLAIN SELECT * FROM ".idf_escape($S["Name"]).($Z?" WHERE ".implode(" AND ",$Z):"")),$Ei))return$Ei[1];}function
-types($jd=false){$lb=connection()->flavor=='cockroach';$qf=($lb?"'e'":"'b','c','d','e'".(min_version(9.2)?",'r'":""));return
+routine_languages(){$H=array();foreach(get_vals("SELECT LOWER(lanname) FROM pg_catalog.pg_language")as$jg)$H[$jg]=(preg_match('~sql$~',$jg)?"pgsql":"txt");return$H;}function
+routine_options($mk){$yb=(connection()->flavor=='cockroach');$Dk=($yb?array():array("SECURITY"=>array("SECURITY INVOKER","SECURITY DEFINER")));if($mk=="PROCEDURE")return$Dk;return
+array("VOLATILITY"=>array("VOLATILE","STABLE","IMMUTABLE"),"NULL_INPUT"=>array("CALLED ON NULL INPUT","RETURNS NULL ON NULL INPUT"),)+$Dk+($yb?array():array("PARALLEL"=>array("PARALLEL UNSAFE","PARALLEL RESTRICTED","PARALLEL SAFE"),));}function
+routine_id($A,array$I){$H=array();foreach($I["fields"]as$l){$x=$l["length"];$H[]=$l["type"].($x?"($x)":"");}return
+idf_escape($A)."(".implode(", ",$H).")";}function
+last_id($G){$I=(is_object($G)?$G->fetch_row():array());return($I?$I[0]:0);}function
+explain(Db$f,$F){return$f->query("EXPLAIN $F");}function
+found_rows(array$R,array$Z){if(preg_match("~ rows=([0-9]+)~",get_val("EXPLAIN SELECT * FROM ".idf_escape($R["Name"]).($Z?" WHERE ".implode(" AND ",$Z):"")),$Yj))return$Yj[1];}function
+types($Id=false){$yb=connection()->flavor=='cockroach';$fg=($yb?"'e'":"'b','c','d','e'".(min_version(9.2)?",'r'":""));return
 get_key_vals("SELECT t.oid, t.typname
 FROM pg_type t
 WHERE t.typnamespace = ".driver()->nsOid."
-AND t.typtype IN ($qf)".($lb?"
+AND t.typtype IN ($fg)".($yb?"
 AND t.typelem = 0":"
 AND (t.typrelid = 0 OR (SELECT c.relkind FROM pg_class c WHERE c.oid = t.typrelid) = 'c')"."
-AND NOT EXISTS (SELECT 1 FROM pg_type e WHERE e.typarray = t.oid)".($jd?'':"
+AND NOT EXISTS (SELECT 1 FROM pg_type e WHERE e.typarray = t.oid)".($Id?'':"
 AND t.oid NOT IN (SELECT objid FROM pg_catalog.pg_depend WHERE classid = 'pg_type'::regclass AND deptype = 'e')"))."
 ORDER BY t.typname");}function
-type_values($t){$Tc=get_vals("SELECT enumlabel FROM pg_enum WHERE enumtypid = $t ORDER BY enumsortorder");return($Tc?"'".implode("', '",array_map('addslashes',$Tc))."'":"");}function
-collation_name($Sg){return(min_version(9.1)?"(SELECT collname FROM pg_collation WHERE oid = $Sg AND collname != 'default')":"NULL");}function
-type_definition($t){$U=first(get_rows("SELECT typtype, typisdefined::int AS defined, typrelid FROM pg_type WHERE oid = $t"));$I=array("kind"=>($U?$U["typtype"]:""),"definition"=>"");if(!$U||!$U["defined"])return$I;switch($I["kind"]){case'e':$pl=get_vals("SELECT enumlabel FROM pg_enum WHERE enumtypid = $t ORDER BY enumsortorder");$I["definition"]="AS ENUM (".implode(", ",array_map('Adminer\q',$pl)).")";break;case'c':$e=array();foreach(get_rows("SELECT attname, format_type(atttypid, atttypmod) AS full_type, ".collation_name("attcollation")." AS collation
+type_values($s){$rd=get_vals("SELECT enumlabel FROM pg_enum WHERE enumtypid = $s ORDER BY enumsortorder");return($rd?"'".implode("', '",array_map('addslashes',$rd))."'":"");}function
+collation_name($Zh){return(min_version(9.1)?"(SELECT collname FROM pg_collation WHERE oid = $Zh AND collname != 'default')":"NULL");}function
+type_definition($s){$T=first(get_rows("SELECT typtype, typisdefined::int AS defined, typrelid FROM pg_type WHERE oid = $s"));$H=array("kind"=>($T?$T["typtype"]:""),"definition"=>"");if(!$T||!$T["defined"])return$H;switch($H["kind"]){case'e':$Y=get_vals("SELECT enumlabel FROM pg_enum WHERE enumtypid = $s ORDER BY enumsortorder");$H["definition"]="AS ENUM (".implode(", ",array_map('Adminer\q',$Y)).")";break;case'c':$e=array();foreach(get_rows("SELECT attname, format_type(atttypid, atttypmod) AS full_type, ".collation_name("attcollation")." AS collation
 FROM pg_attribute
-WHERE attrelid = $U[typrelid] AND attnum > 0 AND NOT attisdropped
-ORDER BY attnum")as$J)$e[]=idf_escape($J["attname"])." $J[full_type]".($J["collation"]?" COLLATE ".idf_escape($J["collation"]):"");$I["definition"]="AS (\n\t".implode(",\n\t",$e)."\n)";break;case'd':$zc=first(get_rows("SELECT format_type(typbasetype, typtypmod) AS base, typnotnull::int AS notnull, typdefault, ".collation_name("typcollation")." AS collation
-FROM pg_type WHERE oid = $t"));$I["definition"]="AS $zc[base]".($zc["collation"]?" COLLATE ".idf_escape($zc["collation"]):"").($zc["typdefault"]!=""?" DEFAULT $zc[typdefault]":"").($zc["notnull"]?" NOT NULL":"");foreach(get_rows("SELECT conname, pg_get_constraintdef(oid) AS definition FROM pg_constraint WHERE contypid = $t AND contype != 'n' ORDER BY conname")as$J)$I["definition"].=" CONSTRAINT ".idf_escape($J["conname"])." $J[definition]";break;case'r':$vi=first(get_rows("SELECT format_type(rngsubtype, NULL) AS subtype,
+WHERE attrelid = $T[typrelid] AND attnum > 0 AND NOT attisdropped
+ORDER BY attnum")as$I)$e[]=idf_escape($I["attname"])." $I[full_type]".($I["collation"]?" COLLATE ".idf_escape($I["collation"]):"");$H["definition"]="AS (\n\t".implode(",\n\t",$e)."\n)";break;case'd':$Uc=first(get_rows("SELECT format_type(typbasetype, typtypmod) AS base, typnotnull::int AS notnull, typdefault, ".collation_name("typcollation")." AS collation
+FROM pg_type WHERE oid = $s"));$H["definition"]="AS $Uc[base]".($Uc["collation"]?" COLLATE ".idf_escape($Uc["collation"]):"").($Uc["typdefault"]!=""?" DEFAULT $Uc[typdefault]":"").($Uc["notnull"]?" NOT NULL":"");foreach(get_rows("SELECT conname, pg_get_constraintdef(oid) AS definition FROM pg_constraint WHERE contypid = $s AND contype != 'n' ORDER BY conname")as$I)$H["definition"].=" CONSTRAINT ".idf_escape($I["conname"])." $I[definition]";break;case'r':$Nj=first(get_rows("SELECT format_type(rngsubtype, NULL) AS subtype,
 (SELECT opcname FROM pg_opclass WHERE oid = rngsubopc) AS subtype_opclass,
 ".collation_name("rngcollation")." AS collation,
 NULLIF(rngcanonical, 0)::regproc::text AS canonical,
 NULLIF(rngsubdiff, 0)::regproc::text AS subtype_diff".(min_version(14)?",
 (SELECT typname FROM pg_type WHERE oid = rngmultitypid) AS multirange_type_name":"")."
-FROM pg_range WHERE rngtypid = $t"));$jh=array();foreach(array("subtype"=>0,"subtype_opclass"=>1,"collation"=>1,"canonical"=>0,"subtype_diff"=>0,"multirange_type_name"=>1)as$x=>$Xc){if($vi[$x]!="")$jh[]=strtoupper($x)." = ".($Xc?idf_escape($vi[$x]):$vi[$x]);}$I["definition"]="AS RANGE (".implode(", ",$jh).")";}return$I;}function
+FROM pg_range WHERE rngtypid = $s"));$B=array();foreach(array("subtype"=>0,"subtype_opclass"=>1,"collation"=>1,"canonical"=>0,"subtype_diff"=>0,"multirange_type_name"=>1)as$w=>$vd){if($Nj[$w]!="")$B[]=strtoupper($w)." = ".($vd?idf_escape($Nj[$w]):$Nj[$w]);}$H["definition"]="AS RANGE (".implode(", ",$B).")";}return$H;}function
 schemas(){return
 get_vals("SELECT nspname FROM pg_namespace ORDER BY nspname");}function
 get_schema(){return(string)get_val("SELECT current_schema()");}function
-set_schema($L,$g=null){$I=connection($g)->query("SET search_path TO ".idf_escape($L));driver()->setUserTypes(types(true));return!!$I;}function
-drop_sql(array$T){$I="";foreach(drop_kinds($T)as$pf=>$xg)$I
-.="DROP $pf IF EXISTS ".implode(", ",$xg).";\n";return($I?"$I\n":"");}function
-foreign_keys_sql($R){$I="";$P=table_status1($R);$Hg=idf_escape($P['nspname']);$Dd=foreign_keys($R);ksort($Dd);foreach($Dd
-as$Cd=>$Bd)$I
-.="ALTER TABLE ONLY $Hg.".idf_escape($P['Name'])." ADD CONSTRAINT ".idf_escape($Cd)." ".preg_replace('~( REFERENCES )([^(.]+\()~',"\\1$Hg.\\2",$Bd["definition"]).";\n";return($I?"$I\n":$I);}function
-indexes_sql($R,$ii=""){$I="";$G="SELECT indexdef FROM pg_catalog.pg_indexes WHERE schemaname = current_schema() AND tablename = ".q($R).($ii!=""?" AND indexname != ".q($ii):"");foreach(get_rows($G,null,"-- ")as$J)$I
-.="\n\n$J[indexdef];";return$I;}function
-create_sql($R,$Ea,$Nj){$Li=array();$kj=array();$lj=array();$jj=array();$P=table_status1($R);$Hg=idf_escape($P['nspname']);if(is_view($P)){$tl=view($R);$h="CREATE ".strtoupper($P["Engine"])." $Hg.".idf_escape($R)." AS ".rtrim($tl["select"],";").";";return
-rtrim($h.indexes_sql($R),';');}$n=fields($R);if(count($P)<2||empty($n))return"";$I="CREATE TABLE $Hg.".idf_escape($P['Name'])." (\n    ";$Xj=q("$Hg.".idf_escape($P['Name']));foreach($n
-as$m){$mj="";if($m['default']=="nextval('$P[Name]_$m[field]_seq')"){$mj="$Hg.".idf_escape("$P[Name]_$m[field]_seq");$m['default']=null;$m['full_type']=preg_replace('~int(eger)?~','serial',$m['full_type']);}$Gh=idf_escape($m['field']).' '.$m['full_type'].preg_replace('~(nextval\(\')([^.\']+\')~','\1'.str_replace("'","''",$P['nspname']).'.\2',default_value($m)).($m['null']?"":" NOT NULL");$Li[]=$Gh;if(preg_match('~nextval\(\'([^\']+)\'\)~',$m['default'],$Of)){$ij=$Of[1];$Bj=first(get_rows((min_version(10)?"SELECT *, cache_size AS cache_value FROM pg_sequences WHERE schemaname = current_schema() AND sequencename = ".q(idf_unescape($ij)):"SELECT * FROM $ij"),null,"-- "));$kj[]=($Nj=="DROP+CREATE"?"DROP SEQUENCE IF EXISTS $Hg.$ij;\n":"")."CREATE SEQUENCE $Hg.$ij INCREMENT $Bj[increment_by] MINVALUE $Bj[min_value] MAXVALUE $Bj[max_value]"." CACHE $Bj[cache_value];";if(get_val("SELECT pg_get_serial_sequence($Xj, ".q($m['field']).")"))$lj[]="\n\nALTER SEQUENCE $Hg.$ij OWNED BY $Hg.".idf_escape($P['Name']).".".idf_escape($m['field']).";";if($Ea)$jj[]="$Hg.$ij";}elseif($Ea&&$m['auto_increment'])$jj[]=($mj?:get_val("SELECT pg_get_serial_sequence($Xj, ".q($m['field']).")"));}if(!empty($kj))$I=implode("\n\n",$kj)."\n\n$I";$ii="";foreach(indexes($R)as$Ie=>$v){if($v['type']=='PRIMARY'){$ii=$Ie;$Li[]="CONSTRAINT ".idf_escape($Ie)." PRIMARY KEY (".implode(', ',array_map('Adminer\idf_escape',$v['columns'])).")";}}foreach(driver()->checkConstraints($R)as$Bb=>$Db)$Li[]="CONSTRAINT ".idf_escape($Bb)." CHECK ($Db)";$I
-.=implode(",\n    ",$Li)."\n)";$Ih=driver()->partitionsInfo($P['Name']);if($Ih)$I
-.="\nPARTITION BY $Ih[partition_by]($Ih[partition])";$I
-.="\nWITH (oids = ".($P['Oid']?'true':'false').");";$I
-.=implode($lj);if($P['Comment'])$I
-.="\n\nCOMMENT ON TABLE $Hg.".idf_escape($P['Name'])." IS ".q($P['Comment']).";";foreach($n
-as$qd=>$m){if($m['comment'])$I
-.="\n\nCOMMENT ON COLUMN $Hg.".idf_escape($P['Name']).".".idf_escape($qd)." IS ".q($m['comment']).";";}$I
-.=indexes_sql($R,$ii);foreach(array_filter($jj)as$hj){$Bj=first(get_rows("SELECT last_value, is_called::int FROM $hj",null,"-- "));if($Bj['is_called'])$I
-.="\n\nDO \$\$ BEGIN PERFORM setval(".q($hj).", $Bj[last_value]); END \$\$;";}return
-rtrim($I,';');}function
-truncate_sql($R){return"TRUNCATE ".table($R);}function
-truncate_all_sql(array$T){return($T?"TRUNCATE ".implode(", ",array_map('Adminer\table',$T)).";\n\n":"");}function
-trigger_sql($R){$P=table_status1($R);$I="";foreach(triggers($R)as$Ek=>$Dk){$Fk=trigger($Ek,$P['Name']);$I
-.="\nCREATE TRIGGER ".idf_escape($Fk['Trigger'])." $Fk[Timing] $Fk[Event] ON ".idf_escape($P["nspname"]).".".idf_escape($P['Name'])." $Fk[Type] $Fk[Statement];;\n";}return$I;}function
-use_sql($Zb,$Nj=""){$C=idf_escape($Zb);$I="";if(preg_match('~CREATE~',$Nj)){if($Nj=="DROP+CREATE")$I="DROP DATABASE IF EXISTS $C;\n";$I
-.="CREATE DATABASE $C;\n";}return"$I\\connect $C";}function
+set_schema($K,$g=null){$_GET["ns"]=$K;$H=get_val("SELECT set_config('search_path', ".q(idf_escape($K)).", false) FROM pg_namespace WHERE nspname = ".q($K),0,$g);driver()->setUserTypes(types(true));return!!$H;}function
+drop_sql(array$S){$H="";foreach(drop_kinds($S)as$eg=>$zh)$H
+.="DROP $eg IF EXISTS ".implode(", ",$zh).";\n";return($H?"$H\n":"");}function
+foreign_keys_sql($Q){$H="";$ce=foreign_keys($Q);ksort($ce);foreach($ce
+as$be=>$ae){$H
+.="ALTER TABLE ONLY ".table($Q)." ADD CONSTRAINT ".idf_escape($be)." ".preg_replace_callback('~( REFERENCES )([^(.]+)\(~',function(array$_){return$_[1].table(idf_unescape($_[2]))."(";},$ae["definition"]).";\n";}return($H?"$H\n":$H);}function
+indexes_sql($Q,$_j=""){$H="";$F="SELECT indexdef, quote_ident(schemaname) || '.' || quote_ident(tablename) AS qualified, quote_ident(current_database()) AS db
+FROM pg_catalog.pg_indexes
+WHERE schemaname = current_schema() AND tablename = ".q($Q).($_j!=""?" AND indexname != ".q($_j):"");foreach(get_rows($F,null,"-- ")as$I)$H
+.="\n\n".str_replace(array(" $I[db].$I[qualified] USING "," $I[qualified] USING ")," ".table($Q)." USING ",$I["indexdef"]).";";return$H;}function
+create_sql($Q,$La,$Dl){$hk=array();$Pk=array();$Qk=array();$Ok=array();$O=table_status1($Q);if(is_view($O)){$zn=view($Q);$ec="CREATE ".strtoupper($O["Engine"])." ".table($Q)." AS ".rtrim($zn["select"],";").";";return
+rtrim($ec.indexes_sql($Q),';');}$m=fields($Q);if(count($O)<2||empty($m))return"";$H="CREATE TABLE ".table($O['Name'])." (\n    ";$Rl=q(table($O['Name']));foreach($m
+as$l){$Rk="";if($l['default']=="nextval('$O[Name]_$l[field]_seq')"){$Rk=table("$O[Name]_$l[field]_seq");$l['default']=null;$l['full_type']=preg_replace('~int(eger)?~','serial',$l['full_type']);}$Pi=idf_escape($l['field']).' '.full_type_sql($l).preg_replace_callback('~(nextval\(\')([^.\']+)\'~',function(array$_){return$_[1].str_replace("'","''",table(idf_unescape($_[2])))."'";},default_value($l)).($l['null']?"":" NOT NULL");$hk[]=$Pi;if(preg_match('~nextval\(\'([^\']+)\'\)~',$l['default'],$Hg)){$Nk=$Hg[1];$pl=first(get_rows((min_version(10)?"SELECT *, cache_size AS cache_value FROM pg_sequences WHERE schemaname = current_schema() AND sequencename = ".q(idf_unescape($Nk)):"SELECT * FROM $Nk"),null,"-- "));$Mk=table(idf_unescape($Nk));$Pk[]=($Dl=="DROP+CREATE"?"DROP SEQUENCE IF EXISTS $Mk;\n":"")."CREATE SEQUENCE $Mk INCREMENT $pl[increment_by] MINVALUE $pl[min_value] MAXVALUE $pl[max_value]"." CACHE $pl[cache_value];";if(get_val("SELECT pg_get_serial_sequence($Rl, ".q($l['field']).")"))$Qk[]="\n\nALTER SEQUENCE $Mk OWNED BY ".table($O['Name']).".".idf_escape($l['field']).";";if($La)$Ok[]=$Mk;}elseif($La&&$l['auto_increment']){$Mk=($Rk?"":get_val("SELECT pg_get_serial_sequence($Rl, ".q($l['field']).")::regclass"));$Ok[]=($Mk?table(idf_unescape($Mk)):$Rk);}}if(!empty($Pk))$H=implode("\n\n",$Pk)."\n\n$H";$_j="";foreach(indexes($Q)as$uf=>$u){if($u['type']=='PRIMARY'){$_j=$uf;$hk[]="CONSTRAINT ".idf_escape($uf)." PRIMARY KEY (".implode(', ',array_map('Adminer\idf_escape',$u['columns'])).")";}}foreach(driver()->checkConstraints($Q)as$Pb=>$Rb)$hk[]="CONSTRAINT ".idf_escape($Pb)." CHECK ($Rb)";$H
+.=implode(",\n    ",$hk)."\n)";$Ri=driver()->partitionsInfo($O['Name']);if($Ri)$H
+.="\nPARTITION BY $Ri[partition_by]($Ri[partition])";$H
+.=(min_version(12)?"":"\nWITH (oids = ".($O['Oid']?'true':'false').")").";";$H
+.=implode($Qk);if($O['Comment'])$H
+.="\n\nCOMMENT ON TABLE ".table($O['Name'])." IS ".q($O['Comment']).";";foreach($m
+as$Pd=>$l){if($l['comment'])$H
+.="\n\nCOMMENT ON COLUMN ".table($O['Name']).".".idf_escape($Pd)." IS ".q($l['comment']).";";}$H
+.=indexes_sql($Q,$_j);foreach(array_filter($Ok)as$Mk){$pl=first(get_rows("SELECT last_value, is_called::int FROM $Mk",null,"-- "));if($pl['is_called'])$H
+.="\n\nDO \$\$ BEGIN PERFORM setval(".q($Mk).", $pl[last_value]); END \$\$;";}return
+rtrim($H,';');}function
+truncate_sql($Q){return"TRUNCATE ".table($Q);}function
+truncate_all_sql(array$S){return($S?"TRUNCATE ".implode(", ",array_map('Adminer\table',$S)).";\n\n":"");}function
+trigger_sql($Q){$O=table_status1($Q);$H="";foreach(triggers($Q)as$Em=>$Dm){$Fm=trigger($Em,$O['Name']);$H
+.="\nCREATE TRIGGER ".idf_escape($Fm['Trigger'])." $Fm[Timing] $Fm[Event] ON ".table($O['Name'])." $Fm[Type] $Fm[Statement];;\n";}return$H;}function
+use_sql($rc,$Dl=""){$A=idf_escape($rc);$H="";if(preg_match('~CREATE~',$Dl)){if($Dl=="DROP+CREATE")$H="DROP DATABASE IF EXISTS $A;\n";$H
+.="CREATE DATABASE $A;\n";}return"$H\\connect $A";}function
+use_schema_sql($K,$Dl){$A=idf_escape($K);$H="";if(preg_match('~CREATE~',$Dl)){if($Dl=="DROP+CREATE")$H="DROP SCHEMA IF EXISTS $A CASCADE;\n";$H
+.="CREATE SCHEMA IF NOT EXISTS $A;\n";}return$H."SET search_path TO $A";}function
 show_variables(){return
 get_rows("SHOW ALL");}function
 process_list(){return
 get_rows("SELECT * FROM pg_stat_activity ORDER BY ".(min_version(9.2)?"pid":"procpid"));}function
-convert_field(array$m){}function
-unconvert_field(array$m,$I){return$I;}function
-support($od){return
-preg_match('~^(check|columns|comment|database|drop_col|dump|descidx|fast_status|indexes|kill|partial_indexes|routine|scheme|sequence|sql|table'.'|transaction_ddl|trigger|type|variables|view'.(min_version(9.3)?'|materializedview':'').(min_version(11)?'|procedure':'').(connection()->flavor=='cockroach'?'':'|deferrable').(connection()->flavor=='cockroach'?'':'|processlist').')$~',$od);}function
-kill_process($t){return
-queries("SELECT pg_terminate_backend(".number($t).")");}function
+convert_field(array$l){if(preg_match('~^(geometry|geography)$~',$l["type"])&&strpos($l["full_type"],"[")===false)return"ST_AsEWKT(".idf_escape($l["field"]).")";}function
+unconvert_field(array$l,$H){return($l["composite"]?"$H::".full_type_sql($l):$H);}function
+support($Nd){return
+preg_match('~^(check|columns|comment|database|drop_col|dump|descidx|fast_status|indexes|kill|partial_indexes|routine|scheme|sequence|sql|table'.'|transaction_ddl|trigger|type|variables|view'.(min_version(9.3)?'|materializedview':'').(min_version(11)?'|procedure':'').(connection()->flavor=='cockroach'?'':'|deferrable').(connection()->flavor=='cockroach'||!min_version(9.1)?'':'|extension').(connection()->flavor=='cockroach'?'':'|processlist').')$~',$Nd);}function
+kill_process($s){return
+queries("SELECT pg_terminate_backend(".number($s).")");}function
 connection_id(){return"SELECT pg_backend_pid()";}function
 max_connections(){return
 get_val("SHOW max_connections");}}add_driver("sqlite","SQLite");if(isset($_GET["sqlite"])){define('Adminer\DRIVER',"sqlite");if(class_exists("SQLite3")&&$_GET["ext"]!="pdo"){abstract
@@ -1415,305 +1523,366 @@ class
 SqliteDb
 extends
 SqlDb{var$extension="SQLite3";private$link;function
-attach($o,$V,$E){$this->link=new
-\SQLite3($o);$sl=$this->link->version();$this->server_info=$sl["versionString"];return'';}function
-query($G,$Pk=false){$H=@$this->link->query($G);$this->error="";if(!$H){$this->errno=$this->link->lastErrorCode();$this->error=$this->link->lastErrorMsg();return
-false;}elseif($H->numColumns())return
+attach(array$M,$U,$D){$this->link=new
+\SQLite3($M["path"]);if(method_exists($this->link,'setAuthorizer'))$this->link->setAuthorizer(array($this,'authorize'));$yn=\SQLite3::version();$this->server_info=$yn["versionString"];return'';}function
+query($F,$Rm=false){$G=@$this->link->query($F);$this->error="";if(!$G){$this->errno=$this->link->lastErrorCode();$this->error=$this->link->lastErrorMsg();return
+false;}elseif($G->numColumns())return
 new
-Result($H);$this->affected_rows=$this->link->changes();return
+Result($G);$this->affected_rows=$this->link->changes();return
 true;}function
-quote($Q){return(is_utf8($Q)?"'".$this->link->escapeString($Q)."'":"x'".bin2hex($Q)."'");}}class
+quote($P){return(is_utf8($P)?"'".$this->link->escapeString($P)."'":"x'".bin2hex($P)."'");}}class
 Result{var$num_rows;private$result,$offset=0;function
-__construct($H){$this->result=$H;}function
+__construct($G){$this->result=$G;}function
 fetch_assoc(){return$this->result->fetchArray(SQLITE3_ASSOC);}function
 fetch_row(){return$this->result->fetchArray(SQLITE3_NUM);}function
-fetch_field(){$Ok=array(1=>"integer","real","text","blob","null");$d=$this->offset++;$U=$this->result->columnType($d);return(object)array("name"=>$this->result->columnName($d),"type"=>($U==SQLITE3_TEXT?15:0),"native_type"=>$Ok[$U],"charsetnr"=>($U==SQLITE3_BLOB?63:0),);}}}elseif(extension_loaded("pdo_sqlite")){abstract
+fetch_field(){$Qm=array(1=>"integer","real","text","blob","null");$d=$this->offset++;return(object)array("name"=>$this->result->columnName($d),"native_type"=>$Qm[$this->result->columnType($d)],);}}}elseif(extension_loaded("pdo_sqlite")){abstract
 class
 SqliteDb
 extends
 PdoDb{var$extension="PDO_SQLite";function
-attach($o,$V,$E){return$this->dsn(DRIVER.":$o","","");}function
-quote($Q){return(is_utf8($Q)?parent::quote($Q):"x'".bin2hex($Q)."'");}}}if(class_exists('Adminer\SqliteDb')){class
+attach(array$M,$U,$D){$H=$this->dsn(DRIVER.":".$M["path"],"","",array(),(class_exists('Pdo\Sqlite')?'Pdo\Sqlite':'PDO'));if(!$H&&method_exists($this->pdo,'setAuthorizer'))$this->pdo->setAuthorizer(array($this,'authorize'));return$H;}function
+quote($P){return(is_utf8($P)?parent::quote($P):"x'".bin2hex($P)."'");}}}if(class_exists('Adminer\SqliteDb')){class
 Db
 extends
-SqliteDb{function
-attach($o,$V,$E){parent::attach($o,$V,$E);$this->query("PRAGMA foreign_keys = 1");$this->query("PRAGMA busy_timeout = 500");return'';}function
-select_db($o){$G="ATTACH ".$this->quote(preg_match("~(^[/\\\\]|:)~",$o)?$o:dirname($_SERVER["SCRIPT_FILENAME"])."/$o")." AS a";if(is_readable($o)&&$this->query($G))return!self::attach($o,'','');return
-false;}}}class
+SqliteDb{private$attaching=false;function
+attach(array$M,$U,$D){parent::attach($M,$U,$D);$this->query("PRAGMA foreign_keys = 1");$this->query("PRAGMA busy_timeout = 500");return'';}function
+select_db($n){$F="ATTACH ".$this->quote(preg_match("~(^[/\\\\]|:)~",$n)?$n:dirname($_SERVER["SCRIPT_FILENAME"])."/$n")." AS a";$this->attaching=true;$Ia=is_readable($n)&&$this->query($F);$this->attaching=false;if($Ia)return!self::attach(server_parts(array("path"=>$n)),'','');return
+false;}function
+authorize($ia,$Ca){return($ia!=24||$Ca===''||$this->attaching?0:1);}}}class
 Driver
 extends
-SqlDriver{static$extensions=array("SQLite3","PDO_SQLite");static$jush="sqlite";protected$types=array(array("integer"=>0,"real"=>0,"numeric"=>0,"text"=>0,"blob"=>0));var$insertFunctions=array();var$editFunctions=array("integer|real|numeric"=>"+/-","text"=>"||",);var$operators=array("=","<",">","<=",">=","!=","LIKE","LIKE %%","IN","IS NULL","NOT LIKE","NOT IN","IS NOT NULL","SQL");var$functions=array("hex","length","lower","round","unixepoch","upper");var$grouping=array("avg","count","count distinct","group_concat","max","min","sum");static
+SqlDriver{static$extensions=array("SQLite3","PDO_SQLite");static$jush="sqlite";static$passwords=false;static$serverFile=true;protected$types=array(array("integer"=>0,"real"=>0,"numeric"=>0,"text"=>0,"blob"=>0));var$insertFunctions=array();var$editFunctions=array("integer|real|numeric"=>"+/-","text"=>"||",);var$fulltextOperator="MATCH";var$functions=array("hex","length","lower","round","unixepoch","upper");var$grouping=array("avg","count","count distinct","group_concat","max","min","sum");function
+operators($Ml){$H=array("=","<",">","<=",">=","!=","LIKE","LIKE %%","IN","IS NULL","NOT LIKE","NOT IN","IS NOT NULL");if(preg_match('~^fts\d+$~i',(string)idx($Ml,"Engine")))$H[]="MATCH";$H[]="SQL";return$H;}static
 function
-connect($N,$V,$E){if($E!="")return'Database does not support password.';return
+connect($M,$U,$D){return
 parent::connect(":memory:","","");}function
 __construct(Db$f){parent::__construct($f);if(min_version(3.31,0,$f))$this->generated=array("STORED","VIRTUAL");if(min_version(3.37,0,$f))$this->types[0]["any"]=0;}function
 structuredTypes(){return
 array_keys($this->types[0]);}function
-quoteBinary($Ui){return"x".q(bin2hex($Ui));}function
-engines(){$I=array("table");if(min_version("3.8.2")){if(min_version(3.37)){$I[]="STRICT";$I[]="STRICT, WITHOUT ROWID";}$I[]="WITHOUT ROWID";}return$I;}function
-insertUpdate($R,array$K,array$ii){$pl=array();foreach($K
-as$O)$pl[]="(".implode(", ",$O).")";return
-queries("REPLACE INTO ".table($R)." (".implode(", ",array_keys(reset($K))).") VALUES\n".implode(",\n",$pl));}function
-tableHelp($C,$ff=false){if(preg_match('~^sqlite_(seq|stat.)~',$C,$B))return"fileformat2.html#$B[1]tab";if(preg_match('~^sqlite(_temp)?_(master|schema)$~',$C))return"schematab.html";}function
-checkConstraints($R){preg_match_all('~ CHECK *(\( *(((?>[^()]*[^() ])|(?1))*) *\))~',get_val("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ".q($R),0,$this->conn),$Of);return
-array_combine($Of[2],$Of[2]);}function
-allFields(){$I=array();foreach(tables_list()as$R=>$U){foreach(fields($R)as$m)$I[$R][]=$m;}return$I;}}function
-idf_escape($u){return'"'.str_replace('"','""',$u).'"';}function
-table($u){return
-idf_escape($u);}function
-get_databases($Fd){return
+quoteBinary($vk){return"x".q(bin2hex($vk));}function
+typeName(\stdClass$l){$H=strtolower(idx((array)$l,'sqlite:decl_type',parent::typeName($l)));return
+idx(array("string"=>"text","double"=>"real"),$H,$H);}function
+engines(){$H=array("table");if(min_version("3.8.2")){if(min_version(3.37)){$H[]="STRICT";$H[]="STRICT, WITHOUT ROWID";}$H[]="WITHOUT ROWID";}return$H;}private
+function
+isVirtual(array$R){$nd=$R["Engine"];return$nd!=""&&!in_array($nd,array_merge(array("view"),$this->engines()));}function
+supportsIndex(array$R){return!is_view($R)&&!$this->isVirtual($R);}function
+supportsAlterIndex(array$R){return$this->supportsIndex($R);}function
+supportsAlterTable(array$Ml){return!$this->isVirtual($Ml);}function
+shadowTables($Q){$H=array();if(min_version(3.37)){foreach(get_vals("SELECT name FROM pragma_table_list WHERE schema = 'main' AND type = 'shadow' ORDER BY name")as$A){if(preg_match('(^'.preg_quote($Q).'_[^_]*$)',$A))$H[]=array("table"=>$A,"ns"=>"");}}return$H;}function
+fulltextSql($A,array$u,$F,$ab){return
+idf_escape($A)." MATCH ".q($F);}function
+insertUpdate($Q,array$J,array$_j){$Y=array();foreach($J
+as$N)$Y[]="(".implode(", ",$N).")";return
+queries("REPLACE INTO ".table($Q)." (".implode(", ",array_keys(reset($J))).") VALUES\n".implode(",\n",$Y));}function
+tableHelp($A,$Tf=false){if(preg_match('~^sqlite_(seq|stat.)~',$A,$_))return"fileformat2.html#$_[1]tab";if(preg_match('~^sqlite(_temp)?_(master|schema)$~',$A))return"schematab.html";}function
+checkConstraints($Q){preg_match_all('~ CHECK *(\( *(((?>[^()]*[^() ])|(?1))*) *\))~',get_val("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ".q($Q),0,$this->conn),$Hg);return
+array_combine($Hg[2],$Hg[2]);}function
+allFields(){$H=array();if(min_version(3.16)){$J=get_rows('SELECT m.name AS tab, p.name AS field, p.type, p."notnull", p.pk AS '.idf_escape("primary")."
+FROM sqlite_master m, pragma_table_".(min_version(3.31)?"x":"")."info(m.name) p
+WHERE m.type IN ('table', 'view')".(min_version(3.31)?"
+AND p.hidden != 1":"").(min_version(3.37)?"
+AND m.name NOT IN (SELECT name FROM pragma_table_list WHERE type = 'shadow')":"")."
+ORDER BY (m.name LIKE 'sqlite_%'), m.name, p.cid",$this->conn);foreach($J
+as$I){$I["type"]=type_affinity($I["type"]);$I["null"]=!$I["notnull"];$H[$I["tab"]][]=$I;}}else{foreach(tables_list()as$Q=>$T){foreach(fields($Q)as$l)$H[$Q][]=$l;}}return$H;}}function
+idf_escape($t){return'"'.str_replace('"','""',$t).'"';}function
+table($t){return
+idf_escape($t);}function
+get_databases($fe){return
 array();}function
-limit($G,$Z,$z,$Rg=0,$gj=" "){return" $G$Z".($z?$gj."LIMIT $z".($Rg?" OFFSET $Rg":""):"");}function
-limit1($R,$G,$Z,$gj="\n"){return(preg_match('~^INTO~',$G)||get_val("SELECT sqlite_compileoption_used('ENABLE_UPDATE_DELETE_LIMIT')")?limit($G,$Z,1,0,$gj):" $G WHERE rowid = (SELECT rowid FROM ".table($R).$Z.$gj."LIMIT 1)");}function
-db_collation($j,array$qb){return
+limit($F,$Z,$y,$Yh=0,$Lk=" "){return" $F$Z".($y?$Lk."LIMIT $y".($Yh?" OFFSET $Yh":""):"");}function
+limit1($Q,$F,$Z,$Lk="\n"){return(preg_match('~^INTO~',$F)||get_val("SELECT sqlite_compileoption_used('ENABLE_UPDATE_DELETE_LIMIT')")?limit($F,$Z,1,0,$Lk):" $F WHERE rowid = (SELECT rowid FROM ".table($Q).$Z.$Lk."LIMIT 1)");}function
+db_collation($i,array$Cb){return
 get_val("PRAGMA encoding");}function
 logged_user(){return
 get_current_user();}function
+virtual_module($ql){return(preg_match('~^CREATE\s+VIRTUAL\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:"[^"]*+"|`[^`]*+`|\[[^\]]*+\]|[^\s(]+)\s+USING\s+([a-z0-9_]+)~i',$ql,$_)?$_[1]:"");}function
 tables_list(){return
-get_key_vals("SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view') ORDER BY (name LIKE 'sqlite_%'), name");}function
-count_tables(array$i){return
+get_key_vals("SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view')".(min_version(3.37)?" AND name NOT IN (SELECT name FROM pragma_table_list WHERE type = 'shadow')":"")."
+ORDER BY (name LIKE 'sqlite_%'), name");}function
+count_tables(array$h){return
 array();}function
-db_status(){$Bh=get_val("PRAGMA page_size");$Nd=get_val("PRAGMA freelist_count")*$Bh;return
-array("Data_length"=>get_val("PRAGMA page_count")*$Bh-$Nd,"Index_length"=>0,"Data_free"=>$Nd,);}function
-table_status($C="",$nd=false){$I=array();$K=array();if(!$nd&&$C==""){connection()->query("PRAGMA optimize = 0x10002");$K=get_key_vals("SELECT tbl, MAX(CAST(stat AS integer)) FROM sqlite_stat1 GROUP BY tbl");}foreach(get_rows("SELECT name AS Name, type AS Engine, sql, 'rowid' AS Oid, '' AS Auto_increment FROM sqlite_master WHERE type IN ('table', 'view') ".($C!=""?"AND name = ".q($C):"ORDER BY (name LIKE 'sqlite_%'), name"))as$J){if($J["Engine"]=="table"){$Pj=preg_replace('~.*\)~s','',$J["sql"]);$J["Engine"]=implode(", ",array_filter(array((preg_match('~\bSTRICT\b~i',$Pj)?"STRICT":0),(preg_match('~\bWITHOUT\s+ROWID\b~i',$Pj)?"WITHOUT ROWID":0),)))?:"table";}unset($J["sql"]);$J["Rows"]=idx($K,$J["Name"],0);$I[$J["Name"]]=$J;}if(!$nd){foreach(get_rows("SELECT * FROM sqlite_sequence".($C!=""?" WHERE name = ".q($C):""),null,"")as$J)$I[$J["name"]]["Auto_increment"]=$J["seq"];}return$I;}function
-is_view(array$S){return$S["Engine"]=="view";}function
-fk_support(array$S){return!get_val("SELECT sqlite_compileoption_used('OMIT_FOREIGN_KEY')");}function
-fields($R){$I=array();$Cj=get_val("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ".q($R));$ni=array("select"=>1,"where"=>1,"order"=>1);if(!preg_match('~^sqlite(_temp)?_(master|schema)$~',$R))$ni+=array("insert"=>1,"update"=>1);foreach(get_rows("PRAGMA table_".(min_version(3.31)?"x":"")."info(".table($R).")")as$J){$C=$J["name"];$U=strtolower($J["type"]);$k=$J["dflt_value"];$I[$C]=array("field"=>$C,"type"=>(preg_match('~int~i',$U)?"integer":(preg_match('~char|clob|text~i',$U)?"text":(preg_match('~blob~i',$U)?"blob":(preg_match('~real|floa|doub~i',$U)?"real":(preg_match('~any~i',$U)?"any":"numeric"))))),"full_type"=>$U,"default"=>(preg_match("~^'(.*)'$~",$k,$B)?str_replace("''","'",$B[1]):($k=="NULL"?null:$k)),"null"=>!$J["notnull"],"privileges"=>$ni,"primary"=>$J["pk"],);if($J["pk"]&&preg_match('~\bAUTOINCREMENT\b~i',$Cj))$I[$C]["auto_increment"]=true;}$u='(("[^"]*+")+|[a-z0-9_]+)';preg_match_all('~'.$u.'\s+text\s+COLLATE\s+(\'[^\']+\'|\S+)~i',$Cj,$Of,PREG_SET_ORDER);foreach($Of
-as$B){$C=str_replace('""','"',preg_replace('~^"|"$~','',$B[1]));if($I[$C])$I[$C]["collation"]=trim($B[3],"'");}preg_match_all('~'.$u.'\s.*GENERATED ALWAYS AS \((.+)\) (STORED|VIRTUAL)~i',$Cj,$Of,PREG_SET_ORDER);foreach($Of
-as$B){$C=str_replace('""','"',preg_replace('~^"|"$~','',$B[1]));$I[$C]["default"]=$B[3];$I[$C]["generated"]=strtoupper($B[4]);}return$I;}function
-indexes($R,$g=null){$g=connection($g);$I=array();$Cj=get_val("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ".q($R),0,$g);if(preg_match('~\bPRIMARY\s+KEY\s*\((([^)"]+|"[^"]*"|`[^`]*`)++)~i',$Cj,$B)){$I[""]=array("type"=>"PRIMARY","columns"=>array(),"lengths"=>array(),"descs"=>array());preg_match_all('~((("[^"]*+")+|(?:`[^`]*+`)+)|(\S+))(\s+(ASC|DESC))?(,\s*|$)~i',$B[1],$Of,PREG_SET_ORDER);foreach($Of
-as$B){$I[""]["columns"][]=idf_unescape($B[2]).$B[4];$I[""]["descs"][]=(preg_match('~DESC~i',$B[5])?'1':null);}}if(!$I){foreach(fields($R)as$C=>$m){if($m["primary"])$I[""]=array("type"=>"PRIMARY","columns"=>array($C),"lengths"=>array(),"descs"=>array(null));}}$Hj=get_key_vals("SELECT name, sql FROM sqlite_master WHERE type = 'index' AND tbl_name = ".q($R),$g);foreach(get_rows("PRAGMA index_list(".table($R).")",$g)as$J){$C=$J["name"];$v=array("type"=>($J["unique"]?"UNIQUE":"INDEX"));$v["lengths"]=array();$v["descs"]=array();foreach(get_rows("PRAGMA index_info(".idf_escape($C).")",$g)as$Ti){$v["columns"][]=$Ti["name"];$v["descs"][]=null;}if(preg_match('~^CREATE( UNIQUE)? INDEX '.preg_quote(idf_escape($C).' ON '.idf_escape($R),'~').' \((.*)\)$~i',$Hj[$C],$Ei)){preg_match_all('/("[^"]*+")+( DESC)?/',$Ei[2],$Of);foreach($Of[2]as$x=>$X){if($X)$v["descs"][$x]='1';}}if(!$I[""]||$v["type"]!="UNIQUE"||$v["columns"]!=$I[""]["columns"]||$v["descs"]!=$I[""]["descs"]||!preg_match("~^sqlite_~",$C))$I[$C]=$v;}return$I;}function
-foreign_keys($R){$I=array();foreach(get_rows("PRAGMA foreign_key_list(".table($R).")")as$J){$p=&$I[$J["id"]];if(!$p)$p=$J;$p["source"][]=$J["from"];$p["target"][]=$J["to"];}return$I;}function
-view($C){return
-array("select"=>preg_replace('~^(?:[^`"[]+|`[^`]*`|"[^"]*")* AS\s+~iU','',get_val("SELECT sql FROM sqlite_master WHERE type = 'view' AND name = ".q($C))));}function
+db_status(){$Ji=get_val("PRAGMA page_size");$pe=get_val("PRAGMA freelist_count")*$Ji;return
+array("Data_length"=>get_val("PRAGMA page_count")*$Ji-$pe,"Index_length"=>0,"Data_free"=>$pe,);}function
+table_status($A="",$Md=false){$H=array();$J=array();if(!$Md&&$A==""){connection()->query("PRAGMA optimize = 0x10002");$J=get_key_vals("SELECT tbl, MAX(CAST(stat AS integer)) FROM sqlite_stat1 GROUP BY tbl");}foreach(get_rows("SELECT name AS Name, type AS Engine, sql, 'rowid' AS Oid, '' AS Auto_increment".(min_version(3.37)?", name IN (SELECT name FROM pragma_table_list WHERE type = 'shadow') AS dependent":"")." FROM sqlite_master WHERE type IN ('table', 'view') ".($A!=""?"AND name = ".q($A):"ORDER BY (name LIKE 'sqlite_%'), name"))as$I){if($I["Engine"]=="table"){$ql=preg_replace('~(?:\s|--[^\n]*|/\*.*?\*/)+$~s','',$I["sql"]);$Fl=preg_replace('~.*\)~s','',$ql);$I["Engine"]=virtual_module($I["sql"])?:(implode(", ",array_filter(array((preg_match('~\bSTRICT\b~i',$Fl)?"STRICT":0),(preg_match('~\bWITHOUT\s+ROWID\b~i',$Fl)?"WITHOUT ROWID":0),)))?:"table");}unset($I["sql"]);$I["Rows"]=idx($J,$I["Name"],0);$H[$I["Name"]]=$I;}if(!$Md){foreach(get_rows("SELECT * FROM sqlite_sequence".($A!=""?" WHERE name = ".q($A):""),null,"")as$I)$H[$I["name"]]["Auto_increment"]=$I["seq"];}return$H;}function
+is_view(array$R){return$R["Engine"]=="view";}function
+fk_support(array$R){return!get_val("SELECT sqlite_compileoption_used('OMIT_FOREIGN_KEY')");}function
+type_affinity($T){$T=strtolower($T);return(preg_match('~int~i',$T)?"integer":(preg_match('~char|clob|text~i',$T)?"text":(preg_match('~blob~i',$T)?"blob":(preg_match('~real|floa|doub~i',$T)?"real":(preg_match('~any~i',$T)?"any":"numeric")))));}function
+fields($Q){$H=array();$ql=get_val("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ".q($Q));$Ej=array("select"=>1,"where"=>1,"order"=>1);if(!preg_match('~^sqlite(_temp)?_(master|schema)$~',$Q))$Ej+=array("insert"=>1,"update"=>1);$re=preg_match('~^fts\d+$~i',virtual_module($ql));foreach(get_rows("PRAGMA table_".(min_version(3.31)?"x":"")."info(".table($Q).")")as$I){if($I["hidden"]==1)continue;$A=$I["name"];$T=strtolower($I["type"]);$j=$I["dflt_value"];$H[$A]=array("field"=>$A,"type"=>($re?"text":type_affinity($T)),"full_type"=>$T,"default"=>(preg_match("~^'(.*)'$~",$j,$_)?str_replace("''","'",$_[1]):($j=="NULL"?null:$j)),"null"=>!$I["notnull"],"privileges"=>$Ej,"primary"=>$I["pk"],);if($I["pk"]&&preg_match('~\bAUTOINCREMENT\b~i',$ql))$H[$A]["auto_increment"]=true;}$t='[(,]\s*(("[^"]*+")+|[a-z0-9_]+)';$dk='(?:[^,()\']|\'[^\']*+\'|\([^)]*+\))*?';preg_match_all('~'.$t.'\s+text\b'.$dk.'COLLATE\s+(\'[^\']+\'|[a-z0-9_]+)~i',$ql,$Hg,PREG_SET_ORDER);foreach($Hg
+as$_){$A=str_replace('""','"',preg_replace('~^"|"$~','',$_[1]));if($H[$A])$H[$A]["collation"]=trim($_[3],"'");}preg_match_all('~'.$t.'\s'.$dk.'GENERATED\s+ALWAYS\s+AS\s*\((.+?)\)\s+(STORED|VIRTUAL)~i',$ql,$Hg,PREG_SET_ORDER);foreach($Hg
+as$_){$A=str_replace('""','"',preg_replace('~^"|"$~','',$_[1]));if($H[$A]){$H[$A]["default"]=$_[3];$H[$A]["generated"]=strtoupper($_[4]);}}return$H;}function
+indexes($Q,$g=null){$g=connection($g);$H=array();$ql=get_val("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ".q($Q),0,$g);if(preg_match('~^fts\d+$~i',virtual_module($ql)))return
+array($Q=>array("type"=>"FULLTEXT","columns"=>array_keys(fields($Q)),"lengths"=>array(),"descs"=>array()));if(preg_match('~\bPRIMARY\s+KEY\s*\((([^)"]+|"[^"]*"|`[^`]*`)++)~i',$ql,$_)){$H[""]=array("type"=>"PRIMARY","columns"=>array(),"lengths"=>array(),"descs"=>array());preg_match_all('~((("[^"]*+")+|(?:`[^`]*+`)+)|(\S+))(\s+(ASC|DESC))?(,\s*|$)~i',$_[1],$Hg,PREG_SET_ORDER);foreach($Hg
+as$_){$H[""]["columns"][]=idf_unescape($_[2]).$_[4];$H[""]["descs"][]=(preg_match('~DESC~i',$_[5])?'1':null);}}if(!$H){foreach(fields($Q)as$A=>$l){if($l["primary"])$H[""]=array("type"=>"PRIMARY","columns"=>array($A),"lengths"=>array(),"descs"=>array(null));}}$vl=get_key_vals("SELECT name, sql FROM sqlite_master WHERE type = 'index' AND tbl_name = ".q($Q),$g);foreach(get_rows("PRAGMA index_list(".table($Q).")",$g)as$I){$A=$I["name"];$u=array("type"=>($I["unique"]?"UNIQUE":"INDEX"));$u["lengths"]=array();$u["descs"]=array();foreach(get_rows("PRAGMA index_info(".idf_escape($A).")",$g)as$tk){$u["columns"][]=$tk["name"];$u["descs"][]=null;}if(preg_match('~^CREATE( UNIQUE)? INDEX '.preg_quote(idf_escape($A).' ON '.idf_escape($Q),'~').' \((.*)\)$~i',$vl[$A],$Yj)){preg_match_all('/("[^"]*+")+( DESC)?/',$Yj[2],$Hg);foreach($Hg[2]as$w=>$W){if($W)$u["descs"][$w]='1';}}if(!$H[""]||$u["type"]!="UNIQUE"||$u["columns"]!=$H[""]["columns"]||$u["descs"]!=$H[""]["descs"]||!preg_match("~^sqlite_~",$A))$H[$A]=$u;}return$H;}function
+foreign_keys($Q){$H=array();foreach(get_rows("PRAGMA foreign_key_list(".table($Q).")")as$I){$o=&$H[$I["id"]];if(!$o)$o=$I;$o["source"][]=$I["from"];$o["target"][]=$I["to"];}return$H;}function
+view($A){return
+array("select"=>preg_replace('~^(?:[^`"[]+|`[^`]*`|"[^"]*")* AS\s+~iU','',get_val("SELECT sql FROM sqlite_master WHERE type = 'view' AND name = ".q($A))));}function
 collations(){return(isset($_GET["create"])?get_vals("PRAGMA collation_list",1):array());}function
-information_schema($j,$L=""){return
+information_schema($i,$K=""){return
 false;}function
 error(){return
 h(connection()->error);}function
-check_sqlite_name($C){$jd="db|sdb|sqlite";if(!preg_match("~^[^\\0]*\\.($jd)\$~",$C)){connection()->error=sprintf('Please use one of the extensions %s.',str_replace("|",", ",$jd));return
+check_sqlite_name($A){$Id="db|sdb|sqlite";if(!preg_match("~^[^\\0]*\\.($Id)\$~",$A)){connection()->error=sprintf('Please use one of these file extensions: %s.',str_replace("|",", ",$Id));return
 false;}return
 true;}function
-create_database($j,$pb){if(file_exists($j)){connection()->error='File exists.';return
-false;}if(!check_sqlite_name($j))return
-false;try{$_=new
-Db();$_->attach($j,'','');}catch(\Exception$ad){connection()->error=$ad->getMessage();return
-false;}$_->query('PRAGMA encoding = "UTF-8"');$_->query('CREATE TABLE adminer (i)');$_->query('DROP TABLE adminer');return
+create_database($i,$Bb){if(file_exists($i)){connection()->error='File exists.';return
+false;}if(!check_sqlite_name($i))return
+false;try{$z=new
+Db();$z->attach(server_parts(array("path"=>$i)),'','');}catch(\Exception$zd){connection()->error=$zd->getMessage();return
+false;}$z->query('PRAGMA encoding = "UTF-8"');$z->query('CREATE TABLE adminer (i)');$z->query('DROP TABLE adminer');return
 true;}function
-drop_databases(array$i){connection()->attach(":memory:",'','');foreach($i
-as$j){if(!check_sqlite_name($j))return
-false;if(!@unlink($j)){connection()->error='File exists.';return
+drop_databases(array$h){connection()->attach(server_parts(array("path"=>":memory:")),'','');foreach($h
+as$i){if(!check_sqlite_name($i))return
+false;if(!@unlink($i)){connection()->error='File exists.';return
 false;}}return
 true;}function
-rename_database($C,$pb){if(!check_sqlite_name($C))return
-false;connection()->attach(":memory:",'','');connection()->error='File exists.';return@rename(DB,$C);}function
+rename_database($A,$Bb){if(!check_sqlite_name($A))return
+false;connection()->attach(server_parts(array("path"=>":memory:")),'','');connection()->error='File exists.';return@rename(DB,$A);}function
 auto_increment(){return" PRIMARY KEY AUTOINCREMENT";}function
-alter_table($R,$C,array$n,array$Hd,$ub,$Pc,$pb,$Ea,$Mh){$dl=($R==""||$Hd||$Pc);foreach($n
-as$m){if($m[0]!=""||!$m[1]||$m[2]){$dl=true;break;}}$b=array();$wh=array();foreach($n
-as$m){if($m[1]){$b[]=($dl?$m[1]:"ADD ".implode($m[1]));if($m[0]!="")$wh[$m[0]]=$m[1][0];}}if(!$dl){foreach($b
-as$X){if(!queries("ALTER TABLE ".table($R)." $X"))return
-false;}if($R!=$C&&!queries("ALTER TABLE ".table($R)." RENAME TO ".table($C)))return
-false;}elseif(!recreate_table($R,$C,$b,$wh,$Hd,$Ea,array(),"","",$Pc))return
-false;if($Ea){queries("BEGIN");queries("UPDATE sqlite_sequence SET seq = $Ea WHERE name = ".q($C));if(!connection()->affected_rows)queries("INSERT INTO sqlite_sequence (name, seq) VALUES (".q($C).", $Ea)");queries("COMMIT");}return
+alter_table($Q,$A,array$m,array$he,$Hb,$nd,$Bb,$La,$Vi){$jn=($Q==""||$he||$nd);foreach($m
+as$l){if($l[0]!=""||!$l[1]||$l[2]){$jn=true;break;}}$b=array();$Di=array();foreach($m
+as$l){if($l[1]){$b[]=($jn?$l[1]:"ADD ".implode($l[1]));if($l[0]!="")$Di[$l[0]]=$l[1][0];}}if(!$jn){foreach($b
+as$W){if(!queries("ALTER TABLE ".table($Q)." $W"))return
+false;}if($Q!=$A&&!queries("ALTER TABLE ".table($Q)." RENAME TO ".table($A)))return
+false;}elseif(!recreate_table($Q,$A,$b,$Di,$he,$La,array(),"","",$nd))return
+false;if($La){queries("BEGIN");queries("UPDATE sqlite_sequence SET seq = $La WHERE name = ".q($A));if(!connection()->affected_rows)queries("INSERT INTO sqlite_sequence (name, seq) VALUES (".q($A).", $La)");queries("COMMIT");}return
 true;}function
-recreate_table($R,$C,array$n,array$wh,array$Hd,$Ea="",$w=array(),$Cc="",$la="",$Pc=""){if($R!=""){if(!$n){foreach(fields($R)as$x=>$m){if($w)$m["auto_increment"]=0;$n[]=process_field($m,$m);$wh[$x]=idf_escape($x);}}$ji=false;foreach($n
-as$m){if($m[6])$ji=true;}$Ec=array();foreach($w
-as$x=>$X){if($X[2]=="DROP"){$Ec[$X[1]]=true;unset($w[$x]);}}foreach(indexes($R)as$lf=>$v){$e=array();foreach($v["columns"]as$x=>$d){if(!$wh[$d])continue
-2;$e[]=$wh[$d].($v["descs"][$x]?" DESC":"");}if(!$Ec[$lf]){if($v["type"]!="PRIMARY"||!$ji)$w[]=array($v["type"],$lf,$e);}}foreach($w
-as$x=>$X){if($X[0]=="PRIMARY"){unset($w[$x]);$Hd[]="  PRIMARY KEY (".implode(", ",$X[2]).")";}}foreach(foreign_keys($R)as$lf=>$p){foreach($p["source"]as$x=>$d){if(!$wh[$d])continue
-2;$p["source"][$x]=idf_unescape($wh[$d]);}if(!isset($Hd[" $lf"]))$Hd[]=" ".format_foreign_key($p);}queries("BEGIN");}$Za=array();foreach($n
-as$m){if(preg_match('~GENERATED~',$m[3]))unset($wh[array_search($m[0],$wh)]);$Za[]="  ".implode($m);}$Za=array_merge($Za,array_filter($Hd));foreach(driver()->checkConstraints($R)as$cb){if($cb!=$Cc)$Za[]="  CHECK ($cb)";}if($la)$Za[]="  CHECK ($la)";$jk=($R!=""&&$R==$C?"adminer_$C":$C);if(!$Pc&&$R!="")$Pc=idx(table_status1($R),"Engine");if(!queries("CREATE TABLE ".table($jk)." (\n".implode(",\n",$Za)."\n)".($Pc!="table"&&in_array($Pc,driver()->engines())?" $Pc":"")))return
-false;if($R!=""){if($wh&&!queries("INSERT INTO ".table($jk)." (".implode(", ",$wh).") SELECT ".implode(", ",array_map('Adminer\idf_escape',array_keys($wh)))." FROM ".table($R)))return
-false;$Jk=array();foreach(triggers($R)as$Hk=>$qk){$Fk=trigger($Hk,$R);$Jk[]="CREATE TRIGGER ".idf_escape($Hk)." ".implode(" ",$qk)." ON ".table($C)."\n$Fk[Statement]";}$Ea=$Ea?"":get_val("SELECT seq FROM sqlite_sequence WHERE name = ".q($R));if(!queries("DROP TABLE ".table($R))||($R==$C&&!queries("ALTER TABLE ".table($jk)." RENAME TO ".table($C)))||!alter_indexes($C,$w))return
-false;if($Ea)queries("UPDATE sqlite_sequence SET seq = $Ea WHERE name = ".q($C));foreach($Jk
-as$Fk){if(!queries($Fk))return
+recreate_table($Q,$A,array$m,array$Di,array$he,$La="",$v=array(),$Yc="",$la="",$nd=""){if($Q!=""){if(!$m){foreach(fields($Q)as$w=>$l){if($v)$l["auto_increment"]=0;$m[]=process_field($l,$l);$Di[$w]=idf_escape($w);}}$Aj=false;foreach($m
+as$l){if($l[6])$Aj=true;}$ad=array();foreach($v
+as$w=>$W){if($W[2]=="DROP"){$ad[$W[1]]=true;unset($v[$w]);}}foreach(indexes($Q)as$ag=>$u){$e=array();foreach($u["columns"]as$w=>$d){if(!$Di[$d])continue
+2;$e[]=$Di[$d].($u["descs"][$w]?" DESC":"");}if(!$ad[$ag]){if($u["type"]!="PRIMARY"||!$Aj)$v[]=array($u["type"],$ag,$e);}}foreach($v
+as$w=>$W){if($W[0]=="PRIMARY"){unset($v[$w]);$he[]="  PRIMARY KEY (".implode(", ",$W[2]).")";}}foreach(foreign_keys($Q)as$ag=>$o){foreach($o["source"]as$w=>$d){if(!$Di[$d])continue
+2;$o["source"][$w]=idf_unescape($Di[$d]);}if(!isset($he[" $ag"]))$he[]=" ".format_foreign_key($o);}queries("BEGIN");}$kb=array();foreach($m
+as$l){if(preg_match('~GENERATED~',$l[3]))unset($Di[array_search($l[0],$Di)]);$kb[]="  ".implode($l);}$kb=array_merge($kb,array_filter($he));foreach(driver()->checkConstraints($Q)as$ob){if($ob!=$Yc)$kb[]="  CHECK ($ob)";}if($la)$kb[]="  CHECK ($la)";$im=($Q!=""&&$Q==$A?"adminer_$A":$A);if(!$nd&&$Q!="")$nd=idx(table_status1($Q),"Engine");if(!queries("CREATE TABLE ".table($im)." (\n".implode(",\n",$kb)."\n)".($nd!="table"&&in_array($nd,driver()->engines())?" $nd":"")))return
+false;if($Q!=""){if($Di&&!queries("INSERT INTO ".table($im)." (".implode(", ",$Di).") SELECT ".implode(", ",array_map('Adminer\idf_escape',array_keys($Di)))." FROM ".table($Q)))return
+false;$Jm=array();foreach(triggers($Q)as$Hm=>$pm){$Fm=trigger($Hm,$Q);$Jm[]="CREATE TRIGGER ".idf_escape($Hm)." ".implode(" ",$pm)." ON ".table($A)."\n$Fm[Statement]";}$La=$La?"":get_val("SELECT seq FROM sqlite_sequence WHERE name = ".q($Q));if(!queries("DROP TABLE ".table($Q))||($Q==$A&&!queries("ALTER TABLE ".table($im)." RENAME TO ".table($A)))||!alter_indexes($A,$v))return
+false;if($La)queries("UPDATE sqlite_sequence SET seq = $La WHERE name = ".q($A));foreach($Jm
+as$Fm){if(!queries($Fm))return
 false;}queries("COMMIT");}return
 true;}function
-index_sql($R,$U,$C,$e){return"CREATE $U ".($U!="INDEX"?"INDEX ":"").idf_escape($C!=""?$C:uniqid($R."_"))." ON ".table($R)." $e";}function
-alter_indexes($R,$b){foreach($b
-as$ii){if($ii[0]=="PRIMARY")return
-recreate_table($R,$R,array(),array(),array(),"",$b);}foreach(array_reverse($b)as$X){if(!queries($X[2]=="DROP"?"DROP INDEX ".idf_escape($X[1]):index_sql($R,$X[0],$X[1],"(".implode(", ",$X[2]).")")))return
+index_sql($Q,$T,$A,$e){return"CREATE $T ".($T!="INDEX"?"INDEX ":"").idf_escape($A!=""?$A:uniqid($Q."_"))." ON ".table($Q)." $e";}function
+alter_indexes($Q,$b){foreach($b
+as$_j){if($_j[0]=="PRIMARY")return
+recreate_table($Q,$Q,array(),array(),array(),"",$b);}foreach(array_reverse($b)as$W){if(!queries($W[2]=="DROP"?"DROP INDEX ".idf_escape($W[1]):index_sql($Q,$W[0],$W[1],"(".implode(", ",$W[2]).")")))return
 false;}return
 true;}function
-truncate_tables(array$T){return
-apply_queries("DELETE FROM",$T);}function
-drop_views(array$ul){return
-apply_queries("DROP VIEW",$ul);}function
-drop_tables(array$T){return
-apply_queries("DROP TABLE",$T);}function
-move_tables(array$T,array$ul,$hk){return
+truncate_tables(array$S){return
+apply_queries("DELETE FROM",$S);}function
+drop_views(array$_n){return
+apply_queries("DROP VIEW",$_n);}function
+drop_tables(array$S){return
+apply_queries("DROP TABLE",$S);}function
+move_tables(array$S,array$_n,$em){return
 false;}function
-trigger($C,$R){if($C=="")return
-array("Statement"=>"BEGIN\n\t;\nEND");$u='(?:[^`"\s]+|`[^`]*`|"[^"]*")+';$Ik=trigger_options();preg_match("~^CREATE\\s+TRIGGER\\s*$u\\s*(".implode("|",$Ik["Timing"]).")\\s+([a-z]+)(?:\\s+OF\\s+($u))?\\s+ON\\s*$u\\s*(?:FOR\\s+EACH\\s+ROW\\s)?(.*)~is",get_val("SELECT sql FROM sqlite_master WHERE type = 'trigger' AND name = ".q($C)),$B);$Ng=$B[3];return
-array("Timing"=>strtoupper($B[1]),"Event"=>strtoupper($B[2]).($Ng?" OF":""),"Of"=>idf_unescape($Ng),"Trigger"=>$C,"Statement"=>$B[4],);}function
-triggers($R){$I=array();$Ik=trigger_options();foreach(get_rows("SELECT * FROM sqlite_master WHERE type = 'trigger' AND tbl_name = ".q($R))as$J){preg_match('~^CREATE\s+TRIGGER\s*(?:[^`"\s]+|`[^`]*`|"[^"]*")+\s*('.implode("|",$Ik["Timing"]).')\s*(.*?)\s+ON\b~i',$J["sql"],$B);$I[$J["name"]]=array($B[1],$B[2]);}return$I;}function
+trigger($A,$Q){if($A=="")return
+array("Statement"=>"BEGIN\n\t;\nEND");$t='(?:[^`"\s]+|`[^`]*`|"[^"]*")+';$Im=trigger_options();preg_match("~^CREATE\\s+TRIGGER\\s*$t\\s*(".implode("|",$Im["Timing"]).")\\s+([a-z]+)(?:\\s+OF\\s+($t))?\\s+ON\\s*$t\\s*(?:FOR\\s+EACH\\s+ROW\\s)?(.*)~is",get_val("SELECT sql FROM sqlite_master WHERE type = 'trigger' AND name = ".q($A)),$_);if(!$_)return
+array();$Th=$_[3];return
+array("Timing"=>strtoupper($_[1]),"Event"=>strtoupper($_[2]).($Th?" OF":""),"Of"=>idf_unescape($Th),"Trigger"=>$A,"Statement"=>$_[4],);}function
+triggers($Q){$H=array();$Im=trigger_options();foreach(get_rows("SELECT * FROM sqlite_master WHERE type = 'trigger' AND tbl_name = ".q($Q))as$I){preg_match('~^CREATE\s+TRIGGER\s*(?:[^`"\s]+|`[^`]*`|"[^"]*")+\s*('.implode("|",$Im["Timing"]).')\s*(.*?)\s+ON\b~i',$I["sql"],$_);$H[$I["name"]]=array($_[1],$_[2]);}return$H;}function
 trigger_options(){return
 array("Timing"=>array("BEFORE","AFTER","INSTEAD OF"),"Event"=>array("INSERT","UPDATE","UPDATE OF","DELETE"),"Type"=>array("FOR EACH ROW"),);}function
-last_id($H){return
+last_id($G){return
 get_val("SELECT LAST_INSERT_ROWID()");}function
-explain(Db$f,$G){return$f->query("EXPLAIN QUERY PLAN $G");}function
-found_rows(array$S,array$Z){}function
-types($jd=false){return
+explain(Db$f,$F){return$f->query("EXPLAIN QUERY PLAN $F");}function
+found_rows(array$R,array$Z){}function
+types($Id=false){return
 array();}function
-create_sql($R,$Ea,$Nj){$I=get_val("SELECT sql FROM sqlite_master WHERE type IN ('table', 'view') AND name = ".q($R));foreach(indexes($R)as$C=>$v){if($C=='')continue;$I
-.=";\n\n".index_sql($R,$v['type'],$C,"(".implode(", ",array_map('Adminer\idf_escape',$v['columns'])).")");}return$I;}function
-truncate_sql($R){return"DELETE FROM ".table($R);}function
-use_sql($Zb,$Nj=""){return"";}function
-trigger_sql($R){return
-implode(get_vals("SELECT sql || ';;\n' FROM sqlite_master WHERE type = 'trigger' AND tbl_name = ".q($R)));}function
-show_variables(){$I=array();foreach(get_rows("PRAGMA pragma_list")as$J){$C=$J["name"];if($C!="pragma_list"&&$C!="compile_options"){$I[$C]=array($C,'');foreach(get_rows("PRAGMA $C")as$J)$I[$C][1].=implode(", ",$J)."\n";}}return$I;}function
-show_status(){$I=array();foreach(get_vals("PRAGMA compile_options")as$ih)$I[]=explode("=",$ih,2)+array('','');return$I;}function
-convert_field(array$m){}function
-unconvert_field(array$m,$I){return$I;}function
-support($od){return
-preg_match('~^(check|columns|database|drop_col|dump|indexes|descidx|move_col|sql|status|table|transaction_ddl|trigger|variables|view|view_trigger)$~',$od);}}add_driver("mssql","MS SQL");if(isset($_GET["mssql"])){define('Adminer\DRIVER',"mssql");if(extension_loaded("sqlsrv")&&$_GET["ext"]!="pdo"){class
+create_sql($Q,$La,$Dl){$H=get_val("SELECT sql FROM sqlite_master WHERE type IN ('table', 'view') AND name = ".q($Q));foreach(indexes($Q)as$A=>$u){if($A==''||$u['type']=='FULLTEXT')continue;$H
+.=";\n\n".index_sql($Q,$u['type'],$A,"(".implode(", ",array_map('Adminer\idf_escape',$u['columns'])).")");}return$H;}function
+truncate_sql($Q){return"DELETE FROM ".table($Q);}function
+use_sql($rc,$Dl=""){return"";}function
+trigger_sql($Q){return
+implode(get_vals("SELECT sql || ';;\n' FROM sqlite_master WHERE type = 'trigger' AND tbl_name = ".q($Q)));}function
+show_variables(){$H=array();foreach(get_rows("PRAGMA pragma_list")as$I){$A=$I["name"];if($A!="pragma_list"&&$A!="compile_options"){$H[$A]=array($A,'');foreach(get_rows("PRAGMA $A")as$I)$H[$A][1].=implode(", ",$I)."\n";}}return$H;}function
+show_status(){$H=array();foreach(get_vals("PRAGMA compile_options")as$qi)$H[]=explode("=",$qi,2)+array('','');return$H;}function
+convert_field(array$l){}function
+unconvert_field(array$l,$H){return$H;}function
+support($Nd){return
+preg_match('~^(check|columns|database|drop_col|dump|fast_status|indexes|descidx|move_col|sql|status|table|transaction_ddl|trigger|variables|view|view_trigger)$~',$Nd);}}add_driver("mssql","MS SQL");if(isset($_GET["mssql"])){define('Adminer\DRIVER',"mssql");if(extension_loaded("sqlsrv")&&$_GET["ext"]!="pdo"){class
 Db
 extends
-SqlDb{var$extension="sqlsrv";private$link,$result;private
+SqlDb{var$extension="sqlsrv";private$link,$result,$warnings,$transaction=false;private
 function
-get_error(){$this->error="";foreach(sqlsrv_errors()as$l){$this->errno=$l["code"];$this->error
-.="$l[message]\n";}$this->error=rtrim($this->error);}function
-attach($N,$V,$E){$Cb=array("UID"=>$V,"PWD"=>$E,"CharacterSet"=>"UTF-8");$Ij=adminer()->connectSsl();if(isset($Ij["Encrypt"]))$Cb["Encrypt"]=$Ij["Encrypt"];if(isset($Ij["TrustServerCertificate"]))$Cb["TrustServerCertificate"]=$Ij["TrustServerCertificate"];$j=adminer()->database();if($j!="")$Cb["Database"]=$j;list($se,$Yh)=host_port($N);$this->link=@sqlsrv_connect($se.($Yh?",$Yh":""),$Cb);if($this->link){$Ne=sqlsrv_server_info($this->link);$this->server_info=$Ne['SQLServerVersion'];}else$this->get_error();return($this->link?'':$this->error);}function
-quote($Q){$Qk=strlen($Q)!=strlen(utf8_decode($Q));return($Qk?"N":"")."'".str_replace("'","''",$Q)."'";}function
-select_db($Zb){return$this->query(use_sql($Zb));}function
-query($G,$Pk=false){$H=sqlsrv_query($this->link,$G);$this->error="";if(!$H){$this->get_error();return
-false;}return$this->store_result($H);}function
-multi_query($G){$this->result=sqlsrv_query($this->link,$G);$this->error="";if(!$this->result){$this->get_error();return
+get_error(){$this->error="";foreach(sqlsrv_errors()as$k){$this->errno=$k["code"];$this->error
+.="$k[message]\n";}$this->error=rtrim($this->error);}function
+attach(array$M,$U,$D){sqlsrv_configure("WarningsReturnAsErrors",0);$Qb=array("UID"=>$U,"PWD"=>$D,"CharacterSet"=>"UTF-8","ReturnDatesAsStrings"=>true);if(isset($_GET["sql"])&&!self::$instance)$Qb["MultipleActiveResultSets"]=false;$wl=adminer()->connectSsl();if(isset($wl["Encrypt"]))$Qb["Encrypt"]=$wl["Encrypt"];if(isset($wl["TrustServerCertificate"]))$Qb["TrustServerCertificate"]=$wl["TrustServerCertificate"];$i=adminer()->database();if($i!="")$Qb["Database"]=$i;$nj=$M["port"];$this->link=@sqlsrv_connect($M["host"].($nj?",$nj":""),$Qb);if($this->link){$zf=sqlsrv_server_info($this->link);$this->server_info=$zf['SQLServerVersion'];}else$this->get_error();return($this->link?'':$this->error);}function
+quote($P){return
+unicode_prefix($P)."'".str_replace("'","''",$P)."'";}function
+select_db($rc){return$this->query(use_sql($rc));}function
+query($F,$Rm=false){$G=sqlsrv_query($this->link,$F);$this->error="";if(!$G){$this->get_error();return
+false;}return$this->store_result($G);}function
+multi_query($F){$this->result=sqlsrv_query($this->link,$F);$this->error="";if(!$this->result){$this->get_error();return
 false;}return
 true;}function
-store_result($H=null){if(!$H)$H=$this->result;if(!$H)return
-false;if(sqlsrv_field_metadata($H))return
+store_result($G=null){if(!$G)$G=$this->result;if(!$G)return
+false;$this->warnings=sqlsrv_errors(SQLSRV_ERR_WARNINGS);if(sqlsrv_field_metadata($G))return
 new
-Result($H);$this->affected_rows=sqlsrv_rows_affected($H);return
+Result($G);$this->affected_rows=sqlsrv_rows_affected($G);return
 true;}function
-next_result(){return$this->result?!!sqlsrv_next_result($this->result):false;}}class
+next_result(){if(!$this->result)return
+false;$H=sqlsrv_next_result($this->result);if($H===false){$this->get_error();$this->result=null;return
+true;}return!!$H;}function
+warnings(){$H=array();foreach((array)$this->warnings
+as$Cn)$H[]=$Cn["message"];return$H;}function
+inTransaction(){return$this->transaction||(isset($_GET["sql"])&&get_val("SELECT @@TRANCOUNT",0,$this));}function
+begin(){$this->transaction=sqlsrv_begin_transaction($this->link);if(!$this->transaction)$this->get_error();return$this->transaction;}function
+commit(){if($this->transaction&&!sqlsrv_commit($this->link)){$this->get_error();return
+false;}$this->transaction=false;return
+true;}function
+rollback(){if(!$this->transaction&&isset($_GET["sql"]))return!!$this->query("IF @@TRANCOUNT > 0 ROLLBACK");if($this->transaction&&!sqlsrv_rollback($this->link)){$this->get_error();return
+false;}$this->transaction=false;return
+true;}}class
 Result{var$num_rows;private$result,$offset=0,$fields;function
-__construct($H){$this->result=$H;}private
-function
-convert($J){foreach((array)$J
-as$x=>$X){if(is_a($X,'DateTime'))$J[$x]=$X->format("Y-m-d H:i:s");}return$J;}function
-fetch_assoc(){return$this->convert(sqlsrv_fetch_array($this->result,SQLSRV_FETCH_ASSOC));}function
-fetch_row(){return$this->convert(sqlsrv_fetch_array($this->result,SQLSRV_FETCH_NUMERIC));}function
-fetch_field(){if(!$this->fields)$this->fields=sqlsrv_field_metadata($this->result);$m=$this->fields[$this->offset++];$I=new
-\stdClass;$I->name=$m["Name"];$I->type=($m["Type"]==1?254:15);$I->charsetnr=(in_array($m["Type"],array(-2,-3,-4))?63:0);return$I;}function
-seek($Rg){for($s=0;$s<$Rg;$s++)sqlsrv_fetch($this->result);}}function
-last_id($H){return(string)get_val("SELECT SCOPE_IDENTITY()");}function
-explain(Db$f,$G){$f->query("SET SHOWPLAN_ALL ON");$I=$f->query($G);$f->query("SET SHOWPLAN_ALL OFF");return$I;}}else{abstract
+__construct($G){$this->result=$G;}function
+fetch_assoc(){return
+sqlsrv_fetch_array($this->result,SQLSRV_FETCH_ASSOC);}function
+fetch_row(){return
+sqlsrv_fetch_array($this->result,SQLSRV_FETCH_NUMERIC);}function
+fetch_field(){if(!$this->fields)$this->fields=sqlsrv_field_metadata($this->result);$Qm=array(-155=>"datetimeoffset","time",-152=>"xml","varbinary","sql_variant",-11=>"uniqueidentifier","ntext","nvarchar","nchar","bit","tinyint","bigint","image","varbinary","binary","text",1=>"char","numeric","decimal","int","smallint","float","real","float",12=>"varchar",91=>"date","time","datetime",);$l=$this->fields[$this->offset++];$H=new
+\stdClass;$H->name=$l["Name"];$H->native_type=idx($Qm,$l["Type"],"");return$H;}function
+seek($Yh){for($r=0;$r<$Yh;$r++)sqlsrv_fetch($this->result);}}function
+last_id($G){return(string)get_val("SELECT SCOPE_IDENTITY()");}function
+explain(Db$f,$F){$f->query("SET SHOWPLAN_ALL ON");$H=$f->query($F);$f->query("SET SHOWPLAN_ALL OFF");return$H;}}else{abstract
 class
 MssqlDb
 extends
 PdoDb{function
-select_db($Zb){return$this->query(use_sql($Zb));}function
-lastInsertId(){return$this->pdo->lastInsertId();}}function
-last_id($H){return
+quote($P){return
+unicode_prefix($P).parent::quote($P);}function
+select_db($rc){return$this->query(use_sql($rc));}function
+lastInsertId(){return$this->pdo->lastInsertId();}function
+inTransaction(){return
+parent::inTransaction()||(isset($_GET["sql"])&&get_val("SELECT @@TRANCOUNT"));}function
+rollback(){return(parent::inTransaction()||!isset($_GET["sql"])?parent::rollback():!!$this->query("IF @@TRANCOUNT > 0 ROLLBACK"));}function
+warnings(){$G=$this->multi;if(!is_object($G))return
+array();$k=$G->errorInfo();return
+array((string)$k[2]);}}function
+last_id($G){return
 connection()->lastInsertId();}function
-explain(Db$f,$G){}if(extension_loaded("pdo_sqlsrv")){class
+explain(Db$f,$F){}if(extension_loaded("pdo_sqlsrv")){class
 Db
 extends
 MssqlDb{var$extension="PDO_SQLSRV";function
-attach($N,$V,$E){list($se,$Yh)=host_port($N);return$this->dsn("sqlsrv:Server=$se".($Yh?",$Yh":""),$V,$E);}}}elseif(extension_loaded("pdo_dblib")){class
+attach(array$M,$U,$D){$nj=$M["port"];$cd="sqlsrv:Server=$M[host]".($nj?",$nj":"").(isset($_GET["sql"])&&!self::$instance?";MultipleActiveResultSets=0":"");$wl=adminer()->connectSsl();foreach(array("Encrypt","TrustServerCertificate")as$w){if(isset($wl[$w]))$cd
+.=";$w=".($wl[$w]?1:0);}return$this->dsn($cd,$U,$D,array(\PDO::SQLSRV_ATTR_DIRECT_QUERY=>true));}}}elseif(extension_loaded("pdo_dblib")){class
 Db
 extends
 MssqlDb{var$extension="PDO_DBLIB";function
-attach($N,$V,$E){list($se,$Yh)=host_port($N);return$this->dsn("dblib:charset=utf8;host=$se".($Yh?(is_numeric($Yh)?";port=":";unix_socket=").$Yh:""),$V,$E);}}}}class
+attach(array$M,$U,$D){$nj=$M["port"];$il=$M["socket"];$B=array(1002=>true);$H=$this->dsn("dblib:charset=utf8;host=$M[host]".($nj!=""?";port=$nj":($il!=""?";unix_socket=$il":"")),$U,$D,$B);if(!$H){$this->query("SET ANSI_NULLS, QUOTED_IDENTIFIER, CONCAT_NULL_YIELDS_NULL, ANSI_WARNINGS, ANSI_PADDING ON");$this->server_info=get_val("SELECT CAST(SERVERPROPERTY('ProductVersion') AS varchar(20))",0,$this);}return$H;}}}}class
 Driver
 extends
-SqlDriver{static$extensions=array("SQLSRV","PDO_SQLSRV","PDO_DBLIB");static$jush="mssql";var$insertFunctions=array("date|time"=>"getdate");var$editFunctions=array("int|decimal|real|float|money|datetime"=>"+/-","char|text"=>"+",);var$operators=array("=","<",">","<=",">=","!=","LIKE","LIKE %%","IN","IS NULL","NOT LIKE","NOT IN","IS NOT NULL");var$functions=array("len","lower","round","upper");var$grouping=array("avg","count","count distinct","max","min","sum");var$generated=array("PERSISTED","VIRTUAL");var$onActions="NO ACTION|CASCADE|SET NULL|SET DEFAULT";static
+SqlDriver{static$extensions=array("SQLSRV","PDO_SQLSRV","PDO_DBLIB");static$jush="mssql";static$serverSocket=true;var$insertFunctions=array("date|time"=>"getdate");var$editFunctions=array("int|decimal|real|float|money|datetime"=>"+/-","char|text"=>"+",);var$functions=array("len","lower","round","upper");var$grouping=array("avg","count","count distinct","max","min","sum");var$generated=array("PERSISTED","VIRTUAL");var$onActions="NO ACTION|CASCADE|SET NULL|SET DEFAULT";var$inout="|OUTPUT";private$unknownTypes=array();function
+operators($Ml){return
+array("=","<",">","<=",">=","!=","LIKE","LIKE %%","IN","IS NULL","NOT LIKE","NOT IN","IS NOT NULL");}static
 function
-connect($N,$V,$E){if($N=="")$N="localhost:1433";return
-parent::connect($N,$V,$E);}function
-__construct(Db$f){parent::__construct($f);$this->types=array('Numbers'=>array("tinyint"=>3,"smallint"=>5,"int"=>10,"bigint"=>20,"bit"=>1,"decimal"=>0,"real"=>12,"float"=>53,"smallmoney"=>10,"money"=>20),'Date and time'=>array("date"=>10,"smalldatetime"=>19,"datetime"=>19,"datetime2"=>19,"time"=>8,"datetimeoffset"=>10),'Strings'=>array("char"=>8000,"varchar"=>8000,"text"=>2147483647,"nchar"=>4000,"nvarchar"=>4000,"ntext"=>1073741823),'Binary'=>array("binary"=>8000,"varbinary"=>8000,"image"=>2147483647),);}function
-insertUpdate($R,array$K,array$ii){$n=fields($R);$Yk=array();$Z=array();$O=reset($K);$e="c".implode(", c",range(1,count($O)));$Va=0;$Te=array();foreach($O
-as$x=>$X){$Va++;$C=idf_unescape($x);if(!$n[$C]["auto_increment"])$Te[$x]="c$Va";if(isset($ii[$C]))$Z[]="$x = c$Va";else$Yk[]="$x = c$Va";}$pl=array();foreach($K
-as$O)$pl[]="(".implode(", ",$O).")";if($Z){$xe=queries("SET IDENTITY_INSERT ".table($R)." ON");$I=queries("MERGE ".table($R)." USING (VALUES\n\t".implode(",\n\t",$pl)."\n) AS source ($e) ON ".implode(" AND ",$Z).($Yk?"\nWHEN MATCHED THEN UPDATE SET ".implode(", ",$Yk):"")."\nWHEN NOT MATCHED THEN INSERT (".implode(", ",array_keys($xe?$O:$Te)).") VALUES (".($xe?$e:implode(", ",$Te)).");");if($xe)queries("SET IDENTITY_INSERT ".table($R)." OFF");}else$I=queries("INSERT INTO ".table($R)." (".implode(", ",array_keys($O)).") VALUES\n".implode(",\n",$pl));return$I;}function
-begin(){return
-queries("BEGIN TRANSACTION");}function
-quoteBinary($Ui){return"0x".bin2hex($Ui);}function
-tableHelp($C,$ff=false){$Ff=array("sys"=>"catalog-views/sys-","INFORMATION_SCHEMA"=>"information-schema-views/",);$_=$Ff[get_schema()];if($_)return"relational-databases/system-$_".preg_replace('~_~','-',strtolower($C))."-transact-sql";}}function
-idf_escape($u){return"[".str_replace("]","]]",$u)."]";}function
-table($u){return($_GET["ns"]!=""?idf_escape($_GET["ns"]).".":"").idf_escape($u);}function
-get_databases($Fd){return
+connect($M,$U,$D){if($M=="")$M="localhost:1433";return
+parent::connect($M,$U,$D);}function
+__construct(Db$f){parent::__construct($f);$this->types=array('Numbers'=>array("tinyint"=>3,"smallint"=>5,"int"=>10,"bigint"=>20,"bit"=>1,"decimal"=>0,"numeric"=>0,"real"=>12,"float"=>53,"smallmoney"=>10,"money"=>20,"vector"=>0,),'Date and time'=>array("date"=>10,"smalldatetime"=>19,"datetime"=>23,"datetime2"=>19,"time"=>8,"datetimeoffset"=>26),'Strings'=>array("char"=>8000,"varchar"=>8000,"text"=>2147483647,"nchar"=>4000,"nvarchar"=>4000,"ntext"=>1073741823,"uniqueidentifier"=>36,"xml"=>2147483647,"json"=>2147483647,"sql_variant"=>8000,"hierarchyid"=>892,),'Binary'=>array("binary"=>8000,"varbinary"=>8000,"image"=>2147483647),'Geometry'=>array("geometry"=>0,"geography"=>0),);$Qm=array_flip(get_vals("SELECT name FROM sys.types WHERE is_user_defined = 0 ORDER BY name"));if($Qm){foreach($this->types
+as$q=>$De){foreach($De
+as$T=>$x){if(isset($Qm[$T]))unset($Qm[$T]);else
+unset($this->types[$q][$T]);}if(!$this->types[$q])unset($this->types[$q]);}$this->unknownTypes=array_keys($Qm);}}function
+types(){return
+parent::types()+array_fill_keys($this->unknownTypes,0);}function
+structuredTypes(){return
+array_merge(parent::structuredTypes(),$this->unknownTypes);}function
+typeName(\stdClass$l){return
+idx((array)$l,'sqlsrv:decl_type',parent::typeName($l));}function
+insertUpdate($Q,array$J,array$_j){$m=fields($Q);$cn=array();$Z=array();$N=reset($J);$e="c".implode(", c",range(1,count($N)));$eb=0;$Ef=array();foreach($N
+as$w=>$W){$eb++;$A=idf_unescape($w);if(!$m[$A]["auto_increment"])$Ef[$w]="c$eb";if(isset($_j[$A]))$Z[]="$w = c$eb";else$cn[]="$w = c$eb";}$Y=array();foreach($J
+as$N)$Y[]="(".implode(", ",$N).")";if($Z){$hf=queries("SET IDENTITY_INSERT ".table($Q)." ON");$H=queries("MERGE ".table($Q)." USING (VALUES\n\t".implode(",\n\t",$Y)."\n) AS source ($e) ON ".implode(" AND ",$Z).($cn?"\nWHEN MATCHED THEN UPDATE SET ".implode(", ",$cn):"")."\nWHEN NOT MATCHED THEN INSERT (".implode(", ",array_keys($hf?$N:$Ef)).") VALUES (".($hf?$e:implode(", ",$Ef)).");");if($hf)queries("SET IDENTITY_INSERT ".table($Q)." OFF");}else$H=queries("INSERT INTO ".table($Q)." (".implode(", ",array_keys($N)).") VALUES\n".implode(",\n",$Y));return$H;}function
+begin(){remember_query("BEGIN TRANSACTION");return$this->conn->begin();}function
+convertSearch($t,array$W,array$l){return(preg_match('~^(bit|n?text|xml|json|vector|uniqueidentifier|sql_variant|hierarchyid|geography|geometry)$~',$l["type"])?"CAST($t AS nvarchar(max))":$t);}function
+quoteBinary($vk){return"0x".bin2hex($vk);}function
+warnings(){$H=array();foreach($this->conn->warnings()as$Zg){$Zg=trim(preg_replace('~^(\[[^]]+])+~','',$Zg));if($Zg!="")$H[]=$Zg;}return
+nl_br(h(implode("\n",$H)));}function
+tableHelp($A,$Tf=false){$yg=array("sys"=>"catalog-views/sys-","INFORMATION_SCHEMA"=>"information-schema-views/",);$z=$yg[get_schema()];if($z)return"relational-databases/system-$z".preg_replace('~_~','-',strtolower($A))."-transact-sql";}function
+isSystem($i,$K=""){return($K!=""?information_schema($i,$K)||preg_match('~^(guest|db_(owner|accessadmin|securityadmin|ddladmin|backupoperator|(deny)?data(reader|writer)))$~',$K):in_array($i,array("master","tempdb","model","msdb")));}}function
+unicode_prefix($P){return(strlen($P)!=utf8_length($P)?"N":"");}function
+idf_escape($t){return"[".str_replace("]","]]",$t)."]";}function
+table($t){return($_GET["ns"]!=""?idf_escape($_GET["ns"]).".":"").idf_escape($t);}function
+get_databases($fe){return
 get_vals("SELECT name FROM sys.databases WHERE name NOT IN ('master', 'tempdb', 'model', 'msdb')");}function
-limit($G,$Z,$z,$Rg=0,$gj=" "){return($z?" TOP (".($z+$Rg).")":"")." $G$Z";}function
-limit1($R,$G,$Z,$gj="\n"){return
-limit($G,$Z,1,0,$gj);}function
-db_collation($j,array$qb){return
-get_val("SELECT collation_name FROM sys.databases WHERE name = ".q($j));}function
+limit($F,$Z,$y,$Yh=0,$Lk=" "){return($y?" TOP (".($y+$Yh).")":"")." $F$Z";}function
+limit1($Q,$F,$Z,$Lk="\n"){return
+limit($F,$Z,1,0,$Lk);}function
+db_collation($i,array$Cb){return
+get_val("SELECT collation_name FROM sys.databases WHERE name = ".q($i));}function
 logged_user(){return
 get_val("SELECT SUSER_NAME()");}function
 tables_list(){return
 get_key_vals("SELECT name, type_desc FROM sys.all_objects WHERE schema_id = SCHEMA_ID(".q(get_schema()).") AND type IN ('S', 'U', 'V') ORDER BY name");}function
-count_tables(array$i){$I=array();foreach($i
-as$j){connection()->select_db($j);$I[$j]=get_val("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES");}return$I;}function
-table_status($C="",$nd=false){$I=array();$vj=array();foreach(get_rows("SELECT object_id, SUM(CASE WHEN index_id < 2 THEN row_count ELSE 0 END) AS [Rows],
+count_tables(array$h){$H=array();foreach($h
+as$i){connection()->select_db($i);$H[$i]=get_val("SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES");}return$H;}function
+table_status($A="",$Md=false){$H=array();$gl=array();foreach(get_rows("SELECT object_id, SUM(CASE WHEN index_id < 2 THEN row_count ELSE 0 END) AS [Rows],
 SUM(CASE WHEN index_id < 2 THEN used_page_count ELSE 0 END) * 8192 AS Data_length,
 SUM(CASE WHEN index_id > 1 THEN used_page_count ELSE 0 END) * 8192 AS Index_length,
 SUM(reserved_page_count - used_page_count) * 8192 AS Data_free
 FROM sys.dm_db_partition_stats
-GROUP BY object_id",null,"")as$J){$Mg=$J["object_id"];unset($J["object_id"]);$vj[$Mg]=$J;}foreach(get_rows("SELECT ao.object_id, ao.name AS Name, ao.type_desc AS Engine,
+GROUP BY object_id",null,"")as$I){$Sh=$I["object_id"];unset($I["object_id"]);$gl[$Sh]=$I;}foreach(get_rows("SELECT ao.object_id, ao.name AS Name, ao.type_desc AS Engine,
 	(SELECT cast(value as varchar(max)) FROM fn_listextendedproperty(default, 'SCHEMA', schema_name(schema_id), 'TABLE', ao.name, null, null)) AS Comment
 FROM sys.all_objects AS ao
-WHERE schema_id = SCHEMA_ID(".q(get_schema()).") AND type IN ('S', 'U', 'V') ".($C!=""?"AND name = ".q($C):"ORDER BY name"))as$J){$Mg=$J["object_id"];unset($J["object_id"]);$I[$J["Name"]]=$J+idx($vj,$Mg,array());}return$I;}function
-is_view(array$S){return$S["Engine"]=="VIEW";}function
-fk_support(array$S){return
+WHERE schema_id = SCHEMA_ID(".q(get_schema()).") AND type IN ('S', 'U', 'V') ".($A!=""?"AND name = ".q($A):"ORDER BY name"))as$I){$Sh=$I["object_id"];unset($I["object_id"]);$H[$I["Name"]]=$I+idx($gl,$Sh,array());}return$H;}function
+is_view(array$R){return$R["Engine"]=="VIEW";}function
+fk_support(array$R){return
 true;}function
-fields($R){$wb=get_key_vals("SELECT objname, cast(value as varchar(max)) FROM fn_listextendedproperty('MS_DESCRIPTION', 'schema', ".q(get_schema()).", 'table', ".q($R).", 'column', NULL)");$I=array();$Wj=get_val("SELECT object_id FROM sys.all_objects WHERE schema_id = SCHEMA_ID(".q(get_schema()).") AND type IN ('S', 'U', 'V') AND name = ".q($R));foreach(get_rows("SELECT c.max_length, c.precision, c.scale, c.name, c.is_nullable, c.is_identity, c.collation_name,
-	t.name type, d.definition [default], d.name default_constraint, i.is_primary_key
+type_length($T,array$I){return(preg_match("~char|binary~",$T)?($I["max_length"]==-1?"max":intval($I["max_length"])/($T[0]=='n'?2:1)):($T=="decimal"?"$I[precision],$I[scale]":(preg_match('~^(datetime2|datetimeoffset|time)$~',$T)?$I["scale"]:($T=="vector"?(intval($I["max_length"])-8)/4:""))));}function
+fields($Q){$Jb=get_key_vals("SELECT objname, cast(value as varchar(max)) FROM fn_listextendedproperty('MS_DESCRIPTION', 'schema', ".q(get_schema()).", 'table', ".q($Q).", 'column', NULL)");$H=array();$Nl=get_val("SELECT object_id FROM sys.all_objects WHERE schema_id = SCHEMA_ID(".q(get_schema()).") AND type IN ('S', 'U', 'V') AND name = ".q($Q));foreach(get_rows("SELECT c.max_length, c.precision, c.scale, c.name, c.is_nullable, c.is_identity, c.collation_name,
+	COALESCE(bt.name, t.name) type, d.definition [default], d.name default_constraint, i.is_primary_key
 FROM sys.all_columns c
 JOIN sys.types t ON c.user_type_id = t.user_type_id
+LEFT JOIN sys.types bt ON t.system_type_id = bt.user_type_id AND t.is_user_defined = 1
 LEFT JOIN sys.default_constraints d ON c.default_object_id = d.object_id
 LEFT JOIN sys.index_columns ic ON c.object_id = ic.object_id AND c.column_id = ic.column_id
 LEFT JOIN sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
-WHERE c.object_id = ".q($Wj))as$J){$U=$J["type"];$y=(preg_match("~char|binary~",$U)?intval($J["max_length"])/($U[0]=='n'?2:1):($U=="decimal"?"$J[precision],$J[scale]":""));$I[$J["name"]]=array("field"=>$J["name"],"full_type"=>$U.($y?"($y)":""),"type"=>$U,"length"=>$y,"default"=>(preg_match("~^\('(.*)'\)$~",$J["default"],$B)?str_replace("''","'",$B[1]):$J["default"]),"default_constraint"=>$J["default_constraint"],"null"=>$J["is_nullable"],"auto_increment"=>$J["is_identity"],"collation"=>$J["collation_name"],"privileges"=>array("insert"=>1,"select"=>1,"update"=>1,"where"=>1,"order"=>1),"primary"=>$J["is_primary_key"],"comment"=>$wb[$J["name"]],);}foreach(get_rows("SELECT * FROM sys.computed_columns WHERE object_id = ".q($Wj))as$J){$I[$J["name"]]["generated"]=($J["is_persisted"]?"PERSISTED":"VIRTUAL");$I[$J["name"]]["default"]=$J["definition"];}return$I;}function
-indexes($R,$g=null){$I=array();foreach(get_rows("SELECT i.name, key_ordinal, is_unique, is_primary_key, c.name AS column_name, is_descending_key
+WHERE c.object_id = ".q($Nl))as$I){$T=$I["type"];$x=type_length($T,$I);$H[$I["name"]]=array("field"=>$I["name"],"full_type"=>$T.($x!=""?"($x)":""),"type"=>$T,"length"=>$x,"default"=>(preg_match("~^\(N?'(.*)'\)$~s",$I["default"],$_)?str_replace("''","'",$_[1]):$I["default"]),"default_constraint"=>$I["default_constraint"],"null"=>$I["is_nullable"],"auto_increment"=>$I["is_identity"],"collation"=>$I["collation_name"],"privileges"=>($T=="timestamp"?array("select"=>1,"where"=>1,"order"=>1):array("insert"=>1,"select"=>1,"update"=>1,"where"=>1,"order"=>1)),"primary"=>$I["is_primary_key"],"comment"=>$Jb[$I["name"]],);}foreach(get_rows("SELECT * FROM sys.computed_columns WHERE object_id = ".q($Nl))as$I){$H[$I["name"]]["generated"]=($I["is_persisted"]?"PERSISTED":"VIRTUAL");$H[$I["name"]]["default"]=$I["definition"];}return$H;}function
+indexes($Q,$g=null){$H=array();foreach(get_rows("SELECT i.name, key_ordinal, is_unique, is_primary_key, c.name AS column_name, is_descending_key
 FROM sys.indexes i
 INNER JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
 INNER JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
-WHERE OBJECT_NAME(i.object_id) = ".q($R),$g)as$J){$C=$J["name"];$I[$C]["type"]=($J["is_primary_key"]?"PRIMARY":($J["is_unique"]?"UNIQUE":"INDEX"));$I[$C]["lengths"]=array();$I[$C]["columns"][$J["key_ordinal"]]=$J["column_name"];$I[$C]["descs"][$J["key_ordinal"]]=($J["is_descending_key"]?'1':null);}return$I;}function
-view($C){return
-array("select"=>preg_replace('~^(?:[^[]|\[[^]]*])*\s+AS\s+~isU','',get_val("SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = SCHEMA_NAME() AND TABLE_NAME = ".q($C))));}function
-collations(){$I=array();foreach(get_vals("SELECT name FROM fn_helpcollations()")as$pb)$I[preg_replace('~_.*~','',$pb)][]=$pb;return$I;}function
-information_schema($j,$L=""){return
-in_array($L!=""?$L:get_schema(),array("INFORMATION_SCHEMA","sys"));}function
+WHERE OBJECT_NAME(i.object_id) = ".q($Q),$g)as$I){$A=$I["name"];$H[$A]["type"]=($I["is_primary_key"]?"PRIMARY":($I["is_unique"]?"UNIQUE":"INDEX"));$H[$A]["lengths"]=array();$H[$A]["columns"][$I["key_ordinal"]]=$I["column_name"];$H[$A]["descs"][$I["key_ordinal"]]=($I["is_descending_key"]?'1':null);}return$H;}function
+view($A){return
+array("select"=>preg_replace('~^(?:[^[]|\[[^]]*])*\s+AS\s+~isU','',get_val("SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_SCHEMA = SCHEMA_NAME() AND TABLE_NAME = ".q($A))));}function
+collations(){$H=array();foreach(get_vals("SELECT name FROM fn_helpcollations()")as$Bb)$H[preg_replace('~_.*~','',$Bb)][]=$Bb;return$H;}function
+information_schema($i,$K=""){return
+in_array($K!=""?$K:get_schema(),array("INFORMATION_SCHEMA","sys"));}function
 error(){return
 nl_br(h(preg_replace('~^(\[[^]]*])+~m','',connection()->error)));}function
-create_database($j,$pb){return
-queries("CREATE DATABASE ".idf_escape($j).(preg_match('~^[a-z0-9_]+$~i',$pb)?" COLLATE $pb":""));}function
-drop_databases(array$i){return!!queries("DROP DATABASE ".implode(", ",array_map('Adminer\idf_escape',$i)));}function
-rename_database($C,$pb){if(preg_match('~^[a-z0-9_]+$~i',$pb))queries("ALTER DATABASE ".idf_escape(DB)." COLLATE $pb");queries("ALTER DATABASE ".idf_escape(DB)." MODIFY NAME = ".idf_escape($C));return
+create_database($i,$Bb){return
+queries("CREATE DATABASE ".idf_escape($i).(preg_match('~^[a-z0-9_]+$~i',$Bb)?" COLLATE $Bb":""));}function
+drop_databases(array$h){return!!queries("DROP DATABASE ".implode(", ",array_map('Adminer\idf_escape',$h)));}function
+rename_database($A,$Bb){if(preg_match('~^[a-z0-9_]+$~i',$Bb))queries("ALTER DATABASE ".idf_escape(DB)." COLLATE $Bb");queries("ALTER DATABASE ".idf_escape(DB)." MODIFY NAME = ".idf_escape($A));return
 true;}function
 auto_increment(){return" IDENTITY".($_POST["Auto_increment"]!=""?"(".number($_POST["Auto_increment"]).",1)":"")." PRIMARY KEY";}function
-alter_table($R,$C,array$n,array$Hd,$ub,$Pc,$pb,$Ea,$Mh){$b=array();$wb=array();$sh=fields($R);foreach($n
-as$m){$d=idf_escape($m[0]);$X=$m[1];if(!$X)$b["DROP"][]=" COLUMN $d";else{$X[1]=preg_replace("~( COLLATE )'(\\w+)'~",'\1\2',$X[1]);$wb[$m[0]]=$X[5];unset($X[5]);if(preg_match('~ AS ~',$X[3]))unset($X[1],$X[2]);if($m[0]=="")$b["ADD"][]="\n  ".implode("",$X).($R==""?substr($Hd[$X[0]],16+strlen($X[0])):"");else{$k=$X[3];unset($X[3]);unset($X[6]);if($d!=$X[0])queries("EXEC sp_rename ".q(table($R).".$d").", ".q(idf_unescape($X[0])).", 'COLUMN'");$b["ALTER COLUMN ".implode("",$X)][]="";$rh=$sh[$m[0]];if(default_value($rh)!=$k){if($rh["default"]!==null)$b["DROP"][]=" ".idf_escape($rh["default_constraint"]);if($k)$b["ADD"][]="\n $k FOR $d";}}}}if($R==""){$ka=(array)$b["ADD"];foreach($Hd
-as$x=>$X){if(!is_string($x))$ka[]="\n$X";}return
-queries("CREATE TABLE ".table($C)." (".implode(",",$ka)."\n)");}if($R!=$C)queries("EXEC sp_rename ".q(table($R)).", ".q($C));if($Hd)$b[""]=$Hd;foreach($b
-as$x=>$X){if(!queries("ALTER TABLE ".table($C)." $x".implode(",",$X)))return
-false;}foreach($wb
-as$x=>$X){$ub=substr($X,9);queries("EXEC sp_dropextendedproperty @name = N'MS_Description', @level0type = N'Schema', @level0name = ".q(get_schema()).", @level1type = N'Table', @level1name = ".q($C).", @level2type = N'Column', @level2name = ".q($x));queries("EXEC sp_addextendedproperty
+alter_table($Q,$A,array$m,array$he,$Hb,$nd,$Bb,$La,$Vi){$b=array();$Jb=array();$_i=fields($Q);foreach($m
+as$l){$d=idf_escape($l[0]);$W=$l[1];if(!$W)$b["DROP"][]=" COLUMN $d";else{$W[1]=preg_replace("~( COLLATE )'(\\w+)'~",'\1\2',$W[1]);$Jb[$l[0]]=$W[5];unset($W[5]);if(preg_match('~ AS ~',$W[3]))unset($W[1],$W[2]);if($l[0]=="")$b["ADD"][]="\n  ".implode("",$W).($Q==""?substr($he[$W[0]],16+strlen($W[0])):"");else{$j=$W[3];unset($W[3]);unset($W[6]);if($d!=$W[0])queries("EXEC sp_rename ".q(table($Q).".$d").", ".q(idf_unescape($W[0])).", 'COLUMN'");$b["ALTER COLUMN ".implode("",$W)][]="";$zi=$_i[$l[0]];if(default_value($zi)!=$j){if($zi["default"]!==null)$b["DROP"][]=" ".idf_escape($zi["default_constraint"]);if($j)$b["ADD"][]="\n $j FOR $d";}}}}if($Q==""){$ka=(array)$b["ADD"];foreach($he
+as$w=>$W){if(!is_string($w))$ka[]="\n$W";}return
+queries("CREATE TABLE ".table($A)." (".implode(",",$ka)."\n)");}if($Q!=$A)queries("EXEC sp_rename ".q(table($Q)).", ".q($A));if($he)$b[""]=$he;foreach($b
+as$w=>$W){if(!queries("ALTER TABLE ".table($A)." $w".implode(",",$W)))return
+false;}foreach($Jb
+as$w=>$W){$Hb=substr($W,9);queries("EXEC sp_dropextendedproperty @name = N'MS_Description', @level0type = N'Schema', @level0name = ".q(get_schema()).", @level1type = N'Table', @level1name = ".q($A).", @level2type = N'Column', @level2name = ".q($w));queries("EXEC sp_addextendedproperty
 @name = N'MS_Description',
-@value = $ub,
+@value = $Hb,
 @level0type = N'Schema',
 @level0name = ".q(get_schema()).",
 @level1type = N'Table',
-@level1name = ".q($C).",
+@level1name = ".q($A).",
 @level2type = N'Column',
-@level2name = ".q($x));}return
+@level2name = ".q($w));}return
 true;}function
-alter_indexes($R,$b){$v=array();$Bc=array();foreach($b
-as$X){if($X[2]=="DROP"){if($X[0]=="PRIMARY")$Bc[]=idf_escape($X[1]);else$v[]=idf_escape($X[1])." ON ".table($R);}elseif(!queries(($X[0]!="PRIMARY"?"CREATE $X[0] ".($X[0]!="INDEX"?"INDEX ":"").idf_escape($X[1]!=""?$X[1]:uniqid($R."_"))." ON ".table($R):"ALTER TABLE ".table($R)." ADD PRIMARY KEY")." (".implode(", ",$X[2]).")"))return
-false;}return(!$v||queries("DROP INDEX ".implode(", ",$v)))&&(!$Bc||queries("ALTER TABLE ".table($R)." DROP ".implode(", ",$Bc)));}function
-found_rows(array$S,array$Z){}function
-foreign_keys($R){$I=array();$bh=array("CASCADE","NO ACTION","SET NULL","SET DEFAULT");foreach(get_rows("EXEC sp_fkeys @fktable_name = ".q($R).", @fktable_owner = ".q(get_schema()))as$J){$p=&$I[$J["FK_NAME"]];$p["db"]=$J["PKTABLE_QUALIFIER"];$p["ns"]=$J["PKTABLE_OWNER"];$p["table"]=$J["PKTABLE_NAME"];$p["on_update"]=$bh[$J["UPDATE_RULE"]];$p["on_delete"]=$bh[$J["DELETE_RULE"]];$p["source"][]=$J["FKCOLUMN_NAME"];$p["target"][]=$J["PKCOLUMN_NAME"];}return$I;}function
-truncate_tables(array$T){return
-apply_queries("TRUNCATE TABLE",$T);}function
-drop_views(array$ul){return
-queries("DROP VIEW ".implode(", ",array_map('Adminer\table',$ul)));}function
-drop_tables(array$T){return
-queries("DROP TABLE ".implode(", ",array_map('Adminer\table',$T)));}function
-move_tables(array$T,array$ul,$hk){return
-apply_queries("ALTER SCHEMA ".idf_escape($hk)." TRANSFER",array_merge($T,$ul));}function
-trigger($C,$R){if($C=="")return
-array();$K=get_rows("SELECT s.name [Trigger],
+alter_indexes($Q,$b){$u=array();$Xc=array();foreach($b
+as$W){if($W[2]=="DROP"){if($W[0]=="PRIMARY")$Xc[]=idf_escape($W[1]);else$u[]=idf_escape($W[1])." ON ".table($Q);}elseif(!queries(($W[0]!="PRIMARY"?"CREATE $W[0] ".($W[0]!="INDEX"?"INDEX ":"").idf_escape($W[1]!=""?$W[1]:uniqid($Q."_"))." ON ".table($Q):"ALTER TABLE ".table($Q)." ADD PRIMARY KEY")." (".implode(", ",$W[2]).")"))return
+false;}return(!$u||queries("DROP INDEX ".implode(", ",$u)))&&(!$Xc||queries("ALTER TABLE ".table($Q)." DROP ".implode(", ",$Xc)));}function
+found_rows(array$R,array$Z){}function
+foreign_keys($Q){$H=array();$ji=array("CASCADE","NO ACTION","SET NULL","SET DEFAULT");$K=get_schema();foreach(get_rows("EXEC sp_fkeys @fktable_name = ".q($Q).", @fktable_owner = ".q($K))as$I){$o=&$H[$I["FK_NAME"]];$o["db"]=($I["PKTABLE_QUALIFIER"]==DB?"":$I["PKTABLE_QUALIFIER"]);$o["ns"]=($I["PKTABLE_OWNER"]==$K?"":$I["PKTABLE_OWNER"]);$o["table"]=$I["PKTABLE_NAME"];$o["on_update"]=$ji[$I["UPDATE_RULE"]];$o["on_delete"]=$ji[$I["DELETE_RULE"]];$o["source"][]=$I["FKCOLUMN_NAME"];$o["target"][]=$I["PKCOLUMN_NAME"];}return$H;}function
+truncate_tables(array$S){return
+apply_queries("TRUNCATE TABLE",$S);}function
+drop_views(array$_n){return
+queries("DROP VIEW ".implode(", ",array_map('Adminer\table',$_n)));}function
+drop_tables(array$S){return
+queries("DROP TABLE ".implode(", ",array_map('Adminer\table',$S)));}function
+move_tables(array$S,array$_n,$em){return
+apply_queries("ALTER SCHEMA ".idf_escape($em)." TRANSFER",array_merge($S,$_n));}function
+trigger($A,$Q){if($A=="")return
+array();$J=get_rows("SELECT s.name [Trigger],
 CASE WHEN OBJECTPROPERTY(s.id, 'ExecIsInsertTrigger') = 1 THEN 'INSERT'
 	WHEN OBJECTPROPERTY(s.id, 'ExecIsUpdateTrigger') = 1 THEN 'UPDATE'
 	WHEN OBJECTPROPERTY(s.id, 'ExecIsDeleteTrigger') = 1 THEN 'DELETE' END [Event],
@@ -1721,156 +1890,195 @@ CASE WHEN OBJECTPROPERTY(s.id, 'ExecIsInsteadOfTrigger') = 1 THEN 'INSTEAD OF' E
 c.text
 FROM sysobjects s
 JOIN syscomments c ON s.id = c.id
-WHERE s.xtype = 'TR' AND s.name = ".q($C));$I=reset($K);if($I)$I["Statement"]=preg_replace('~^.+\s+AS\s+~isU','',$I["text"]);return$I;}function
-triggers($R){$I=array();foreach(get_rows("SELECT sys1.name,
+WHERE s.xtype = 'TR' AND s.name = ".q($A));$H=reset($J);if($H)$H["Statement"]=preg_replace('~^.+\s+AS\s+~isU','',$H["text"]);return($H?:array());}function
+triggers($Q){$H=array();foreach(get_rows("SELECT sys1.name,
 CASE WHEN OBJECTPROPERTY(sys1.id, 'ExecIsInsertTrigger') = 1 THEN 'INSERT'
 	WHEN OBJECTPROPERTY(sys1.id, 'ExecIsUpdateTrigger') = 1 THEN 'UPDATE'
 	WHEN OBJECTPROPERTY(sys1.id, 'ExecIsDeleteTrigger') = 1 THEN 'DELETE' END [Event],
 CASE WHEN OBJECTPROPERTY(sys1.id, 'ExecIsInsteadOfTrigger') = 1 THEN 'INSTEAD OF' ELSE 'AFTER' END [Timing]
 FROM sysobjects sys1
 JOIN sysobjects sys2 ON sys1.parent_obj = sys2.id
-WHERE sys1.xtype = 'TR' AND sys2.name = ".q($R))as$J)$I[$J["name"]]=array($J["Timing"],$J["Event"]);return$I;}function
+WHERE sys1.xtype = 'TR' AND sys2.name = ".q($Q))as$I)$H[$I["name"]]=array($I["Timing"],$I["Event"]);return$H;}function
 trigger_options(){return
 array("Timing"=>array("AFTER","INSTEAD OF"),"Event"=>array("INSERT","UPDATE","DELETE"),"Type"=>array("AS"),);}function
+routine($A,$T){$Ac=get_val("SELECT m.definition
+FROM sys.objects o
+JOIN sys.sql_modules m ON m.object_id = o.object_id
+WHERE o.schema_id = SCHEMA_ID(".q(get_schema()).") AND o.name = ".q($A)." AND o.type = ".q($T=="PROCEDURE"?"P":"FN"));if(!$Ac)return
+array();$H=array("definition"=>preg_replace('~^(?:[^[]|\[[^]]*])*\s+AS\s+~isU','',$Ac),"fields"=>array());foreach(get_rows("SELECT p.name, TYPE_NAME(p.user_type_id) [type], p.max_length, p.precision, p.scale, p.is_output
+FROM sys.parameters p
+JOIN sys.objects o ON p.object_id = o.object_id
+WHERE o.schema_id = SCHEMA_ID(".q(get_schema()).") AND o.name = ".q($A)."
+ORDER BY p.parameter_id")as$I){$Rd=$I["type"];$x=type_length($Rd,$I);$l=array("field"=>preg_replace('~^@~','',$I["name"]),"type"=>$Rd,"length"=>$x,"full_type"=>$Rd.($x!=""?"($x)":""),"null"=>true,"inout"=>($I["is_output"]?"OUTPUT":""),);if($l["field"]=="")$H["returns"]=$l;else$H["fields"][]=$l;}return$H;}function
+routines(){return
+get_rows("SELECT o.name SPECIFIC_NAME, o.name ROUTINE_NAME,
+	CASE o.type WHEN 'P' THEN 'PROCEDURE' ELSE 'FUNCTION' END ROUTINE_TYPE, TYPE_NAME(p.user_type_id) DTD_IDENTIFIER
+FROM sys.objects o
+LEFT JOIN sys.parameters p ON o.object_id = p.object_id AND p.parameter_id = 0
+WHERE o.schema_id = SCHEMA_ID(".q(get_schema()).") AND o.type IN ('P', 'FN')
+ORDER BY o.name");}function
+routine_languages(){return
+array();}function
+routine_options($mk){return
+array();}function
+routine_id($A,array$I){return
+table($A);}function
 schemas(){return
 get_vals("SELECT name FROM sys.schemas");}function
 get_schema(){if($_GET["ns"]!="")return$_GET["ns"];return
 get_val("SELECT SCHEMA_NAME()");}function
-set_schema($L,$g=null){$_GET["ns"]=$L;return
-true;}function
-create_sql($R,$Ea,$Nj){if(is_view(table_status1($R))){$tl=view($R);return"CREATE VIEW ".table($R)." AS $tl[select]";}$n=array();$ii=false;foreach(fields($R)as$C=>$m){$X=process_field($m,$m);if($X[6])$ii=true;$n[]=implode("",$X);}foreach(indexes($R)as$C=>$v){if(!$ii||$v["type"]!="PRIMARY"){$e=array();foreach($v["columns"]as$x=>$X)$e[]=idf_escape($X).($v["descs"][$x]?" DESC":"");$C=idf_escape($C);$n[]=($v["type"]=="INDEX"?"INDEX $C":"CONSTRAINT $C ".($v["type"]=="UNIQUE"?"UNIQUE":"PRIMARY KEY"))." (".implode(", ",$e).")";}}foreach(driver()->checkConstraints($R)as$C=>$cb)$n[]="CONSTRAINT ".idf_escape($C)." CHECK ($cb)";return"CREATE TABLE ".table($R)." (\n\t".implode(",\n\t",$n)."\n)";}function
-foreign_keys_sql($R){$n=array();foreach(foreign_keys($R)as$Hd)$n[]=ltrim(format_foreign_key($Hd));return($n?"ALTER TABLE ".table($R)." ADD\n\t".implode(",\n\t",$n).";\n\n":"");}function
-truncate_sql($R){return"TRUNCATE TABLE ".table($R);}function
-use_sql($Zb,$Nj=""){return"USE ".idf_escape($Zb);}function
-trigger_sql($R){$I="";foreach(triggers($R)as$C=>$Fk)$I
-.=create_trigger(" ON ".table($R),trigger($C,$R)).";";return$I;}function
-convert_field(array$m){}function
-unconvert_field(array$m,$I){return$I;}function
-support($od){return
-preg_match('~^(check|comment|columns|database|drop_col|dump|fast_status|indexes|descidx|scheme|sql|table|transaction_ddl|trigger|view|view_trigger)$~',$od);}}add_driver("oracle","Oracle beta");if(isset($_GET["oracle"])){define('Adminer\DRIVER',"oracle");if(extension_loaded("oci8")&&$_GET["ext"]!="pdo"){class
+set_schema($K,$g=null){$_GET["ns"]=$K;return!!get_val("SELECT 1 FROM sys.schemas WHERE name = ".q($K),0,$g);}function
+create_sql($Q,$La,$Dl){if(is_view(table_status1($Q))){$zn=view($Q);return"CREATE VIEW ".table($Q)." AS $zn[select]";}$m=array();$_j=false;foreach(fields($Q)as$A=>$l){$W=process_field($l,$l);if($W[6])$_j=true;$m[]=implode("",$W);}foreach(indexes($Q)as$A=>$u){if(!$_j||$u["type"]!="PRIMARY"){$e=array();foreach($u["columns"]as$w=>$W)$e[]=idf_escape($W).($u["descs"][$w]?" DESC":"");$A=idf_escape($A);$m[]=($u["type"]=="INDEX"?"INDEX $A":"CONSTRAINT $A ".($u["type"]=="UNIQUE"?"UNIQUE":"PRIMARY KEY"))." (".implode(", ",$e).")";}}foreach(driver()->checkConstraints($Q)as$A=>$ob)$m[]="CONSTRAINT ".idf_escape($A)." CHECK ($ob)";return"CREATE TABLE ".table($Q)." (\n\t".implode(",\n\t",$m)."\n)";}function
+foreign_keys_sql($Q){$m=array();foreach(foreign_keys($Q)as$he)$m[]=ltrim(format_foreign_key($he));return($m?"ALTER TABLE ".table($Q)." ADD\n\t".implode(",\n\t",$m).";\n\n":"");}function
+truncate_sql($Q){return"TRUNCATE TABLE ".table($Q);}function
+use_sql($rc,$Dl=""){return"USE ".idf_escape($rc);}function
+use_schema_sql($K,$Dl){$A=idf_escape($K);return($Dl=="DROP+CREATE"?"DROP SCHEMA IF EXISTS $A;\n":"")."IF SCHEMA_ID(".q($K).") IS NULL EXEC(".q("CREATE SCHEMA $A").")";}function
+trigger_sql($Q){$H="";foreach(triggers($Q)as$A=>$Fm)$H
+.=create_trigger(" ON ".table($Q),trigger($A,$Q)).";";return$H;}function
+convert_field(array$l){}function
+unconvert_field(array$l,$H){return$H;}function
+support($Nd){return
+preg_match('~^(check|comment|columns|database|drop_col|dump|fast_status|indexes|descidx|procedure|routine|scheme|sql|table|transaction_ddl|trigger|view|view_trigger)$~',$Nd);}}add_driver("oracle","Oracle");if(isset($_GET["oracle"])){define('Adminer\DRIVER',"oracle");function
+easy_connect(array$M){return
+url_host($M["host"]).($M["port"]!=""?":$M[port]":"").$M["path"];}if(extension_loaded("oci8")&&$_GET["ext"]!="pdo"){class
 Db
 extends
-SqlDb{var$extension="oci8";var$_current_db;private$link;function
-_error($Uc,$l){if(ini_bool("html_errors"))$l=html_entity_decode(strip_tags($l));$l=preg_replace('~^[^:]*: ~','',$l);$this->error=$l;}function
-attach($N,$V,$E){$this->link=@oci_new_connect($V,$E,$N,"AL32UTF8");if($this->link){$this->server_info=oci_server_version($this->link);return'';}$l=oci_error();return($l?$l["message"]:'Unknown error.');}function
-quote($Q){return"'".str_replace("'","''",$Q)."'";}function
-select_db($Zb){$this->_current_db=$Zb;return
-true;}function
-query($G,$Pk=false){$H=oci_parse($this->link,$G);$this->error="";if(!$H){$l=oci_error($this->link);$this->errno=$l["code"];$this->error=$l["message"];return
-false;}set_error_handler(array($this,'_error'));$I=@oci_execute($H);restore_error_handler();if($I){if(oci_num_fields($H))return
+SqlDb{var$extension="oci8";private$link,$transaction=false;function
+_error($sd,$k){if(ini_bool("html_errors"))$k=html_entity_decode(strip_tags($k));$k=preg_replace('~^[^:]*: ~','',$k);$this->error=$k;}function
+attach(array$M,$U,$D){$this->link=@oci_new_connect($U,$D,easy_connect($M),"AL32UTF8");if($this->link){$this->server_info=oci_server_version($this->link);return'';}$k=oci_error();return($k?$k["message"]:'Unknown error.');}function
+quote($P){return"'".str_replace("'","''",$P)."'";}function
+select_db($rc){return$this->query("ALTER SESSION SET CURRENT_SCHEMA = ".idf_escape($rc));}function
+query($F,$Rm=false){$G=oci_parse($this->link,$F);$this->error="";if(!$G){$k=oci_error($this->link);$this->errno=$k["code"];$this->error=$k["message"];return
+false;}set_error_handler(array($this,'_error'));$H=@oci_execute($G,($this->transaction?OCI_NO_AUTO_COMMIT:OCI_COMMIT_ON_SUCCESS));restore_error_handler();if($H){if(oci_num_fields($G))return
 new
-Result($H);$this->affected_rows=oci_num_rows($H);oci_free_statement($H);}return$I;}function
-timeout($rg){return
-oci_set_call_timeout($this->link,$rg);}}class
-Result{var$num_rows;private$result,$offset=1;function
-__construct($H){$this->result=$H;}private
+Result($G);$this->affected_rows=oci_num_rows($G);oci_free_statement($G);}return$H;}function
+timeout($ph){return
+function_exists('oci_set_call_timeout')&&oci_set_call_timeout($this->link,$ph);}function
+inTransaction(){return$this->transaction;}function
+begin(){$this->transaction=true;return
+true;}function
+commit(){return$this->end_transaction(@oci_commit($this->link));}function
+rollback(){return$this->end_transaction(@oci_rollback($this->link));}private
 function
-convert($J){foreach((array)$J
-as$x=>$X){if(is_a($X,'OCILob')||is_a($X,'OCI-Lob'))$J[$x]=$X->load();}return$J;}function
+end_transaction($H){$this->transaction=false;if(!$H){$k=oci_error($this->link);$this->errno=$k["code"];$this->error=$k["message"];}return$H;}}class
+Result{var$num_rows;private$result,$offset=1;function
+__construct($G){$this->result=$G;}private
+function
+convert($I){foreach((array)$I
+as$w=>$W){if(is_a($W,'OCILob')||is_a($W,'OCI-Lob'))$I[$w]=$W->load();}return$I;}function
 fetch_assoc(){return$this->convert(oci_fetch_assoc($this->result));}function
 fetch_row(){return$this->convert(oci_fetch_row($this->result));}function
-fetch_field(){$d=$this->offset++;$I=new
-\stdClass;$I->name=oci_field_name($this->result,$d);$U=oci_field_type($this->result,$d);$I->native_type=$U;$I->type=$U;$I->charsetnr=(preg_match("~raw|blob|bfile~",$U)?63:0);return$I;}}}elseif(extension_loaded("pdo_oci")){class
+fetch_field(){$d=$this->offset++;$H=new
+\stdClass;$H->name=oci_field_name($this->result,$d);$T=oci_field_type($this->result,$d);$H->native_type=idx(array(100=>"binary_float","binary_double"),$T,$T);return$H;}}}elseif(extension_loaded("pdo_oci")){class
 Db
 extends
-PdoDb{var$extension="PDO_OCI";var$_current_db;function
-attach($N,$V,$E){return$this->dsn("oci:dbname=//$N;charset=AL32UTF8",$V,$E);}function
-select_db($Zb){$this->_current_db=$Zb;return
-true;}}}class
+PdoDb{var$extension="PDO_OCI";function
+attach(array$M,$U,$D){return$this->dsn("oci:dbname=//".easy_connect($M).";charset=AL32UTF8",$U,$D);}function
+select_db($rc){return$this->query("ALTER SESSION SET CURRENT_SCHEMA = ".idf_escape($rc));}}}class
 Driver
 extends
-SqlDriver{static$extensions=array("OCI8","PDO_OCI");static$jush="oracle";var$insertFunctions=array("date"=>"current_date","timestamp"=>"current_timestamp",);var$editFunctions=array("number|float|double"=>"+/-","date|timestamp"=>"+ interval/- interval","char|clob"=>"||",);var$operators=array("=","<",">","<=",">=","!=","LIKE","LIKE %%","IN","IS NULL","NOT LIKE","NOT IN","IS NOT NULL","SQL");var$functions=array("length","lower","round","upper");var$grouping=array("avg","count","count distinct","max","min","sum");function
-__construct(Db$f){parent::__construct($f);$this->types=array('Numbers'=>array("number"=>38,"binary_float"=>12,"binary_double"=>21),'Date and time'=>array("date"=>10,"timestamp"=>29,"interval year"=>12,"interval day"=>28),'Strings'=>array("char"=>2000,"varchar2"=>4000,"nchar"=>2000,"nvarchar2"=>4000,"clob"=>4294967295,"nclob"=>4294967295),'Binary'=>array("raw"=>2000,"long raw"=>2147483648,"blob"=>4294967295,"bfile"=>4294967296),);}function
-begin(){return
-true;}function
-quoteBinary($Ui){return"HEXTORAW(".q(bin2hex($Ui)).")";}function
+SqlDriver{static$extensions=array("OCI8","PDO_OCI");static$jush="oracle";static$serverPath=true;var$insertFunctions=array("date"=>"current_date","timestamp"=>"current_timestamp",);var$editFunctions=array("number|float|double"=>"+/-","date|timestamp"=>"+ interval/- interval","char|clob"=>"||",);var$functions=array("length","lower","round","upper");var$grouping=array("avg","count","count distinct","max","min","sum");function
+operators($Ml){return
+array("=","<",">","<=",">=","!=","LIKE","LIKE %%","IN","IS NULL","NOT LIKE","NOT IN","IS NOT NULL","SQL");}static
+function
+connect($M,$U,$D){$f=parent::connect($M,$U,$D);if(is_object($f))$f->query("ALTER SESSION SET CURSOR_SHARING = FORCE"." NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS'"." NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF'"." NLS_TIMESTAMP_TZ_FORMAT = 'YYYY-MM-DD HH24:MI:SS.FF TZH:TZM'");return$f;}function
+__construct(Db$f){parent::__construct($f);$this->types=array('Numbers'=>array("number"=>38,"binary_float"=>12,"binary_double"=>21),'Date and time'=>array("date"=>19,"timestamp"=>29,"interval year"=>12,"interval day"=>28),'Strings'=>array("char"=>2000,"varchar2"=>4000,"nchar"=>2000,"nvarchar2"=>4000,"clob"=>4294967295,"nclob"=>4294967295),'Binary'=>array("raw"=>2000,"long raw"=>2147483648,"blob"=>4294967295,"bfile"=>4294967296),'Geometry'=>array("sdo_geometry"=>0),);}function
+begin(){return$this->conn->begin();}function
+convertSearch($t,array$W,array$l){$T=$l["type"];$ej=strpos($W["op"],"LIKE")!==false;if($T=="xmltype")return"XMLSERIALIZE(CONTENT $t AS VARCHAR2(4000))";if($T=="json")return"JSON_SERIALIZE($t)";if(preg_match('~^(date|timestamp)~',$T))return"TO_CHAR($t, 'YYYY-MM-DD HH24:MI:SS')";if(preg_match('~char~',$T)||(preg_match('~clob~',$T)&&$ej))return$t;return(!$ej&&preg_match(number_type(),$T)?$t:"TO_CHAR($t)");}function
+quoteBinary($vk){return"HEXTORAW(".q(bin2hex($vk)).")";}function
+typeName(\stdClass$l){return
+strtolower(parent::typeName($l));}function
 hasCStyleEscapes(){return
-true;}}function
-idf_escape($u){return'"'.str_replace('"','""',$u).'"';}function
-table($u){return
-idf_escape($u);}function
-get_databases($Fd){return
-get_vals("SELECT DISTINCT tablespace_name FROM (
-SELECT tablespace_name FROM user_tablespaces
-UNION SELECT tablespace_name FROM all_tables WHERE tablespace_name IS NOT NULL
-)
-ORDER BY 1");}function
-limit($G,$Z,$z,$Rg=0,$gj=" "){return($Rg?" * FROM (SELECT t.*, rownum AS rnum FROM (SELECT $G$Z) t WHERE rownum <= ".($z+$Rg).") WHERE rnum > $Rg":($z?" * FROM (SELECT $G$Z) WHERE rownum <= ".($z+$Rg):" $G$Z"));}function
-limit1($R,$G,$Z,$gj="\n"){return" $G$Z";}function
-db_collation($j,array$qb){return
+true;}function
+select($Q,array$L,array$Z,array$q,array$ti=array(),$y=1,$C=0,$Bj=false){if(in_array("*",$L)){$Zb=array();$le=false;foreach(fields($Q)as$A=>$l){$Fa=convert_field($l);$le=($le||$Fa);$Zb[]=($Fa?"$Fa AS ":"").idf_escape($A);}if($le)$L=$Zb;}return
+parent::select($Q,$L,$Z,$q,$ti,$y,$C,$Bj);}function
+allFields(){$H=array();$J=get_rows('SELECT c.table_name "tab", c.column_name "field", c.data_type "type", c.nullable "nullable",
+	c.data_precision "precision", c.data_scale "scale", c.char_col_decl_length "char_length"
+FROM all_tab_columns c
+WHERE '.where_owner("c.owner").'
+ORDER BY c.table_name, c.column_id',$this->conn);foreach($J
+as$I){$x="$I[precision],$I[scale]";$I["length"]=(strpos($I["type"],"(")?"":($x==","?$I["char_length"]:$x));$I["type"]=strtolower($I["type"]);$I["null"]=($I["nullable"]=="Y");$H[$I["tab"]][]=$I;}return$H;}}function
+idf_escape($t){return'"'.str_replace('"','""',$t).'"';}function
+table($t){return
+idf_escape($t);}function
+get_databases($fe){$H=get_vals("SELECT username FROM all_users WHERE oracle_maintained = 'N' ORDER BY 1");return($H?:get_vals("SELECT username FROM all_users ORDER BY 1"));}function
+limit($F,$Z,$y,$Yh=0,$Lk=" "){return($Yh?" * FROM (SELECT t.*, rownum AS rnum FROM (SELECT $F$Z) t WHERE rownum <= ".($y+$Yh).") WHERE rnum > $Yh":($y?" * FROM (SELECT $F$Z) WHERE rownum <= ".($y+$Yh):" $F$Z"));}function
+limit1($Q,$F,$Z,$Lk="\n"){return" $F$Z";}function
+db_collation($i,array$Cb){return
 get_val("SELECT value FROM nls_database_parameters WHERE parameter = 'NLS_CHARACTERSET'");}function
 logged_user(){return
 get_val("SELECT USER FROM DUAL");}function
-get_current_db(){$j=connection()->_current_db?:DB;connection()->_current_db=null;return$j;}function
-where_owner($fi,$_h="owner"){if(!$_GET["ns"])return'';return"$fi$_h = sys_context('USERENV', 'CURRENT_SCHEMA')";}function
-views_table($e){$_h=where_owner('');return"(SELECT $e FROM all_views WHERE ".($_h?:"rownum < 0").")";}function
-tables_list(){$tl=views_table("view_name");$_h=where_owner(" AND ");return
-get_key_vals("SELECT table_name, 'table' FROM all_tables WHERE tablespace_name = ".q(DB)."$_h
-UNION SELECT view_name, 'view' FROM $tl
-ORDER BY 1");}function
-count_tables(array$i){$I=array();foreach($i
-as$j)$I[$j]=get_val("SELECT COUNT(*) FROM all_tables WHERE tablespace_name = ".q($j));return$I;}function
-table_status($C="",$nd=false){$I=array();$Zi=q($C);$j=get_current_db();$tl=views_table("view_name");$_h=where_owner(" AND ","t.owner");foreach(get_rows('SELECT t.table_name "Name", \'table\' "Engine", s.bytes "Data_length", i.bytes "Index_length", t.num_rows "Rows"
+where_owner($Hi="owner"){return"$Hi = ".q(DB);}function
+views_table($e){return"(SELECT $e FROM all_views WHERE ".where_owner().")";}function
+objects_table(){return"(SELECT object_name, DECODE(object_type, 'VIEW', 'view', 'table') object_type FROM all_objects WHERE ".where_owner()." AND object_type IN ('TABLE', 'VIEW'))";}function
+tables_list(){return
+get_key_vals("SELECT * FROM ".objects_table()." ORDER BY 1");}function
+count_tables(array$h){$H=array();foreach($h
+as$i)$H[$i]=get_val("SELECT COUNT(*) FROM all_objects WHERE object_type IN ('TABLE', 'VIEW') AND owner = ".q($i));return$H;}function
+table_status($A="",$Md=false){$H=array();$Ak=q($A);if($Md||$A!=""){foreach(get_rows('SELECT object_name "Name", object_type "Engine" FROM '.objects_table().($A!=""?" WHERE object_name = $Ak":"").' ORDER BY 1')as$I)$H[$I["Name"]]=$I;return$H;}foreach(get_rows('SELECT t.table_name "Name", \'table\' "Engine", s.bytes "Data_length", i.bytes "Index_length", t.num_rows "Rows"
 FROM all_tables t
 LEFT JOIN (SELECT segment_name, SUM(bytes) bytes FROM user_segments WHERE segment_type LIKE \'TABLE%\' GROUP BY segment_name) s ON s.segment_name = t.table_name
 LEFT JOIN (SELECT i.table_name, SUM(s.bytes) bytes FROM user_indexes i
 	JOIN user_segments s ON s.segment_name = i.index_name AND s.segment_type LIKE \'INDEX%\' GROUP BY i.table_name) i ON i.table_name = t.table_name
-WHERE t.tablespace_name = '.q($j).$_h.($C!=""?" AND t.table_name = $Zi":"")."
-UNION SELECT view_name, 'view', 0, 0, 0 FROM $tl".($C!=""?" WHERE view_name = $Zi":"")."
-ORDER BY 1")as$J)$I[$J["Name"]]=$J;return$I;}function
-is_view(array$S){return$S["Engine"]=="view";}function
-fk_support(array$S){return
+WHERE '.where_owner("t.owner")."
+UNION SELECT view_name, 'view', 0, 0, 0 FROM ".views_table("view_name")."
+ORDER BY 1")as$I)$H[$I["Name"]]=$I;return$H;}function
+is_view(array$R){return$R["Engine"]=="view";}function
+fk_support(array$R){return
 true;}function
-fields($R){$I=array();$_h=where_owner(" AND ");foreach(get_rows("SELECT * FROM all_tab_columns WHERE table_name = ".q($R)."$_h ORDER BY column_id")as$J){$U=$J["DATA_TYPE"];$y="$J[DATA_PRECISION],$J[DATA_SCALE]";if($y==",")$y=$J["CHAR_COL_DECL_LENGTH"];$I[$J["COLUMN_NAME"]]=array("field"=>$J["COLUMN_NAME"],"full_type"=>$U.($y?"($y)":""),"type"=>strtolower($U),"length"=>$y,"default"=>$J["DATA_DEFAULT"],"null"=>($J["NULLABLE"]=="Y"),"privileges"=>array("insert"=>1,"select"=>1,"update"=>1,"where"=>1,"order"=>1),);}return$I;}function
-indexes($R,$g=null){$I=array();$_h=where_owner(" AND ","aic.table_owner");foreach(get_rows("SELECT aic.*, ac.constraint_type, atc.data_default
+fields($Q){$H=array();$hf=null;foreach(get_rows("SELECT * FROM all_tab_columns WHERE table_name = ".q($Q)." AND ".where_owner()." ORDER BY column_id")as$I){$T=$I["DATA_TYPE"];$x="$I[DATA_PRECISION],$I[DATA_SCALE]";if($x==",")$x=$I["CHAR_COL_DECL_LENGTH"];elseif(strpos($T,"("))$x="";$j=$I["DATA_DEFAULT"];if($j!==null){$j=rtrim($j);if(preg_match("~^'(.*)'\$~s",$j,$_))$j=str_replace("''","'",$_[1]);}if($I["IDENTITY_COLUMN"]=="YES"){if($hf===null)$hf=get_key_vals("SELECT column_name, generation_type FROM all_tab_identity_cols WHERE table_name = ".q($Q)." AND ".where_owner());$j="GENERATED ".$hf[$I["COLUMN_NAME"]].($I["DEFAULT_ON_NULL"]=="YES"?" ON NULL":"")." AS IDENTITY";}$Ej=array("insert"=>1,"select"=>1,"update"=>1,"order"=>1);if($I["DATA_TYPE_OWNER"]==""||$T=="XMLTYPE")$Ej["where"]=1;$H[$I["COLUMN_NAME"]]=array("field"=>$I["COLUMN_NAME"],"full_type"=>$T.($x?"($x)":""),"type"=>strtolower($T),"length"=>$x,"default"=>$j,"null"=>($I["NULLABLE"]=="Y"),"auto_increment"=>($I["IDENTITY_COLUMN"]=="YES"),"privileges"=>$Ej,);}return$H;}function
+table_constraints($Q,$g=null){$H=array();foreach(get_rows('SELECT c.constraint_name "name", c.constraint_type "type", c.r_owner "r_owner", c.r_constraint_name "r_constraint", c.delete_rule "delete_rule", cc.column_name "column"
+FROM all_constraints c
+JOIN all_cons_columns cc ON cc.owner = c.owner AND cc.constraint_name = c.constraint_name
+WHERE c.constraint_type IN (\'P\', \'U\', \'R\') AND '.where_owner("c.owner")." AND c.table_name = ".q($Q).'
+ORDER BY cc.position',$g)as$I){$A=$I["name"];$H[$A]["type"]=$I["type"];$H[$A]["r_owner"]=$I["r_owner"];$H[$A]["r_constraint"]=$I["r_constraint"];$H[$A]["delete_rule"]=$I["delete_rule"];$H[$A]["columns"][]=$I["column"];}return$H;}function
+indexes($Q,$g=null){$H=array();$Tb=array();foreach(table_constraints($Q,$g)as$A=>$Sb)$Tb[$A]=$Sb["type"];foreach(get_rows("SELECT aic.*, atc.data_default
 FROM all_ind_columns aic
-LEFT JOIN all_constraints ac ON aic.index_name = ac.constraint_name AND aic.table_name = ac.table_name AND aic.index_owner = ac.owner
 LEFT JOIN all_tab_cols atc ON aic.column_name = atc.column_name AND aic.table_name = atc.table_name AND aic.index_owner = atc.owner
-WHERE aic.table_name = ".q($R)."$_h
-ORDER BY ac.constraint_type, aic.column_position",$g)as$J){$Ie=$J["INDEX_NAME"];$sb=$J["DATA_DEFAULT"];$sb=($sb?trim($sb,'"'):$J["COLUMN_NAME"]);$I[$Ie]["type"]=($J["CONSTRAINT_TYPE"]=="P"?"PRIMARY":($J["CONSTRAINT_TYPE"]=="U"?"UNIQUE":"INDEX"));$I[$Ie]["columns"][]=$sb;$I[$Ie]["lengths"][]=($J["CHAR_LENGTH"]&&$J["CHAR_LENGTH"]!=$J["COLUMN_LENGTH"]?$J["CHAR_LENGTH"]:null);$I[$Ie]["descs"][]=($J["DESCEND"]&&$J["DESCEND"]=="DESC"?'1':null);}return$I;}function
-view($C){$tl=views_table("view_name, text");$K=get_rows('SELECT text "select" FROM '.$tl.' WHERE view_name = '.q($C));return
-reset($K);}function
+WHERE aic.table_name = ".q($Q)." AND ".where_owner("aic.table_owner")."
+ORDER BY aic.column_position",$g)as$I){$uf=$I["INDEX_NAME"];$Fb=$I["DATA_DEFAULT"];$Fb=($Fb?trim($Fb,'"'):$I["COLUMN_NAME"]);$T=idx($Tb,$uf);$H[$uf]["type"]=($T=="P"?"PRIMARY":($T=="U"?"UNIQUE":"INDEX"));$H[$uf]["columns"][]=$Fb;$H[$uf]["lengths"][]=($I["CHAR_LENGTH"]&&$I["CHAR_LENGTH"]!=$I["COLUMN_LENGTH"]?$I["CHAR_LENGTH"]:null);$H[$uf]["descs"][]=($I["DESCEND"]&&$I["DESCEND"]=="DESC"?'1':null);}uasort($H,function($ha,$Pa){$ti=array("PRIMARY"=>0,"UNIQUE"=>1,"INDEX"=>2);return$ti[$ha["type"]]-$ti[$Pa["type"]];});return$H;}function
+view($A){$J=get_rows('SELECT text "select" FROM '.views_table("view_name, text").' WHERE view_name = '.q($A));return($J?$J[0]:array());}function
 collations(){return
 array();}function
-information_schema($j,$L=""){return($L!=""?$L:get_schema())=="INFORMATION_SCHEMA";}function
+information_schema($i,$K=""){return
+in_array($K!=""?$K:$i,array("INFORMATION_SCHEMA","SYS","SYSTEM"));}function
 error(){return
 h(connection()->error);}function
-explain(Db$f,$G){$f->query("EXPLAIN PLAN FOR $G");return$f->query("SELECT * FROM plan_table");}function
-found_rows(array$S,array$Z){}function
+explain(Db$f,$F){$f->query("EXPLAIN PLAN FOR $F");return$f->query("SELECT * FROM plan_table");}function
+found_rows(array$R,array$Z){}function
 auto_increment(){return"";}function
-alter_table($R,$C,array$n,array$Hd,$ub,$Pc,$pb,$Ea,$Mh){$b=$Bc=array();$sh=($R?fields($R):array());foreach($n
-as$m){$X=$m[1];if($X&&$m[0]!=""&&idf_escape($m[0])!=$X[0])queries("ALTER TABLE ".table($R)." RENAME COLUMN ".idf_escape($m[0])." TO $X[0]");$rh=$sh[$m[0]];if($X&&$rh){$Tg=process_field($rh,$rh);if($X[2]==$Tg[2])$X[2]="";}if($X)$b[]=($R!=""?($m[0]!=""?"MODIFY (":"ADD ("):"  ").implode($X).($R!=""?")":"");else$Bc[]=idf_escape($m[0]);}if($R=="")return
-queries("CREATE TABLE ".table($C)." (\n".implode(",\n",array_merge($b,$Hd))."\n)");return(!$b||queries("ALTER TABLE ".table($R)."\n".implode("\n",$b)))&&(!$Bc||queries("ALTER TABLE ".table($R)." DROP (".implode(", ",$Bc).")"))&&($R==$C||queries("ALTER TABLE ".table($R)." RENAME TO ".table($C)));}function
-alter_indexes($R,$b){$Bc=array();$ri=array();foreach($b
-as$X){if($X[0]!="INDEX"){$X[2]=preg_replace('~ DESC$~','',$X[2]);$h=($X[2]=="DROP"?"\nDROP CONSTRAINT ".idf_escape($X[1]):"\nADD".($X[1]!=""?" CONSTRAINT ".idf_escape($X[1]):"")." $X[0] ".($X[0]=="PRIMARY"?"KEY ":"")."(".implode(", ",$X[2]).")");array_unshift($ri,"ALTER TABLE ".table($R).$h);}elseif($X[2]=="DROP")$Bc[]=idf_escape($X[1]);else$ri[]="CREATE INDEX ".idf_escape($X[1]!=""?$X[1]:uniqid($R."_"))." ON ".table($R)." (".implode(", ",$X[2]).")";}if($Bc)array_unshift($ri,"DROP INDEX ".implode(", ",$Bc));foreach($ri
-as$G){if(!queries($G))return
+alter_table($Q,$A,array$m,array$he,$Hb,$nd,$Bb,$La,$Vi){$b=$Xc=array();$_i=($Q?fields($Q):array());foreach($m
+as$l){$W=$l[1];if($W&&$l[0]!=""&&idf_escape($l[0])!=$W[0])queries("ALTER TABLE ".table($Q)." RENAME COLUMN ".idf_escape($l[0])." TO $W[0]");$zi=$_i[$l[0]];if($W&&$zi){$ai=process_field($zi,$zi);if($W[2]==$ai[2])$W[2]="";}if($W){list($W[2],$W[3])=array($W[3],$W[2]);$b[]=($Q!=""?($l[0]!=""?"MODIFY (":"ADD ("):"  ").implode($W).($Q!=""?")":"");}else$Xc[]=idf_escape($l[0]);}if($Q=="")return
+queries("CREATE TABLE ".table($A)." (\n".implode(",\n",array_merge($b,$he))."\n)");return(!$b||queries("ALTER TABLE ".table($Q)."\n".implode("\n",$b)))&&(!$Xc||queries("ALTER TABLE ".table($Q)." DROP (".implode(", ",$Xc).")"))&&($Q==$A||queries("ALTER TABLE ".table($Q)." RENAME TO ".table($A)));}function
+alter_indexes($Q,$b){$Xc=array();$Jj=array();foreach($b
+as$W){if($W[0]!="INDEX"){$W[2]=preg_replace('~ DESC$~','',$W[2]);$ec=($W[2]=="DROP"?"\nDROP CONSTRAINT ".idf_escape($W[1]):"\nADD".($W[1]!=""?" CONSTRAINT ".idf_escape($W[1]):"")." $W[0] ".($W[0]=="PRIMARY"?"KEY ":"")."(".implode(", ",$W[2]).")");array_unshift($Jj,"ALTER TABLE ".table($Q).$ec);}elseif($W[2]=="DROP")$Xc[]=idf_escape($W[1]);else$Jj[]="CREATE INDEX ".idf_escape($W[1]!=""?$W[1]:uniqid($Q."_"))." ON ".table($Q)." (".implode(", ",$W[2]).")";}if($Xc)array_unshift($Jj,"DROP INDEX ".implode(", ",$Xc));foreach($Jj
+as$F){if(!queries($F))return
 false;}return
 true;}function
-foreign_keys($R){$I=array();$G="SELECT c_list.CONSTRAINT_NAME as NAME,
-c_src.COLUMN_NAME as SRC_COLUMN,
-c_dest.OWNER as DEST_DB,
-c_dest.TABLE_NAME as DEST_TABLE,
-c_dest.COLUMN_NAME as DEST_COLUMN,
-c_list.DELETE_RULE as ON_DELETE
-FROM ALL_CONSTRAINTS c_list, ALL_CONS_COLUMNS c_src, ALL_CONS_COLUMNS c_dest
-WHERE c_list.CONSTRAINT_NAME = c_src.CONSTRAINT_NAME
-AND c_list.R_CONSTRAINT_NAME = c_dest.CONSTRAINT_NAME
-AND c_list.CONSTRAINT_TYPE = 'R'
-AND c_src.TABLE_NAME = ".q($R);foreach(get_rows($G)as$J)$I[$J['NAME']]=array("db"=>$J['DEST_DB'],"table"=>$J['DEST_TABLE'],"source"=>array($J['SRC_COLUMN']),"target"=>array($J['DEST_COLUMN']),"on_delete"=>$J['ON_DELETE'],"on_update"=>null,);return$I;}function
-truncate_tables(array$T){return
-apply_queries("TRUNCATE TABLE",$T);}function
-drop_views(array$ul){return
-apply_queries("DROP VIEW",$ul);}function
-drop_tables(array$T){return
-apply_queries("DROP TABLE",$T);}function
-last_id($H){return"0";}function
-schemas(){$I=get_vals("SELECT DISTINCT owner FROM dba_segments WHERE owner IN (SELECT username FROM dba_users WHERE default_tablespace NOT IN ('SYSTEM','SYSAUX')) ORDER BY 1");return($I?:get_vals("SELECT DISTINCT owner FROM all_tables WHERE tablespace_name = ".q(DB)." ORDER BY 1"));}function
-get_schema(){return
-get_val("SELECT sys_context('USERENV', 'SESSION_USER') FROM dual");}function
-set_schema($L,$g=null){return!!connection($g)->query("ALTER SESSION SET CURRENT_SCHEMA = ".idf_escape($L));}function
+foreign_keys($Q){$H=array();$hm=array();foreach(table_constraints($Q)as$A=>$Sb){if($Sb["type"]=="R"){$H[$A]=array("source"=>$Sb["columns"],"target"=>array(),"on_delete"=>$Sb["delete_rule"],"on_update"=>null,);$hm[$A]=array($Sb["r_owner"],$Sb["r_constraint"]);}}if($hm){$Z=array();foreach($hm
+as$em)$Z[]="(owner = ".q($em[0])." AND constraint_name = ".q($em[1]).")";foreach(get_rows("SELECT owner, constraint_name, table_name, column_name FROM all_cons_columns WHERE ".implode(" OR ",array_unique($Z))." ORDER BY position")as$I){foreach($hm
+as$A=>$em){if($em==array($I["OWNER"],$I["CONSTRAINT_NAME"])){$H[$A]["db"]=$I["OWNER"];$H[$A]["table"]=$I["TABLE_NAME"];$H[$A]["target"][]=$I["COLUMN_NAME"];}}}}return$H;}function
+trigger($A,$Q){if($A=="")return
+array();$J=get_rows('SELECT trigger_name "Trigger", trigger_type "Type", triggering_event "Event", trigger_body "Statement"
+FROM all_triggers
+WHERE trigger_name = '.q($A)." AND ".where_owner());$H=reset($J);if($H){$T=$H["Type"];$H["Timing"]=(preg_match('~^(BEFORE|AFTER|INSTEAD OF)~',$T,$_)?$_[1]:$T);$H["Type"]=(preg_match('~EACH ROW~',$T)||$T=="INSTEAD OF"?"FOR EACH ROW":"");}return($H?:array());}function
+triggers($Q){$H=array();foreach(get_rows("SELECT trigger_name, trigger_type, triggering_event FROM all_triggers WHERE table_name = ".q($Q)." AND ".where_owner())as$I)$H[$I["TRIGGER_NAME"]]=array(preg_replace('~ (STATEMENT|EACH ROW)$~','',$I["TRIGGER_TYPE"]),$I["TRIGGERING_EVENT"]);return$H;}function
+trigger_options(){return
+array("Timing"=>array("BEFORE","AFTER","INSTEAD OF"),"Event"=>array("INSERT","UPDATE","DELETE","INSERT OR UPDATE","INSERT OR DELETE","UPDATE OR DELETE","INSERT OR UPDATE OR DELETE"),"Type"=>array("FOR EACH ROW",""),);}function
+truncate_tables(array$S){return
+apply_queries("TRUNCATE TABLE",$S);}function
+drop_views(array$_n){return
+apply_queries("DROP VIEW",$_n);}function
+drop_tables(array$S){return
+apply_queries("DROP TABLE",$S);}function
+last_id($G){return"0";}function
+create_database($i,$Bb){$H=queries("CREATE USER ".idf_escape($i)." NO AUTHENTICATION");return($H?queries("GRANT UNLIMITED TABLESPACE TO ".idf_escape($i)):$H);}function
+drop_databases(array$h){$H=true;foreach($h
+as$i)$H=!!queries("DROP USER ".idf_escape($i)." CASCADE")&&$H;return$H;}function
+rename_database($A,$Bb){return!!queries("ALTER USER ".idf_escape(DB)." RENAME TO ".idf_escape($A));}function
 show_variables(){return
 get_rows('SELECT name, display_value FROM v$parameter');}function
-show_status(){$I=array();$K=get_rows('SELECT * FROM v$instance');foreach(reset($K)as$x=>$X)$I[]=array($x,$X);return$I;}function
+show_status(){$H=array();$J=get_rows('SELECT * FROM v$instance');foreach(reset($J)as$w=>$W)$H[]=array($w,$W);return$H;}function
 process_list(){return
 get_rows('SELECT
 	sess.process AS "process",
@@ -1882,130 +2090,139 @@ get_rows('SELECT
 	sql.sql_text AS "sql_text",
 	sess.machine AS "machine",
 	sess.port AS "port"
-FROM v$session sess LEFT OUTER JOIN v$sql sql
-ON sql.sql_id = sess.sql_id
+FROM v$session sess
+LEFT JOIN v$sql sql ON sql.sql_id = sess.sql_id
 WHERE sess.type = \'USER\'
 ORDER BY PROCESS
 ');}function
-convert_field(array$m){}function
-unconvert_field(array$m,$I){return$I;}function
-support($od){return
-preg_match('~^(columns|database|drop_col|fast_status|indexes|descidx|processlist|scheme|sql|status|table|variables|view)$~',$od);}}class
+convert_field(array$l){if($l["type"]=="sdo_geometry")return"SDO_UTIL.TO_WKTGEOMETRY(".idf_escape($l["field"]).")";}function
+unconvert_field(array$l,$H){return($l["type"]=="sdo_geometry"?"SDO_UTIL.FROM_WKTGEOMETRY($H)":$H);}function
+support($Nd){return
+preg_match('~^(columns|database|drop_col|fast_status|indexes|descidx|processlist|sql|status|table|trigger|variables|view|view_trigger)$~',$Nd);}}class
 Adminer{static$instance;var$error='';function
-name(){return"<a href='https://www.adminer.org/'".target_blank()." id='h1'><img src='".h(preg_replace("~\\?.*~","",ME)."?file=logo.png&version=6.0.0")."' width='24' height='24' alt='' id='logo'>Adminer</a>";}function
+name(){return"<a href='https://www.adminer.org/'".target_blank()." id='h1'><img src='".h(preg_replace("~\\?.*~","",ME)."?file=logo.svg&version=6.1.1+43f4678f")."' width='24' height='24' alt='' id='logo'>Adminer</a>";}function
 credentials(){return
 array(SERVER,$_GET["username"],get_password());}function
 connectSsl(){}function
-permanentLogin($h=false){return
-password_file($h);}function
+permanentLogin($ec=false){return
+password_file($ec);}function
 bruteForceKey(){return$_SERVER["REMOTE_ADDR"];}function
-serverName($N){return
-h($N);}function
+verifyLoginToken(){return
+true;}function
+serverName($M){return
+h($M);}function
 database(){return
 DB;}function
-databases($Fd=true){return
-get_databases($Fd);}function
+databases($fe=true){return
+get_databases($fe);}function
 pluginsLinks(){}function
-operators(){return
-driver()->operators;}function
-schemas(){$I=schemas();if($_GET["ns"]!=""&&!in_array($_GET["ns"],$I))array_unshift($I,$_GET["ns"]);return$I;}function
+operators($Ml=null){return
+driver()->operators($Ml);}function
+schemas(){$H=schemas();if($_GET["ns"]!=""&&!in_array($_GET["ns"],$H))array_unshift($H,$_GET["ns"]);return$H;}function
 queryTimeout(){return
 2;}function
 afterConnect(){}function
 headers(){}function
-csp(array$Qb){return$Qb;}function
+csp(array$ic){return$ic;}function
 verifyVersion(){return
 true;}function
-head($Vb=null){return
+serviceWorker(){service_worker();}function
+manifest(){$cf=$_SERVER["HTTP_HOST"]?:$_SERVER["SERVER_NAME"];$Jk=preg_replace('~\?.*~','',ME)?:'.';return
+array('name'=>"Adminer".($cf!=""?" - $cf":""),'short_name'=>'Adminer','description'=>'Database management in a single PHP file','start_url'=>$Jk,'scope'=>$Jk,'display'=>'minimal-ui','icons'=>array(array('src'=>preg_replace("~\\?.*~","",ME)."?file=logo.svg&version=6.1.1+43f4678f",'sizes'=>'any','type'=>'image/svg+xml')),);}function
+head($nc=null){return
 true;}function
 bodyClass(){echo" adminer";}function
-css(){$I=array();foreach(array("","-dark")as$qg){$o="adminer$qg.css";if(file_exists($o)){$ud=file_get_contents($o);$I["$o?v=".crc32($ud)]=($qg?"dark":(preg_match('~prefers-color-scheme:\s*dark~',$ud)?'':'light'));}}return$I;}function
+css(){$H=array();foreach(array("","-dark")as$lh){$n="adminer$lh.css";if(file_exists($n)){$Td=file_get_contents($n);$H["$n?v=".crc32($Td)]=($lh?"dark":(preg_match('~prefers-color-scheme:\s*dark~',$Td)?'':'light'));}}return$H;}function
 loginForm(){echo"<table class='layout'>\n",adminer()->loginFormField('driver','<tr><th>'.'System'.'<td>',html_select("auth[driver]",SqlDriver::$drivers,DRIVER,on('change','loginDriver'))),adminer()->loginFormField('server','<tr><th>'.'Server'.'<td>',"<input name='auth[server]' value='".h(SERVER)."' title='".'hostname[:port] or :socket'."' placeholder='localhost' autocapitalize='off'>"),adminer()->loginFormField('username','<tr><th>'.'Username'.'<td>','<input name="auth[username]" id="username" autofocus value="'.h($_GET["username"]).'" autocomplete="username" autocapitalize="off">'.script("fire(qs('#username').form['auth[driver]'], 'change');")),adminer()->loginFormField('password','<tr><th>'.'Password'.'<td>','<input type="password" name="auth[password]" autocomplete="current-password">'),adminer()->loginFormField('db','<tr><th>'.'Database'.'<td>','<input name="auth[db]" value="'.h($_GET["db"]).'" autocapitalize="off">'),"</table>\n","<p><input type='submit' value='".'Login'."'>\n",checkbox("auth[permanent]",1,$_COOKIE["adminer_permanent"],'Permanent login')."\n";}function
-loginFormField($C,$me,$Y){return$me.$Y."\n";}function
-login($Jf,$E){if($E==""||!password_required())return
-sprintf('Adminer does not support accessing a database without a password, <a href="https://www.adminer.org/en/password/"%s>more information</a>.',target_blank());return
+loginFormField($A,$Te,$X){return$Te.$X."\n";}function
+login($Cg,$D){if($D=="")return'Adminer does not support accessing a database without a password.'.require_password_link(null);if(!Driver::$passwords)return'The database does not support passwords.'.require_password_link($D);if(!password_required())return'The server accepts any password, so filling it in protects nothing.'.require_password_link($D);return
 true;}function
-tableName(array$Vj){return
-h($Vj["Name"]);}function
-fieldName(array$m,$lh=0){$U=$m["full_type"].($m["null"]?" NULL":"");$ub=$m["comment"];return'<span title="'.h($U.($ub!=""?($U?": ":"").$ub:'')).'">'.h($m["field"]).'</span>';}function
-commentValue($U,$ub){if($ub==""||$U=='TABLE'||$U=='COLUMN')return
-h($ub);$ei=function($Ui){return
-preg_replace('~^~m','<tr>',preg_replace('~\|~','<td>',preg_replace('~\|$~m',"",rtrim($Ui))));};$R='(\+--[-+]+\+\n)';$J='(\| .* \|\n)';return"<pre>\n".preg_replace_callback("~^$R?$J$R?($J*)$R?~m",function($B)use($ei){$Ad=$ei($B[2]);return"<table>\n".($B[1]?"<thead>$Ad<tbody>\n":$Ad).$ei($B[4])."\n</table>";},preg_replace('~(\n(    -|mysql)&gt; )(.+)~',"\\1<code class='jush-sql'>\\3</code>",preg_replace('~(.+)\n---+\n~',"<b>\\1</b>\n",h($ub))))."</pre>\n";}function
-commentInput($U,$c,$ub){$Y=h($ub);return(preg_match('~\n~',$Y)?"<textarea$c rows='2' cols='".($U=='TABLE'?20:30)."' style='vertical-align: bottom;'>\n$Y</textarea>":"<input$c value='$Y'>");}function
-selectLinks(array$Vj,$O=""){$C=$Vj["Name"];echo'<p class="links">';$Ff=array("select"=>'Select data');if(support("table")||support("indexes"))$Ff["table"]='Show structure';$ff=false;if(support("table")){$ff=is_view($Vj);if($ff){if(support("view"))$Ff["view"]='Alter view';}elseif(function_exists('Adminer\alter_table')&&$C!="")$Ff["create"]='Alter table';}if($O!==null)$Ff["edit"]='New item';foreach($Ff
-as$x=>$X)echo" <a href='".h(ME)."$x=".url_escape($C).($x=="edit"?$O:"")."'".bold(isset($_GET[$x])).">$X</a>";echo
-doc_link(array(JUSH=>driver()->tableHelp($C,$ff)),"?"),"\n";}function
-foreignKeys($R){return
-foreign_keys($R);}function
-backwardKeys($R,$Uj){return
+tableName(array$Ml){return
+h($Ml["Name"]);}function
+fieldName(array$l,$ti=0){$T=$l["full_type"].($l["null"]?" NULL":"");$Hb=$l["comment"];return'<span title="'.h($T.($Hb!=""?($T?": ":"").$Hb:'')).'">'.h($l["field"]).'</span>';}function
+commentValue($T,$Hb){if($Hb==""||$T=='TABLE'||$T=='COLUMN')return
+h($Hb);$tj=function($vk,$ib='td'){return
+preg_replace('~^~m','<tr>',preg_replace('~\|~',"<$ib>",preg_replace('~\|$~m',"",rtrim($vk))));};$Q='(\+--[-+]+\+\n)';$I='(\| .* \|\n)';return"<pre>\n".preg_replace_callback("~^$Q?$I$Q?($I*)$Q?~m",function($_)use($tj){return"<table>\n".($_[1]?"<thead>".$tj($_[2],'th')."<tbody>\n":$tj($_[2])).$tj($_[4])."\n</table>";},preg_replace('~(\n(    -|mysql)&gt; )(.+)~',"\\1<code class='jush-sql'>\\3</code>",preg_replace('~(.+)\n---+\n~',"<b>\\1</b>\n",h($Hb))))."</pre>\n";}function
+commentInput($T,$c,$Hb){$X=h($Hb);return(preg_match('~\n~',$X)?"<textarea$c rows='2' cols='".($T=='TABLE'?20:30)."' style='vertical-align: bottom;'>\n$X</textarea>":"<input$c value='$X'>");}function
+selectLinks(array$Ml,$N=""){$A=$Ml["Name"];echo'<p class="links">';$yg=array();if($A!="")$yg["select"]='Select data';if(support("table")||support("indexes"))$yg["table"]='Show structure';if(support("table")){if(is_view($Ml)){if(support("view"))$yg["view"]='Alter view';}elseif(function_exists('Adminer\alter_table')&&$A!="")$yg["create"]='Alter table';}if($N!==null)$yg["edit"]='New item';foreach($yg
+as$w=>$W)echo" <a href='".h(ME)."$w=".url_escape($A).($w=="edit"?$N:"")."'".bold(isset($_GET[$w])).">$W</a>";echo"\n";}function
+foreignKeys($Q){return
+foreign_keys($Q);}function
+backwardKeys($Q,$Ll){return
 array();}function
-backwardKeysPrint(array$Ja,array$J){}function
-selectQuery($G,$Jj,$md=false){$I="\n";if(!$md&&($xl=driver()->warnings())){$t="warnings";$I=", <a href='#$t' class='toggle'>".'Warnings'."</a>"."$I<div id='$t' class='hidden'>\n$xl</div>\n";}return"<p><code class='jush-".JUSH."'>".h(str_replace("\n"," ",$G))."</code> <span class='time'>(".format_time($Jj).")</span>".(support("sql")?" <a href='".h(ME)."sql=".url_escape($G)."' class='hover'>".'Edit'."</a>":"").$I;}function
-sqlCommandQuery($G){return
-shorten_utf8(trim($G),1000);}function
+backwardKeysPrint(array$Ra,array$I){}function
+selectQuery($F,$xl,$Ld=false){$H="\n";if(!$Ld&&($Dn=driver()->warnings())){$s="warnings";$H=", <a href='#$s' class='toggle'>".'Warnings'."</a>"."$H<div id='$s' class='hidden'>\n$Dn</div>\n";}return"<p><code class='jush-".JUSH."'>".h(str_replace("\n"," ",$F))."</code> <span class='time'>(".format_time($xl).")</span>".(support("sql")?" <a href='".h(ME)."sql=".url_escape($F)."' class='hover'>".'Edit'."</a>":"").$H;}function
+sqlCommandQuery($F){return
+shorten_utf8(trim($F),1000);}function
 sqlPrintAfter(){}function
-rowDescription($R){return"";}function
-rowDescriptions(array$K,array$Id){return$K;}function
-selectLink($X,array$m){}function
-selectVal($X,$_,array$m,$vh){$I=($X===null?"<i>NULL</i>":(preg_match("~char|binary|boolean~",$m["type"])&&!preg_match("~var~",$m["type"])?"<code>$X</code>":(preg_match('~^jsonb?$~',$m["full_type"])?"<code class='jush-json'>$X</code>":$X)));if(is_blob($m)&&!is_utf8($X))$I="<i>".lang_format(array('%d byte','%d bytes'),strlen($vh))."</i>";return($_?"<a href='".h($_)."'".(is_url($_)?target_blank():"").">$I</a>":$I);}function
-editVal($X,array$m){return$X;}function
+explain(Db$f,$F,array$xi){$G=explain($f,$F);if(!$G)return"";ob_start();print_select_result($G,$f,$xi);return
+ob_get_clean();}function
+rowDescription($Q){return"";}function
+rowDescriptions(array$J,array$ie){return$J;}function
+selectLink($W,array$l){}function
+selectVal($W,$z,array$l,$Ci){$H=($W===null?"<i>NULL</i>":(preg_match("~char|binary|boolean~",$l["type"])&&!preg_match("~var~",$l["type"])?"<code>$W</code>":(preg_match('~^jsonb?$~',$l["full_type"])?"<code class='jush-json'>$W</code>":$W)));if(is_blob($l)&&!is_utf8($W))$H="<i>".lang_format(array('%d byte','%d bytes'),strlen($Ci))."</i>";return($z?"<a href='".h($z)."'".(is_url($z)?target_blank():"").">$H</a>":$H);}function
+editVal($W,array$l){return$W;}function
 config(){return
 array();}function
-tableStructurePrint(array$n,$Vj=null){echo"<div class='scrollable'>\n","<table class='nowrap odds'>\n","<thead><tr><th>".'Column'."<td>".'Type'.(support("comment")?"<td>".'Comment':"")."<tbody>\n";$Mj=driver()->structuredTypes();foreach($n
-as$m){echo"<tr><th>".h($m["field"]);$U=h($m["full_type"]);$pb=h($m["collation"]);echo"<td><span title='$pb'>".(in_array($U,(array)$Mj['User types'])?"<a href='".h(ME.'type='.url_escape($U))."'>$U</a>":$U.($pb&&isset($Vj["Collation"])&&$pb!=$Vj["Collation"]?" $pb":""))."</span>",($m["null"]?" <i>NULL</i>":""),($m["auto_increment"]?" <i>".'Auto Increment'."</i>":""),(isset($m["default"])?" <span title='".'Default value'."'>[<b>".($m["generated"]?"<code class='jush-".JUSH."'>".shorten_utf8(preg_replace('~\s+~',' ',ltrim($m["default"])),80,"</code>"):h($m["default"]))."</b>]</span>":""),(support("comment")?"<td>".adminer()->commentValue('COLUMN',$m["comment"]):""),"\n";}echo"</table>\n","</div>\n";}function
-tableIndexesPrint(array$w,array$Vj){$Hh=false;foreach($w
-as$C=>$v)$Hh|=!!$v["partial"];echo"<table>\n";$ec=first(driver()->indexAlgorithms($Vj));foreach($w
-as$C=>$v){ksort($v["columns"]);$ki=array();foreach($v["columns"]as$x=>$X)$ki[]="<i>".h($X)."</i>".($v["lengths"][$x]?"(".h($v["lengths"][$x]).")":"").($v["descs"][$x]?" DESC":"");echo"<tr title='".h($C)."'>","<th>".h($v["type"]).($ec&&$v['algorithm']!=$ec?" (".h($v['algorithm']).")":""),"<td>".implode(", ",$ki);if($Hh)echo"<td>".($v['partial']?"<code class='jush-".JUSH."'>WHERE ".h($v['partial']):"");echo"\n";}echo"</table>\n";}function
-selectColumnsPrint(array$M,array$e){print_fieldset("select",'Select',$M);$s=0;$M[""]=array();foreach($M
-as$x=>$X){$X=idx($_GET["columns"],$x,array());$d=select_input(" name='columns[$s][col]' data-default=''".on('change',($x!==""?'selectFieldChange':'selectAddRow')),$e,$X["col"]);echo"<div>".(driver()->functions||driver()->grouping?html_select("columns[$s][fun]",array(-1=>"")+array_filter(array('Functions'=>driver()->functions,'Aggregation'=>driver()->grouping)),$X["fun"]," data-default=''".on('change',($x!==""?'helpClose':'selectFunAddRow')).on_help_value(' (.*)|$','($1)'))."($d)":$d)."</div>\n";$s++;}echo"</div></fieldset>\n";}function
-selectSearchPrint(array$Z,array$e,array$w){print_fieldset("search",'Search',$Z);foreach($w
-as$s=>$v){if($v["type"]=="FULLTEXT")echo"<div>(<i>".implode("</i>, <i>",array_map('Adminer\h',$v["columns"]))."</i>) AGAINST"," <input type='search' name='fulltext[$s]' value='".h(idx($_GET["fulltext"],$s))."' data-default=''".on('input','selectFieldChange').">",(JUSH=='sql'?checkbox("boolean[$s]",1,isset($_GET["boolean"][$s]),"BOOL"):''),"</div>\n";}$gh=adminer()->operators();foreach(array_merge((array)$_GET["where"],array(array()))as$s=>$X){if(!$X||("$X[col]$X[val]"!=""&&in_array($X["op"],$gh)))echo"<div>".select_input(" name='where[$s][col]' data-default=''".on('change',($X?'selectFieldChange':'selectAddRow')),$e,$X["col"],"(".'anywhere'.")"),html_select("where[$s][op]",$gh,$X["op"]," data-default='".h(first($gh))."'".on('change','selectFirstChange')),"<input type='search' name='where[$s][val]' value='".h($X["val"])."' data-default=''".on('input','selectFirstChange').on('keydown','selectSearchKeydown').on('search','selectSearchSearch').">","</div>\n";}echo"</div></fieldset>\n";}function
-selectOrderPrint(array$lh,array$e,array$w){print_fieldset("sort",'Sort',$lh);$s=0;foreach((array)$_GET["order"]as$x=>$X){if($X!=""){echo"<div>".select_input(" name='order[$s]' data-default=''".on('change','selectFieldChange'),$e,$X),checkbox("desc[$s]",1,isset($_GET["desc"][$x]),'descending')."</div>\n";$s++;}}echo"<div>".select_input(" name='order[$s]' data-default=''".on('change','selectAddRow'),$e),checkbox("desc[$s]",1,false,'descending')."</div>\n","</div></fieldset>\n";}function
-selectLimitPrint($z){echo"<fieldset><legend>".'Limit'."</legend><div>","<input type='number' name='limit' class='size' value='".h($z?:"")."' data-default='50'".on('input','selectFieldChange').">","</div></fieldset>\n";}function
-selectLengthPrint($nk){echo"<fieldset><legend>".'Text length'."</legend><div>","<input type='number' name='text_length' class='size' value='".h($nk)."' data-default='100'>","</div></fieldset>\n";}function
-selectActionPrint(array$w){echo"<fieldset><legend>".'Action'."</legend><div>","<input type='submit' value='".'Select'."'>"," <span id='noindex' title='".'Full table scan'."'></span>","<script".nonce().">\n","const indexColumns = ";$e=array();foreach($w
-as$v){$Ub=reset($v["columns"]);if($v["type"]!="FULLTEXT"&&$Ub)$e[$Ub]=1;}$e[""]=1;foreach($e
-as$x=>$X)json_row($x);echo";\n","selectFieldChange.call(qs('#form')['select']);\n","</script>\n","</div></fieldset>\n";}function
+tableStructurePrint(array$m,$Ml=null){echo"<div class='scrollable'>\n","<table class='nowrap odds'>\n","<thead><tr><th>".'Column'."<th>".'Type'.(support("comment")?"<th>".'Comment':"")."<tbody>\n";$pn=(support("type")?types():array());foreach($m
+as$l){echo"<tr><th>".h($l["field"]);$T=h($l["full_type"]);$Bb=h($l["collation"]);echo"<td><span title='$Bb'>".(in_array($T,$pn)?"<a href='".h(ME.'type='.url_escape($T))."'>$T</a>":$T.($Bb&&isset($Ml["Collation"])&&$Bb!=$Ml["Collation"]?" $Bb":""))."</span>",($l["null"]?" <i>NULL</i>":""),($l["auto_increment"]?" <i>".'Auto Increment'."</i>":""),(isset($l["default"])?" <span title='".'Default value'."'>[<b>".($l["generated"]?"<code class='jush-".JUSH."'>".shorten_utf8(preg_replace('~\s+~',' ',ltrim($l["default"])),80,"</code>"):h($l["default"]))."</b>]</span>":""),(support("comment")?"<td>".adminer()->commentValue('COLUMN',$l["comment"]):""),"\n";}echo"</table>\n","</div>\n";}function
+tableIndexesPrint(array$v,array$Ml){$Qi=false;foreach($v
+as$A=>$u)$Qi|=!!$u["partial"];echo"<table>\n";$xc=first(driver()->indexAlgorithms($Ml));foreach($v
+as$A=>$u){ksort($u["columns"]);$Bj=array();foreach($u["columns"]as$w=>$W)$Bj[]="<i>".h($W)."</i>".($u["lengths"][$w]?"(".h($u["lengths"][$w]).")":"").($u["descs"][$w]?" DESC":"");echo"<tr title='".h($A)."'>","<th>".h($u["type"]).($xc&&$u['algorithm']!=$xc?" (".h($u['algorithm']).")":""),"<td>".implode(", ",$Bj);if($Qi)echo"<td>".($u['partial']?"<code class='jush-".JUSH."'>WHERE ".h($u['partial']):"");echo"\n";}echo"</table>\n";}function
+namePattern($T){if($T=="FOREIGN"||$T=="CHECK")return"";if($T=="TRIGGER")return"{table}_{timing}{event}";return(JUSH=="sql"?"":"{table}_")."{columns}";}function
+selectColumnsPrint(array$L,array$e){print_fieldset("select",'Select',$L);$r=0;$L[""]=array();foreach($L
+as$w=>$W){$W=idx($_GET["columns"],$w,array());$d=select_input(" name='columns[$r][col]' data-default=''".on('change',($w!==""?'selectFieldChange':'selectAddRow')),$e,$W["col"]);echo"<div>".(driver()->functions||driver()->grouping?html_select("columns[$r][fun]",array(-1=>"")+array_filter(array('Functions'=>driver()->functions,'Aggregation'=>driver()->grouping)),$W["fun"]," data-default=''".on('change',($w!==""?'helpClose':'selectFunAddRow')).on_help_value(' (.*)|$','($1)'))."($d)":$d)."</div>\n";$r++;}echo"</div></fieldset>\n";}function
+selectSearchPrint(array$Z,array$e,array$v,$Ml=null){print_fieldset("search",'Search',$Z);foreach($v
+as$r=>$u){if($u["type"]=="FULLTEXT")echo"<div>(<i>".implode("</i>, <i>",array_map('Adminer\h',$u["columns"]))."</i>) ".h(driver()->fulltextOperator)," <input type='search' name='fulltext[$r]' value='".h(idx($_GET["fulltext"],$r))."' data-default=''".on('input','selectFieldChange').">",(JUSH=='sql'?checkbox("boolean[$r]",1,isset($_GET["boolean"][$r]),"BOOL"):''),"</div>\n";}$oi=adminer()->operators($Ml);foreach(array_merge((array)$_GET["where"],array(array()))as$r=>$W){if(!$W||(("$W[col]$W[val]"!=""||preg_match('~NULL$~',$W["op"]))&&in_array($W["op"],$oi)))echo"<div>".select_input(" name='where[$r][col]' data-default=''".on('change',($W?'selectFieldChange':'selectAddRow')),$e,$W["col"],"(".'anywhere'.")"),html_select("where[$r][op]",$oi,$W["op"]," data-default='".h(first($oi))."'".on('change','selectFirstChange')),"<input type='search' name='where[$r][val]' value='".h($W["val"])."' data-default=''".on('input','selectFirstChange').on('keydown','selectSearchKeydown').on('search','selectSearchSearch').">","</div>\n";}echo"</div></fieldset>\n";}function
+selectOrderPrint(array$ti,array$e,array$v){print_fieldset("sort",'Sort',$ti);$r=0;foreach((array)$_GET["order"]as$w=>$W){if($W!=""){echo"<div>".select_input(" name='order[$r]' data-default=''".on('change','selectFieldChange'),$e,$W),checkbox("desc[$r]",1,isset($_GET["desc"][$w]),'descending')."</div>\n";$r++;}}echo"<div>".select_input(" name='order[$r]' data-default=''".on('change','selectAddRow'),$e),checkbox("desc[$r]",1,false,'descending')."</div>\n","</div></fieldset>\n";}function
+selectLimitPrint($y){echo"<fieldset><legend>".'Limit'."</legend><div>","<input type='number' name='limit' class='size' value='".h($y?:"")."' data-default='50'".on('input','selectFieldChange').">","</div></fieldset>\n";}function
+selectLengthPrint($lm){echo"<fieldset><legend>".'Text length'."</legend><div>","<input type='number' name='text_length' class='size' value='".h($lm)."' data-default='100'>","</div></fieldset>\n";}function
+selectActionPrint(array$v){echo"<fieldset><legend>".'Action'."</legend><div>","<input type='submit' value='".'Select'."'>"," <span id='noindex' title='".'Full table scan'."'></span>","<script".nonce().">\n","const indexColumns = ";$e=array();foreach($v
+as$u){$mc=reset($u["columns"]);if($u["type"]!="FULLTEXT"&&$mc)$e[$mc]=1;}$e[""]=1;foreach($e
+as$w=>$W)json_row($w);echo";\n","selectFieldChange.call(qs('#form')['select']);\n","</script>\n","</div></fieldset>\n";}function
 selectCommandPrint(){return!information_schema(DB);}function
 selectImportPrint(){return!information_schema(DB);}function
-selectEmailPrint(array$Mc,array$e){}function
-selectColumnsProcess(array$e,array$w){$M=array();$Xd=array();foreach((array)$_GET["columns"]as$x=>$X){if($X["fun"]=="count"||($X["col"]!=""&&(!$X["fun"]||in_array($X["fun"],driver()->functions)||in_array($X["fun"],driver()->grouping)))){$M[$x]=apply_sql_function($X["fun"],($X["col"]!=""?idf_escape($X["col"]):"*"));if(!in_array($X["fun"],driver()->grouping))$Xd[]=$M[$x];}}return
-array($M,$Xd);}function
-selectSearchProcess(array$n,array$w){$I=array();foreach($w
-as$s=>$v){if($v["type"]=="FULLTEXT"&&idx($_GET["fulltext"],$s)!="")$I[]="MATCH (".implode(", ",array_map('Adminer\idf_escape',$v["columns"])).") AGAINST (".q($_GET["fulltext"][$s]).(isset($_GET["boolean"][$s])?" IN BOOLEAN MODE":"").")";}$gh=adminer()->operators();foreach((array)$_GET["where"]as$x=>$X){$X+=array("col"=>"","op"=>first($gh),"val"=>"");$_GET["where"][$x]=$X;$nb=$X["col"];if("$nb$X[val]"!=""&&in_array($X["op"],$gh)){if($X["op"]=="SQL"&&(!$_POST||!verify_token()))SqlDb::$untrusted=true;$zb=array();foreach(($nb!=""?array($nb=>$n[$nb]):$n)as$C=>$m){$fi="";$yb=" $X[op]";if(preg_match('~IN$~',$X["op"])){$Be=process_length($X["val"]);$yb
-.=" ".($Be!=""?$Be:"(NULL)");}elseif($X["op"]=="SQL")$yb=" $X[val]";elseif(preg_match('~^(I?LIKE) %%$~',$X["op"],$B))$yb=" $B[1] ".adminer()->processInput($m,"%$X[val]%");elseif($X["op"]=="FIND_IN_SET"){$fi="$X[op](".q($X["val"]).", ";$yb=")";}elseif(!preg_match('~NULL$~',$X["op"]))$yb
-.=" ".adminer()->processInput($m,$X["val"]);if($nb!=""||(isset($m["privileges"]["where"])&&(preg_match('~^[-\d.'.(preg_match('~IN$~',$X["op"])?',':'').']+$~',$X["val"])||!preg_match('~'.number_type().'|bit~',$m["type"]))&&(!preg_match("~[\x80-\xFF]~",$X["val"])||preg_match('~char|text|enum|set~',$m["type"]))&&(!preg_match('~date|timestamp~',$m["type"])||preg_match('~^\d+-\d+-\d+~',$X["val"]))))$zb[]=$fi.driver()->convertSearch(idf_escape($C),$X,$m).$yb;}$I[]=(count($zb)==1?$zb[0]:($zb?"(".implode(" OR ",$zb).")":"1 = 0"));}}return$I;}function
-selectOrderProcess(array$n,array$w){$I=array();foreach((array)$_GET["order"]as$x=>$X){if($X!="")$I[]=(preg_match('~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~',$X)?$X:idf_escape($X)).(isset($_GET["desc"][$x])?" DESC".(JUSH=='pgsql'&&idx($n[$X],"null")?" NULLS LAST":""):"");}return$I;}function
+selectEmailPrint(array$jd,array$e){}function
+selectColumnsProcess(array$e,array$v){$L=array();$q=array();foreach((array)$_GET["columns"]as$w=>$W){if($W["fun"]=="count"||($W["col"]!=""&&(!$W["fun"]||in_array($W["fun"],driver()->functions)||in_array($W["fun"],driver()->grouping)))){$L[$w]=apply_sql_function($W["fun"],($W["col"]!=""?idf_escape($W["col"]):"*"));if(!in_array($W["fun"],driver()->grouping))$q[]=$L[$w];}}return
+array($L,$q);}function
+selectSearchProcess(array$m,array$v,$Ml=null){$H=array();foreach($v
+as$r=>$u){if($u["type"]=="FULLTEXT"&&idx($_GET["fulltext"],$r)!="")$H[]=driver()->fulltextSql($r,$u,$_GET["fulltext"][$r],isset($_GET["boolean"][$r]));}$oi=adminer()->operators($Ml);foreach((array)$_GET["where"]as$w=>$W){$W+=array("col"=>"","op"=>first($oi),"val"=>"");$_GET["where"][$w]=$W;$_b=$W["col"];if(("$_b$W[val]"!=""||preg_match('~NULL$~',$W["op"]))&&in_array($W["op"],$oi)){if($W["op"]=="SQL"&&(!$_POST||!verify_token()))SqlDb::$untrusted=true;$Mb=array();foreach(($_b!=""?array($_b=>$m[$_b]):$m)as$A=>$l){$vj="";$Lb=" $W[op]";if(preg_match('~IN$~',$W["op"]))$Lb
+.=" ".($W["val"]!=""?process_in($W["val"]):"(NULL)");elseif($W["op"]=="SQL")$Lb=" $W[val]";elseif(preg_match('~^(I?LIKE) %%$~',$W["op"],$_))$Lb=" $_[1] ".q("%$W[val]%");elseif($W["op"]=="FIND_IN_SET"){$vj="$W[op](".q($W["val"]).", ";$Lb=")";}elseif(!preg_match('~NULL$~',$W["op"]))$Lb
+.=" ".q($W["val"]);if($_b!=""||is_searchable($l,$W))$Mb[]=$vj.driver()->convertSearch(idf_escape($A),$W,$l).$Lb;}$H[]=(count($Mb)==1?$Mb[0]:($Mb?"(".implode(" OR ",$Mb).")":"1 = 0"));}}return$H;}function
+selectOrderProcess(array$m,array$v){$H=array();foreach((array)$_GET["order"]as$w=>$W){if($W!="")$H[]=(preg_match('~^((COUNT\(DISTINCT |[A-Z0-9_]+\()(`(?:[^`]|``)+`|"(?:[^"]|"")+")\)|COUNT\(\*\))$~',$W)?$W:idf_escape($W)).(isset($_GET["desc"][$w])?" DESC".(JUSH=='pgsql'&&idx($m[$W],"null")?" NULLS LAST":""):"");}return$H;}function
 selectLimitProcess(){return(isset($_GET["limit"])?intval($_GET["limit"]):50);}function
 selectLengthProcess(){return(isset($_GET["text_length"])?"$_GET[text_length]":"100");}function
-selectEmailProcess(array$Z,array$Id){return
+selectEmailProcess(array$Z,array$ie){return
 false;}function
-selectQueryBuild(array$M,array$Z,array$Xd,array$lh,$z,$D){return"";}function
-messageQuery($G,$ok,$md=false){restart_session();$pe=&get_session("queries");if(!idx($pe,$_GET["db"]))$pe[$_GET["db"]]=array();if(strlen($G)>1e6)$G=preg_replace('~[\x80-\xFF]+$~','',substr($G,0,1e6))."\n…";$pe[$_GET["db"]][]=array($G,time(),$ok);$Ej="sql-".count($pe[$_GET["db"]]);$I="<a href='#$Ej' class='toggle'>".'SQL command'."</a> ".copy_icon()."\n";if(!$md&&($xl=driver()->warnings())){$t="warnings-".count($pe[$_GET["db"]]);$I="<a href='#$t' class='toggle'>".'Warnings'."</a>, $I<div id='$t' class='hidden'>\n$xl</div>\n";}return" <span class='time'>".@date("H:i:s")."</span>"." $I<div id='$Ej' class='hidden'><pre><code class='jush-".JUSH."'>".shorten_utf8($G,1e4)."</code></pre>".($ok?" <span class='time'>($ok)</span>":'').(support("sql")?'<p><a href="'.h(str_replace("db=".url_escape(DB),"db=".url_escape($_GET["db"]),ME).'sql=&history='.(count($pe[$_GET["db"]])-1)).'">'.'Edit'.'</a>':'').'</div>';}function
-editRowPrint($R,array$n,$J,$Yk){}function
-editFunctions(array$m){$I=($m["null"]?"NULL/":"");$je=isset($_GET["select"])||where($_GET);foreach(array(driver()->insertFunctions,driver()->editFunctions)as$x=>$Sd){if(!$x||(!isset($_GET["call"])&&$je)){foreach($Sd
-as$Rh=>$X){if(!$Rh||preg_match("~$Rh~",$m["type"]))$I
-.="/$X";}}if($x&&$Sd&&!preg_match('~set|bool~',$m["type"])&&!is_blob($m))$I
-.="/SQL";}if($m["auto_increment"]&&!$je)$I='Auto Increment';return
-explode("/",$I);}function
-editInput($R,array$m,$c,$Y){if($m["type"]=="enum")return(isset($_GET["select"])?"<label><input type='radio'$c value='orig' checked><i>".'original'."</i></label> ":"").enum_input("radio",$c,$m,$Y,"NULL");return"";}function
-editHint($R,array$m,$Y){return"";}function
-processInput(array$m,$Y,$r=""){if($r=="SQL")return$Y;$C=$m["field"];$I=q($Y);if(preg_match('~^(now|getdate|uuid)$~',$r))$I="$r()";elseif(preg_match('~^current_(date|timestamp)$~',$r))$I=$r;elseif(preg_match('~^([+-]|\|\|)$~',$r))$I=idf_escape($C)." $r $I";elseif(preg_match('~^[+-] interval$~',$r))$I=idf_escape($C)." $r ".(preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i",$Y)&&JUSH!="pgsql"?$Y:$I);elseif(preg_match('~^(addtime|subtime|concat)$~',$r))$I="$r(".idf_escape($C).", $I)";elseif(preg_match('~^(md5|sha1|password|encrypt)$~',$r))$I="$r($I)";return
-unconvert_field($m,$I);}function
-dumpOutput(){$I=array('text'=>'open','file'=>'save');if(function_exists('gzencode'))$I['gz']='gzip';return$I;}function
+selectQueryBuild(array$L,array$Z,array$q,array$ti,$y,$C){return"";}function
+messageQuery($F,$nm,$Ld=false){restart_session();$Ze=&get_session("queries");if(!idx($Ze,$_GET["db"]))$Ze[$_GET["db"]]=array();if(strlen($F)>1e6)$F=preg_replace('~[\x80-\xFF]+$~','',substr($F,0,1e6))."\n…";$Ze[$_GET["db"]][]=array($F,time(),$nm);$sl="sql-".count($Ze[$_GET["db"]]);$H="<a href='#$sl' class='toggle'>".'SQL command'."</a> ".copy_icon()."\n";if(!$Ld&&($Dn=driver()->warnings())){$s="warnings-".count($Ze[$_GET["db"]]);$H="<a href='#$s' class='toggle'>".'Warnings'."</a>, $H<div id='$s' class='hidden'>\n$Dn</div>\n";}return" <span class='time'>".@date("H:i:s")."</span>"." $H<div id='$sl' class='hidden'><pre><code class='jush-".JUSH."'>".shorten_utf8($F,1e4)."</code></pre>".($nm?" <span class='time'>($nm)</span>":'').(support("sql")?'<p><a href="'.h(str_replace("db=".url_escape(DB),"db=".url_escape($_GET["db"]),ME).'sql=&history='.(count($Ze[$_GET["db"]])-1)).'">'.'Edit'.'</a>':'').'</div>';}function
+error(){return
+error();}function
+editRowPrint($Q,array$m,$I,$cn,$F='',$nm=''){echo($F!=""?"<p><code class='jush-".JUSH."'>".h(str_replace("\n"," ",$F))."</code> <span class='time'>($nm)</span>\n":"");}function
+editFunctions(array$l){$H=($l["null"]?"NULL/":"");$Pe=isset($_GET["select"])||where($_GET);foreach(array(driver()->insertFunctions,driver()->editFunctions)as$w=>$we){if(!$w||(!isset($_GET["call"])&&$Pe)){foreach($we
+as$ej=>$W){if(!$ej||preg_match("~$ej~",$l["type"]))$H
+.="/$W";}}if($w&&$we&&!preg_match('~set|bool~',$l["type"])&&!is_blob($l))$H
+.="/SQL";}if($l["auto_increment"]&&!$Pe)$H='Auto Increment';return
+explode("/",$H);}function
+editInput($Q,array$l,$c,$X){if($l["type"]=="enum")return(isset($_GET["select"])?"<label><input type='radio'$c value='orig' checked><i>".'original'."</i></label> ":"").enum_input("radio",$c,$l,$X,"NULL");return"";}function
+editHint($Q,array$l,$X){return"";}function
+processInput(array$l,$X,$p=""){if($p=="SQL")return$X;$A=$l["field"];$H=q($X);if(preg_match('~^(now|getdate|uuid)$~',$p))$H="$p()";elseif(preg_match('~^current_(date|timestamp)$~',$p))$H=$p;elseif(preg_match('~^([+-]|\|\|)$~',$p))$H=idf_escape($A)." $p $H";elseif(preg_match('~^[+-] interval$~',$p))$H=idf_escape($A)." $p ".(preg_match("~^(\\d+|'[0-9.: -]') [A-Z_]+\$~i",$X)&&JUSH!="pgsql"?$X:$H);elseif(preg_match('~^(addtime|subtime|concat)$~',$p))$H="$p(".idf_escape($A).", $H)";elseif(preg_match('~^(md5|sha1|password|encrypt)$~',$p))$H="$p($H)";return
+unconvert_field($l,$H);}function
+dumpOutput(){$H=array('text'=>'open','file'=>'save');if(function_exists('gzencode'))$H['gz']='gzip';return$H;}function
 dumpFormat(){return(support("dump")?array('sql'=>'SQL'):array())+array('csv'=>'CSV,','csv;'=>'CSV;','tsv'=>'TSV');}function
-dumpDatabase($j){}function
-dumpTable($R,$Nj,$ff=0){if($_POST["format"]!="sql"){echo"\xef\xbb\xbf";if($Nj)dump_csv(array_keys(fields($R)));}else{if($ff==2){$n=array();foreach(fields($R)as$C=>$m)$n[]=idf_escape($C)." $m[full_type]";$h="CREATE TABLE ".table($R)." (".implode(", ",$n).")";}else$h=create_sql($R,$_POST["auto_increment"],$Nj);set_utf8mb4($h);if($Nj&&$h){if(($Nj=="DROP+CREATE"&&!function_exists('Adminer\drop_sql'))||$ff==1)echo"DROP ".($ff==2?"VIEW":"TABLE")." IF EXISTS ".table($R).";\n";if($ff==1)$h=remove_definer($h);echo"$h;\n\n";}}}function
-dumpData($R,$Nj,$G,array$M=array(),array$Z=array(),array$Xd=array(),array$lh=array()){if($Nj){$Uf=(JUSH=="sqlite"?0:1048576);$n=array();$ye=false;if($_POST["format"]=="sql"){if($Nj=="TRUNCATE+INSERT"&&!function_exists('Adminer\truncate_all_sql'))echo
-truncate_sql($R).";\n";$n=fields($R);if(JUSH=="mssql"){foreach($n
-as$m){if($m["auto_increment"]){echo"SET IDENTITY_INSERT ".table($R)." ON;\n";$ye=true;break;}}}}$H=($G!=""?connection()->query($G,1):driver()->select($R,($M?:array("*")),$Z,$Xd,$lh,0));if($H){$Te="";$Ta="";$mf=array();$Td=array();$Pj="";$pd=($R!=''?'fetch_assoc':'fetch_row');$Mb=0;while($J=$H->$pd()){if(!$mf){$pl=array();foreach($J
-as$X){$m=$H->fetch_field();if(idx($n[$m->name],'generated')){$Td[$m->name]=true;continue;}$mf[]=$m->name;$x=idf_escape($m->name);$pl[]="$x = VALUES($x)";}$Pj=($Nj=="INSERT+UPDATE"?"\nON DUPLICATE KEY UPDATE ".implode(", ",$pl):"").";\n";}if($_POST["format"]!="sql"){if($Nj=="table"){dump_csv($mf);$Nj="INSERT";}dump_csv($J);}else{if(!$Te)$Te="INSERT INTO ".table($R)." (".implode(", ",array_map('Adminer\idf_escape',$mf)).") VALUES";foreach($J
-as$x=>$X){if($Td[$x]){unset($J[$x]);continue;}$m=$n[$x];$J[$x]=($X===null?"NULL":($X===false?0:unconvert_field($m,preg_match(number_type(),$m["type"])&&!preg_match('~\[~',$m["full_type"])&&is_numeric($X)?$X:(!is_blob($m)||is_utf8($X)?q($X):driver()->quoteBinary($X)))));}$Ui=($Uf?"\n":" ")."(".implode(",\t",$J).")";if(!$Ta)$Ta=$Te.$Ui;elseif(JUSH=='mssql'?$Mb%1000!=0:strlen($Ta)+4+strlen($Ui)+strlen($Pj)<$Uf)$Ta
-.=",$Ui";else{echo$Ta.$Pj;$Ta=$Te.$Ui;}}$Mb++;}if($Ta)echo$Ta.$Pj;}elseif($_POST["format"]=="sql")echo"-- ".str_replace("\n"," ",connection()->error)."\n";if($ye)echo"SET IDENTITY_INSERT ".table($R)." OFF;\n";}}function
-dumpFilename($we){return
-friendly_url($we!=""?$we:(SERVER?:"localhost"));}function
-dumpHeaders($we,$tg=false){$zh=$_POST["output"];$hd=(preg_match('~sql~',$_POST["format"])?"sql":($tg?"tar":"csv"));header("Content-Type: ".($zh=="gz"?"application/x-gzip":($hd=="tar"?"application/x-tar":($hd=="sql"||$zh!="file"?"text/plain":"text/csv")."; charset=utf-8")));if($zh=="gz"){ob_start(function($Q){return
-gzencode($Q);},1e6);}return$hd;}function
+dumpPrint(){}function
+dumpDatabase($i){}function
+dumpTable($Q,$Dl,$Tf=0){if($_POST["format"]!="sql"){echo"\xef\xbb\xbf";if($Dl)dump_csv(array_keys(fields($Q)));}else{if($Tf==2){$m=array();foreach(fields($Q)as$A=>$l)$m[]=idf_escape($A)." ".full_type_sql($l);$ec="CREATE TABLE ".table($Q)." (".implode(", ",$m).")";}else$ec=create_sql($Q,$_POST["auto_increment"],$Dl);set_utf8mb4($ec);if($Dl&&$ec){if(($Dl=="DROP+CREATE"&&!function_exists('Adminer\drop_sql'))||$Tf==1)echo"DROP ".($Tf==2?"VIEW":"TABLE")." IF EXISTS ".table($Q).";\n";if($Tf==1)$ec=remove_definer($ec);echo"$ec;\n\n";}}}function
+dumpData($Q,$Dl,$F,array$L=array(),array$Z=array(),array$q=array(),array$ti=array()){if($Dl){$Ng=(JUSH=="sqlite"?0:1048576);$m=array();$if=false;if($_POST["format"]=="sql"){if($Dl=="TRUNCATE+INSERT"&&!function_exists('Adminer\truncate_all_sql'))echo
+truncate_sql($Q).";\n";$m=fields($Q);if(JUSH=="mssql"){foreach($m
+as$l){if($l["auto_increment"]){echo"SET IDENTITY_INSERT ".table($Q)." ON;\n";$if=true;break;}}}}$G=($F!=""?connection()->query($F,1):driver()->select($Q,($L?:array("*")),$Z,$q,$ti,0));if($G){$Ef="";$cb="";$bg=array();$xe=array();$Fl="";$Od=($Q!=''?'fetch_assoc':'fetch_row');$dc=0;while($I=$G->$Od()){if(!$bg){$Y=array();foreach($I
+as$W){$l=$G->fetch_field();if(idx($m[$l->name],'generated')){$xe[$l->name]=true;continue;}$bg[]=$l->name;$w=idf_escape($l->name);$Y[]="$w = VALUES($w)";}$Fl=($Dl=="INSERT+UPDATE"?"\nON DUPLICATE KEY UPDATE ".implode(", ",$Y):"").";\n";}if($_POST["format"]!="sql"){if($Dl=="table"){dump_csv($bg);$Dl="INSERT";}dump_csv($I);}else{if(!$Ef)$Ef="INSERT INTO ".table($Q)." (".implode(", ",array_map('Adminer\idf_escape',$bg)).") VALUES";foreach($I
+as$w=>$W){if($xe[$w]){unset($I[$w]);continue;}$l=$m[$w];$I[$w]=($W===null?"NULL":($W===false?0:unconvert_field($l,preg_match(number_type(),$l["type"])&&!preg_match('~\[~',$l["full_type"])&&is_numeric($W)?$W:(!is_blob($l)||is_utf8($W)?q($W):driver()->quoteBinary($W)))));}$vk=($Ng?"\n":" ")."(".implode(",\t",$I).")";if(!$cb)$cb=$Ef.$vk;elseif(JUSH=='mssql'?$dc%1000!=0:strlen($cb)+4+strlen($vk)+strlen($Fl)<$Ng)$cb
+.=",$vk";else{echo$cb.$Fl;$cb=$Ef.$vk;}}$dc++;}if($cb)echo$cb.$Fl;}elseif($_POST["format"]=="sql")echo"-- ".str_replace("\n"," ",connection()->error)."\n";if($if)echo"SET IDENTITY_INSERT ".table($Q)." OFF;\n";}}function
+dumpFilename($gf){return
+friendly_url($gf!=""?$gf:(SERVER?:"localhost"));}function
+dumpHeaders($gf,$rh=false){$Gi=$_POST["output"];$Gd=(preg_match('~sql~',$_POST["format"])?"sql":($rh?"tar":"csv"));header("Content-Type: ".($Gi=="gz"?"application/x-gzip":($Gd=="tar"?"application/x-tar":($Gd=="sql"||$Gi!="file"?"text/plain":"text/csv")."; charset=utf-8")));if($Gi=="gz"){ob_start(function($P){return
+gzencode($P);},1e6);}return$Gd;}function
 dumpFooter(){if($_POST["format"]=="sql")echo"-- ".gmdate("Y-m-d H:i:s e")."\n";}function
 importServerPath(){return"adminer.sql";}function
 importPrint(){}function
@@ -2013,650 +2230,733 @@ importProcess(){return
 false;}function
 homepage(){echo'<p class="links">'.($_GET["ns"]==""&&support("database")?'<a href="'.h(ME).'database=">'.'Alter database'."</a>\n":""),(support("scheme")?"<a href='".h(ME)."scheme='>".($_GET["ns"]!=""?'Alter schema':'Create schema')."</a>\n":""),($_GET["ns"]!==""?'<a href="'.h(ME).'schema=">'.'Database schema'."</a>\n":""),(support("privileges")?"<a href='".h(ME)."privileges='>".'Privileges'."</a>\n":"");if($_GET["ns"]!=="")echo(support("routine")?"<a href='#routines'>".'Routines'."</a>\n":""),(support("sequence")?"<a href='#sequences'>".'Sequences'."</a>\n":""),(support("type")?"<a href='#user-types'>".'User types'."</a>\n":""),(support("event")?"<a href='#events'>".'Events'."</a>\n":"");return
 true;}function
-navigation($pg){echo"<h1>".adminer()->name()." <span class='version'>".VERSION;$Eg=$_COOKIE["adminer_version"];echo" <a href='https://www.adminer.org/#download'".target_blank()." id='version'>".(version_compare(VERSION,$Eg)<0?h($Eg):"").version_iframe()."</a>","</span></h1>\n";if($pg=="auth"){$zh="";foreach((array)$_SESSION["pwds"]as$rl=>$oj){foreach($oj
-as$N=>$kl){$C=h(get_setting("vendor-$rl-$N")?:get_driver($rl));foreach($kl
-as$V=>$E){if($C&&$E!==null){$cc=$_SESSION["db"][$rl][$N][$V];foreach(($cc?array_keys($cc):array(""))as$j)$zh
-.="<li><a href='".h(auth_url($rl,$N,$V,$j))."'>($C) ".h("$V@").($N!=""?adminer()->serverName($N):"").h($j!=""?" - $j":"")."</a>\n";}}}}if($zh)echo"<ul id='logins'".on('mouseover','menuOver').on('mouseout','menuOut').">\n$zh</ul>\n";}else{$T=array();if($_GET["ns"]!==""&&!$pg&&DB!=""){connection()->select_db(DB);$T=table_status('',true);}adminer()->syntaxHighlighting($T);adminer()->databasesPrint($pg);$ja=array();if(DB==""||!$pg){if(support("sql")){$ja['sql']="<a href='".h(ME)."sql='".bold(isset($_GET["sql"])&&!isset($_GET["import"])).">".'SQL command'."</a>";$ja['import']="<a href='".h(ME)."import='".bold(isset($_GET["import"])).">".'Import'."</a>";}$ja['dump']="<a href='".h(ME)."dump=".url_escape(isset($_GET["table"])?$_GET["table"]:$_GET["select"])."' id='dump'".bold(isset($_GET["dump"])).">".'Export'."</a>";}$Ce=$_GET["ns"]!==""&&!$pg&&DB!="";if($Ce&&function_exists('Adminer\alter_table'))$ja['create']='<a href="'.h(ME).'create="'.bold($_GET["create"]==="").">".'Create table'."</a>";$ja=adminer()->menuActions($ja,$pg);echo($ja?"<p class='links'>\n".implode("\n",$ja)."\n":"");if($Ce){if($T)adminer()->tablesPrint($T);else
+navigation($kh){echo"<h1>".adminer()->name()." <span class='version'>".VERSION;$Jh=$_COOKIE["adminer_version"];echo" <a href='https://www.adminer.org/#download'".target_blank()." id='version'>".(version_compare(VERSION,$Jh)<0?h($Jh):"").version_iframe()."</a>","</span></h1>\n";if($kh=="auth"){$Gi="";foreach((array)$_SESSION["pwds"]as$xn=>$Yk){foreach($Yk
+as$M=>$qn){$A=h(get_setting("vendor-$xn-$M")?:get_driver($xn));foreach($qn
+as$U=>$D){if($A&&$D!==null){$vc=$_SESSION["db"][$xn][$M][$U];foreach(($vc?array_keys($vc):array(""))as$i)$Gi
+.="<li><a href='".h(auth_url($xn,$M,$U,$i))."'>($A) ".h("$U@").($M!=""?adminer()->serverName($M):"").h($i!=""?" - $i":"")."</a>\n";}}}}if($Gi)echo"<ul id='logins'".on('mouseover','menuOver').on('mouseout','menuOut').">\n$Gi</ul>\n";}else{$S=array();if($_GET["ns"]!==""&&!$kh&&DB!=""){connection()->select_db(DB);$S=table_status('',true);}adminer()->syntaxHighlighting($S);adminer()->databasesPrint($kh);$ja=array();if(DB==""||!$kh){if(support("sql")){$ja['sql']="<a href='".h(ME)."sql='".bold(isset($_GET["sql"])&&!isset($_GET["import"])).">".'SQL command'."</a>";$ja['import']="<a href='".h(ME)."import='".bold(isset($_GET["import"])).">".'Import'."</a>";}$ja['dump']="<a href='".h(ME)."dump=".url_escape(isset($_GET["table"])?$_GET["table"]:$_GET["select"])."' id='dump'".bold(isset($_GET["dump"])).">".'Export'."</a>";}$of=$_GET["ns"]!==""&&!$kh&&DB!="";if($of&&function_exists('Adminer\alter_table'))$ja['create']='<a href="'.h(ME).'create="'.bold($_GET["create"]==="").">".'Create table'."</a>";$ja=adminer()->menuActions($ja,$kh);echo($ja?"<p class='links'>\n".implode("\n",$ja)."\n":"");if($of){if($S)adminer()->tablesPrint($S);else
 echo"<p class='message'>".'No tables.'."</p>\n";}}}function
-syntaxHighlighting(array$T){echo
-script_src(preg_replace("~\\?.*~","",ME)."?file=jush.js&version=6.0.0",true);if(support("sql")){$jf="adminer-plugins/jush-".JUSH.".js";echo(file_exists($jf)?script_src($jf,true):""),"<script".nonce().">\n";if($T){$Ff=array();foreach($T
-as$R=>$U)$Ff[]=js_escape_re($R);echo"var jushLinks = { ".JUSH.":";json_row(js_escape(ME).(support("table")?"table":"select").'=$&','/\b(?<!\$)('.implode('|',$Ff).')(?!\$)\b/g',false);$Gj=array("sql","check","event","procedure","trigger","view","type","table","processlist");if(support("routine")&&array_intersect_key($_GET,array_flip($Gj))){foreach(routines()as$J)json_row(js_escape(ME).'function='.url_escape($J["SPECIFIC_NAME"]).'&name=$&','/\b'.js_escape_re($J["ROUTINE_NAME"]).'(?=["`\]]?\()/g',false);}json_row('');echo"};\n";foreach(array("bac","bra","sqlite_quo","mssql_bra")as$X)echo"jushLinks.$X = jushLinks.".JUSH.";\n";if(isset($_GET["sql"])||isset($_GET["trigger"])||isset($_GET["check"])){$dk=array_fill_keys(array_keys($T),array());foreach(driver()->allFields()as$R=>$n){foreach($n
-as$m)$dk[$R][]=$m["field"];}echo"addEventListener('DOMContentLoaded', () => { autocompleter = jush.autocompleteSql('".idf_escape("")."', ".json_encode($dk)."); });\n";}}echo"</script>\n";}echo
-script("syntaxHighlighting('".(preg_match('~^\d\.?\d~',connection()->server_info,$B)?$B[0]:"")."', '".connection()->flavor."');");}function
-databasesPrint($pg){$i=adminer()->databases();if(DB&&$i&&!in_array(DB,$i))array_unshift($i,DB);echo"<form action=''>\n<p id='dbs'>\n";hidden_fields_get();$ac=on('mousedown','dbMouseDown').on('change','dbChange');echo"<label title='".'Database'."'>".'DB'.": ".($i?html_select("db",array(""=>"")+$i,DB,$ac):"<input name='db' value='".h(DB)."' autocapitalize='off' size='19'>\n")."</label>","<input type='submit' value='".'Use'."'".($i?" class='hidden'":"").">\n";if(support("scheme")){if($pg!="db"&&DB!=""&&connection()->select_db(DB)){echo"<br><label>".'Schema'.": ".html_select("ns",array(""=>"")+adminer()->schemas(),$_GET["ns"],$ac)."</label>";if($_GET["ns"]!="")set_schema($_GET["ns"]);}}foreach(array("import","sql","schema","dump","privileges")as$X){if(isset($_GET[$X])){echo
-input_hidden($X);break;}}echo"</p></form>\n";}function
-menuActions(array$ja,$pg){return$ja;}function
-tablesPrint(array$T){echo"<ul id='tables'".on('mouseover','menuOver').on('mouseout','menuOut').">";foreach($T
-as$R=>$P){$R="$R";$C=adminer()->tableName($P);if($C!=""&&!$P["partition"])echo'<li><a href="'.h(ME).'select='.url_escape($R).'"'.bold($_GET["select"]==$R||$_GET["edit"]==$R,"select hover")." title='".'Select data'."'>".'select'."</a> ",(support("table")||support("indexes")?'<a href="'.h(ME).'table='.url_escape($R).'"'.bold(in_array($R,array($_GET["table"],$_GET["create"],$_GET["indexes"],$_GET["foreign"],$_GET["trigger"],$_GET["check"],$_GET["view"])),(is_view($P)?"view":"structure"))." title='".'Show structure'."'>$C</a>":"<span>$C</span>")."\n";}echo"</ul>\n";}function
+syntaxHighlighting(array$S){echo
+script_src(preg_replace("~\\?.*~","",ME)."?file=jush.js&version=6.1.1+43f4678f",true);$nh=preg_replace('~<(?=/script)~i','<\\',Driver::jushModule());echo($nh?script("addEventListener('DOMContentLoaded', () => {\n$nh\n});"):"");if(support("sql")){echo"<script".nonce().">\n";if($S){$yg=array();foreach($S
+as$Q=>$T)$yg[]=js_escape_re($Q);echo"var jushLinks = { ".JUSH.":";json_row(js_escape(ME).(support("table")?"table":"select").'=$&','/\b(?<!\$)('.implode('|',$yg).')(?!\$)\b/g',false);$ul=array("sql","check","event","procedure","trigger","view","type","table","processlist");if(support("routine")&&array_intersect_key($_GET,array_flip($ul))){foreach(routines()as$I)json_row(js_escape(ME).'function='.url_escape($I["SPECIFIC_NAME"]).'&name=$&','/\b'.js_escape_re($I["ROUTINE_NAME"]).'(?=["`\]]?\()/g',false);}json_row('');echo"};\n";foreach(array("bac","bra","sqlite_quo","mssql_bra")as$W)echo"jushLinks.$W = jushLinks.".JUSH.";\n";if(array_intersect_key($_GET,array_flip(array("sql","check","event","procedure","trigger","view")))){$zl=(isset($_GET["trigger"])?array('INSERT INTO','UPDATE','DELETE FROM'):(isset($_GET["check"])?array():(isset($_GET["view"])?array('SELECT'):null)));$Na=Driver::jushAutocomplete($S,$zl);echo($Na?"addEventListener('DOMContentLoaded', () => { autocompleter = $Na; });\n":"");}}echo"</script>\n";}echo
+script("syntaxHighlighting('".doc_version()."', '".connection()->flavor."');");}function
+databasesPrint($kh){if(support("single_db"))return;$h=adminer()->databases();if(DB&&$h&&!in_array(DB,$h))array_unshift($h,DB);echo"<form action=''>\n<p id='dbs'>\n";hidden_fields_get();$sc=on('mousedown','dbMouseDown').on('change','dbChange');echo"<label title='".'Database'."'>".'DB'.": ".($h?html_select("db",array(""=>"")+group_system($h),DB,$sc):"<input name='db' value='".h(DB)."' autocapitalize='off' size='19'>\n")."</label>","<input type='submit' value='".'Use'."'".($h?" class='hidden'":"").">\n";if(support("scheme")){if($kh!="db"&&DB!=""&&connection()->select_db(DB)){echo"<br><label>".'Schema'.": ".html_select("ns",array(""=>"")+group_system(adminer()->schemas(),true),$_GET["ns"],$sc)."</label>";if($_GET["ns"]!="")set_schema($_GET["ns"]);}}foreach(array("import","sql","schema","dump","privileges")as$W){if(isset($_GET[$W])){echo
+input_hidden($W);break;}}echo"</p></form>\n";}function
+menuActions(array$ja,$kh){return$ja;}function
+tablesPrint(array$S){echo"<ul id='tables'".on('mouseover','menuOver').on('mouseout','menuOut').">";foreach($S
+as$Q=>$O){$Q="$Q";$A=adminer()->tableName($O);if($A!=""&&!$O["dependent"])echo'<li><a href="'.h(ME).'select='.url_escape($Q).'"'.bold($_GET["select"]==$Q||$_GET["edit"]==$Q,"select hover")." title='".'Select data'."'>".'select'."</a> ",(support("table")||support("indexes")?'<a href="'.h(ME).'table='.url_escape($Q).'"'.bold(in_array($Q,array($_GET["table"],$_GET["create"],$_GET["indexes"],$_GET["foreign"],$_GET["trigger"],$_GET["check"],$_GET["view"])),(is_view($O)?"view":"structure"))." title='".'Show structure'."'>$A</a>":"<span>$A</span>")."\n";}echo"</ul>\n";}function
 showVariables(){return
 show_variables();}function
 showStatus(){return
 show_status();}function
 processList(){return
 process_list();}function
-killProcess($t){return
-kill_process($t);}}class
+killProcess($s){return
+kill_process($s);}}class
 Plugins{private
 static$append=array('dumpFormat'=>true,'dumpOutput'=>true,'editRowPrint'=>true,'editFunctions'=>true,'config'=>true);var$plugins;var$drivers=array();var$driverFiles=array();var$error='';private$hooks=array();function
-__construct($Xh){$Ac=SqlDriver::$drivers;$ne=" href='https://www.adminer.org/plugins/#use'".target_blank();if($Xh===null){$Xh=array();$Na="adminer-plugins";if(is_dir($Na)){foreach(glob("$Na/*.php")as$o){$vd=SqlDriver::$drivers;$this->includeOnce($o);foreach(array_diff_key(SqlDriver::$drivers,$vd)as$t=>$C)$this->driverFiles[$t]=$o;}}if(file_exists("$Na.php")){$Ee=$this->includeOnce("$Na.php");if(is_array($Ee)){foreach($Ee
-as$x=>$Vh)$Xh[is_object($Vh)?get_class($Vh):$x]=$Vh;}else$this->error
-.=sprintf('%s must <a%s>return an array</a>.',"<b>$Na.php</b>",$ne)."<br>";}foreach(get_declared_classes()as$kb){if(!$Xh[$kb]&&(preg_match('~^Adminer\w~i',$kb)||is_subclass_of($kb,'Adminer\Plugin'))){$Bi=new
-\ReflectionClass($kb);$Eb=$Bi->getConstructor();if($Eb&&$Eb->getNumberOfRequiredParameters())$this->error
-.=sprintf('<a%s>Configure</a> %s in %s.',$ne,"<b>$kb</b>","<b>$Na.php</b>")."<br>";else$Xh[$kb]=new$kb;}}}$Xe=array_filter($Xh,function($Vh){return!is_object($Vh);});if($Xe){$this->error
-.=sprintf('Every plugin must <a%s>be an object</a>.',$ne)."<br>";$Xh=array_diff_key($Xh,$Xe);}$this->drivers=array_diff_key(SqlDriver::$drivers,$Ac);$this->plugins=$Xh;$na=new
-Adminer;$Xh[]=$na;$Bi=new
-\ReflectionObject($na);foreach($Bi->getMethods()as$ng){foreach($Xh
-as$Vh){$C=$ng->getName();if(method_exists($Vh,$C))$this->hooks[$C][]=$Vh;}}}function
-includeOnce($o){return
-include_once"./$o";}static
+__construct($mj){$Wc=SqlDriver::$drivers;$Ve=" href='https://www.adminer.org/plugins/#use'".target_blank();if($mj===null){$mj=array();$Va="adminer-plugins";if(is_dir($Va)){foreach(glob("$Va/*.php")as$n){$Ud=SqlDriver::$drivers;$this->includeOnce($n);foreach(array_diff_key(SqlDriver::$drivers,$Ud)as$s=>$A)$this->driverFiles[$s]=$n;}}if(file_exists("$Va.php")){$qf=$this->includeOnce("$Va.php");if(is_array($qf)){foreach($qf
+as$w=>$jj)$mj[is_object($jj)?get_class($jj):$w]=$jj;}else$this->error
+.=sprintf('%s must <a%s>return an array</a>.',"<b>$Va.php</b>",$Ve)."<br>";}foreach(get_declared_classes()as$xb){if(!$mj[$xb]&&(preg_match('~^Adminer\w~i',$xb)||is_subclass_of($xb,'Adminer\Plugin'))){$Uj=new
+\ReflectionClass($xb);$Ub=$Uj->getConstructor();if($Ub&&$Ub->getNumberOfRequiredParameters())$this->error
+.=sprintf('<a%s>Configure</a> %s in %s.',$Ve,"<b>$xb</b>","<b>$Va.php</b>")."<br>";else$mj[$xb]=new$xb;}}}$Jf=array_filter($mj,function($jj){return!is_object($jj);});if($Jf){$this->error
+.=sprintf('Every plugin must <a%s>be an object</a>.',$Ve)."<br>";$mj=array_diff_key($mj,$Jf);}$this->drivers=array_diff_key(SqlDriver::$drivers,$Wc);$this->plugins=$mj;$oa=new
+Adminer;$mj[]=$oa;$Uj=new
+\ReflectionObject($oa);foreach($Uj->getMethods()as$hh){foreach($mj
+as$jj){$A=$hh->getName();if(method_exists($jj,$A))$this->hooks[$A][]=$jj;}}}function
+includeOnce($n){return
+include_once"./$n";}static
 function
-checksum($o){$ud=str_replace("\r","",file_get_contents($o));$ud=preg_replace('~\n\tprotected \$translations = array\(.*?\n\t\);~s','',$ud);return
-dechex(crc32($ud));}function
-checksums(){$wd=array_values($this->driverFiles);foreach($this->plugins
-as$Vh){$Bi=new
-\ReflectionObject($Vh);$wd[]=$Bi->getFileName();}$I=array();foreach($wd
-as$o)$I[basename($o,'.php')]=self::checksum($o);return$I;}static
+checksum($n){$Td=str_replace("\r","",file_get_contents($n));$Td=preg_replace('~\n\tprotected \$translations = array\(.*?\n\t\);~s','',$Td);return
+dechex(crc32($Td));}function
+checksums(){$Vd=array_values($this->driverFiles);foreach($this->plugins
+as$jj){$Uj=new
+\ReflectionObject($jj);$Vd[]=$Uj->getFileName();}$H=array();foreach($Vd
+as$n)$H[basename($n,'.php')]=self::checksum($n);return$H;}static
 function
 officialChecksums(){return
-array('adminer.js'=>'a0599090','backward-keys'=>'afce3b7d','before-unload'=>'48618ca0','config'=>'f49cc617','dark-switcher'=>'3d490dea','database-hide'=>'90c6c0dc','designs'=>'56f1c186','dump-alter'=>'d078b2db','dump-bz2'=>'f0d0e336','dump-date'=>'adc7f1c7','dump-json'=>'767dd321','dump-xml'=>'9f039895','dump-zip'=>'93817d96','edit-foreign'=>'8c874a58','edit-textarea'=>'a24c3cc','editor-setup'=>'a7dc3a37','editor-views'=>'5c12b185','enum-option'=>'a2563959','file-upload'=>'235eaa7a','foreign-system'=>'ebb4c654','frames'=>'b0e1d11a','highlight-codemirror'=>'f1a34275','highlight-monaco'=>'6a92cc58','highlight-prism'=>'4c12cf3','import-csv'=>'1d174088','login-ip'=>'b4766b62','login-otp'=>'62c517c0','login-passkey'=>'f69f2f06','login-password-less'=>'97c37010','login-reverse-proxy'=>'7bb63f11','login-servers'=>'f9ac2f28','login-ssl'=>'6ed147bc','login-table'=>'7b15c3cd','menu-links'=>'f1f86a60','remote-color'=>'33a766c2','row-numbers'=>'eec8698c','select-email'=>'ead22272','select-image'=>'f55c0231','slugify'=>'4d5adde6','sql-gemini'=>'fabc3537','sql-log'=>'b4355039','table-indexes-structure'=>'a90cc0c9','table-structure'=>'a8458e02','tables-filter'=>'f8f51976','timeout'=>'90597366','version-github'=>'497af47b','version-noverify'=>'966937e9','clickhouse'=>'5bb80dfb','elastic'=>'f7017c4','firebird'=>'5499d1a','igdb'=>'170d083','imap'=>'ac143217','mongo'=>'c3b8f5a4','redis'=>'12f1a73b','simpledb'=>'79488f8b',);}function
-__call($C,array$Eh){$za=array();foreach($Eh
-as$x=>$X)$za[]=&$Eh[$x];$I=null;foreach($this->hooks[$C]as$Vh){$Y=call_user_func_array(array($Vh,$C),$za);if($Y!==null){if(!self::$append[$C])return$Y;$I=$Y+(array)$I;}}return$I;}}abstract
+array('adminer.js'=>'a0599090','backward-keys'=>'e65981f5','before-unload'=>'2a613523','config'=>'722eb4af','dark-switcher'=>'3d490dea','database-hide'=>'e304a899','designs'=>'ed7e44e3','dump-alter'=>'896b579e','dump-bz2'=>'f0d0e336','dump-date'=>'adc7f1c7','dump-json'=>'767dd321','dump-xml'=>'4fc3cd60','dump-zip'=>'93817d96','edit-foreign'=>'72ad1562','edit-textarea'=>'a24c3cc','editor-setup'=>'a7dc3a37','editor-views'=>'5c12b185','enum-option'=>'1e24970e','file-upload'=>'10add0e8','foreign-system'=>'ebb4c654','frames'=>'b0e1d11a','highlight-codemirror'=>'c5716555','highlight-monaco'=>'edd1b0af','highlight-prism'=>'267948e5','import-csv'=>'d429c77','login-ip'=>'4d174fea','login-otp'=>'5b5a68af','login-passkey'=>'f69f2f06','login-password-less'=>'e150daac','login-reverse-proxy'=>'24558ea2','login-servers'=>'19c42e45','login-ssl'=>'6ed147bc','login-table'=>'811f8cef','menu-links'=>'c78461b3','name-patterns'=>'84c10d09','remote-color'=>'ddeecc48','row-numbers'=>'eec8698c','select-email'=>'f84fbd2c','select-foreign'=>'fe3e58c8','select-image'=>'f55c0231','slugify'=>'dec64713','sql-gemini'=>'c60ab309','sql-log'=>'8e435000','table-indexes-structure'=>'a90cc0c9','table-structure'=>'a8458e02','tables-filter'=>'ec2bcd6e','timeout'=>'97321caf','version-github'=>'627cadf9','version-noverify'=>'966937e9','clickhouse'=>'92ca960d','elastic'=>'1582a04d','firebird'=>'1cccfc19','igdb'=>'4063cc0b','imap'=>'3da1022b','mongo'=>'63486492','redis'=>'79824392','simpledb'=>'b8e2cc7d',);}function
+__call($A,array$Ni){$Da=array();foreach($Ni
+as$w=>$W)$Da[]=&$Ni[$w];$H=null;foreach($this->hooks[$A]as$jj){$X=call_user_func_array(array($jj,$A),$Da);if($X!==null){if(!self::$append[$A])return$X;$H=$X+(array)$H;}}return$H;}}abstract
 class
 Plugin{protected$translations=array();function
 description(){return$this->lang('');}function
 screenshot(){return"";}protected
 function
-lang($u,$Kg=null){$za=func_get_args();$za[0]=idx($this->translations[LANG],$u)?:$u;return
-call_user_func_array('Adminer\lang_format',$za);}}Adminer::$instance=(function_exists('adminer_object')?adminer_object():(is_dir("adminer-plugins")||file_exists("adminer-plugins.php")?new
+lang($t,$Qh=null){$Da=func_get_args();$Da[0]=idx($this->translations[LANG],$t)?:$t;return
+call_user_func_array('Adminer\lang_format',$Da);}}class
+Password{private$password_hash;private$password_matches=null;function
+__construct($aj){$this->password_hash=$aj;}function
+description(){return'Require a password verified by Adminer';}function
+credentials(){$D=get_password();return
+array(SERVER,$_GET["username"],($this->passwordMatches($D)&&!password_required()?"":$D));}function
+login($Cg,$D){if($this->passwordMatches($D))return
+true;}protected
+function
+passwordMatches($D){if($this->password_matches===null)$this->password_matches=(function_exists('password_verify')&&password_verify(strval($D),$this->password_hash));return$this->password_matches;}}Adminer::$instance=(function_exists('adminer_object')?adminer_object():(is_dir("adminer-plugins")||file_exists("adminer-plugins.php")?new
 Plugins(null):new
 Adminer));SqlDriver::$drivers=array("server"=>"MySQL / MariaDB")+SqlDriver::$drivers;if(!defined('Adminer\DRIVER')){define('Adminer\DRIVER',"server");if(extension_loaded("mysqli")&&$_GET["ext"]!="pdo"){class
 Db
 extends
-\MySQLi{static$instance;var$extension="MySQLi",$flavor='';function
+\mysqli{static$instance;var$extension="MySQLi",$flavor='';function
 __construct(){parent::init();}function
-attach($N,$V,$E){mysqli_report(MYSQLI_REPORT_OFF);list($se,$Yh)=host_port($N);$Ij=adminer()->connectSsl();$gl=($Ij&&($Ij['key']||$Ij['cert']||$Ij['ca']||isset($Ij['verify'])));if($gl)$this->ssl_set($Ij['key'],$Ij['cert'],$Ij['ca'],'','');$I=@$this->real_connect(($N!=""?$se:ini_get("mysqli.default_host")),($N.$V!=""?$V:ini_get("mysqli.default_user")),($N.$V.$E!=""?$E:ini_get("mysqli.default_pw")),null,(is_numeric($Yh)?intval($Yh):ini_get("mysqli.default_port")),(is_numeric($Yh)?null:$Yh),($gl?($Ij['verify']!==false?MYSQLI_CLIENT_SSL:64):0));$this->options(MYSQLI_OPT_LOCAL_INFILE,0);return($I?'':$this->error);}function
-set_charset($bb){if(parent::set_charset($bb))return
-true;parent::set_charset('utf8');return$this->query("SET NAMES $bb");}function
+attach(array$M,$U,$D){mysqli_report(MYSQLI_REPORT_OFF);$nj=$M["port"];$ld=("$M[host]$nj$M[socket]"=="");$wl=adminer()->connectSsl();$mn=($wl&&($wl['key']||$wl['cert']||$wl['ca']||isset($wl['verify'])));if($mn)$this->ssl_set($wl['key'],$wl['cert'],$wl['ca'],'','');$H=@$this->real_connect((!$ld?$M["host"]:ini_get("mysqli.default_host")),(!$ld||$U!=""?$U:ini_get("mysqli.default_user")),(!$ld||$U.$D!=""?$D:ini_get("mysqli.default_pw")),null,($nj!=""?intval($nj):ini_get("mysqli.default_port")),($nj!=""?null:$M["socket"]),($mn?($wl['verify']!==false?MYSQLI_CLIENT_SSL:64):0));$this->options(MYSQLI_OPT_LOCAL_INFILE,0);return($H?'':$this->error);}function
+set_charset($mb){if(parent::set_charset($mb))return
+true;parent::set_charset('utf8');return$this->query("SET NAMES $mb");}function
 next_result(){return
 self::more_results()&&parent::next_result();}function
-quote($Q){return"'".$this->escape_string($Q)."'";}function
+quote($P){return"'".$this->escape_string($P)."'";}function
 inTransaction(){return
-false;}}}elseif(extension_loaded("mysql")&&!((ini_bool("sql.safe_mode")||ini_bool("mysql.allow_local_infile"))&&extension_loaded("pdo_mysql"))){class
+false;}function
+begin(){return$this->begin_transaction();}}}elseif(extension_loaded("mysql")&&!((ini_bool("sql.safe_mode")||ini_bool("mysql.allow_local_infile"))&&extension_loaded("pdo_mysql"))){class
 Db
 extends
 SqlDb{private$link;function
-attach($N,$V,$E){if(ini_bool("mysql.allow_local_infile"))return
-sprintf('Disable %s or enable %s or %s extensions.',"'mysql.allow_local_infile'","MySQLi","PDO_MySQL");$this->link=@mysql_connect(($N!=""?$N:ini_get("mysql.default_host")),($N.$V!=""?$V:ini_get("mysql.default_user")),($N.$V.$E!=""?$E:ini_get("mysql.default_password")),true,131072);if(!$this->link)return
+attach(array$M,$U,$D){if(ini_bool("mysql.allow_local_infile"))return
+sprintf('Disable %s or enable the %s or %s extension.',"'mysql.allow_local_infile'","MySQLi","PDO_MySQL");$nj="$M[port]$M[socket]";$A=$M["host"].($nj!=""?":$nj":"");$this->link=@mysql_connect(($A!=""?$A:ini_get("mysql.default_host")),($A.$U!=""?$U:ini_get("mysql.default_user")),($A.$U.$D!=""?$D:ini_get("mysql.default_password")),true,131072);if(!$this->link)return
 mysql_error();$this->server_info=mysql_get_server_info($this->link);return'';}function
-set_charset($bb){return
-mysql_set_charset($bb,$this->link)||mysql_set_charset('utf8',$this->link);}function
-quote($Q){return"'".mysql_real_escape_string($Q,$this->link)."'";}function
-select_db($Zb){return
-mysql_select_db($Zb,$this->link);}function
-query($G,$Pk=false){$H=@($Pk?mysql_unbuffered_query($G,$this->link):mysql_query($G,$this->link));$this->error="";if(!$H){$this->errno=mysql_errno($this->link);$this->error=mysql_error($this->link);return
-false;}if($H===true){$this->affected_rows=mysql_affected_rows($this->link);$this->info=mysql_info($this->link);return
+set_charset($mb){return
+mysql_set_charset($mb,$this->link)||mysql_set_charset('utf8',$this->link);}function
+quote($P){return"'".mysql_real_escape_string($P,$this->link)."'";}function
+select_db($rc){return
+mysql_select_db($rc,$this->link);}function
+query($F,$Rm=false){$G=@($Rm?mysql_unbuffered_query($F,$this->link):mysql_query($F,$this->link));$this->error="";if(!$G){$this->errno=mysql_errno($this->link);$this->error=mysql_error($this->link);return
+false;}if($G===true){$this->affected_rows=mysql_affected_rows($this->link);$this->info=mysql_info($this->link);return
 true;}return
 new
-Result($H);}}class
+Result($G);}}class
 Result{var$num_rows;private$result;private$offset=0;function
-__construct($H){$this->result=$H;$this->num_rows=mysql_num_rows($H);}function
+__construct($G){$this->result=$G;$this->num_rows=mysql_num_rows($G);}function
 fetch_assoc(){return
 mysql_fetch_assoc($this->result);}function
 fetch_row(){return
 mysql_fetch_row($this->result);}function
-fetch_field(){$I=mysql_fetch_field($this->result,$this->offset++);$I->orgtable=$I->table;$I->charsetnr=($I->blob?63:0);return$I;}}}elseif(extension_loaded("pdo_mysql")){class
+fetch_field(){$H=mysql_fetch_field($this->result,$this->offset++);$H->orgtable=$H->table;$H->native_type=idx(array("string"=>"varchar","real"=>"double"),$H->type,$H->type);return$H;}}}elseif(extension_loaded("pdo_mysql")){class
 Db
 extends
 PdoDb{var$extension="PDO_MySQL";function
-attach($N,$V,$E){$jh=array(\PDO::MYSQL_ATTR_LOCAL_INFILE=>false);if(isset($_GET["select"]))$jh[\PDO::MYSQL_ATTR_MULTI_STATEMENTS]=false;$Ij=adminer()->connectSsl();if($Ij){if($Ij['key'])$jh[\PDO::MYSQL_ATTR_SSL_KEY]=$Ij['key'];if($Ij['cert'])$jh[\PDO::MYSQL_ATTR_SSL_CERT]=$Ij['cert'];if($Ij['ca'])$jh[\PDO::MYSQL_ATTR_SSL_CA]=$Ij['ca'];if(isset($Ij['verify']))$jh[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]=$Ij['verify'];}list($se,$Yh)=host_port($N);return$this->dsn("mysql:charset=utf8".($se!=""?";host=$se":'').($Yh?(is_numeric($Yh)?";port=":";unix_socket=").$Yh:""),$V,$E,$jh);}function
-set_charset($bb){return$this->query("SET NAMES $bb");}function
-select_db($Zb){return$this->query("USE ".idf_escape($Zb));}function
-query($G,$Pk=false){$this->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,!$Pk);return
-parent::query($G,$Pk);}}}class
+attach(array$M,$U,$D){$B=array(\PDO::MYSQL_ATTR_LOCAL_INFILE=>false);if(isset($_GET["select"]))$B[\PDO::MYSQL_ATTR_MULTI_STATEMENTS]=false;$wl=adminer()->connectSsl();if($wl){if($wl['key'])$B[\PDO::MYSQL_ATTR_SSL_KEY]=$wl['key'];if($wl['cert'])$B[\PDO::MYSQL_ATTR_SSL_CERT]=$wl['cert'];if($wl['ca'])$B[\PDO::MYSQL_ATTR_SSL_CA]=$wl['ca'];if(isset($wl['verify']))$B[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]=$wl['verify'];}$cf=$M["host"];$nj=$M["port"];$il=$M["socket"];return$this->dsn("mysql:charset=utf8".($cf!=""?";host=$cf":'').($nj!=""?";port=$nj":($il!=""?";unix_socket=$il":"")),$U,$D,$B);}function
+set_charset($mb){return$this->query("SET NAMES $mb");}function
+select_db($rc){return$this->query("USE ".idf_escape($rc));}function
+query($F,$Rm=false){$this->pdo->setAttribute(\PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,!$Rm);return
+parent::query($F,$Rm);}}}class
 Driver
 extends
-SqlDriver{static$extensions=array("MySQLi","MySQL","PDO_MySQL");static$jush="sql";var$unsigned=array("unsigned","zerofill","unsigned zerofill");var$operators=array("=","<",">","<=",">=","!=","LIKE","LIKE %%","REGEXP","IN","FIND_IN_SET","IS NULL","NOT LIKE","NOT REGEXP","NOT IN","IS NOT NULL","SQL");var$functions=array("char_length","date","from_unixtime","lower","round","floor","ceil","sec_to_time","time_to_sec","upper");var$grouping=array("avg","count","count distinct","group_concat","max","min","sum");var$partitionBy=array("HASH","LINEAR HASH","KEY","LINEAR KEY","RANGE","LIST");static
+SqlDriver{static$extensions=array("MySQLi","MySQL","PDO_MySQL");static$jush="sql";static$serverSocket=true;var$unsigned=array("unsigned","zerofill","unsigned zerofill");var$functions=array("char_length","date","from_unixtime","lower","round","floor","ceil","sec_to_time","time_to_sec","upper");var$grouping=array("avg","count","count distinct","group_concat","max","min","sum");var$partitionBy=array("HASH","LINEAR HASH","KEY","LINEAR KEY","RANGE","LIST");function
+operators($Ml){return
+array("=","<",">","<=",">=","!=","LIKE","LIKE %%","REGEXP","IN","FIND_IN_SET","IS NULL","NOT LIKE","NOT REGEXP","NOT IN","IS NOT NULL","SQL");}static
 function
-connect($N,$V,$E){$f=parent::connect($N,$V,$E);if(is_string($f)){if(function_exists('iconv')&&!is_utf8($f)&&strlen($Ui=iconv("windows-1252","utf-8//IGNORE",$f))>strlen($f))$f=$Ui;return$f;}$f->set_charset(charset($f));$f->query("SET sql_quote_show_create = 1, autocommit = 1");$f->flavor=(preg_match('~MariaDB~',$f->server_info)?'maria':'mysql');add_driver(DRIVER,($f->flavor=='maria'?"MariaDB":"MySQL"));return$f;}function
+connect($M,$U,$D){$f=parent::connect($M,$U,$D);if(is_string($f)){if(function_exists('iconv')&&!is_utf8($f)&&strlen($vk=iconv("windows-1252","utf-8//IGNORE",$f))>strlen($f))$f=$vk;return$f;}$f->set_charset(charset($f));$f->query("SET sql_quote_show_create = 1, autocommit = 1");$f->flavor=(preg_match('~MariaDB~',$f->server_info)?'maria':'mysql');add_driver(DRIVER,($f->flavor=='maria'?"MariaDB":"MySQL"));return$f;}function
 __construct(Db$f){parent::__construct($f);$this->types=array('Numbers'=>array("tinyint"=>3,"smallint"=>5,"mediumint"=>8,"int"=>10,"bigint"=>20,"decimal"=>66,"float"=>12,"double"=>21),'Date and time'=>array("date"=>10,"datetime"=>19,"timestamp"=>19,"time"=>10,"year"=>4),'Strings'=>array("char"=>255,"varchar"=>65535,"tinytext"=>255,"text"=>65535,"mediumtext"=>16777215,"longtext"=>4294967295),'Lists'=>array("enum"=>65535,"set"=>64),'Binary'=>array("bit"=>20,"binary"=>255,"varbinary"=>65535,"tinyblob"=>255,"blob"=>65535,"mediumblob"=>16777215,"longblob"=>4294967295),'Geometry'=>array("geometry"=>0,"point"=>0,"linestring"=>0,"polygon"=>0,"multipoint"=>0,"multilinestring"=>0,"multipolygon"=>0,"geometrycollection"=>0),);$this->insertFunctions=array("char"=>"md5/sha1/password/encrypt/uuid","binary"=>"md5/sha1","date|time"=>"now",);$this->editFunctions=array(number_type()=>"+/-","date"=>"+ interval/- interval","time"=>"addtime/subtime","char|text"=>"concat",);if(min_version('5.7.8',10.2,$f))$this->types['Strings']["json"]=4294967295;if(min_version('',10.7,$f)){$this->types['Strings']["uuid"]=128;$this->insertFunctions['uuid']='uuid';}if(min_version('',10.5,$f)){$this->types['Network']["inet6"]=39;if(min_version('','10.10',$f))$this->types['Network']["inet4"]=15;}if(min_version(9,11.7,$f))$this->types['Numbers']["vector"]=16383;if(min_version(5.7,10.2,$f))$this->generated=array("STORED","VIRTUAL");}function
-unconvertFunction(array$m){return(preg_match("~binary~",$m["type"])?"<code class='jush-sql'>UNHEX</code>":($m["type"]=="bit"?doc_link(array('sql'=>'bit-value-literals.html'),"<code>b''</code>"):($m["type"]=="vector"?"<code class='jush-sql'>".($this->conn->flavor=='maria'?"VEC_FromText":"STRING_TO_VECTOR")."</code>":(preg_match("~geometry|point|linestring|polygon~",$m["type"])?"<code class='jush-sql'>GeomFromText</code>":""))));}function
-insert($R,array$O){return($O?parent::insert($R,$O):queries("INSERT INTO ".table($R)." ()\nVALUES ()"));}function
-insertUpdate($R,array$K,array$ii){$e=array_keys(reset($K));$fi="INSERT INTO ".table($R)." (".implode(", ",$e).") VALUES\n";$pl=array();foreach($e
-as$x)$pl[$x]="$x = VALUES($x)";$Pj="\nON DUPLICATE KEY UPDATE ".implode(", ",$pl);$pl=array();$y=0;foreach($K
-as$O){$Y="(".implode(", ",$O).")";if($pl&&(strlen($fi)+$y+strlen($Y)+strlen($Pj)>1e6)){if(!queries($fi.implode(",\n",$pl).$Pj))return
-false;$pl=array();$y=0;}$pl[]=$Y;$y+=strlen($Y)+2;}return
-queries($fi.implode(",\n",$pl).$Pj);}function
-slowQuery($G,$pk){if(min_version('5.7.8','10.1.2')){if($this->conn->flavor=='maria')return"SET STATEMENT max_statement_time=$pk FOR $G";elseif(preg_match('~^(SELECT\b)(.+)~is',$G,$B))return"$B[1] /*+ MAX_EXECUTION_TIME(".($pk*1000).") */ $B[2]";}}function
-convertSearch($u,array$X,array$m){return(preg_match('~char|text|enum|set~',$m["type"])&&!preg_match("~^utf8~",$m["collation"])&&preg_match('~[\x80-\xFF]~',$X['val'])?"CONVERT($u USING ".charset($this->conn).")":$u);}function
-typeName(\stdClass$m){$Ok=array("decimal","tinyint","smallint","int","float","double",7=>"timestamp","bigint","mediumint","date","time","datetime","year",15=>"varchar","bit",242=>"vector",245=>"json","decimal","enum","set","tinytext","mediumtext","longtext","text","varchar","char","geometry",);$I=idx($Ok,$m->type,"");return
-parent::typeName($m)?:($m->charsetnr==63?str_replace(array("text","varchar","char"),array("blob","varbinary","binary"),$I):$I);}function
-quoteBinary($Ui){return"X".q(bin2hex($Ui));}function
-warnings(){$H=$this->conn->query("SHOW WARNINGS");if($H&&$H->num_rows){ob_start();print_select_result($H);return
+unconvertFunction(array$l){return(preg_match("~binary~",$l["type"])?"<code class='jush-sql'>UNHEX</code>":($l["type"]=="bit"?doc_link(array('sql'=>'bit-value-literals.html'),"<code>b''</code>"):($l["type"]=="vector"?"<code class='jush-sql'>".($this->conn->flavor=='maria'?"VEC_FromText":"STRING_TO_VECTOR")."</code>":(preg_match("~geom|point|linestring|polygon~",$l["type"])?"<code class='jush-sql'>GeomFromText</code>":""))));}function
+insert($Q,array$N){return($N?parent::insert($Q,$N):queries("INSERT INTO ".table($Q)." ()\nVALUES ()"));}function
+insertUpdate($Q,array$J,array$_j){$e=array_keys(reset($J));$vj="INSERT INTO ".table($Q)." (".implode(", ",$e).") VALUES\n";$Y=array();foreach($e
+as$w)$Y[$w]="$w = VALUES($w)";$Fl="\nON DUPLICATE KEY UPDATE ".implode(", ",$Y);$Y=array();$x=0;foreach($J
+as$N){$X="(".implode(", ",$N).")";if($Y&&(strlen($vj)+$x+strlen($X)+strlen($Fl)>1e6)){if(!queries($vj.implode(",\n",$Y).$Fl))return
+false;$Y=array();$x=0;}$Y[]=$X;$x+=strlen($X)+2;}return
+queries($vj.implode(",\n",$Y).$Fl);}function
+slowQuery($F,$om){if(min_version('5.7.8','10.1.2')){if($this->conn->flavor=='maria')return"SET STATEMENT max_statement_time=$om FOR $F";elseif(preg_match('~^(SELECT\b)(.+)~is',$F,$_))return"$_[1] /*+ MAX_EXECUTION_TIME(".($om*1000).") */ $_[2]";}}function
+convertColumn($t,array$l){if(preg_match("~binary~",$l["type"]))return"HEX($t)";if($l["type"]=="bit")return"BIN($t + 0)";if($l["type"]=="vector")return($this->conn->flavor=='maria'?"VEC_ToText":"VECTOR_TO_STRING")."($t)";if(preg_match("~geom|point|linestring|polygon~",$l["type"]))return(min_version(8)?"ST_":"")."AsWKT($t)";return"";}function
+convertSearch($t,array$W,array$l){return($this->convertColumn($t,$l)?:(preg_match('~'.text_type().'~',$l["type"])&&!preg_match("~^utf8~",$l["collation"])&&preg_match('~[\x80-\xFF]~',$W['val'])?"CONVERT($t USING ".charset($this->conn).")":$t));}function
+typeName(\stdClass$l){$A=parent::typeName($l);if($A!=""){$Qm=array("TINY"=>"tinyint","SHORT"=>"smallint","LONG"=>"int","INT24"=>"mediumint","LONGLONG"=>"bigint","NEWDECIMAL"=>"decimal","VAR_STRING"=>"varchar","STRING"=>"char",);return
+idx($Qm,$A,strtolower($A));}$Qm=array("decimal","tinyint","smallint","int","float","double",7=>"timestamp","bigint","mediumint","date","time","datetime","year",15=>"varchar","bit",242=>"vector",245=>"json","decimal","enum","set","tinytext","mediumtext","longtext","text","varchar","char","geometry",);$H=idx($Qm,$l->type,"");return($l->charsetnr==63?str_replace(array("text","varchar","char"),array("blob","varbinary","binary"),$H):$H);}function
+quoteBinary($vk){return"X".q(bin2hex($vk));}function
+md5($d,array$l){if(is_blob($l)||preg_match('~'.text_type().'~',$l["type"]))return"MD5(".(is_blob($l)||preg_match("~^utf8~",$l["collation"])?$d:"CONVERT($d USING ".charset($this->conn).")").")";}function
+warnings(){$G=$this->conn->query("SHOW WARNINGS");if($G&&$G->num_rows){ob_start();print_select_result($G);return
 ob_get_clean();}}function
-tableHelp($C,$ff=false){$Lf=($this->conn->flavor=='maria');if(information_schema(DB))return
-strtolower(str_replace("_","-",DB)."-".($Lf?"$C-table/":str_replace("_","-",$C)."-table.html"));if(DB=="sys")return($Lf?"sys-schema/":strtolower("sys-".str_replace("_","-",preg_replace('~^x\$~','',$C)).".html"));if(DB=="mysql")return($Lf?"mysql$C-table/":"system-schema.html");}function
-partitionsInfo($R){$Od="FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ".q(DB)." AND TABLE_NAME = ".q($R);$H=$this->conn->query("SELECT PARTITION_METHOD, PARTITION_EXPRESSION, PARTITION_ORDINAL_POSITION $Od ORDER BY PARTITION_ORDINAL_POSITION DESC LIMIT 1");$J=($H?$H->fetch_row():null);if(!$J)return
-array();$I=array();list($I["partition_by"],$I["partition"],$I["partitions"])=$J;$Nh=get_key_vals("SELECT PARTITION_NAME, PARTITION_DESCRIPTION $Od AND PARTITION_NAME != '' ORDER BY PARTITION_ORDINAL_POSITION");$I["partition_names"]=array_keys($Nh);$I["partition_values"]=array_values($Nh);return$I;}function
-hasCStyleEscapes(){static$Wa;if($Wa===null){$Fj=get_val("SHOW VARIABLES LIKE 'sql_mode'",1,$this->conn);$Wa=(strpos($Fj,'NO_BACKSLASH_ESCAPES')===false);}return$Wa;}function
+tableHelp($A,$Tf=false){$Eg=($this->conn->flavor=='maria');if(information_schema(DB))return
+strtolower(str_replace("_","-",DB)."-".($Eg?"$A-table/":str_replace("_","-",$A)."-table.html"));if(DB=="sys")return($Eg?"sys-schema/":strtolower("sys-".str_replace("_","-",preg_replace('~^x\$~','',$A)).".html"));if(DB=="mysql")return($Eg?"mysql$A-table/":"system-schema.html");}function
+partitionsInfo($Q){$qe="FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ".q(DB)." AND TABLE_NAME = ".q($Q);$G=$this->conn->query("SELECT PARTITION_METHOD, PARTITION_EXPRESSION, PARTITION_ORDINAL_POSITION $qe ORDER BY PARTITION_ORDINAL_POSITION DESC LIMIT 1");$I=($G?$G->fetch_row():null);if(!$I)return
+array();$H=array();list($H["partition_by"],$H["partition"],$H["partitions"])=$I;$Wi=get_key_vals("SELECT PARTITION_NAME, PARTITION_DESCRIPTION $qe AND PARTITION_NAME != '' ORDER BY PARTITION_ORDINAL_POSITION");$H["partition_names"]=array_keys($Wi);$H["partition_values"]=array_values($Wi);return$H;}function
+checkConstraints($Q){$H=parent::checkConstraints($Q);return($this->conn->flavor=='maria'?$H:array_map('stripslashes',$H));}function
+hasCStyleEscapes(){static$fb;if($fb===null){$tl=get_val("SHOW VARIABLES LIKE 'sql_mode'",1,$this->conn);$fb=(strpos($tl,'NO_BACKSLASH_ESCAPES')===false);}return$fb;}function
+hasEstimatedRows(){return
+true;}function
+isSystem($i,$K=""){return
+information_schema($i,$K)||in_array($i,array("mysql","sys"));}function
 lineComment(){return"#|-- ";}function
-engines(){$I=array();foreach(get_rows("SHOW ENGINES")as$J){if(preg_match("~YES|DEFAULT~",$J["Support"]))$I[]=$J["Engine"];}return$I;}function
-indexAlgorithms(array$Vj){return(preg_match('~^(MEMORY|NDB)$~',$Vj["Engine"])?array("HASH","BTREE"):array());}}function
-idf_escape($u){return"`".str_replace("`","``",$u)."`";}function
-table($u){return
-idf_escape($u);}function
-get_databases($Fd){$I=get_session("dbs");if($I===null){$G="SELECT SCHEMA_NAME FROM information_schema.SCHEMATA ORDER BY SCHEMA_NAME";$Jj=microtime(true);$I=($Fd?slow_query($G):get_vals($G));if(microtime(true)-$Jj>0.1){restart_session();set_session("dbs",$I);stop_session();}}return$I;}function
-limit($G,$Z,$z,$Rg=0,$gj=" "){return" $G$Z".($z?$gj."LIMIT $z".($Rg?" OFFSET $Rg":""):"");}function
-limit1($R,$G,$Z,$gj="\n"){return
-limit($G,$Z,1,0,$gj);}function
-db_collation($j,array$qb){$I=null;$h=get_val("SHOW CREATE DATABASE ".idf_escape($j),1);if(preg_match('~ COLLATE ([^ ]+)~',$h,$B))$I=$B[1];elseif(preg_match('~ CHARACTER SET ([^ ]+)~',$h,$B))$I=$qb[$B[1]][-1];return$I;}function
+engines(){$H=array();foreach(get_rows("SHOW ENGINES")as$I){if(preg_match("~YES|DEFAULT~",$I["Support"]))$H[]=$I["Engine"];}return$H;}function
+indexAlgorithms(array$Ml){return(preg_match('~^(MEMORY|NDB)$~',$Ml["Engine"])?array("HASH","BTREE"):array());}}function
+idf_escape($t){return"`".str_replace("`","``",$t)."`";}function
+table($t){return
+idf_escape($t);}function
+get_databases($fe){$H=get_session("dbs");if($H===null){$F="SELECT SCHEMA_NAME FROM information_schema.SCHEMATA ORDER BY SCHEMA_NAME";$xl=microtime(true);$H=($fe?slow_query($F):get_vals($F));if(microtime(true)-$xl>0.1){restart_session();set_session("dbs",$H);stop_session();}}return$H;}function
+limit($F,$Z,$y,$Yh=0,$Lk=" "){return" $F$Z".($y?$Lk."LIMIT $y".($Yh?" OFFSET $Yh":""):"");}function
+limit1($Q,$F,$Z,$Lk="\n"){return
+limit($F,$Z,1,0,$Lk);}function
+db_collation($i,array$Cb){$H=null;$ec=get_val("SHOW CREATE DATABASE ".idf_escape($i),1);if(preg_match('~ COLLATE ([^ ]+)~',$ec,$_))$H=$_[1];elseif(preg_match('~ CHARACTER SET ([^ ]+)~',$ec,$_))$H=$Cb[$_[1]][-1];return$H;}function
 logged_user(){return
-get_val("SELECT USER()");}function
+get_val("SELECT CURRENT_USER()");}function
 tables_list(){return
 get_key_vals("SELECT TABLE_NAME, TABLE_TYPE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ORDER BY TABLE_NAME");}function
-count_tables(array$i){$I=array();foreach($i
-as$j)$I[$j]=count(get_vals("SHOW TABLES IN ".idf_escape($j)));return$I;}function
-table_status($C="",$nd=false){$I=array();foreach(get_rows($nd?"SELECT TABLE_NAME AS Name, ENGINE AS Engine, TABLE_COMMENT AS Comment FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ".($C!=""?"AND TABLE_NAME = ".q($C):"ORDER BY Name"):"SHOW TABLE STATUS".($C!=""?" LIKE ".q(addcslashes($C,"%_\\")):""))as$J){if($J["Engine"]=="InnoDB")$J["Comment"]=preg_replace('~(?:(.+); )?InnoDB free: .*~','\1',$J["Comment"]);if(!isset($J["Engine"]))$J["Comment"]="";if($C!="")$J["Name"]=$C;$I[$J["Name"]]=$J;}return$I;}function
-is_view(array$S){return$S["Engine"]===null;}function
-fk_support(array$S){return
-preg_match('~InnoDB|IBMDB2I'.(min_version(5.6)?'|NDB':'').'~i',$S["Engine"]);}function
-parse_type($Qd){preg_match('~^([^( ]+)(?:\((.+)\))?( unsigned)?( zerofill)?$~',$Qd,$B);return
-array($B[1],$B[2],ltrim($B[3].$B[4]));}function
-fields($R){$Lf=(connection()->flavor=='maria');$I=array();foreach(get_rows("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ".q($R)." ORDER BY ORDINAL_POSITION")as$J){$m=$J["COLUMN_NAME"];$U=$J["COLUMN_TYPE"];$Ud=$J["GENERATION_EXPRESSION"];$kd=$J["EXTRA"];preg_match('~^(VIRTUAL|PERSISTENT|STORED)~',$kd,$Td);list($Nk,$y,$Wk)=parse_type($U);$k=$J["COLUMN_DEFAULT"];if($k!=""){$ef=preg_match('~text|json~',$Nk);if(!$Lf&&$ef)$k=preg_replace("~^(_\w+)?('.*')$~",'\2',stripslashes($k));if($Lf||$ef){$k=($k=="NULL"?null:preg_replace_callback("~^'(.*)'$~",function($B){return
-stripslashes(str_replace("''","'",$B[1]));},$k));}if(!$Lf&&preg_match('~binary~',$Nk)&&preg_match('~^0x(\w*)$~',$k,$B))$k=pack("H*",$B[1]);}$I[$m]=array("field"=>$m,"full_type"=>$U,"type"=>$Nk,"length"=>$y,"unsigned"=>$Wk,"default"=>($Td?($Lf?$Ud:stripslashes($Ud)):$k),"null"=>($J["IS_NULLABLE"]=="YES"),"auto_increment"=>($kd=="auto_increment"),"on_update"=>(preg_match('~\bon update (\w+)~i',$kd,$B)?$B[1]:""),"collation"=>$J["COLLATION_NAME"],"privileges"=>array_flip(explode(",","$J[PRIVILEGES],where,order")),"comment"=>$J["COLUMN_COMMENT"],"primary"=>($J["COLUMN_KEY"]=="PRI"),"generated"=>($Td[1]=="PERSISTENT"?"STORED":$Td[1]),);}return$I;}function
-indexes($R,$g=null){$I=array();foreach(get_rows("SHOW INDEX FROM ".table($R),$g)as$J){$C=$J["Key_name"];$I[$C]["type"]=($C=="PRIMARY"?"PRIMARY":($J["Index_type"]=="FULLTEXT"?"FULLTEXT":($J["Non_unique"]?(preg_match('~^(SPATIAL|VECTOR)$~',$J["Index_type"])?$J["Index_type"]:"INDEX"):"UNIQUE")));$I[$C]["columns"][]=$J["Column_name"];$I[$C]["lengths"][]=($J["Index_type"]=="SPATIAL"?null:$J["Sub_part"]);$I[$C]["descs"][]=null;$I[$C]["algorithm"]=$J["Index_type"];}return$I;}function
-foreign_keys($R){static$Rh='(?:`(?:[^`]|``)+`|"(?:[^"]|"")+")';$I=array();$Nb=get_val("SHOW CREATE TABLE ".table($R),1);if($Nb){preg_match_all("~CONSTRAINT ($Rh) FOREIGN KEY ?\\(((?:$Rh,? ?)+)\\) REFERENCES ($Rh)(?:\\.($Rh))? \\(((?:$Rh,? ?)+)\\)(?: ON DELETE (".driver()->onActions."))?(?: ON UPDATE (".driver()->onActions."))?~",$Nb,$Of,PREG_SET_ORDER);foreach($Of
-as$B){preg_match_all("~$Rh~",$B[2],$_j);preg_match_all("~$Rh~",$B[5],$hk);$I[idf_unescape($B[1])]=array("db"=>idf_unescape($B[4]!=""?$B[3]:$B[4]),"table"=>idf_unescape($B[4]!=""?$B[4]:$B[3]),"source"=>array_map('Adminer\idf_unescape',$_j[0]),"target"=>array_map('Adminer\idf_unescape',$hk[0]),"on_delete"=>($B[6]?:"RESTRICT"),"on_update"=>($B[7]?:"RESTRICT"),);}}return$I;}function
-view($C){return
-array("select"=>preg_replace('~^(?:[^`]|`[^`]*`)*\s+AS\s+~isU','',get_val("SHOW CREATE VIEW ".table($C),1)));}function
-collations(){$I=array();foreach(get_rows("SHOW COLLATION")as$J){if($J["Default"])$I[$J["Charset"]][-1]=$J["Collation"];else$I[$J["Charset"]][]=$J["Collation"];}ksort($I);foreach($I
-as$x=>$X)sort($I[$x]);return$I;}function
-information_schema($j,$L=""){return($j=="information_schema")||(min_version(5.5)&&$j=="performance_schema");}function
+count_tables(array$h){$H=array();foreach($h
+as$i)$H[$i]=count(get_vals("SHOW TABLES IN ".idf_escape($i)));return$H;}function
+table_status($A="",$Md=false){$H=array();$F="SELECT ENGINE AS Engine, TABLE_NAME AS Name, TABLE_COMMENT AS Comment FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() ".($A!=""?"AND TABLE_NAME = ".q($A):"ORDER BY Name");$K=array();foreach(($Md?array():get_rows($F))as$I)$K[$I["Name"]]=$I;$zj=null;foreach(get_rows($Md?$F:"SHOW TABLE STATUS".($A!=""?" LIKE ".q(addcslashes($A,"%_\\")):""))as$I){$Ci=idx($K,$I["Name"]);if($Ci){if($I["Comment"]!==$Ci["Comment"]&&$I["Comment"]!==$zj)$I["Error"]=$I["Comment"];$zj=$I["Comment"];$I["Comment"]=$Ci["Comment"];$I["Engine"]=$Ci["Engine"];}if($I["Engine"]=="InnoDB")$I["Comment"]=preg_replace('~(?:(.+); )?InnoDB free: .*~','\1',$I["Comment"]);if(!isset($I["Engine"]))$I["Comment"]="";if($A!="")$I["Name"]=$A;$H[$I["Name"]]=$I;}return$H;}function
+is_view(array$R){return$R["Engine"]===null;}function
+fk_support(array$R){return
+preg_match('~InnoDB|IBMDB2I'.(min_version(5.6)?'|NDB':'').'~i',$R["Engine"]);}function
+parse_type($te){preg_match('~^([^( ]+)(?:\((.+)\))?( unsigned)?( zerofill)?$~',$te,$_);return
+array($_[1],$_[2],ltrim($_[3].$_[4]));}function
+fields($Q){$Eg=(connection()->flavor=='maria');$H=array();foreach(get_rows("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ".q($Q)." ORDER BY ORDINAL_POSITION")as$I){$l=$I["COLUMN_NAME"];$T=$I["COLUMN_TYPE"];$ye=$I["GENERATION_EXPRESSION"];$Jd=$I["EXTRA"];preg_match('~^(VIRTUAL|PERSISTENT|STORED)~',$Jd,$xe);list($Pm,$x,$an)=parse_type($T);$j=$I["COLUMN_DEFAULT"];if($j!=""){$Sf=preg_match('~text|json~',$Pm);if(!$Eg&&$Sf)$j=preg_replace("~^(_\w+)?('.*')$~",'\2',stripslashes($j));if($Eg||$Sf){$j=($j=="NULL"?null:preg_replace_callback("~^'(.*)'$~",function($_){return
+stripslashes(str_replace("''","'",$_[1]));},$j));}if(!$Eg&&preg_match('~binary~',$Pm)&&preg_match('~^0x(\w*)$~',$j,$_))$j=pack("H*",$_[1]);}$H[$l]=array("field"=>$l,"full_type"=>$T,"type"=>$Pm,"length"=>$x,"unsigned"=>$an,"default"=>($xe?($Eg?$ye:stripslashes($ye)):$j),"null"=>($I["IS_NULLABLE"]=="YES"),"auto_increment"=>($Jd=="auto_increment"),"on_update"=>(preg_match('~\bon update (\w+)~i',$Jd,$_)?$_[1]:""),"collation"=>$I["COLLATION_NAME"],"privileges"=>array_flip(explode(",","$I[PRIVILEGES],where,order")),"comment"=>$I["COLUMN_COMMENT"],"primary"=>($I["COLUMN_KEY"]=="PRI"),"generated"=>($xe[1]=="PERSISTENT"?"STORED":$xe[1]),);}return$H;}function
+indexes($Q,$g=null){$H=array();foreach(get_rows("SHOW INDEX FROM ".table($Q),$g)as$I){$A=$I["Key_name"];$H[$A]["type"]=($A=="PRIMARY"?"PRIMARY":($I["Index_type"]=="FULLTEXT"?"FULLTEXT":($I["Non_unique"]?(preg_match('~^(SPATIAL|VECTOR)$~',$I["Index_type"])?$I["Index_type"]:"INDEX"):"UNIQUE")));$H[$A]["columns"][]=$I["Column_name"];$H[$A]["lengths"][]=($I["Index_type"]=="SPATIAL"?null:$I["Sub_part"]);$H[$A]["descs"][]=null;$H[$A]["algorithm"]=$I["Index_type"];}return$H;}function
+foreign_keys($Q){static$ej='(?:`(?:[^`]|``)+`|"(?:[^"]|"")+")';$H=array();$fc=get_val("SHOW CREATE TABLE ".table($Q),1);if($fc){preg_match_all("~CONSTRAINT ($ej) FOREIGN KEY ?\\(((?:$ej,? ?)+)\\) REFERENCES ($ej)(?:\\.($ej))? \\(((?:$ej,? ?)+)\\)(?: ON DELETE (".driver()->onActions."))?(?: ON UPDATE (".driver()->onActions."))?~",$fc,$Hg,PREG_SET_ORDER);foreach($Hg
+as$_){preg_match_all("~$ej~",$_[2],$ml);preg_match_all("~$ej~",$_[5],$em);$H[idf_unescape($_[1])]=array("db"=>idf_unescape($_[4]!=""?$_[3]:$_[4]),"table"=>idf_unescape($_[4]!=""?$_[4]:$_[3]),"source"=>array_map('Adminer\idf_unescape',$ml[0]),"target"=>array_map('Adminer\idf_unescape',$em[0]),"on_delete"=>($_[6]?:"RESTRICT"),"on_update"=>($_[7]?:"RESTRICT"),);}}return$H;}function
+view($A){return
+array("select"=>preg_replace('~^(?:[^`]|`[^`]*`)*\s+AS\s+~isU','',get_val("SHOW CREATE VIEW ".table($A),1)));}function
+collations(){$H=array();foreach(get_rows("SHOW COLLATION")as$I){if($I["Default"])$H[$I["Charset"]][-1]=$I["Collation"];else$H[$I["Charset"]][]=$I["Collation"];}ksort($H);foreach($H
+as$w=>$W)sort($H[$w]);return$H;}function
+information_schema($i,$K=""){return($i=="information_schema")||(min_version(5.5)&&$i=="performance_schema");}function
 error(){return
 h(preg_replace('~^You have an error.*syntax to use~U',"Syntax error",connection()->error));}function
-create_database($j,$pb){return
-queries("CREATE DATABASE ".idf_escape($j).($pb?" COLLATE ".q($pb):""));}function
-drop_databases(array$i){$I=apply_queries("DROP DATABASE",$i,'Adminer\idf_escape');restart_session();set_session("dbs",null);return$I;}function
-rename_database($C,$pb){$I=false;if(create_database($C,$pb)){$T=array();$ul=array();foreach(tables_list()as$R=>$U){if($U=='VIEW')$ul[]=$R;else$T[]=$R;}$I=(!$T&&!$ul)||move_tables($T,$ul,$C);drop_databases($I?array(DB):array());}return$I;}function
-auto_increment(){$Fa=" PRIMARY KEY";if($_GET["create"]!=""&&$_POST["auto_increment_col"]){foreach(indexes($_GET["create"])as$v){if(in_array($_POST["fields"][$_POST["auto_increment_col"]]["orig"],$v["columns"],true)){$Fa="";break;}if($v["type"]=="PRIMARY")$Fa=" UNIQUE";}}return" AUTO_INCREMENT$Fa";}function
-alter_table($R,$C,array$n,array$Hd,$ub,$Pc,$pb,$Ea,$Mh){$b=array();foreach($n
-as$m){if($m[1]){$k=$m[1][3];if(preg_match('~ GENERATED~',$k)){$m[1][3]=(connection()->flavor=='maria'?"":$m[1][2]);$m[1][2]=$k;}$b[]=($R!=""?($m[0]!=""?"CHANGE ".idf_escape($m[0]):"ADD"):" ")." ".implode($m[1]).($R!=""?$m[2]:"");}else$b[]="DROP ".idf_escape($m[0]);}$b=array_merge($b,$Hd);$P=($ub!==null?" COMMENT=".q($ub):"").($Pc?" ENGINE=".q($Pc):"").($pb?" COLLATE ".q($pb):"").($Ea!=""?" AUTO_INCREMENT=$Ea":"");if($Mh){$Nh=array();if($Mh["partition_by"]=='RANGE'||$Mh["partition_by"]=='LIST'){foreach($Mh["partition_names"]as$x=>$X){$Y=$Mh["partition_values"][$x];$Nh[]="\n  PARTITION ".idf_escape($X)." VALUES ".($Mh["partition_by"]=='RANGE'?"LESS THAN":"IN").($Y!=""?" ($Y)":" MAXVALUE");}}$P
-.="\nPARTITION BY $Mh[partition_by]($Mh[partition])";if($Nh)$P
-.=" (".implode(",",$Nh)."\n)";elseif($Mh["partitions"])$P
-.=" PARTITIONS ".(+$Mh["partitions"]);}elseif($Mh===null)$P
-.="\nREMOVE PARTITIONING";if($R=="")return
-queries("CREATE TABLE ".table($C)." (\n".implode(",\n",$b)."\n)$P");if($R!=$C)$b[]="RENAME TO ".table($C);if($P)$b[]=ltrim($P);return($b?queries("ALTER TABLE ".table($R)."\n".implode(",\n",$b)):true);}function
-alter_indexes($R,$b){$Za=array();foreach($b
-as$X)$Za[]=($X[2]=="DROP"?"\nDROP INDEX ".idf_escape($X[1]):"\nADD $X[0] ".($X[0]=="PRIMARY"?"KEY ":"").($X[1]!=""?idf_escape($X[1])." ":"")."(".implode(", ",$X[2]).")");return
-queries("ALTER TABLE ".table($R).implode(",",$Za));}function
-truncate_tables(array$T){return
-apply_queries("TRUNCATE TABLE",$T);}function
-drop_views(array$ul){return
-queries("DROP VIEW ".implode(", ",array_map('Adminer\table',$ul)));}function
-drop_tables(array$T){return
-queries("DROP TABLE ".implode(", ",array_map('Adminer\table',$T)));}function
-move_tables(array$T,array$ul,$hk){$Gi=array();foreach($T
-as$R)$Gi[]=table($R)." TO ".idf_escape($hk).".".table($R);if(!$Gi||queries("RENAME TABLE ".implode(", ",$Gi))){$ic=array();foreach($ul
-as$R)$ic[table($R)]=view($R);connection()->select_db($hk);$j=idf_escape(DB);foreach($ic
-as$C=>$tl){if(!queries("CREATE VIEW $C AS ".str_replace(" $j."," ",$tl["select"]))||!queries("DROP VIEW $j.$C"))return
+create_database($i,$Bb){return
+queries("CREATE DATABASE ".idf_escape($i).($Bb?" COLLATE ".q($Bb):""));}function
+drop_databases(array$h){$H=apply_queries("DROP DATABASE",$h,'Adminer\idf_escape');restart_session();set_session("dbs",null);return$H;}function
+rename_database($A,$Bb){$H=false;if(create_database($A,$Bb)){$S=array();$_n=array();foreach(tables_list()as$Q=>$T){if($T=='VIEW')$_n[]=$Q;else$S[]=$Q;}$H=(!$S&&!$_n)||move_tables($S,$_n,$A);drop_databases($H?array(DB):array());}return$H;}function
+auto_increment(){$Ma=" PRIMARY KEY";if($_GET["create"]!=""&&$_POST["auto_increment_col"]){foreach(indexes($_GET["create"])as$u){if(in_array($_POST["fields"][$_POST["auto_increment_col"]]["orig"],$u["columns"],true)){$Ma="";break;}if($u["type"]=="PRIMARY")$Ma=" UNIQUE";}}return" AUTO_INCREMENT$Ma";}function
+alter_table($Q,$A,array$m,array$he,$Hb,$nd,$Bb,$La,$Vi){$b=array();foreach($m
+as$l){if($l[1]){$j=$l[1][3];if(preg_match('~ GENERATED~',$j)){$l[1][3]=(connection()->flavor=='maria'?"":$l[1][2]);$l[1][2]=$j;}$b[]=($Q!=""?($l[0]!=""?"CHANGE ".idf_escape($l[0]):"ADD"):" ")." ".implode($l[1]).($Q!=""?$l[2]:"");}else$b[]="DROP ".idf_escape($l[0]);}$b=array_merge($b,$he);$O=($Hb!==null?" COMMENT=".q($Hb):"").($nd?" ENGINE=".q($nd):"").($Bb?" COLLATE ".q($Bb):"").($La!=""?" AUTO_INCREMENT=$La":"");if($Vi){$Wi=array();if($Vi["partition_by"]=='RANGE'||$Vi["partition_by"]=='LIST'){foreach($Vi["partition_names"]as$w=>$W){$X=$Vi["partition_values"][$w];$Wi[]="\n  PARTITION ".idf_escape($W)." VALUES ".($Vi["partition_by"]=='RANGE'?"LESS THAN":"IN").($X!=""?" ($X)":" MAXVALUE");}}$O
+.="\nPARTITION BY $Vi[partition_by]($Vi[partition])";if($Wi)$O
+.=" (".implode(",",$Wi)."\n)";elseif($Vi["partitions"])$O
+.=" PARTITIONS ".(+$Vi["partitions"]);}elseif($Vi===null)$O
+.="\nREMOVE PARTITIONING";if($Q=="")return
+queries("CREATE TABLE ".table($A)." (\n".implode(",\n",$b)."\n)$O");if($Q!=$A)$b[]="RENAME TO ".table($A);if($O)$b[]=ltrim($O);return($b?queries("ALTER TABLE ".table($Q)."\n".implode(",\n",$b)):true);}function
+alter_indexes($Q,$b){$kb=array();foreach($b
+as$W)$kb[]=($W[2]=="DROP"?"\nDROP INDEX ".idf_escape($W[1]):"\nADD $W[0] ".($W[0]=="PRIMARY"?"KEY ":"").($W[1]!=""?idf_escape($W[1])." ":"")."(".implode(", ",$W[2]).")");return
+queries("ALTER TABLE ".table($Q).implode(",",$kb));}function
+truncate_tables(array$S){return
+apply_queries("TRUNCATE TABLE",$S);}function
+drop_views(array$_n){return
+queries("DROP VIEW ".implode(", ",array_map('Adminer\table',$_n)));}function
+drop_tables(array$S){return
+queries("DROP TABLE ".implode(", ",array_map('Adminer\table',$S)));}function
+move_tables(array$S,array$_n,$em){$ak=array();foreach($S
+as$Q)$ak[]=table($Q)." TO ".idf_escape($em).".".table($Q);if(!$ak||queries("RENAME TABLE ".implode(", ",$ak))){$Bc=array();foreach($_n
+as$Q)$Bc[table($Q)]=view($Q);connection()->select_db($em);$i=idf_escape(DB);foreach($Bc
+as$A=>$zn){if(!queries("CREATE VIEW $A AS ".str_replace(" $i."," ",$zn["select"]))||!queries("DROP VIEW $i.$A"))return
 false;}return
 true;}return
 false;}function
-copy_tables(array$T,array$ul,$hk){queries("SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO'");foreach($T
-as$R){$C=($hk==DB?table("copy_$R"):idf_escape($hk).".".table($R));if(($_POST["overwrite"]&&!queries("\nDROP TABLE IF EXISTS $C"))||!queries("CREATE TABLE $C LIKE ".table($R))||!queries("INSERT INTO $C SELECT * FROM ".table($R)))return
-false;foreach(get_rows("SHOW TRIGGERS LIKE ".q(addcslashes($R,"%_\\")))as$J){$Fk=$J["Trigger"];if(!queries("CREATE TRIGGER ".($hk==DB?idf_escape("copy_$Fk"):idf_escape($hk).".".idf_escape($Fk))." $J[Timing] $J[Event] ON $C FOR EACH ROW\n$J[Statement];"))return
-false;}}foreach($ul
-as$R){$C=($hk==DB?table("copy_$R"):idf_escape($hk).".".table($R));$tl=view($R);if(($_POST["overwrite"]&&!queries("DROP VIEW IF EXISTS $C"))||!queries("CREATE VIEW $C AS $tl[select]"))return
+copy_tables(array$S,array$_n,$em){queries("SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO'");foreach($S
+as$Q){$A=($em==DB?table("copy_$Q"):idf_escape($em).".".table($Q));if(($_POST["overwrite"]&&!queries("\nDROP TABLE IF EXISTS $A"))||!queries("CREATE TABLE $A LIKE ".table($Q))||!queries("INSERT INTO $A SELECT * FROM ".table($Q)))return
+false;foreach(get_rows("SHOW TRIGGERS LIKE ".q(addcslashes($Q,"%_\\")))as$I){$Fm=$I["Trigger"];list($wd,$Th)=trigger_event($I);if(!queries("CREATE TRIGGER ".($em==DB?idf_escape("copy_$Fm"):idf_escape($em).".".idf_escape($Fm))." $I[Timing] $wd".($Th!=""?" $Th":"")." ON $A FOR EACH ROW\n$I[Statement];"))return
+false;}}foreach($_n
+as$Q){$A=($em==DB?table("copy_$Q"):idf_escape($em).".".table($Q));$zn=view($Q);if(($_POST["overwrite"]&&!queries("DROP VIEW IF EXISTS $A"))||!queries("CREATE VIEW $A AS $zn[select]"))return
 false;}return
 true;}function
-trigger($C,$R){if($C=="")return
-array();$K=get_rows("SHOW TRIGGERS WHERE `Trigger` = ".q($C));return
-reset($K);}function
-triggers($R){$I=array();foreach(get_rows("SHOW TRIGGERS LIKE ".q(addcslashes($R,"%_\\")))as$J)$I[$J["Trigger"]]=array($J["Timing"],$J["Event"]);return$I;}function
+trigger_event(array$I){$yd=explode(",",$I["Event"]);$H=array();foreach(array("DELETE","INSERT","UPDATE")as$wd){if(in_array($wd,$yd))$H[]=$wd;}$H=implode(" OR ",$H);if(in_array("UPDATE",$yd)&&min_version('','12.0.1')&&preg_match('~\s(?:BEFORE|AFTER)\s+(.+?)\s+ON\s~is',get_val("SHOW CREATE TRIGGER ".idf_escape($I["Trigger"]),2),$_)&&preg_match('~\bOF\s+(.+)~is',$_[1],$Th))return
+array("$H OF",$Th[1]);return
+array($H,"");}function
+trigger($A,$Q){if($A=="")return
+array();$J=get_rows("SHOW TRIGGERS WHERE `Trigger` = ".q($A));$H=reset($J);if($H)list($H["Event"],$H["Of"])=trigger_event($H);return($H?:array());}function
+triggers($Q){$H=array();foreach(get_rows("SHOW TRIGGERS LIKE ".q(addcslashes($Q,"%_\\")))as$I){list($wd)=trigger_event($I);$H[$I["Trigger"]]=array($I["Timing"],$wd);}return$H;}function
 trigger_options(){return
-array("Timing"=>array("BEFORE","AFTER"),"Event"=>array("INSERT","UPDATE","DELETE"),"Type"=>array("FOR EACH ROW"),);}function
-routine($C,$U){$K=get_rows("SELECT PARAMETER_NAME, DTD_IDENTIFIER, PARAMETER_MODE, CHARACTER_SET_NAME
+array("Timing"=>array("BEFORE","AFTER"),"Event"=>(min_version('','12.0.1')?array("INSERT","UPDATE","UPDATE OF","DELETE","INSERT OR UPDATE","INSERT OR UPDATE OF","DELETE OR INSERT","DELETE OR UPDATE","DELETE OR UPDATE OF","DELETE OR INSERT OR UPDATE","DELETE OR INSERT OR UPDATE OF",):array("INSERT","UPDATE","DELETE")),"Type"=>array("FOR EACH ROW"),);}function
+routine($A,$T){$J=get_rows("SELECT PARAMETER_NAME, DTD_IDENTIFIER, PARAMETER_MODE, COLLATION_NAME
 FROM information_schema.PARAMETERS
-WHERE SPECIFIC_SCHEMA = DATABASE() AND ROUTINE_TYPE = '$U' AND SPECIFIC_NAME = ".q($C)."
-ORDER BY ORDINAL_POSITION");$n=array();foreach($K
-as$J){$Qd=$J["DTD_IDENTIFIER"];list($Nk,$y,$Wk)=parse_type($Qd);$n[]=array("field"=>$J["PARAMETER_NAME"],"type"=>$Nk,"length"=>$y,"unsigned"=>$Wk,"null"=>true,"full_type"=>$Qd,"inout"=>($U=="FUNCTION"?"":$J["PARAMETER_MODE"]),"collation"=>$J["CHARACTER_SET_NAME"],);}$I=connection()->query("SELECT
+WHERE SPECIFIC_SCHEMA = DATABASE() AND ROUTINE_TYPE = '$T' AND SPECIFIC_NAME = ".q($A)."
+ORDER BY ORDINAL_POSITION");$m=array();foreach($J
+as$I){$te=$I["DTD_IDENTIFIER"];list($Pm,$x,$an)=parse_type($te);$m[]=array("field"=>$I["PARAMETER_NAME"],"type"=>$Pm,"length"=>$x,"unsigned"=>$an,"null"=>true,"full_type"=>$te,"inout"=>($T=="FUNCTION"?"":$I["PARAMETER_MODE"]),"collation"=>$I["COLLATION_NAME"],);}$H=connection()->query("SELECT
 	ROUTINE_COMMENT comment,
-	CONCAT(IF(IS_DETERMINISTIC = 'YES', 'DETERMINISTIC\\n', ''), IF(SQL_DATA_ACCESS != 'CONTAINS SQL', CONCAT(SQL_DATA_ACCESS, '\\n'), ''), ROUTINE_DEFINITION) definition,
-	'SQL' language
+	ROUTINE_DEFINITION definition,
+	LOWER(EXTERNAL_LANGUAGE) language,
+	IF(DEFINER = CURRENT_USER(), '', DEFINER) definer,
+	IF(IS_DETERMINISTIC = 'YES', 'DETERMINISTIC', 'NOT DETERMINISTIC') is_deterministic,
+	SQL_DATA_ACCESS data_access,
+	CONCAT('SQL SECURITY ', SECURITY_TYPE) security
 FROM information_schema.ROUTINES
-WHERE ROUTINE_SCHEMA = DATABASE() AND ROUTINE_TYPE = '$U' AND ROUTINE_NAME = ".q($C))->fetch_assoc();if($n&&$n[0]['field']=='')$I['returns']=array_shift($n);$I['fields']=$n;return$I;}function
+WHERE ROUTINE_SCHEMA = DATABASE() AND ROUTINE_TYPE = '$T' AND ROUTINE_NAME = ".q($A))->fetch_assoc();if(!$H)return
+array();$H['options']=array("DEFINER"=>$H['definer'],"DETERMINISTIC"=>$H['is_deterministic'],"SQL_DATA_ACCESS"=>$H['data_access'],"SQL_SECURITY"=>$H['security'],"COMMENT"=>$H['comment'],);if($m&&$m[0]['field']=='')$H['returns']=array_shift($m);$H['fields']=$m;return$H;}function
 routines(){return
 get_rows("SELECT SPECIFIC_NAME, ROUTINE_NAME, ROUTINE_TYPE, DTD_IDENTIFIER FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA = DATABASE()");}function
-routine_languages(){return
-array();}function
-routine_id($C,array$J){return
-idf_escape($C);}function
-last_id($H){return
+routine_languages(){return(min_version(9,99)?array("sql"=>"sql","javascript"=>"js"):array());}function
+routine_options($mk){return
+array("DEFINER"=>array(),"DETERMINISTIC"=>array("NOT DETERMINISTIC","DETERMINISTIC"),"SQL_DATA_ACCESS"=>array("CONTAINS SQL","NO SQL","READS SQL DATA","MODIFIES SQL DATA"),"SQL_SECURITY"=>array("SQL SECURITY DEFINER","SQL SECURITY INVOKER"),"COMMENT"=>array(),);}function
+routine_id($A,array$I){return
+idf_escape($A);}function
+last_id($G){return
 get_val("SELECT LAST_INSERT_ID()");}function
-explain(Db$f,$G){return$f->query("EXPLAIN ".(min_version(5.7)?"":"PARTITIONS ").$G);}function
-found_rows(array$S,array$Z){return($Z||$S["Engine"]!="InnoDB"?null:$S["Rows"]);}function
-create_sql($R,$Ea,$Nj){$I=get_val("SHOW CREATE TABLE ".table($R),1);if(!$Ea)$I=preg_replace('~(\n\)[^\n]*?) AUTO_INCREMENT=\d+~','\1',$I);return$I;}function
-truncate_sql($R){return"TRUNCATE ".table($R);}function
-use_sql($Zb,$Nj=""){$C=idf_escape($Zb);$I="";if(preg_match('~CREATE~',$Nj)&&($h=get_val("SHOW CREATE DATABASE $C",1))){set_utf8mb4($h);if($Nj=="DROP+CREATE")$I="DROP DATABASE IF EXISTS $C;\n";$I
-.="$h;\n";}return$I."USE $C";}function
-trigger_sql($R){$I="";foreach(get_rows("SHOW TRIGGERS LIKE ".q(addcslashes($R,"%_\\")),null,"-- ")as$J)$I
-.="\nCREATE TRIGGER ".idf_escape($J["Trigger"])." $J[Timing] $J[Event] ON ".table($J["Table"])." FOR EACH ROW\n$J[Statement];;\n";return$I;}function
+explain(Db$f,$F){return$f->query("EXPLAIN ".(min_version(5.7)?"":"PARTITIONS ").$F);}function
+found_rows(array$R,array$Z){return($Z||$R["Engine"]!="InnoDB"?null:$R["Rows"]);}function
+create_sql($Q,$La,$Dl){$H=get_val("SHOW CREATE TABLE ".table($Q),1);if(!$La)$H=preg_replace('~(\n\)[^\n]*?) AUTO_INCREMENT=\d+~','\1',$H);return$H;}function
+truncate_sql($Q){return"TRUNCATE ".table($Q);}function
+use_sql($rc,$Dl=""){$A=idf_escape($rc);$H="";if(preg_match('~CREATE~',$Dl)&&($ec=get_val("SHOW CREATE DATABASE $A",1))){set_utf8mb4($ec);if($Dl=="DROP+CREATE")$H="DROP DATABASE IF EXISTS $A;\n";$H
+.="$ec;\n";}return$H."USE $A";}function
+trigger_sql($Q){$H="";foreach(get_rows("SHOW TRIGGERS LIKE ".q(addcslashes($Q,"%_\\")),null,"-- ")as$I){list($I["Event"],$I["Of"])=trigger_event($I);$H
+.="\n".create_trigger(" ON ".table($I["Table"]),$I+array("Type"=>"FOR EACH ROW")).";\n";}return$H;}function
 show_variables(){return
 get_rows("SHOW VARIABLES");}function
 show_status(){return
 get_rows("SHOW STATUS");}function
 process_list(){return
 get_rows("SHOW FULL PROCESSLIST");}function
-convert_field(array$m){if(preg_match("~binary~",$m["type"]))return"HEX(".idf_escape($m["field"]).")";if($m["type"]=="bit")return"BIN(".idf_escape($m["field"])." + 0)";if($m["type"]=="vector")return(connection()->flavor=='maria'?"VEC_ToText":"VECTOR_TO_STRING")."(".idf_escape($m["field"]).")";if(preg_match("~geometry|point|linestring|polygon~",$m["type"]))return(min_version(8)?"ST_":"")."AsWKT(".idf_escape($m["field"]).")";}function
-unconvert_field(array$m,$I){if(preg_match("~binary~",$m["type"]))$I="UNHEX($I)";if($m["type"]=="bit")$I="CONVERT(b$I, UNSIGNED)";if($m["type"]=="vector")$I=(connection()->flavor=='maria'?"VEC_FromText":"STRING_TO_VECTOR")."($I)";if(preg_match("~geometry|point|linestring|polygon~",$m["type"])){$fi=(min_version(8)?"ST_":"");$I=$fi."GeomFromText($I, $fi"."SRID($m[field]))";}return$I;}function
-support($od){return
-preg_match('~^(comment|columns|copy|database|drop_col|dump|event|indexes|kill|privileges|move_col|procedure|processlist|routine|sql|status|table|trigger|variables|view'.(min_version(8)?'|descidx':'').(min_version('8.0.16','10.2.1')?'|check':'').(min_version(8,99)?'|fast_status':'').')$~',$od);}function
-kill_process($t){return
-queries("KILL ".number($t));}function
+convert_field(array$l){return
+driver()->convertColumn(idf_escape($l["field"]),$l);}function
+unconvert_field(array$l,$H){if(preg_match("~binary~",$l["type"]))$H="UNHEX($H)";if($l["type"]=="bit")$H="CONVERT(b$H, UNSIGNED)";if($l["type"]=="vector")$H=(connection()->flavor=='maria'?"VEC_FromText":"STRING_TO_VECTOR")."($H)";if(preg_match("~geom|point|linestring|polygon~",$l["type"])){$vj=(min_version(8)?"ST_":"");$H=$vj."GeomFromText($H, $vj"."SRID($l[field]))";}return$H;}function
+support($Nd){return
+preg_match('~^(comment|columns|copy|database|drop_col|dump|event|indexes|kill|privileges|move_col|procedure|processlist|routine|sql|status|table|trigger|variables|view'.(min_version(8)?'|descidx':'').(min_version('8.0.16','10.2.1')?'|check':'').(min_version(8,99)?'|fast_status':'').')$~',$Nd);}function
+kill_process($s){return
+queries("KILL ".number($s));}function
 connection_id(){return"SELECT CONNECTION_ID()";}function
 max_connections(){return
 get_val("SELECT @@max_connections");}function
-types($jd=false){return
+types($Id=false){return
 array();}function
-type_values($t){return"";}function
-type_definition($t){return
+type_values($s){return"";}function
+type_definition($s){return
 array("kind"=>"","definition"=>"");}function
 schemas(){return
 array();}function
 get_schema(){return"";}function
-set_schema($L,$g=null){return
-true;}}define('Adminer\JUSH',Driver::$jush);define('Adminer\SERVER',"".$_GET[DRIVER]);define('Adminer\DB',"$_GET[db]");define('Adminer\ME',preg_replace('~\?.*~','',relative_uri()).'?'.(sid()?SID.'&':'').($_GET["ext"]?"ext=".url_escape($_GET["ext"]).'&':'').(isset($_GET[DRIVER])?DRIVER."=".url_escape(SERVER).'&':'').(isset($_GET["username"])?"username=".url_escape($_GET["username"]).'&':'').(DB!=""?'db='.url_escape(DB).'&'.(isset($_GET["ns"])?"ns=".url_escape($_GET["ns"])."&":""):''));function
-page_header($rk,$l="",$Sa=array(),$sk=""){page_headers();if(is_ajax()&&$l){page_messages($l);exit;}if(!ob_get_level())ob_start('ob_gzhandler',4096);$tk=$rk.($sk!=""?": $sk":"");$uk=strip_tags($tk.(SERVER!=""&&SERVER!="localhost"?h(" - ".SERVER):"")." - ".adminer()->name());echo'<!DOCTYPE html>
+set_schema($K,$g=null){return
+true;}}define('Adminer\JUSH',Driver::$jush);define('Adminer\SERVER',"".$_GET[DRIVER]);define('Adminer\DB',"$_GET[db]");define('Adminer\ME',preg_replace('~\?.*~','',relative_uri()).'?'.(sid()?SID.'&':'').($_GET["ext"]?"ext=".url_escape($_GET["ext"]).'&':'').(isset($_GET[DRIVER])?DRIVER."=".url_escape(SERVER).'&':'').(isset($_GET["username"])?"username=".url_escape($_GET["username"]).'&':'').(isset($_GET["db"])?'db='.url_escape(DB).'&'.(isset($_GET["ns"])?"ns=".url_escape($_GET["ns"])."&":""):''));if(isset($_GET["manifest"])){header("Content-Type: application/manifest+json; charset=utf-8");header("Cache-Control: no-cache");echo
+json_encode(adminer()->manifest(),64|256);exit;}function
+page_header($qm,$k="",$bb=array(),$rm="",$Mh=false,$Sc=""){if($Mh){header("HTTP/1.1 404 Not Found");$k=($k?:'Not found.');}page_headers();if(is_ajax()&&$k){page_messages($k);exit;}if(!ob_get_level())ob_start('ob_gzhandler',4096);$sm=$qm.($rm!=""?": $rm":"");$tm=strip_tags($sm.(SERVER!=""&&SERVER!="localhost"?h(" - ".SERVER):"")." - ".adminer()->name());echo'<!DOCTYPE html>
 <html lang=\'en\' dir=\'ltr\' class=\'ltr nojs\'>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>',$uk,'</title>
-<link rel="stylesheet" href="',h(preg_replace("~\\?.*~","",ME)."?file=default.css&version=6.0.0"),'">
-';$Rb=adminer()->css();if(is_int(key($Rb)))$Rb=array_fill_keys($Rb,'light');$ge=in_array('light',$Rb)||in_array('',$Rb);$ee=in_array('dark',$Rb)||in_array('',$Rb);$Vb=($ge?($ee?null:false):($ee?:null));$cg=" media='(prefers-color-scheme: dark)'";if($Vb!==false)echo"<link rel='stylesheet'".($Vb?"":$cg)." href='".h(preg_replace("~\\?.*~","",ME)."?file=dark.css&version=6.0.0")."'>\n";echo"<meta name='color-scheme' content='".($Vb===null?"light dark":($Vb?"dark":"light"))."'>\n",script_src(preg_replace("~\\?.*~","",ME)."?file=functions.js&version=6.0.0");if(adminer()->head($Vb))echo"<link rel='icon' href='data:image/gif;base64,"."R0lGODlhEAAQAJEAAAQCBPz+/PwCBAROZCH5BAEAAAAALAAAAAAQABAAAAI2hI+pGO1rmghihiUdvUBnZ3XBQA7f05mOak1RWXrNq5nQWHMKvuoJ37BhVEEfYxQzHjWQ5qIAADs='>\n","<link rel='apple-touch-icon' href='".h(preg_replace("~\\?.*~","",ME)."?file=logo.png&version=6.0.0")."'>\n";foreach($Rb
-as$bl=>$qg){$c=($qg=='dark'&&!$Vb?$cg:($qg=='light'&&$ee?" media='(prefers-color-scheme: light)'":""));echo"<link rel='stylesheet'$c href='".h($bl)."'>\n";}echo"\n<body class='";adminer()->bodyClass();echo"'>\n",script((isset($_COOKIE["adminer_version"])||!adminer()->verifyVersion()?"":"onload = partial(verifyVersion, '".VERSION."');\n")."
+<title>',$tm,'</title>
+<link rel="stylesheet" href="',h(preg_replace("~\\?.*~","",ME)."?file=default.css&version=6.1.1+43f4678f"),'">
+';$jc=adminer()->css();if(is_int(key($jc)))$jc=array_fill_keys($jc,'light');$Me=in_array('light',$jc)||in_array('',$jc);$Ke=in_array('dark',$jc)||in_array('',$jc);$nc=($Me?($Ke?null:false):($Ke?:null));$Wg=" media='(prefers-color-scheme: dark)'";if($nc!==false)echo"<link rel='stylesheet'".($nc?"":$Wg)." href='".h(preg_replace("~\\?.*~","",ME)."?file=dark.css&version=6.1.1+43f4678f")."'>\n";echo"<meta name='color-scheme' content='".($nc===null?"light dark":($nc?"dark":"light"))."'>\n",script_src(preg_replace("~\\?.*~","",ME)."?file=functions.js&version=6.1.1+43f4678f");if(adminer()->head($nc))echo"<link rel='icon' href='data:image/gif;base64,"."R0lGODlhEAAQAJEAAAQCBPz+/PwCBAROZCH5BAEAAAAALAAAAAAQABAAAAI2hI+pGO1rmghihiUdvUBnZ3XBQA7f05mOak1RWXrNq5nQWHMKvuoJ37BhVEEfYxQzHjWQ5qIAADs='>\n","<link rel='apple-touch-icon' href='".h(preg_replace("~\\?.*~","",ME)."?file=logo.svg&version=6.1.1+43f4678f")."'>\n";if(adminer()->manifest())echo"<link rel='manifest' href='".h(preg_replace('~\?.*~','',ME)."?manifest=")."' crossorigin='use-credentials'>\n";foreach($jc
+as$hn=>$lh){$c=($lh=='dark'&&!$nc?$Wg:($lh=='light'&&$Ke?" media='(prefers-color-scheme: light)'":""));echo"<link rel='stylesheet'$c href='".h($hn)."'>\n";}echo"\n<body class='";adminer()->bodyClass();echo"'>\n",script((isset($_COOKIE["adminer_version"])||!adminer()->verifyVersion()?"":"onload = partial(verifyVersion, '".VERSION."');\n")."
 const offlineMessage = '".js_escape('You are offline.')."';
-const thousandsSeparator = '".js_escape(',')."';
-const urlSeparators = '".js_escape(ini_get("arg_separator.input"))."';"),"<div id='help' class='jush-".JUSH." jsonly hidden'".on('mouseover','helpKeep').on('mouseout','helpMouseout')."></div>\n","<div id='content'>\n","<span id='menuopen' class='jsonly'".on('click','menuToggle')."><button title='".'Menu'."' class='icon icon-move' aria-expanded='false'></button></span>\n";if($Sa!==null){$_=substr(preg_replace('~\b(username|db|ns)=[^&]*&~','',ME),0,-1);echo'<p id="breadcrumb"><a href="'.h($_?:".").'">'.get_driver(DRIVER).'</a> » ';$_=substr(preg_replace('~\b(db|ns)=[^&]*&~','',ME),0,-1);$N=adminer()->serverName(SERVER);$N=($N!=""?$N:'Server');if($Sa===false)echo"$N\n";else{echo"<a href='".h($_)."' accesskey='1' title='Alt+Shift+1'>$N</a> » ";if($_GET["ns"]!=""||(DB!=""&&is_array($Sa)))echo'<a href="'.h($_."&db=".url_escape(DB).(support("scheme")?"&ns=":"")).'">'.h(DB).'</a> » ';if(is_array($Sa)){if($_GET["ns"]!="")echo'<a href="'.h(substr(ME,0,-1)).'">'.h($_GET["ns"]).'</a> » ';foreach($Sa
-as$x=>$X){$kc=(is_array($X)?$X[1]:h($X));if($kc!="")echo"<a href='".h(ME."$x=").url_escape(is_array($X)?$X[0]:$X)."'>$kc</a> » ";}}echo"$rk\n";}}echo"<h2>$tk</h2>\n","<div id='ajaxstatus' role='status' class='jsonly'></div>\n";restart_session();page_messages($l);$i=&get_session("dbs");if(DB!=""&&$i&&!in_array(DB,$i,true))$i=null;stop_session();define('Adminer\PAGE_HEADER',1);ob_flush();flush();}function
-page_headers(){header("Content-Type: text/html; charset=utf-8");header("Cache-Control: no-cache");header("X-Frame-Options: deny");header("X-XSS-Protection: 0");header("X-Content-Type-Options: nosniff");header("Referrer-Policy: origin-when-cross-origin");foreach(adminer()->csp(csp())as$Qb){$ke=array();foreach($Qb
-as$x=>$X)$ke[]="$x $X";header("Content-Security-Policy: ".implode("; ",$ke));}adminer()->headers();}function
+const numberFormat = '".js_escape('#,##0')."';
+const numberDigits = '".js_escape('0123456789')."';
+const urlSeparators = '".js_escape(ini_get("arg_separator.input"))."';"),"<div id='help' class='jush-".JUSH." jsonly hidden'".on('mouseover','helpKeep').on('mouseout','helpMouseout')."></div>\n","<div id='content'>\n","<span id='menuopen' class='jsonly'".on('click','menuToggle')."><button title='".'Menu'."' class='icon icon-move' aria-expanded='false'></button></span>\n";if($bb!==null){$z=substr(preg_replace('~\b(username|db|ns)=[^&]*&~','',ME),0,-1);echo'<p id="breadcrumb"><a href="'.h($z?:".").'">'.get_driver(DRIVER).'</a> » ';$z=substr(preg_replace('~\b(db|ns)=[^&]*&~','',ME),0,-1);$M=adminer()->serverName(SERVER);$M=($M!=""?$M:'Server');if($bb===false)echo"$M\n";else{echo"<a href='".h($z.(DB!=""&&support("single_db")?"&db=":""))."' accesskey='1' title='Alt+Shift+1'>$M</a> » ";$Ck="";if(is_string($bb)){$Ck=$bb;$bb=array();}if($_GET["ns"]!=""||(DB!=""&&is_array($bb))){$tc="$z&db=".url_escape(DB).(support("scheme")?"&ns=":"").(support("single_table")?"&select=":"");echo'<a href="'.h($tc.($_GET["ns"]==""?$Ck:"")).'">'.h(DB).'</a> » ';}if(is_array($bb)){if($_GET["ns"]!="")echo'<a href="'.h(substr(ME,0,-1).$Ck).'">'.h($_GET["ns"]).'</a> » ';foreach($bb
+as$w=>$W){$Dc=(is_array($W)?$W[1]:h($W));if($Dc!="")echo"<a href='".h(ME."$w=").url_escape(is_array($W)?$W[0]:$W)."'>$Dc</a> » ";}}echo"$qm\n";}}echo"<h2>$sm$Sc</h2>\n","<div id='ajaxstatus' role='status' class='jsonly'></div>\n";restart_session();page_messages($k);adminer()->serviceWorker();$h=&get_session("dbs");if(DB!=""&&$h&&!in_array(DB,$h,true))$h=null;stop_session();define('Adminer\PAGE_HEADER',1);ob_flush();flush();if($Mh){page_footer($Mh===true?"":$Mh);exit;}}function
+service_worker(){$Xj=has_passwords();$zb=($Xj?"navigator.serviceWorker.register('".js_escape(preg_replace('~\?.*~','',ME)."?file=worker.js&version=6.1.1+43f4678f")."', {scope: location.pathname}).catch(() => {});":"navigator.serviceWorker.getRegistration().then(registration => registration && registration.unregister());
+	caches.keys().then(keys => keys.forEach(key => key.startsWith('adminer-') && caches.delete(key)));");echo
+script("if (navigator.serviceWorker) {\n\t$zb\n}");}function
+has_passwords(){foreach((array)$_SESSION["pwds"]as$Yk){foreach($Yk
+as$qn){foreach($qn
+as$D){if($D!==null)return
+true;}}}return
+false;}function
+page_headers(){header("Content-Type: text/html; charset=utf-8");header("Cache-Control: no-cache");header("X-Frame-Options: deny");header("X-XSS-Protection: 0");header("X-Content-Type-Options: nosniff");header("Referrer-Policy: origin-when-cross-origin");foreach(adminer()->csp(csp())as$ic){$Re=array();foreach($ic
+as$w=>$W)$Re[]="$w $W";header("Content-Security-Policy: ".implode("; ",$Re));}adminer()->headers();}function
 csp(){return
 array(array("script-src"=>"'self' 'unsafe-inline' 'nonce-".get_nonce()."' 'strict-dynamic'","connect-src"=>"'self' https://www.adminer.org","frame-src"=>"https://www.adminer.org","object-src"=>"'none'","base-uri"=>"'none'","form-action"=>"'self'",),);}function
-design_checksums(){$hl=array();foreach(array_keys(adminer()->css())as$bl)$hl[preg_replace('~\?.*~','',$bl)]=true;$I=array();foreach(array("adminer.css","adminer-dark.css")as$o){if($hl[$o]&&file_exists($o)){preg_match('~^/\* Adminer design ([-\w]+) \*/~',file_get_contents($o),$B);$I[$o]=array((string)$B[1],Plugins::checksum($o));}}return$I;}function
+design_checksums(){$nn=array();foreach(array_keys(adminer()->css())as$hn)$nn[preg_replace('~\?.*~','',$hn)]=true;$H=array();foreach(array("adminer.css","adminer-dark.css")as$n){if($nn[$n]&&file_exists($n)){preg_match('~^/\* Adminer design ([-\w]+) \*/~',file_get_contents($n),$_);$H[$n]=array((string)$_[1],Plugins::checksum($n));}}return$H;}function
 official_design_checksums(){return
-array('adminer-border/adminer-dark.css'=>'b2527e3','adminer-border/adminer.css'=>'430977ad','adminer-dark/adminer-dark.css'=>'a26bcd7b','brade/adminer.css'=>'be4161f0','bueltge/adminer.css'=>'1a8f00b4','dracula/adminer-dark.css'=>'cfaf61dd','esterka/adminer.css'=>'1f805f36','flat/adminer.css'=>'49a61af9','galkaev/adminer-dark.css'=>'16c46f94','haeckel/adminer.css'=>'147a3565','hever/adminer.css'=>'78b8cd43','konya/adminer.css'=>'3cc606c5','lavender-light/adminer.css'=>'bf03f5d7','lucas-sandery/adminer.css'=>'6596353','mancave/adminer-dark.css'=>'e1ac813d','mvt/adminer.css'=>'ebd3afdc','nette/adminer.css'=>'5ab360e7','ng9/adminer.css'=>'488583cf','nicu/adminer.css'=>'ecb9bd1e','pappu687/adminer.css'=>'b58d128c','paranoiq/adminer.css'=>'64d27e5','pepa-linha/adminer.css'=>'baf25f0','pokorny/adminer.css'=>'ee9eea6d','price/adminer.css'=>'b3c939b2','rmsoft/adminer.css'=>'391d54ad','rmsoft_blue-dark/adminer.css'=>'17714d77','rmsoft_blue/adminer.css'=>'c0f192ea','win98/adminer.css'=>'e82d63c3',);}function
+array('adminer-border/adminer.css'=>'ec757f3e','adminer-dark/adminer-dark.css'=>'a26bcd7b','brade/adminer.css'=>'be4161f0','bueltge/adminer.css'=>'1a8f00b4','cpanel/adminer.css'=>'59ce604e','dracula/adminer-dark.css'=>'cfaf61dd','esterka/adminer.css'=>'1f805f36','flat/adminer.css'=>'49a61af9','galkaev/adminer-dark.css'=>'16c46f94','haeckel/adminer.css'=>'147a3565','hever/adminer.css'=>'ef0e1948','konya/adminer.css'=>'2b409696','lavender-light/adminer.css'=>'bf03f5d7','lucas-sandery/adminer.css'=>'6596353','mancave/adminer-dark.css'=>'e1ac813d','mvt/adminer.css'=>'ebd3afdc','nette/adminer.css'=>'5ab360e7','ng9/adminer.css'=>'488583cf','nicu/adminer.css'=>'216f097b','pappu687/adminer.css'=>'b58d128c','paranoiq/adminer.css'=>'64d27e5','pepa-linha/adminer.css'=>'baf25f0','pokorny/adminer.css'=>'ee9eea6d','price/adminer.css'=>'81be9a85','rmsoft/adminer.css'=>'6cd4a237','rmsoft_blue-dark/adminer.css'=>'32102a8','rmsoft_blue/adminer.css'=>'7d8d5b18','win98/adminer.css'=>'e82d63c3',);}function
 version_iframe(){return(isset($_COOKIE["adminer_version"])||!adminer()->verifyVersion()?"":"<noscript><iframe sandbox src='https://www.adminer.org/version/?current=".VERSION."&amp;noscript=1'></iframe></noscript>");}function
-get_nonce(){static$Gg;if(!$Gg)$Gg=base64_encode(rand_string());return$Gg;}function
-page_messages($l){$al=preg_replace('~^[^?]*~','',$_SERVER["REQUEST_URI"]);$jg=idx($_SESSION["messages"],$al);if($jg){echo"<div class='message'>".implode("</div>\n<div class='message'>",$jg)."</div>".script("messagesPrint();");unset($_SESSION["messages"][$al]);}if($l)echo"<div class='error'>$l</div>\n";if(adminer()->error)echo"<div class='error'>".adminer()->error."</div>\n";}function
-page_footer($pg=""){echo"</div>\n\n<div id='foot' class='foot'>\n<div id='menu'>\n";adminer()->navigation($pg);echo"</div>\n";if($pg!="auth")echo'<form action="" method="post">
+get_nonce(){static$Lh;if(!$Lh)$Lh=base64_encode(rand_string());return$Lh;}function
+page_messages($k){$gn=preg_replace('~^[^?]*~','',$_SERVER["REQUEST_URI"]);$dh=idx($_SESSION["messages"],$gn);if($dh){echo"<div class='message'>".implode("</div>\n<div class='message'>",$dh)."</div>".script("messagesPrint();");unset($_SESSION["messages"][$gn]);}if($k)echo"<div class='error'>$k</div>\n";if(adminer()->error)echo"<div class='error'>".adminer()->error."</div>\n";}function
+page_footer($kh=""){echo"</div>\n\n<div id='foot' class='foot'>\n<div id='menu'>\n";adminer()->navigation($kh);echo"</div>\n";if($kh!="auth")echo'<form action="" method="post">
 <p class="logout">
 <span title="Username">',h($_GET["username"])."\n",'</span>
 <input type=\'submit\' name=\'logout\' value=\'Logout\' id=\'logout\'>
 ',input_token(),'</form>
 ';echo"</div>\n\n",script("setupSubmitHighlight(document);");}function
-int32($vg){while($vg>=2147483648)$vg-=4294967296;while($vg<=-2147483649)$vg+=4294967296;return(int)$vg;}function
-long2str(array$W,$wl){$Ui='';foreach($W
-as$X)$Ui
-.=pack('V',$X);if($wl)return
-substr($Ui,0,end($W));return$Ui;}function
-str2long($Ui,$wl){$W=array_values(unpack('V*',str_pad($Ui,4*ceil(strlen($Ui)/4),"\0")));if($wl)$W[]=strlen($Ui);return$W;}function
-xxtea_mx($Dl,$Cl,$Qj,$kf){return
-int32((($Dl>>5&0x7FFFFFF)^$Cl<<2)+(($Cl>>3&0x1FFFFFFF)^$Dl<<4))^int32(($Qj^$Cl)+($kf^$Dl));}function
-encrypt_string($Lj,$x){if($Lj=="")return"";$x=array_values(unpack("V*",pack("H*",md5($x))));$W=str2long($Lj,true);$vg=count($W)-1;$Dl=$W[$vg];$Cl=$W[0];$qi=floor(6+52/($vg+1));$Qj=0;while($qi-->0){$Qj=int32($Qj+0x9E3779B9);$Hc=$Qj>>2&3;for($Ah=0;$Ah<$vg;$Ah++){$Cl=$W[$Ah+1];$ug=xxtea_mx($Dl,$Cl,$Qj,$x[$Ah&3^$Hc]);$Dl=int32($W[$Ah]+$ug);$W[$Ah]=$Dl;}$Cl=$W[0];$ug=xxtea_mx($Dl,$Cl,$Qj,$x[$Ah&3^$Hc]);$Dl=int32($W[$vg]+$ug);$W[$vg]=$Dl;}return
-long2str($W,false);}function
-decrypt_string($Lj,$x){if($Lj=="")return"";if(!$x)return
-false;$x=array_values(unpack("V*",pack("H*",md5($x))));$W=str2long($Lj,false);$vg=count($W)-1;$Dl=$W[$vg];$Cl=$W[0];$qi=floor(6+52/($vg+1));$Qj=int32($qi*0x9E3779B9);while($Qj){$Hc=$Qj>>2&3;for($Ah=$vg;$Ah>0;$Ah--){$Dl=$W[$Ah-1];$ug=xxtea_mx($Dl,$Cl,$Qj,$x[$Ah&3^$Hc]);$Cl=int32($W[$Ah]-$ug);$W[$Ah]=$Cl;}$Dl=$W[$vg];$ug=xxtea_mx($Dl,$Cl,$Qj,$x[$Ah&3^$Hc]);$Cl=int32($W[0]-$ug);$W[0]=$Cl;$Qj=int32($Qj-0x9E3779B9);}return
-long2str($W,true);}$Th=array();if($_COOKIE["adminer_permanent"]){foreach(explode(" ",$_COOKIE["adminer_permanent"])as$X){list($x)=explode(":",$X);$Th[$x]=$X;}}function
-add_invalid_login(){$La=get_temp_dir()."/adminer-invalid";foreach(glob("$La*")?:array($La)as$o){$q=file_open_lock($o);if($q)break;}if(!$q)$q=file_open_lock("$La-".rand_string());if(!$q)return;$Ye=json_decode(stream_get_contents($q),true);$ok=time();if($Ye){foreach($Ye
-as$Ze=>$X){if($X[0]<$ok)unset($Ye[$Ze]);}}$Xe=&$Ye[adminer()->bruteForceKey()];if(!$Xe)$Xe=array($ok+30*60,0);$Xe[1]++;file_write_unlock($q,json_encode($Ye));}function
-check_invalid_login(array&$Th){$Ye=array();foreach(glob(get_temp_dir()."/adminer-invalid*")as$o){$q=file_open_lock($o);if($q){$Ye=json_decode(stream_get_contents($q),true);file_unlock($q);break;}}$x=adminer()->bruteForceKey();$Xe=idx($Ye,$x,array());$Fg=($Xe[1]>29?$Xe[0]-time():0);if($Fg>0){$l=lang_format(array('Too many unsuccessful logins, try again in %d minute.','Too many unsuccessful logins, try again in %d minutes.'),ceil($Fg/60));if($_SERVER["HTTP_X_FORWARDED_FOR"]!=""&&$x==$_SERVER["REMOTE_ADDR"])$l
-.='<br>'.sprintf('Use the %s <a%s>plugin</a> if Adminer runs behind a reverse proxy.','<b>login-reverse-proxy</b>'," href='https://www.adminer.org/plugins/?version=".VERSION."'".target_blank());auth_error($l,$Th);}}function
-password_required(){static$I;if($I===null){$I=(bool)get_session("password_required");if(!$I){$Pb=adminer()->credentials();$I=!is_object(Driver::connect($Pb[0],$Pb[1],""));if($I)set_session("password_required",true);}}return$I;}$Da=$_POST["auth"];if($Da){session_regenerate_id();$rl=$Da["driver"];$N=$Da["server"];$V=$Da["username"];$E=(string)$Da["password"];$j=$Da["db"];set_password($rl,$N,$V,$E);$_SESSION["db"][$rl][$N][$V][$j]=true;if($Da["permanent"]){$x=implode("-",array_map('base64_encode',array($rl,$N,$V,$j)));$li=adminer()->permanentLogin(true);$Th[$x]="$x:".base64_encode($li?encrypt_string($E,$li):"");cookie("adminer_permanent",implode(" ",$Th));}if(count($_POST)==1||DRIVER!=$rl||SERVER!=$N||$_GET["username"]!==$V||DB!=$j)redirect(auth_url($rl,$N,$V,$j));}elseif($_POST["logout"]&&(!$_SESSION["token"]||verify_token())){foreach(array("pwds","db","dbs","queries")as$x)set_session($x,null);unset_permanent($Th);redirect(substr(preg_replace('~\b(username|db|ns)=[^&]*&~','',ME),0,-1),'Logout successful.'.' '.'Thanks for using Adminer, consider <a href="https://www.adminer.org/en/donation/">donating</a>.');}elseif($Th&&!$_SESSION["pwds"]){session_regenerate_id();$li=adminer()->permanentLogin();foreach($Th
-as$x=>$X){list(,$jb)=explode(":",$X);list($rl,$N,$V,$j)=array_map('base64_decode',explode("-",$x));set_password($rl,$N,$V,decrypt_string(base64_decode($jb),$li));$_SESSION["db"][$rl][$N][$V][$j]=true;}}function
-unset_permanent(array&$Th){foreach($Th
-as$x=>$X){list($rl,$N,$V,$j)=array_map('base64_decode',explode("-",$x));if($rl==DRIVER&&$N==SERVER&&$V==$_GET["username"]&&$j==DB)unset($Th[$x]);}cookie("adminer_permanent",implode(" ",$Th));}function
-auth_error($l,array&$Th){$pj=session_name();if(isset($_GET["username"])){header("HTTP/1.1 403 Forbidden");if(($_COOKIE[$pj]||$_GET[$pj])&&!$_SESSION["token"])$l='Session expired, please login again.';else{restart_session();add_invalid_login();$E=get_password();if($E!==null){if($E===false)$l
-.=($l?'<br>':'').sprintf('Master password expired. <a href="https://www.adminer.org/en/extension/"%s>Implement</a> %s method to make it permanent.',target_blank(),'<code>permanentLogin()</code>');set_password(DRIVER,SERVER,$_GET["username"],null);}unset_permanent($Th);}}if(!$_COOKIE[$pj]&&$_GET[$pj]&&ini_bool("session.use_only_cookies"))$l='Session support must be enabled.';$Eh=session_get_cookie_params();cookie("adminer_key",($_COOKIE["adminer_key"]?:rand_string()),$Eh["lifetime"]);if(!$_SESSION["token"])$_SESSION["token"]=rand(1,1e6);page_header('Login',$l,null);echo"<form action='' method='post'>\n","<div>";if(hidden_fields($_POST,array("auth")))echo"<p class='message'>".'The action will be performed after successful login with the same credentials.'."\n";echo"</div>\n";adminer()->loginForm();echo"</form>\n";page_footer("auth");exit;}if(isset($_GET["username"])&&!class_exists('Adminer\Db')){unset($_SESSION["pwds"][DRIVER]);unset_permanent($Th);page_header('No extension',sprintf('None of the supported PHP extensions (%s) are available.',implode(", ",Driver::$extensions)),false);page_footer("auth");exit;}$f='';if(isset($_GET["username"])&&is_string(get_password())){list($se,$Yh)=host_port(SERVER);if(preg_match('~[^-\w.:/]~',$se.$Yh))auth_error('Invalid server.',$Th);if(preg_match('~^-?\d+~',$Yh,$B)&&($B[0]<1024||$B[0]>65535))auth_error('Connecting to privileged ports is not allowed.',$Th);check_invalid_login($Th);$Pb=adminer()->credentials();$f=Driver::connect($Pb[0],$Pb[1],$Pb[2]);if(is_object($f)){Db::$instance=$f;Driver::$instance=new
-Driver($f);if($f->flavor)save_settings(array("vendor-".DRIVER."-".SERVER=>get_driver(DRIVER)));}}$Jf=null;if(!is_object($f)||($Jf=adminer()->login($_GET["username"],get_password()))!==true){$l=(is_string($f)?nl_br(h($f)):(is_string($Jf)?$Jf:'Invalid credentials.')).(preg_match('~^ | $~',get_password())?'<br>'.'There is a space in the input password which might be the cause.':'');auth_error($l,$Th);}if($_POST["logout"]&&$_SESSION["token"]&&!verify_token()){page_header('Logout','Invalid CSRF token. Send the form again.');page_footer("db");exit;}if(!$_SESSION["token"])$_SESSION["token"]=rand(1,1e6);stop_session(true);if($Da&&$_POST["token"])$_POST["token"]=get_token();$l='';if($_POST){if(!verify_token())$l='Invalid CSRF token. Send the form again.'.' '.'If you did not send this request from Adminer then close this page.';}elseif($_SERVER["REQUEST_METHOD"]=="POST"){$l=sprintf('Too big POST data. Reduce the data or increase the %s configuration directive.',"<b>post_max_size</b>'");if(isset($_GET["sql"]))$l
-.=' '.'You can upload a big SQL file via FTP and import it from server.';}function
-print_select_result($H,$g=null,array$ph=array(),&$z=0){$Ff=array();$w=array();$e=array();$Qa=array();$Ok=array();$I=array();for($s=0;(!$z||$s<$z)&&($J=$H->fetch_row());$s++){if(!$s){echo"<div class='scrollable'>\n","<table class='nowrap odds'>\n","<thead><tr>";for($gf=0;$gf<count($J);$gf++){$m=$H->fetch_field();$C=$m->name;$oh=(isset($m->orgtable)?$m->orgtable:"");$nh=(isset($m->orgname)?$m->orgname:$C);if($ph&&JUSH=="sql")$Ff[$gf]=($C=="table"?"table=":($C=="possible_keys"?"indexes=":null));elseif($oh!=""){if(isset($m->table))$I[$m->table]=$oh;if(!isset($w[$oh])){$w[$oh]=array();foreach(indexes($oh,$g)as$v){if($v["type"]=="PRIMARY"){$w[$oh]=array_flip($v["columns"]);break;}}$e[$oh]=$w[$oh];}if(isset($e[$oh][$nh])){unset($e[$oh][$nh]);$w[$oh][$nh]=$gf;$Ff[$gf]=$oh;}}if($m->charsetnr==63)$Qa[$gf]=true;$Ok[$gf]=$m->type;echo"<th title='".h(trim(($oh!=""?"$oh.$nh":($m->name!=$nh?$nh:""))." ".driver()->typeName($m)))."'>".h($C).($ph?doc_link(array('sql'=>"explain-output.html#explain_".strtolower($C),'mariadb'=>"explain/#the-columns-in-explain-select",)):"");}echo"<tbody>\n";}echo"<tr>";foreach($J
-as$x=>$X){$_="";if(isset($Ff[$x])&&!$e[$Ff[$x]]){if($ph&&JUSH=="sql"){$R=$J[array_search("table=",$Ff)];$_=ME.$Ff[$x].url_escape($ph[$R]!=""?$ph[$R]:$R);}else{$_=ME."edit=".url_escape($Ff[$x]);foreach($w[$Ff[$x]]as$nb=>$gf){if($J[$gf]===null){$_="";break;}$_
-.="&where[".url_escape(bracket_escape($nb))."]=".url_escape($J[$gf]);}}}$m=array('type'=>($Qa[$x]?'blob':($Ok[$x]==254?'char':'')),);$X=select_value($X,$_,$m,null);echo"<td".($Ok[$x]<=9||$Ok[$x]==246?" class='number'":"").">$X";}}$z=$s;echo($s?"</table>\n</div>":"<p class='message'>".'No rows.')."\n";return$I;}function
-referencable_primary($ej){$I=array();foreach(table_status('',true)as$Yj=>$R){if($Yj!=$ej&&fk_support($R)){foreach(fields($Yj)as$m){if($m["primary"]){if($I[$Yj]){unset($I[$Yj]);break;}$I[$Yj]=$m;}}}}return$I;}function
-textarea($C,$Y,$K=10,$rb=80){echo"<textarea name='".h($C)."' rows='$K' cols='$rb' class='sqlarea jush-".JUSH."' spellcheck='false' wrap='off'>";if(is_array($Y)){foreach($Y
-as$X)echo
-h($X[0])."\n\n\n";}else
+int32($th){while($th>=2147483648)$th-=4294967296;while($th<=-2147483649)$th+=4294967296;return(int)$th;}function
+long2str(array$V,$Bn){$vk='';foreach($V
+as$W)$vk
+.=pack('V',$W);if($Bn)return
+substr($vk,0,end($V));return$vk;}function
+str2long($vk,$Bn){$V=array_values(unpack('V*',str_pad($vk,4*ceil(strlen($vk)/4),"\0")));if($Bn)$V[]=strlen($vk);return$V;}function
+xxtea_mx($Mn,$Ln,$Gl,$Yf){return
+int32((($Mn>>5&0x7FFFFFF)^$Ln<<2)+(($Ln>>3&0x1FFFFFFF)^$Mn<<4))^int32(($Gl^$Ln)+($Yf^$Mn));}function
+encrypt_string($Al,$w){if($Al=="")return"";$w=array_values(unpack("V*",pack("H*",md5($w))));$V=str2long($Al,true);$th=count($V)-1;$Mn=$V[$th];$Ln=$V[0];$Ij=floor(6+52/($th+1));$Gl=0;while($Ij-->0){$Gl=int32($Gl+0x9E3779B9);$dd=$Gl>>2&3;for($Ii=0;$Ii<$th;$Ii++){$Ln=$V[$Ii+1];$sh=xxtea_mx($Mn,$Ln,$Gl,$w[$Ii&3^$dd]);$Mn=int32($V[$Ii]+$sh);$V[$Ii]=$Mn;}$Ln=$V[0];$sh=xxtea_mx($Mn,$Ln,$Gl,$w[$Ii&3^$dd]);$Mn=int32($V[$th]+$sh);$V[$th]=$Mn;}return
+long2str($V,false);}function
+decrypt_string($Al,$w){if($Al=="")return"";if(!$w)return
+false;$w=array_values(unpack("V*",pack("H*",md5($w))));$V=str2long($Al,false);$th=count($V)-1;$Mn=$V[$th];$Ln=$V[0];$Ij=floor(6+52/($th+1));$Gl=int32($Ij*0x9E3779B9);while($Gl){$dd=$Gl>>2&3;for($Ii=$th;$Ii>0;$Ii--){$Mn=$V[$Ii-1];$sh=xxtea_mx($Mn,$Ln,$Gl,$w[$Ii&3^$dd]);$Ln=int32($V[$Ii]-$sh);$V[$Ii]=$Ln;}$Mn=$V[$th];$sh=xxtea_mx($Mn,$Ln,$Gl,$w[$Ii&3^$dd]);$Ln=int32($V[0]-$sh);$V[0]=$Ln;$Gl=int32($Gl-0x9E3779B9);}return
+long2str($V,true);}$hj=array();if($_COOKIE["adminer_permanent"]){foreach(explode(" ",$_COOKIE["adminer_permanent"])as$W){list($w)=explode(":",$W);$hj[$w]=$W;}}function
+add_invalid_login(){$Ta=get_temp_dir()."/adminer-invalid";foreach(glob("$Ta*")?:array($Ta)as$n){$ne=file_open_lock($n);if($ne)break;}if(!$ne)$ne=file_open_lock("$Ta-".rand_string());if(!$ne)return;$Lf=json_decode(stream_get_contents($ne),true);$nm=time();if($Lf){foreach($Lf
+as$Mf=>$W){if($W[0]<$nm)unset($Lf[$Mf]);}}$Jf=&$Lf[adminer()->bruteForceKey()];if(!$Jf)$Jf=array($nm+30*60,0);$Jf[1]++;file_write_unlock($ne,json_encode($Lf));}function
+check_invalid_login(array&$hj){$Lf=array();foreach(glob(get_temp_dir()."/adminer-invalid*")as$n){$ne=file_open_lock($n);if($ne){$Lf=json_decode(stream_get_contents($ne),true);file_unlock($ne);break;}}$w=adminer()->bruteForceKey();$Jf=idx($Lf,$w,array());$Kh=($Jf[1]>29?$Jf[0]-time():0);if($Kh>0){$k=lang_format(array('Too many unsuccessful logins, try again in %d minute.','Too many unsuccessful logins, try again in %d minutes.'),ceil($Kh/60));if($_SERVER["HTTP_X_FORWARDED_FOR"]!=""&&$w==$_SERVER["REMOTE_ADDR"])$k
+.='<br>'.sprintf('Use the %s <a%s>plugin</a> if Adminer runs behind a reverse proxy.','<b>login-reverse-proxy</b>'," href='https://www.adminer.org/plugins/?version=".VERSION."'".target_blank());auth_error($k,$hj,false);}}function
+password_required(){static$H;if($H===null){$H=(bool)get_session("password_required");if(!$H){$hc=adminer()->credentials();$H=!is_object(Driver::connect($hc[0],$hc[1],""));if($H)set_session("password_required",true);}}return$H;}function
+require_password_link($D){$oh="<a href='https://www.adminer.org/password/'".target_blank().">".'More options'."</a>";if(!function_exists('password_hash'))return" $oh";$kj=($D!==null?$D:base64_encode(substr(pack("H*",rand_string()),0,12)));$Qe=password_hash($kj,PASSWORD_DEFAULT);$n="adminer-plugins.php";$Cd=file_exists("adminer-plugins.php");if($Cd)$Hf=($D!==null?sprintf('Add this line to %s to require the entered password:',"<b>$n</b>"):sprintf('Add this line to %s to require the password %s:',"<b>$n</b>","<b>$kj</b>"));else{$n="<button name='password_less' value='".h($Qe)."' class='link'>$n</button>";$Hf=($D!==null?sprintf('Save %s next to Adminer to require the entered password:',$n):sprintf('Save %s next to Adminer to require the password %s:',$n,"<b>$kj</b>"));}$wg="\t<a>new</a> Adminer\\Password(<span class='jush-apo'>'".h($Qe)."'</span>),";$H="<p>$Hf
+<pre><code class='jush'>".($Cd?$wg:"&lt;?php\n<a>return</a> <a>array</a>(\n$wg\n);")."</code></pre>
+<p>$oh
+";return" <a href='#password-less' class='toggle'>".'Require a password.'."</a>
+<div id='password-less' class='hidden'>".($Cd?$H:"<form action='' method='post'>\n".$H.input_token()."</form>")."</div>";}if(preg_match('~^[-\w$./]+$~',$_POST["password_less"])&&verify_token()){header("Content-Type: application/octet-stream");header("Content-Disposition: attachment; filename=adminer-plugins.php");echo"<?php\nreturn array(\n\tnew Adminer\\Password('$_POST[password_less]'),\n);\n";exit;}$Ka=$_POST["auth"];if($Ka&&(!adminer()->verifyLoginToken()||verify_token())){session_regenerate_id();$xn=$Ka["driver"];$M=$Ka["server"];$U=$Ka["username"];$D=(string)$Ka["password"];$i=$Ka["db"];set_password($xn,$M,$U,$D);$_SESSION["db"][$xn][$M][$U][$i]=true;if($Ka["permanent"]){$w=implode("-",array_map('base64_encode',array($xn,$M,$U,$i)));$Cj=adminer()->permanentLogin(true);$hj[$w]="$w:".base64_encode($Cj?encrypt_string($D,$Cj):"");cookie("adminer_permanent",implode(" ",$hj));}if(!array_diff(array_keys($_POST),array("auth","token"))||$xn!=DRIVER||$M!=SERVER||$U!==$_GET["username"]||$i!=DB)redirect(auth_url($xn,$M,$U,$i));}elseif($_POST["logout"]&&(!$_SESSION["token"]||verify_token())){Driver::disconnect();foreach(array("pwds","db","dbs","queries")as$w)set_session($w,null);unset_permanent($hj);redirect(substr(preg_replace('~\b(username|db|ns)=[^&]*&~','',ME),0,-1),'Logout successful.'.' '.'Thanks for using Adminer. Consider <a href="https://www.adminer.org/en/donation/">donating</a>.');}elseif($hj&&!$_SESSION["pwds"]){session_regenerate_id();$Cj=adminer()->permanentLogin();foreach($hj
+as$w=>$W){list(,$wb)=explode(":",$W);list($xn,$M,$U,$i)=array_map('base64_decode',explode("-",$w));set_password($xn,$M,$U,decrypt_string(base64_decode($wb),$Cj));$_SESSION["db"][$xn][$M][$U][$i]=true;}}function
+unset_permanent(array&$hj){foreach($hj
+as$w=>$W){list($xn,$M,$U,$i)=array_map('base64_decode',explode("-",$w));if($xn==DRIVER&&$M==SERVER&&$U==$_GET["username"]&&$i==DB)unset($hj[$w]);}cookie("adminer_permanent",implode(" ",$hj));}function
+auth_error($k,array&$hj,$Kf=true){$Zk=session_name();if(isset($_GET["username"])){header("HTTP/1.1 403 Forbidden");if(($_COOKIE[$Zk]||$_GET[$Zk])&&!$_SESSION["token"])$k='Session expired. Please log in again.';elseif($Kf&&($D=get_password())!==null){restart_session();add_invalid_login();if($D===false)$k
+.=($k?'<br>':'').sprintf('Master password expired. <a href="https://www.adminer.org/en/extension/"%s>Implement</a> the %s method to make it permanent.',target_blank(),'<code>permanentLogin()</code>');set_password(DRIVER,SERVER,$_GET["username"],null);unset_permanent($hj);}}if(!$_COOKIE[$Zk]&&$_GET[$Zk]&&ini_bool("session.use_only_cookies"))$k='Session support must be enabled.';$Ni=session_get_cookie_params();cookie("adminer_key",($_COOKIE["adminer_key"]?:rand_string()),$Ni["lifetime"]);if(!$_SESSION["token"])$_SESSION["token"]=rand(1,1e6);page_header('Login',$k,null);echo"<form action='' method='post'>\n","<div>";if(hidden_fields($_POST,array("auth","token")))echo"<p class='message'>".'The action will be performed after successful login with the same credentials.'."\n";echo
+input_token(),"</div>\n";adminer()->loginForm();echo"</form>\n";page_footer("auth");exit;}if(isset($_GET["username"])&&!class_exists('Adminer\Db')){unset($_SESSION["pwds"][DRIVER]);unset_permanent($hj);page_header('No extension',sprintf('None of the supported PHP extensions (%s) are available.',implode(", ",Driver::$extensions)),false);page_footer("auth");exit;}$f='';if(isset($_GET["username"])&&is_string(get_password())){check_invalid_login($hj);$hc=adminer()->credentials();$f=Driver::connect($hc[0],$hc[1],$hc[2]);if(is_object($f)){Db::$instance=$f;Driver::$instance=new
+Driver($f);if($f->flavor)save_settings(array("vendor-".DRIVER."-".SERVER=>get_driver(DRIVER)));}}$Cg=null;if(!is_object($f)||($Cg=adminer()->login($_GET["username"],get_password()))!==true){$k=(is_string($f)?nl_br(h($f)):(is_string($Cg)?$Cg:'Invalid credentials.')).(preg_match('~^ | $~',get_password())?'<br>'.'There is a space in the entered password, which might be the cause.':'');auth_error($k,$hj);}if($_POST["logout"]&&$_SESSION["token"]&&!verify_token()){page_header('Logout','Invalid CSRF token. Submit the form again.');page_footer("db");exit;}if(!$_SESSION["token"])$_SESSION["token"]=rand(1,1e6);stop_session(true);if($Ka&&$_POST["token"])$_POST["token"]=get_token();$k='';if($_POST){if(!verify_token()){header("HTTP/1.1 403 Forbidden");$k='Invalid CSRF token. Submit the form again.'.' '.'If you did not send this request from Adminer, close this page.';}}elseif($_SERVER["REQUEST_METHOD"]=="POST"){header("HTTP/1.1 413 Content Too Large");$k=sprintf('The POST data is too large. Reduce the data or increase the %s configuration directive.',"<b>post_max_size</b>");if(isset($_GET["sql"]))$k
+.=' '.'You can upload a large SQL file via FTP and import it from the server.';}function
+print_select_result($G,$g=null,array$xi=array(),&$y=0,&$ed=false){$yg=array();$v=array();$e=array();$S=array();$_j=array();$gd=array();$Qm=array();$H=array();$mh=$ed;$ed=false;for($r=0;(!$y||$r<$y)&&($I=$G->fetch_row());$r++){if(!$r){echo"<div class='scrollable'>\n","<table class='nowrap odds'".($mh?on('click','tableClick').on('dblclick','tableClick').on('keydown','editingKeydown'):"").">\n","<thead><tr>";for($Vf=0;$Vf<count($I);$Vf++){$l=$G->fetch_field();$A=$l->name;$Q=(isset($l->table)?$l->table:"");$wi=(isset($l->orgtable)?$l->orgtable:"");$vi=(isset($l->orgname)?$l->orgname:$A);$Pm=driver()->typeName($l);if($xi&&JUSH=="sql")$yg[$Vf]=($A=="table"?"table=":($A=="possible_keys"?"indexes=":null));elseif($wi!=""){$ua=($Q!=""?$Q:$wi);if($Q!="")$H[$Q]=$wi;if(!isset($v[$ua])){if(!isset($_j[$wi])){$_j[$wi]=array();foreach(indexes($wi,$g)as$u){if($u["type"]=="PRIMARY"){$_j[$wi]=array_flip($u["columns"]);break;}}}$S[$ua]=$wi;$v[$ua]=$_j[$wi];$e[$ua]=$_j[$wi];}if(isset($e[$ua][$vi])){unset($e[$ua][$vi]);$v[$ua][$vi]=$Vf;$yg[$Vf]=$ua;}elseif($mh&&isset($l->orgname)&&$l->db==DB&&!is_blob(array("type"=>$Pm)))$gd[$Vf]=array($ua,$vi,preg_match('~text|json|lob~',$Pm));}$Qm[$Vf]=$Pm;echo"<th title='".h(trim(($wi!=""?"$wi.$vi":($l->name!=$vi?$vi:""))." ".$Pm))."'>".h($A).($xi?doc_link(array('sql'=>"explain-output.html#explain_".strtolower($A),'mariadb'=>"explain/#the-columns-in-explain-select",)):"");}foreach($gd
+as$Vf=>$ib){if($e[$ib[0]])unset($gd[$Vf]);}echo"<tbody>\n";}$jf=array();foreach($v
+as$ua=>$u){if($u&&!$e[$ua]){$t="";foreach($u
+as$_b=>$Vf){if($I[$Vf]===null){$t=null;break;}$t
+.="&where[".url_escape(bracket_escape($_b))."]=".url_escape($I[$Vf]);}$jf[$ua]=$t;}}echo"<tr>";foreach($I
+as$w=>$W){$z="";if(isset($yg[$w])){if($xi&&JUSH=="sql"){$Q=$I[array_search("table=",$yg)];$z=ME.$yg[$w].url_escape($xi[$Q]!=""?$xi[$Q]:$Q);}elseif(idx($jf,$yg[$w])!==null)$z=ME."edit=".url_escape($S[$yg[$w]]).$jf[$yg[$w]];}$c="";$ib=idx($gd,$w);if($ib&&idx($jf,$ib[0])!==null&&is_utf8($W)){$ed=true;$c=" data-name='".h("val[".bracket_escape($S[$ib[0]])."][".bracket_escape(substr($jf[$ib[0]],1))."][".bracket_escape($ib[1])."]")."' data-text='".($ib[2]?1:0)."'";}$W=select_value($W,$z,array('type'=>(preg_match('~binary~',$Qm[$w])?'blob':$Qm[$w])),null);echo"<td".(preg_match(number_type(),$Qm[$w])?" class='number'":"")."$c>$W";}}$y=$r;echo($r?"</table>\n</div>":"<p class='message'>".'No rows.')."\n";return$H;}function
+textarea($A,$X,$J=10,$Db=80,$Xf=JUSH){echo"<textarea name='".h($A)."' rows='$J' cols='$Db' class='sqlarea jush-".h($Xf)."' spellcheck='false' wrap='off'>";if(is_array($X)){foreach($X
+as$W)echo
+h($W[0])."\n\n\n";}else
 echo
-h($Y);echo"</textarea>";}function
-select_input($c,array$jh,$Y="",$Uh=""){if($jh&&$Y!=""&&!isset($jh[$Y]))$jh=array($Y=>$Y)+$jh;$gk=($jh?"select":"input");return"<$gk$c".($jh?"><option value=''>$Uh".optionlist($jh,$Y,true)."</select>":" size='10' value='".h($Y)."' placeholder='$Uh'>");}function
-json_row($x,$X=null,$Xc=true){static$_d=true;if($_d)echo"{";if($x!=""){echo($_d?"":",")."\n\t\"".addcslashes($x,"\r\n\t\"\\/").'": '.($X!==null?($Xc?'"'.addcslashes($X,"\r\n\"\\/").'"':$X):'null');$_d=false;}else{echo"\n}\n";$_d=true;}}function
-edit_type($x,array$m,array$qb,array$Jd=array(),array$ld=array()){$U=(string)$m["type"];echo"<td><select name='".h($x)."[type]' class='type' aria-labelledby='label-type'".on_help_value().">";if($U&&!array_key_exists($U,driver()->types())&&!isset($Jd[$U])&&!in_array($U,$ld))$ld[]=$U;$Mj=driver()->structuredTypes();if($Jd)$Mj['Foreign keys']=$Jd;echo
-optionlist(array_merge($ld,$Mj),$U),"</select><td>","<input name='".h($x)."[length]' value='".h($m["length"])."' size='3'".(!$m["length"]&&preg_match('~var(char|binary)$~',$U)?" class='required'":"")." aria-labelledby='label-length'>","<td class='options'>",($qb?"<input list='collations' name='".h($x)."[collation]'".option_types($U,'(char|text|enum|set)$')." value='".h($m["collation"])."' placeholder='(".'collation'.")'>":''),(driver()->unsigned?"<select name='".h($x)."[unsigned]'".option_types($U,'^$|'.number_type()).'><option>'.optionlist(driver()->unsigned,$m["unsigned"]).'</select>':''),(isset($m['on_update'])?"<select name='".h($x)."[on_update]'".option_types($U,'timestamp|datetime').'>'.optionlist(array(""=>"(".'ON UPDATE'.")","CURRENT_TIMESTAMP"),(preg_match('~^CURRENT_TIMESTAMP~i',$m["on_update"])?"CURRENT_TIMESTAMP":$m["on_update"])).'</select>':''),($Jd?"<select name='".h($x)."[on_delete]'".option_types($U,'`')."><option value=''>(".'ON DELETE'.")".optionlist(explode("|",driver()->onActions),$m["on_delete"])."</select> ":" ");}function
-option_types($U,$Ok){return" data-types='".h($Ok)."'".(preg_match("~$Ok~",$U)?"":" class='hidden'");}function
-process_length($y){$Sc=driver()->enumLength;return(preg_match("~^\\s*\\(?\\s*$Sc(?:\\s*,\\s*$Sc)*+\\s*\\)?\\s*\$~",$y)&&preg_match_all("~$Sc~",$y,$Of)?"(".implode(",",$Of[0]).")":preg_replace('~^[0-9].*~','(\0)',preg_replace('~[^-0-9,+()[\]]~','',$y)));}function
-process_type(array$m,$ob="COLLATE"){return" $m[type]".process_length($m["length"]).(preg_match(number_type(),$m["type"])&&in_array($m["unsigned"],driver()->unsigned)?" $m[unsigned]":"").(preg_match('~char|text|enum|set~',$m["type"])&&$m["collation"]?" $ob ".(JUSH=="mssql"?$m["collation"]:q($m["collation"])):"");}function
-process_field(array$m,array$Mk){if($m["on_update"])$m["on_update"]=str_ireplace("current_timestamp()","CURRENT_TIMESTAMP",$m["on_update"]);return
-array(idf_escape(trim($m["field"])),process_type($Mk),($m["null"]?" NULL":" NOT NULL"),default_value($m),(preg_match('~timestamp|datetime~',$m["type"])&&$m["on_update"]?" ON UPDATE $m[on_update]":""),(support("comment")&&$m["comment"]!=""?" COMMENT ".q($m["comment"]):""),($m["auto_increment"]?auto_increment():null),);}function
-default_value(array$m){if($m["default"]===null)return"";$k=str_replace("\r","",$m["default"]);$Td=$m["generated"];return(in_array($Td,driver()->generated)?(JUSH=="mssql"?" AS ($k)".($Td=="VIRTUAL"?"":" $Td"):" GENERATED ALWAYS AS ($k) $Td"):(preg_match('~^GENERATED ~i',$k)?" $k":" DEFAULT ".(preg_match('~char|binary|text|json|enum|set|String~',$m["type"])||preg_match('~^(?![a-z])~i',$k)?(JUSH=="sql"&&preg_match('~text|json~',$m["type"])?"(".q($k).")":q($k)):str_ireplace("current_timestamp()","CURRENT_TIMESTAMP",(JUSH=="sqlite"?"($k)":$k)))));}function
-type_class($U){foreach(array('char'=>'text','date'=>'time|year','binary'=>'blob','enum'=>'set',)as$x=>$X){if(preg_match("~$x|$X~",$U))return" class='$x'";}}function
-edit_fields(array$n,array$qb,$U="TABLE",array$Jd=array()){$n=array_values($n);$fc=(($_POST?$_POST["defaults"]:get_setting("defaults"))?"":" class='hidden'");$vb=(($_POST?$_POST["comments"]:get_setting("comments"))?"":" class='hidden'");echo"<thead><tr>\n",($U=="PROCEDURE"?"<td>":""),"<th id='label-name'>".($U=="TABLE"?'Column name':'Parameter name'),"<td id='label-type'>".'Type'."<textarea id='enum-edit' rows='4' cols='12' wrap='off' hidden></textarea>".script("qs('#enum-edit').onblur = editingLengthBlur;"),"<td id='label-length'>".'Length',"<td>".'Options';if($U=="TABLE")echo"<td id='label-null'>NULL\n","<td><input type='radio' name='auto_increment_col' value=''><abbr id='label-ai' title='".'Auto Increment'."'>AI</abbr>",doc_link(array('sql'=>"example-auto-increment.html",'mariadb'=>"auto_increment/",'sqlite'=>"autoinc.html",'pgsql'=>"datatype-numeric.html#DATATYPE-SERIAL",'mssql'=>"t-sql/statements/create-table-transact-sql-identity-property",)),"<td id='label-default'$fc>".'Default value',(support("comment")?"<td id='label-comment'$vb>".'Comment':"");$vf=!support("move_col");echo"<td>".icon("plus","add[".($vf?count($n):0)."]","+",'Add next',($vf?on('click','editingAddLastRow'):"")),"<tbody".on('click','editingClick').on('input','editingInput').on('keydown','editingKeydown').">\n";foreach($n
-as$s=>$m){$s++;$qh=$m[($_POST?"orig":"field")];$rc=(isset($_POST["add"][$s-1])||(isset($m["field"])&&!idx($_POST["drop_col"],$s)))&&(support("drop_col")||$qh=="");echo"<tr".($rc?"":" hidden").">\n",($U=="PROCEDURE"?"<td>".html_select("fields[$s][inout]",explode("|",driver()->inout),$m["inout"]):"")."<th>",(support("move_col")?icon("move","","↕",'Move')." ":"");if($rc)echo"<input name='fields[$s][field]' value='".h($m["field"])."' data-maxlength='64' autocapitalize='off' aria-labelledby='label-name'".(isset($_POST["add"][$s-1])?" autofocus":"").">";echo
-input_hidden("fields[$s][orig]",$qh);edit_type("fields[$s]",$m,$qb,$Jd);if($U=="TABLE"){echo"<td><label class='block'>".checkbox("fields[$s][null]",1,$m["null"],"","","","label-null")."</label>","<td><label class='block'><input type='radio' name='auto_increment_col' value='$s'".($m["auto_increment"]?" checked":"")." aria-labelledby='label-ai'></label>","<td$fc>".(driver()->generated?html_select("fields[$s][generated]",array_merge(array("","DEFAULT"),driver()->generated),$m["generated"])." ":checkbox("fields[$s][generated]",1,$m["generated"],"","","","label-default"));$c=" name='fields[$s][default]' aria-labelledby='label-default'";$Y=h($m["default"]);echo(preg_match('~\n~',$m["default"])?"<textarea$c rows='2' cols='30' style='vertical-align: bottom;'>\n$Y</textarea>":"<input$c value='$Y'>");if(support("comment")){$c=" name='fields[$s][comment]' data-maxlength='".(min_version(5.5)?1024:255)."' aria-labelledby='label-comment'";echo"<td$vb>".adminer()->commentInput('COLUMN',$c,$m["comment"]);}}echo"<td>",(support("move_col")?icon("plus","add[$s]","+",'Add next')." ":""),($qh==""||support("drop_col")?icon("cross","drop_col[$s]","x",'Remove'):"");}}function
-process_fields(array&$n){if($_POST["add"]){$n=array_values($n);array_splice($n,key($_POST["add"]),0,array(array()));}return$_POST["add"]||$_POST["drop_col"];}function
-normalize_enum(array$B){$X=$B[0];return"'".str_replace("'","''",addcslashes(stripcslashes(str_replace($X[0].$X[0],$X[0],substr($X,1,-1))),'\\'))."'";}function
-grant($Vd,array$ni,$e,$Zg){if(!$ni)return
-true;if($ni==array("ALL PRIVILEGES","GRANT OPTION"))return($Vd=="GRANT"?queries("$Vd ALL PRIVILEGES$Zg WITH GRANT OPTION"):queries("$Vd ALL PRIVILEGES$Zg")&&queries("$Vd GRANT OPTION$Zg"));return
-queries("$Vd ".preg_replace('~(GRANT OPTION)\([^)]*\)~','\1',implode("$e, ",$ni).$e).$Zg);}function
-drop_create($Bc,$h,$Dc,$kk,$Fc,$A,$ig,$gg,$hg,$Wg,$Ag){if($_POST["drop"])query_redirect($Bc,$A,$ig);elseif($Wg=="")query_redirect($h,$A,$hg);elseif(support("transaction_ddl")){driver()->begin();queries_redirect($A,$gg,queries($Bc)&&queries($h)&&driver()->commit());driver()->rollback();}elseif($Wg!=$Ag){$Ob=queries($h);queries_redirect($A,$gg,$Ob&&queries($Bc));if($Ob)queries($Dc);}else
-queries_redirect($A,$gg,queries($kk)&&queries($Fc)&&queries($Bc)&&queries($h));}function
-create_trigger($Zg,array$J){$qk=" $J[Timing] $J[Event]".(preg_match('~ OF~',$J["Event"])?" $J[Of]":"");return"CREATE TRIGGER ".idf_escape($J["Trigger"]).(JUSH=="mssql"?$Zg.$qk:$qk.$Zg).rtrim(" $J[Type]\n$J[Statement]",";").";";}function
-q_dollar($Q){$jc='$$';while(strpos($Q.$jc,$jc)!=strlen($Q))$jc='$_'.substr($jc,1);return$jc.$Q.$jc;}function
-create_routine($Pi,array$J){$O=array();$n=(array)$J["fields"];ksort($n);foreach($n
-as$m){if($m["field"]!="")$O[]=(preg_match("~^(".driver()->inout.")\$~",$m["inout"])?"$m[inout] ":"").idf_escape($m["field"]).process_type($m,"CHARACTER SET");}$hc=rtrim($J["definition"],";");return"CREATE $Pi ".idf_escape(trim($J["name"]))." (".implode(", ",$O).")".($Pi=="FUNCTION"?" RETURNS".process_type($J["returns"],"CHARACTER SET"):"").($J["language"]?" LANGUAGE $J[language]":"").(JUSH=="pgsql"?" AS ".q_dollar("\n".trim($hc)."\n"):"\n$hc;");}function
-remove_definer($G){return
-preg_replace('~^([A-Z =]+) DEFINER=`'.preg_replace('~@(.*)~','`@`(%|\1)',logged_user()).'`~','\1',$G);}function
-format_foreign_key(array$p){$j=$p["db"];$Hg=$p["ns"];return" FOREIGN KEY (".implode(", ",array_map('Adminer\idf_escape',$p["source"])).") REFERENCES ".($j!=""&&$j!=$_GET["db"]?idf_escape($j).".":"").($Hg!=""&&$Hg!=$_GET["ns"]?idf_escape($Hg).".":"").idf_escape($p["table"])." (".implode(", ",array_map('Adminer\idf_escape',$p["target"])).")".(preg_match("~^(".driver()->onActions.")\$~",$p["on_delete"])?" ON DELETE $p[on_delete]":"").(preg_match("~^(".driver()->onActions.")\$~",$p["on_update"])?" ON UPDATE $p[on_update]":"").($p["deferrable"]?" $p[deferrable]":"");}function
-tar_file($o,$vk){$I=pack("a100a8a8a8a12a12",$o,644,0,0,decoct($vk->size),decoct(time()));$hb=8*32;for($s=0;$s<strlen($I);$s++)$hb+=ord($I[$s]);$I
-.=sprintf("%06o",$hb)."\0 ";echo$I,str_repeat("\0",512-strlen($I));$vk->send();echo
-str_repeat("\0",511-($vk->size+511)%512);}function
-doc_link(array$Qh,$lk="<sup>?</sup>"){$nj=connection()->server_info;$sl=preg_replace('~^(\d\.?\d).*~s','\1',$nj);$cl=array('sql'=>"https://dev.mysql.com/doc/refman/$sl/en/",'sqlite'=>"https://www.sqlite.org/",'pgsql'=>"https://www.postgresql.org/docs/".(connection()->flavor=='cockroach'?"current":$sl)."/",'mssql'=>"https://learn.microsoft.com/en-us/sql/",'oracle'=>"https://www.oracle.com/pls/topic/lookup?ctx=db".preg_replace('~^.* (\d+)\.(\d+)\.\d+\.\d+\.\d+.*~s','\1\2',$nj)."&id=",);if(connection()->flavor=='maria'){$cl['sql']="https://mariadb.com/kb/en/";$Qh['sql']=(isset($Qh['mariadb'])?$Qh['mariadb']:str_replace(".html","/",$Qh['sql']));}return($Qh[JUSH]?"<a href='".h($cl[JUSH].$Qh[JUSH].(JUSH=='mssql'?"?view=sql-server-ver$sl":""))."'".target_blank().">$lk</a>":"");}function
-db_size($j){if(!connection()->select_db($j))return"?";$I=0;foreach(table_status()as$S)$I+=$S["Data_length"]+$S["Index_length"];return
-format_number($I);}function
-set_utf8mb4($h){static$O=false;if(!$O&&preg_match('~\butf8mb4~i',$h)){$O=true;echo"SET NAMES ".charset(connection()).";\n\n";}}if(isset($_GET["status"]))$_GET["variables"]=$_GET["status"];if(isset($_GET["import"]))$_GET["sql"]=$_GET["import"];if(DB==""&&isset($_GET["ns"]))redirect(remove_from_uri('ns'));if(!(DB!=""?connection()->select_db(DB):isset($_GET["sql"])||isset($_GET["dump"])||isset($_GET["database"])||isset($_GET["processlist"])||isset($_GET["privileges"])||isset($_GET["user"])||isset($_GET["variables"])||$_GET["script"]=="connect"||$_GET["script"]=="kill")){if(DB!=""||$_GET["refresh"]){restart_session();set_session("dbs",null);}if(DB!=""){header("HTTP/1.1 404 Not Found");page_header('Database'.": ".h(DB),'Invalid database.',true);}else{if($_POST["db"]&&!$l)queries_redirect(substr(ME,0,-1),'Databases have been dropped.',drop_databases($_POST["db"]));page_header('Select database',$l,false);echo"<p class='links'>\n";foreach(array('database'=>'Create database','privileges'=>'Privileges','processlist'=>'Process list','variables'=>'Variables','status'=>'Status',)as$x=>$X){if(support($x))echo"<a href='".h(ME)."$x='>$X</a>\n";}echo"<p>".sprintf('%s version: %s through PHP extension %s',get_driver(DRIVER),"<b>".h(connection()->server_info)."</b>","<b>".connection()->extension."</b>")."\n","<p>".sprintf('Logged as: %s',"<b>".h(logged_user())."</b>")."\n";$i=adminer()->databases();if($i){$Xi=support("scheme");$qb=collations();echo"<form action='' method='post'>\n","<table class='checkable odds'".on('click','tableClick').on('dblclick','tableClick').">\n","<thead><tr>".(support("database")?"<td class='hover'>":"")."<th".(JUSH!='mssql'?" aria-sort='ascending'":"").">".'Database'.(get_session("dbs")!==null?" - <a href='".h(ME)."refresh=1'>".'Refresh'."</a>":"")."<td>".'Collation'."<td>".'Tables'."<td>".'Size'." - <a href='".h(ME)."dbsize=1'".on('click','ajaxSetHtml',ME."script=connect").">".'Compute'."</a>"."<tbody>\n";$i=($_GET["dbsize"]?count_tables($i):array_flip($i));foreach($i
-as$j=>$T){$Oi=h(ME)."db=".url_escape($j);$t=h("Db-".$j);echo"<tr>".(support("database")?"<td class='hover'>".checkbox("db[]",$j,in_array($j,(array)$_POST["db"]),"","","",$t):""),"<th><a href='$Oi' id='$t'>".h($j)."</a>";$pb=h(db_collation($j,$qb));echo"<td>".(support("database")?"<a href='$Oi".($Xi?"&amp;ns=":"")."&amp;database=' title='".'Alter database'."'>$pb</a>":$pb),"<td align='right'><a href='$Oi&amp;schema=' id='tables-".h($j)."' title='".'Database schema'."'>".($_GET["dbsize"]?$T:"?")."</a>","<td align='right' id='size-".h($j)."'>".($_GET["dbsize"]?db_size($j):"?"),"\n";}echo"</table>\n",(support("database")?"<div class='footer'><div>\n"."<fieldset><legend>".'Selected'." <span id='selected'></span></legend><div>\n"."<input type='hidden' name='all' value=''".on('click','countDbs').">\n"."<input type='submit' name='drop' value='".'Drop'."'".confirm().">\n"."</div></fieldset>\n"."</div></div>\n":""),input_token(),"</form>\n",script("tableCheck();");}$na=adminer();$Xh=($na
+h($X);echo"</textarea>";}function
+select_input($c,array$B,$X="",$ij=""){if($B&&$X!=""&&!isset($B[$X]))$B=array($X=>$X)+$B;$dm=($B?"select":"input");return"<$dm$c".($B?"><option value=''>$ij".optionlist($B,$X,true)."</select>":" size='10' value='".h($X)."' placeholder='$ij'>");}function
+json_row($w,$W=null,$vd=true){static$Zd=true;if($Zd)echo"{";if($w!=""){echo($Zd?"":",")."\n\t\"".addcslashes($w,"\r\n\t\"\\/").'": '.($W!==null?($vd?'"'.addcslashes($W,"\r\n\"\\/").'"':$W):'null');$Zd=false;}else{echo"\n}\n";$Zd=true;}}function
+flat_collations(){$Cb=collations();return(is_array(reset($Cb))?call_user_func_array('array_merge',array_values($Cb)):$Cb);}function
+edit_type($w,array$l,array$Cb,array$je=array(),array$Kd=array()){$T=(string)$l["type"];echo"<td><select name='".h($w)."[type]' class='type' aria-labelledby='label-type'".on_help_value().">";if($T&&!array_key_exists($T,driver()->types())&&!isset($je[$T])&&!in_array($T,$Kd))$Kd[]=$T;$Bl=driver()->structuredTypes();if($je)$Bl['Foreign keys']=$je;echo
+optionlist(array_merge($Kd,$Bl),$T),"</select><td>","<input name='".h($w)."[length]' value='".h($l["length"])."' size='3'".(!$l["length"]&&preg_match('~var(char|binary)$~',$T)?" class='required'":"")." aria-labelledby='label-length'>","<td class='options'>",($Cb?"<input list='collations' name='".h($w)."[collation]'".option_types($T,'('.text_type().')$')." value='".h($l["collation"])."' placeholder='(".'collation'.")'>":''),(driver()->unsigned?"<select name='".h($w)."[unsigned]'".option_types($T,'^$|'.number_type()).'><option>'.optionlist(driver()->unsigned,$l["unsigned"]).'</select>':''),(isset($l['on_update'])?"<select name='".h($w)."[on_update]'".option_types($T,'timestamp|datetime').'>'.optionlist(array(""=>"(".'ON UPDATE'.")","CURRENT_TIMESTAMP"),(preg_match('~^CURRENT_TIMESTAMP~i',$l["on_update"])?"CURRENT_TIMESTAMP":$l["on_update"])).'</select>':''),($je?"<select name='".h($w)."[on_delete]'".option_types($T,'`')."><option value=''>(".'ON DELETE'.")".optionlist(explode("|",driver()->onActions),$l["on_delete"])."</select> ":" ");}function
+option_types($T,$Qm){return" data-types='".h($Qm)."'".(preg_match("~$Qm~",$T)?"":" class='hidden'");}function
+process_length($x){if(JUSH=="mssql"&&preg_match('~^\s*\(?\s*max\s*\)?\s*$~i',$x))return"(max)";$qd=driver()->enumLength;return(preg_match("~^\\s*\\(?\\s*$qd(?:\\s*,\\s*$qd)*+\\s*\\)?\\s*\$~",$x)&&preg_match_all("~$qd~",$x,$Hg)?"(".implode(",",$Hg[0]).")":preg_replace('~^[0-9].*~','(\0)',preg_replace('~[^-0-9,+()[\]]~','',$x)));}function
+process_in($W){$qd=driver()->enumLength;if(preg_match("~^\\s*\\(?\\s*$qd(?:\\s*,\\s*$qd)*+\\s*\\)?\\s*\$~",$W)&&preg_match_all("~$qd~",$W,$Hg))return"(".implode(", ",$Hg[0]).")";$H=array();foreach(explode(",",$W)as$Uf)$H[]=q(trim($Uf));return"(".implode(", ",$H).")";}function
+process_type(array$l,$Ab="COLLATE"){return" ".(is_user_type($l["type"])?idf_escape($l["type"]):$l["type"]).process_length($l["length"]).(preg_match(number_type(),$l["type"])&&in_array($l["unsigned"],driver()->unsigned)?" $l[unsigned]":"").(preg_match('~'.text_type().'~',$l["type"])&&$l["collation"]?" $Ab ".(JUSH=="mssql"?$l["collation"]:q($l["collation"])):"");}function
+process_field(array$l,array$Mm){if($l["on_update"])$l["on_update"]=str_ireplace("current_timestamp()","CURRENT_TIMESTAMP",$l["on_update"]);return
+array(idf_escape(trim($l["field"])),process_type($Mm),($l["null"]?" NULL":" NOT NULL"),default_value($l),(preg_match('~timestamp|datetime~',$l["type"])&&$l["on_update"]?" ON UPDATE $l[on_update]":""),(support("comment")&&$l["comment"]!=""?" COMMENT ".q($l["comment"]):""),($l["auto_increment"]?auto_increment():null),);}function
+default_value(array$l){if($l["default"]===null)return"";$j=str_replace("\r","",$l["default"]);$xe=$l["generated"];$P=!preg_match('~]$~',$l["length"])&&(preg_match('~char|binary|text|json|enum|set|String~',$l["type"])||driver()->enumLength($l));return(in_array($xe,driver()->generated)?(JUSH=="mssql"?" AS ($j)".($xe=="VIRTUAL"?"":" $xe"):" GENERATED ALWAYS AS ($j) $xe"):(preg_match('~^GENERATED ~i',$j)?" $j":" DEFAULT ".($P||preg_match('~^(?![a-z])~i',$j)?(JUSH=="sql"&&preg_match('~text|json~',$l["type"])?"(".q($j).")":q($j)):str_ireplace("current_timestamp()","CURRENT_TIMESTAMP",(JUSH=="sqlite"?"($j)":$j)))));}function
+edit_fields(array$m,array$Cb,$T="TABLE",array$je=array()){$m=array_values($m);$yc=(($_POST?$_POST["defaults"]:get_setting("defaults"))?"":" class='hidden'");$Ib=(($_POST?$_POST["comments"]:get_setting("comments"))?"":" class='hidden'");echo"<thead><tr>\n",($T=="PROCEDURE"?"<td>":""),"<th id='label-name'>".($T=="TABLE"?'Column name':'Parameter name'),"<th id='label-type'>".'Type'."<textarea id='enum-edit' rows='4' cols='12' wrap='off' hidden></textarea>".script("qs('#enum-edit').onblur = editingLengthBlur;"),"<th id='label-length'>".'Length',"<th>".'Options';if($T=="TABLE")echo"<th id='label-null'>NULL\n","<th><input type='radio' name='auto_increment_col' value=''><abbr id='label-ai' title='".'Auto Increment'."'>AI</abbr>",doc_link(array('sql'=>"example-auto-increment.html",'mariadb'=>"auto_increment/",'sqlite'=>"autoinc.html",'pgsql'=>"datatype-numeric.html#DATATYPE-SERIAL",'cockroach'=>"serial",'mssql'=>"t-sql/statements/create-table-transact-sql-identity-property",)),"<th id='label-default'$yc>".'Default value',(support("comment")?"<th id='label-comment'$Ib>".'Comment':"");$lg=!support("move_col");echo"<td>".icon("plus","add[".($lg?count($m):0)."]","+",'Add next',($lg?on('click','editingAddLastRow'):"")),"<tbody".on('click','editingClick').on('input','editingInput').on('keydown','editingKeydown').">\n";foreach($m
+as$r=>$l){$r++;$yi=$l[($_POST?"orig":"field")];$Kc=(isset($_POST["add"][$r-1])||(isset($l["field"])&&!idx($_POST["drop_col"],$r)))&&(support("drop_col")||$yi=="");echo"<tr".($Kc?"":" hidden").">\n",($T=="PROCEDURE"?"<td>".html_select("fields[$r][inout]",explode("|",driver()->inout),$l["inout"]):"")."<th>",(support("move_col")?icon("move","","↕",'Move')." ":"");if($Kc)echo"<input name='fields[$r][field]' value='".h($l["field"])."' data-maxlength='64' autocapitalize='off' aria-labelledby='label-name'".(isset($_POST["add"][$r-1])?" autofocus":"").">";echo
+input_hidden("fields[$r][orig]",$yi);edit_type("fields[$r]",$l,$Cb,$je);if($T=="TABLE"){echo"<td><label class='block'>".checkbox("fields[$r][null]",1,$l["null"],"","","","label-null")."</label>","<td><label class='block'><input type='radio' name='auto_increment_col' value='$r'".($l["auto_increment"]?" checked":"")." aria-labelledby='label-ai'></label>","<td$yc>".(driver()->generated?html_select("fields[$r][generated]",array_merge(array("","DEFAULT"),driver()->generated),$l["generated"])." ":checkbox("fields[$r][generated]",1,$l["generated"],"","","","label-default"));$c=" name='fields[$r][default]' aria-labelledby='label-default'";$X=h($l["default"]);echo(preg_match('~\n~',$l["default"])?"<textarea$c rows='2' cols='30' style='vertical-align: bottom;'>\n$X</textarea>":"<input$c value='$X'>");if(support("comment")){$c=" name='fields[$r][comment]' data-maxlength='".(min_version(5.5)?1024:255)."' aria-labelledby='label-comment'";echo"<td$Ib>".adminer()->commentInput('COLUMN',$c,$l["comment"]);}}echo"<td>",(support("move_col")?icon("plus","add[$r]","+",'Add next')." ":""),($yi==""||support("drop_col")?icon("cross","drop_col[$r]","x",'Remove'):"");}}function
+process_fields(array&$m){if($_POST["add"]){$m=array_values($m);array_splice($m,key($_POST["add"]),0,array(array()));}return$_POST["add"]||$_POST["drop_col"];}function
+drop_create($Xc,$ec,$Zc,$jm,$bd,$Bg,$ch,$ah,$bh,$di,$Eh){if($_POST["drop"])query_redirect($Xc,$Bg,$ch);elseif($di=="")query_redirect($ec,$Bg,$bh);elseif(support("transaction_ddl")){driver()->begin();queries_redirect($Bg,$ah,queries($Xc)&&queries($ec)&&driver()->commit());driver()->rollback();}elseif($di!=$Eh){$gc=queries($ec);queries_redirect($Bg,$ah,$gc&&queries($Xc));if($gc&&$Zc)queries($Zc);}else
+queries_redirect($Bg,$ah,queries($jm)&&queries($bd)&&queries($Xc)&&queries($ec));}function
+create_trigger($hi,array$I){$pm=" $I[Timing] $I[Event]".(preg_match('~ OF~',$I["Event"])?" $I[Of]":"");return"CREATE TRIGGER ".idf_escape($I["Trigger"]).(JUSH=="mssql"?$hi.$pm:$pm.$hi).preg_replace('~[\s;]+$~',''," $I[Type]\n$I[Statement]").";";}function
+q_dollar($P){$Cc='$$';while(strpos($P.$Cc,$Cc)!=strlen($P))$Cc='$_'.substr($Cc,1);return$Cc.$P.$Cc;}function
+routine_collate($Bb){static$nb=array();if($Bb&&!$nb){foreach(collations()as$mb=>$vn){foreach((array)$vn
+as$W)$nb[$W]=$mb;}}return($nb[$Bb]?"CHARACTER SET ".q($nb[$Bb])." ":"")."COLLATE";}function
+create_routine($mk,array$I){$N=array();$m=$I["fields"];ksort($m);foreach($m
+as$l){if($l["field"]!=""){$Cf=(preg_match("~^(".driver()->inout.")\$~",$l["inout"])?$l["inout"]:"");$N[]="\n  ".(JUSH=="mssql"?"@$l[field]".process_type($l).($Cf?" $Cf":""):($Cf?"$Cf ":"").idf_escape($l["field"]).process_type($l,routine_collate($l["collation"])));}}$_c="";$B=array();foreach(routine_options($mk)as$w=>$Y){$X=idx($I["options"],$w,"");if($w=="DEFINER")$_c=($X?" $w=".implode("@",array_map('Adminer\q',explode("@",$X,2))):"");elseif(!$Y){if($X!="")$B[]="$w ".q($X);}elseif($X!=reset($Y)&&in_array($X,$Y))$B[]=$X;}$jg=$I["language"];$Ac=preg_replace('~[\s;]+$~','',$I["definition"]);$Tc=(JUSH=="pgsql"||($jg&&$jg!="sql"));$Mi=($N?implode(",",$N)."\n":"");return"CREATE$_c $mk ".table(trim($I["name"])).(JUSH=="mssql"&&$mk=="PROCEDURE"?rtrim($Mi):" ($Mi)").($mk=="FUNCTION"?"\nRETURNS".process_type($I["returns"],routine_collate($I["returns"]["collation"])):"").($jg?" LANGUAGE $jg":"").($B?"\n".implode(" ",$B):"").($Tc?" AS ".q_dollar("\n".trim($Ac)."\n"):(JUSH=="mssql"?"\nAS":"")."\n$Ac;");}function
+remove_definer($F){$_c=implode("@",array_map('Adminer\idf_escape',explode("@",logged_user(),2)));return
+preg_replace('(^([A-Z =]+) DEFINER='.preg_quote($_c).')','\1',$F);}function
+object_name($T,$Q,array$e){return
+str_replace(array("{table}","{columns}"),array($Q,implode("_",$e)),adminer()->namePattern($T));}function
+format_foreign_key(array$o,$A=""){$i=$o["db"];$Nh=$o["ns"];return($A!=""?" CONSTRAINT ".idf_escape($A):"")." FOREIGN KEY (".implode(", ",array_map('Adminer\idf_escape',$o["source"])).") REFERENCES ".($i!=""&&$i!=$_GET["db"]?idf_escape($i).".":"").($Nh!=""&&$Nh!=$_GET["ns"]?idf_escape($Nh).".":"").idf_escape($o["table"])." (".implode(", ",array_map('Adminer\idf_escape',$o["target"])).")".(preg_match("~^(".driver()->onActions.")\$~",$o["on_delete"])?" ON DELETE $o[on_delete]":"").(preg_match("~^(".driver()->onActions.")\$~",$o["on_update"])?" ON UPDATE $o[on_update]":"").($o["deferrable"]?" $o[deferrable]":"");}function
+tar_file($n,$um){$H=pack("a100a8a8a8a12a12",$n,644,0,0,decoct($um->size),decoct(time()));$tb=8*32;for($r=0;$r<strlen($H);$r++)$tb+=ord($H[$r]);$H
+.=sprintf("%06o",$tb)."\0 ";echo$H,str_repeat("\0",512-strlen($H));$um->send();echo
+str_repeat("\0",511-($um->size+511)%512);}function
+doc_version(){$Xk=connection()->server_info;if(JUSH=='oracle'){preg_match('~(?:.* |^)(\d+)\.\d+\.\d+\.\d+\.\d+~s',$Xk,$_);return($_[1]>=18?$_[1]:"19");}$Wj=(JUSH=='sql'||connection()->flavor=='cockroach'?'~^\d+\.\d+~':'~^\d\.?\d~');$yn=(preg_match($Wj,$Xk,$_)?$_[0]:"");if(JUSH=='mssql')return($yn>=15?"sql-server-ver$yn":($yn==12?"azuresqldb-current":"sql-server-2017"));return$yn;}function
+doc_link(array$dj,$km="📖"){$yn=doc_version();$in=array('sql'=>"https://dev.mysql.com/doc/refman/$yn/en/",'sqlite'=>"https://www.sqlite.org/",'pgsql'=>"https://www.postgresql.org/docs/".(connection()->flavor=='cockroach'?"current":$yn)."/",'mssql'=>"https://learn.microsoft.com/en-us/sql/",'oracle'=>"https://docs.oracle.com/en/database/oracle/oracle-database/$yn/",);if(connection()->flavor=='maria'){$in['sql']="https://mariadb.com/kb/en/";$dj['sql']=($dj['mariadb']?:str_replace(".html","/",$dj['sql']));}if(connection()->flavor=='cockroach'&&$dj['cockroach']){$in['pgsql']="https://docs.cockroachlabs.com/docs/v$yn/";$dj['pgsql']=$dj['cockroach'];}return($dj[JUSH]?" <a href='".h($in[JUSH].$dj[JUSH].(JUSH=='mssql'?"?view=$yn":""))."'".target_blank()." class='doc' title='".'Documentation'."'>$km</a>":"");}function
+db_size($i){if(!connection()->select_db($i))return"?";$H=0;foreach(table_status()as$R)$H+=$R["Data_length"]+$R["Index_length"];return
+format_number($H);}function
+set_utf8mb4($ec){static$N=false;if(!$N&&preg_match('~\butf8mb4~i',$ec)){$N=true;echo"SET NAMES ".charset(connection()).";\n\n";}}if(DB==""&&isset($_GET["ns"]))redirect(remove_from_uri('ns'));if(!(DB!=""?connection()->select_db(DB):isset($_GET["sql"])||isset($_GET["dump"])||isset($_GET["database"])||isset($_GET["processlist"])||isset($_GET["privileges"])||isset($_GET["user"])||isset($_GET["variables"])||$_GET["script"]=="connect"||$_GET["script"]=="kill")){if(DB!=""||$_GET["refresh"]){restart_session();set_session("dbs",null);}if(DB!="")page_header('Database'.": ".h(DB),adminer()->error(),true,"","db");else{if(!isset($_GET["db"])&&support("single_db")){$h=adminer()->databases();if($h)redirect(ME."db=".url_escape($h[0]));}if($_POST["db"]&&!$k)queries_redirect(substr(ME,0,-1),'Databases have been dropped.',drop_databases($_POST["db"]));page_header('Select database',$k,false);echo"<p class='links'>\n";foreach(array('database'=>'Create database','privileges'=>'Privileges','processlist'=>'Process list','variables'=>'Variables','status'=>'Status',)as$w=>$W){if(support($w))echo"<a href='".h(ME)."$w='>$W</a>\n";}echo"<p>".sprintf('%s version: %s through PHP extension %s',get_driver(DRIVER),"<b>".h(connection()->server_info)."</b>","<b>".connection()->extension."</b>")."\n","<p>".sprintf('Logged in as: %s',"<b>".h(logged_user())."</b>")."\n";$h=adminer()->databases();if($h){$zk=support("scheme");$Cb=collations();echo"<form action='' method='post'>\n","<table class='checkable odds'".on('click','tableClick').on('dblclick','tableClick').">\n","<thead><tr>".(support("database")?"<td class='hover'>":"")."<th".(JUSH!='mssql'?" aria-sort='ascending'":"").">".'Database'.(get_session("dbs")!==null?" - <a href='".h(ME)."refresh=1'>".'Refresh'."</a>":"")."<th>".'Collation'."<th>".'Tables'."<th>".'Size'." - <a href='".h(ME)."dbsize=1'".on('click','ajaxSetHtml',ME."script=connect").">".'Compute'."</a>"."<tbody>\n";$h=($_GET["dbsize"]?count_tables($h):array_flip($h));foreach($h
+as$i=>$S){$lk=h(preg_replace('~&db=[^&]*~','',ME))."db=".url_escape($i);$s=h("Db-".$i);echo"<tr>".(support("database")?"<td class='hover'>".checkbox("db[]",$i,in_array($i,(array)$_POST["db"]),"","","",$s):""),"<th><a href='$lk' id='$s'>".h($i)."</a>";$Bb=h(db_collation($i,$Cb));echo"<td>".(support("database")?"<a href='$lk".($zk?"&amp;ns=":"")."&amp;database=' title='".'Alter database'."'>$Bb</a>":$Bb),"<td align='right'><a href='$lk&amp;schema=' id='tables-".h($i)."' title='".'Database schema'."'>".($_GET["dbsize"]?format_number($S):"?")."</a>","<td align='right' id='size-".h($i)."'>".($_GET["dbsize"]?db_size($i):"?"),"\n";}echo"</table>\n",(support("database")?"<div class='footer'><div>\n"."<fieldset><legend>".'Selected'." <span id='selected'></span></legend><div>\n"."<input type='hidden' name='all' value=''".on('click','countDbs').">\n"."<input type='submit' name='drop' value='".'Drop'."'".confirm().">\n"."</div></fieldset>\n"."</div></div>\n":""),input_token(),"</form>\n",script("tableCheck();");}$oa=adminer();$mj=($oa
 instanceof
-Plugins?$na->plugins:array());$Ac=($na
+Plugins?$oa->plugins:array());$Wc=($oa
 instanceof
-Plugins?$na->drivers:array());$oc=design_checksums();if($Xh||$Ac||$oc){$ib=($na
+Plugins?$oa->drivers:array());$Hc=design_checksums();if($mj||$Wc||$Hc){$ub=($oa
 instanceof
-Plugins?$na->checksums():array());$Og=Plugins::officialChecksums();$Zk=function($bl){return" (<a href='$bl'".target_blank()." class='update'>".VERSION."</a>)";};$Wh=function($ud)use($ib,$Og,$Zk){return($ib[$ud]&&$Og[$ud]&&$ib[$ud]!==$Og[$ud]?$Zk("https://www.adminer.org/plugins/?version=".VERSION):"");};echo"<div class='plugins'>\n","<h3>".'Loaded plugins'."</h3>\n<ul>\n";foreach($Xh
-as$Vh){$Bi=new
-\ReflectionObject($Vh);$lc=(method_exists($Vh,'description')?$Vh->description():"");if(!$lc){if(preg_match('~^/[\s*]+(.+)~',$Bi->getDocComment(),$B))$lc=$B[1];}$Yi=(method_exists($Vh,'screenshot')?$Vh->screenshot():"");echo"<li><b>".get_class($Vh)."</b>".h($lc?": $lc":"").($Yi?" (<a href='".h($Yi)."'".target_blank().">".'screenshot'."</a>)":"").$Wh(basename((string)$Bi->getFileName(),'.php'))."\n";}foreach($Ac
-as$t=>$C)echo"<li><b>".h($t)."</b>: ".h($C).$Wh(basename((string)$na->driverFiles[$t],'.php'))."\n";if($oc){$Qg=official_design_checksums();foreach($oc
-as$o=>$nc){list($C,$hb)=$nc;$Pg=$Qg["$C/$o"];echo"<li><b>".h($o)."</b>".h($C?": $C":"").($Pg&&$Pg!==$hb?$Zk("https://www.adminer.org/?version=".VERSION."#extras"):"")."\n";}}echo"</ul>\n";adminer()->pluginsLinks();echo"</div>\n";}}page_footer("db");exit;}if(support("scheme")){if(DB!=""&&$_GET["ns"]!==""){if(!isset($_GET["ns"]))redirect(preg_replace('~&db=[^&]+~','\0&ns='.url_escape(get_schema()),relative_uri()));if(!set_schema($_GET["ns"])){header("HTTP/1.1 404 Not Found");page_header('Schema'.h(": $_GET[ns]"),'Invalid schema.',true);page_footer("ns");exit;}}}adminer()->afterConnect();class
+Plugins?$oa->checksums():array());$Vh=Plugins::officialChecksums();$dn=function($hn){return" (<a href='$hn'".target_blank()." class='update'>".VERSION."</a>)";};$lj=function($Td)use($ub,$Vh,$dn){return($ub[$Td]&&$Vh[$Td]&&$ub[$Td]!==$Vh[$Td]?$dn("https://www.adminer.org/plugins/?version=".VERSION):"");};echo"<div class='plugins'>\n","<h3>".'Loaded plugins'."</h3>\n<ul>\n";foreach($mj
+as$jj){$Uj=new
+\ReflectionObject($jj);$Ec=(method_exists($jj,'description')?$jj->description():"");if(!$Ec){if(preg_match('~^/[\s*]+(.+)~',$Uj->getDocComment(),$_))$Ec=$_[1];}$_k=(method_exists($jj,'screenshot')?$jj->screenshot():"");echo"<li><b>".get_class($jj)."</b>".h($Ec?": $Ec":"").($_k?" (<a href='".h($_k)."'".target_blank().">".'screenshot'."</a>)":"").$lj(basename((string)$Uj->getFileName(),'.php'))."\n";}foreach($Wc
+as$s=>$A)echo"<li><b>".h($s)."</b>: ".h($A).$lj(basename((string)$oa->driverFiles[$s],'.php'))."\n";if($Hc){$Xh=official_design_checksums();foreach($Hc
+as$n=>$Gc){list($A,$tb)=$Gc;$Wh=$Xh["$A/$n"];echo"<li><b>".h($n)."</b>".h($A?": $A":"").($Wh&&$Wh!==$tb?$dn("https://www.adminer.org/?version=".VERSION."#extras"):"")."\n";}}echo"</ul>\n";adminer()->pluginsLinks();echo"</div>\n";}}page_footer("db");exit;}if(support("scheme")){if(DB!=""&&$_GET["ns"]!==""){if(!isset($_GET["ns"]))redirect(preg_replace('~&db=[^&]+~','\0&ns='.url_escape(get_schema()),relative_uri()));if(!set_schema($_GET["ns"]))page_header('Schema'.h(": $_GET[ns]"),adminer()->error(),true,"","ns");}}adminer()->afterConnect();class
 TmpFile{private$handler;var$size=0;function
 __construct(){$this->handler=tmpfile();}function
-write($Gb){$this->size+=strlen($Gb);fwrite($this->handler,$Gb);}function
-send(){fseek($this->handler,0);fpassthru($this->handler);fclose($this->handler);}}if(isset($_GET["select"])&&($_POST["edit"]||$_POST["clone"])&&!$_POST["save"])$_GET["edit"]=$_GET["select"];if(isset($_GET["callf"]))$_GET["call"]=$_GET["callf"];if(isset($_GET["function"]))$_GET["procedure"]=$_GET["function"];if(isset($_GET["download"])){$a=$_GET["download"];$n=fields($a);header("Content-Type: application/octet-stream");header("Content-Disposition: attachment; filename=".friendly_url("$a-".implode("_",$_GET["where"])).".".friendly_url($_GET["field"]));$M=array(idf_escape($_GET["field"]));$H=driver()->select($a,$M,array(where($_GET,$n)),$M);$J=($H?$H->fetch_row():array());echo
-driver()->value($J[0],$n[$_GET["field"]]);exit;}elseif(isset($_GET["table"])){$a=$_GET["table"];$n=fields($a);if(!$n)$l=error()?:'No tables.';$S=table_status1($a);$C=adminer()->tableName($S);page_header(($n&&is_view($S)?$S['Engine']=='materialized view'?'Materialized view':'View':'Table').": ".($C!=""?$C:h($a)),$l);$Ni=array();foreach($n
-as$x=>$m)$Ni+=$m["privileges"];adminer()->selectLinks($S,(isset($Ni["insert"])||!support("table")?"":null));$ub=$S["Comment"];if($ub!="")echo"<p class='nowrap'>".'Comment'.": ".adminer()->commentValue('TABLE',$ub)."\n";if($n)adminer()->tableStructurePrint($n,$S);function
-tables_links(array$T){echo"<ul>\n";foreach($T
-as$J){$_=preg_replace('~ns=[^&]*~',"ns=".url_escape($J["ns"]),ME);echo"<li><a href='".h($_."table=".url_escape($J["table"]))."'>".($J["ns"]!=$_GET["ns"]?"<b>".h($J["ns"])."</b>.":"").h($J["table"])."</a>";}echo"</ul>\n";}$Pe=driver()->inheritsFrom($a);if($Pe){echo"<h3>".'Inherits from'."</h3>\n";tables_links($Pe);}if(support("indexes")&&driver()->supportsIndex($S)){echo"<div>\n","<h3 id='indexes'>".'Indexes'."</h3>\n";$w=indexes($a);if($w)adminer()->tableIndexesPrint($w,$S);if(driver()->supportsAlterIndex($S))echo'<p class="links hover"><a href="'.h(ME).'indexes='.url_escape($a).'">'.'Alter indexes'."</a>\n";echo"</div>\n";}if(!is_view($S)){if(fk_support($S)){echo"<div>\n","<h3 id='foreign-keys'>".'Foreign keys'."</h3>\n";$Jd=foreign_keys($a);if($Jd){echo"<table>\n","<thead><tr><th>".'Source'."<td>".'Target'."<td>".'ON DELETE'."<td>".'ON UPDATE'."<td class='hover'><tbody>\n";foreach($Jd
-as$C=>$p){echo"<tr title='".h($C)."'>","<th><i>".implode("</i>, <i>",array_map('Adminer\h',$p["source"]))."</i>";$_=($p["db"]!=""?preg_replace('~db=[^&]*~',"db=".url_escape($p["db"]),ME):($p["ns"]!=""?preg_replace('~ns=[^&]*~',"ns=".url_escape($p["ns"]),ME):ME));echo"<td><a href='".h($_."table=".url_escape($p["table"]))."'>".($p["db"]!=""&&$p["db"]!=DB?"<b>".h($p["db"])."</b>.":"").($p["ns"]!=""&&$p["ns"]!=$_GET["ns"]?"<b>".h($p["ns"])."</b>.":"").h($p["table"])."</a>","(<i>".implode("</i>, <i>",array_map('Adminer\h',$p["target"]))."</i>)","<td>".h($p["on_delete"]),"<td>".h($p["on_update"]),'<td class="hover"><a href="'.h(ME.'foreign='.url_escape($a).'&name='.url_escape($C)).'">'.'Alter'.'</a>',"\n";}echo"</table>\n";}echo'<p class="links hover"><a href="'.h(ME).'foreign='.url_escape($a).'">'.'Create foreign key'."</a>\n","</div>\n";}if(support("check")){echo"<div>\n","<h3 id='checks'>".'Checks'."</h3>\n";$db=driver()->checkConstraints($a);if($db){echo"<table>\n";foreach($db
-as$x=>$X)echo"<tr title='".h($x)."'>","<td><code class='jush-".JUSH."'>".shorten_utf8(preg_replace('~\s+~',' ',ltrim($X)),80,"</code>"),"<td class='hover'><a href='".h(ME.'check='.url_escape($a).'&name='.url_escape($x))."'>".'Alter'."</a>","\n";echo"</table>\n";}echo'<p class="links hover"><a href="'.h(ME).'check='.url_escape($a).'">'.'Create check'."</a>\n","</div>\n";}}if(support(is_view($S)?"view_trigger":"trigger")){echo"<div>\n","<h3 id='triggers'>".'Triggers'."</h3>\n";$Jk=triggers($a);if($Jk){echo"<table>\n";foreach($Jk
-as$x=>$X)echo"<tr valign='top'><td>".h($X[0])."<td>".h($X[1])."<th>".h($x)."<td class='hover'><a href='".h(ME.'trigger='.url_escape($a).'&name='.url_escape($x))."'>".'Alter'."</a>\n";echo"</table>\n";}echo'<p class="links hover"><a href="'.h(ME).'trigger='.url_escape($a).'">'.'Create trigger'."</a>\n","</div>\n";}$Oe=driver()->inheritedTables($a);if($Oe){echo"<h3 id='partitions'>".'Inherited by'."</h3>\n";$Ih=driver()->partitionsInfo($a);if($Ih)echo"<p><code class='jush-".JUSH."'>BY ".h("$Ih[partition_by]($Ih[partition])")."</code>\n";tables_links($Oe);}}elseif(isset($_GET["schema"])){page_header('Database schema',"",array(),h(DB.($_GET["ns"]?".$_GET[ns]":"")));$ak=array();$bk=array();$rd=array();$ca=($_GET["schema"]?:$_COOKIE["adminer_schema-".str_replace(".","_",DB)]);preg_match_all('~([^:]+):([-0-9.]+)x([-0-9.]+)(_|$)~',$ca,$Of,PREG_SET_ORDER);foreach($Of
-as$s=>$B){$ak[$B[1]]=array((float)$B[2],(float)$B[3]);$bk[]="\n\t'".js_escape($B[1])."': [ $B[2], $B[3] ]";}$yk=0;$Ma=-1;$L=array();$Ai=array();$zf=array();$ua=driver()->allFields();foreach(table_status('',true)as$R=>$S){if(is_view($S))continue;$F=0;$L[$R]["fields"]=array();foreach($ua[$R]as$m){$F+=1.25;$rd[$R][$m["field"]]=$F;$L[$R]["fields"][$m["field"]]=$m;}$L[$R]["pos"]=($ak[$R]?:array($yk,0));foreach(adminer()->foreignKeys($R)as$X){if(!$X["db"]){$xf=$Ma;if(idx($ak[$R],1)||idx($ak[$X["table"]],1))$xf=min(idx($ak[$R],1,0),idx($ak[$X["table"]],1,0))-1;else$Ma-=.1;while($zf[(string)$xf])$xf-=.0001;$L[$R]["references"][$X["table"]][(string)$xf]=array($X["source"],$X["target"]);$Ai[$X["table"]][$R][(string)$xf]=$X["target"];$zf[(string)$xf]=true;}}$yk=max($yk,$L[$R]["pos"][0]+2.5+$F);}echo'<div id="schema" style="height: ',$yk,'em;">
+write($Wb){$this->size+=strlen($Wb);fwrite($this->handler,$Wb);}function
+send(){fseek($this->handler,0);fpassthru($this->handler);fclose($this->handler);}}if($_GET["select"]!=""&&($_POST["edit"]||$_POST["clone"])&&!$_POST["save"])$_GET["edit"]=$_GET["select"];if(isset($_GET["callf"]))$_GET["call"]=$_GET["callf"];if(isset($_GET["function"]))$_GET["procedure"]=$_GET["function"];if(isset($_GET["download"])){$a=$_GET["download"];$m=fields($a);header("Content-Type: application/octet-stream");$Y=array_merge((array)$_GET["where"],(array)$_GET["val"]);header("Content-Disposition: attachment; filename=".friendly_url("$a-".implode("_",$Y)).".".friendly_url($_GET["field"]));$L=array(idf_escape($_GET["field"]));$G=driver()->select($a,$L,array(where($_GET,$m)),$L);$I=($G?$G->fetch_row():array());echo
+driver()->value($I[0],$m[$_GET["field"]]);exit;}elseif(isset($_GET["table"])){$a=$_GET["table"];$m=fields($a);if(!$m)$k=adminer()->error();$R=table_status1($a);$A=adminer()->tableName($R);$k=$k?:h($R["Error"]);page_header(($m&&is_view($R)?$R['Engine']=='materialized view'?'Materialized view':'View':'Table').": ".($A!=""?$A:h($a)),$k,array(),"",!$m,($m?doc_link(array(JUSH=>driver()->tableHelp($a,is_view($R)))):""));$kk=array();foreach($m
+as$w=>$l)$kk+=$l["privileges"];adminer()->selectLinks($R,(isset($kk["insert"])||!support("table")?"":null));$Hb=$R["Comment"];if($Hb!="")echo"<p class='nowrap'>".'Comment'.": ".adminer()->commentValue('TABLE',$Hb)."\n";if($m)adminer()->tableStructurePrint($m,$R);function
+tables_links(array$S){echo"<ul>\n";foreach($S
+as$I){$z=preg_replace('~ns=[^&]*~',"ns=".url_escape($I["ns"]),ME);echo"<li><a href='".h($z."table=".url_escape($I["table"]))."'>".($I["ns"]!=$_GET["ns"]?"<b>".h($I["ns"])."</b>.":"").h($I["table"])."</a>";}echo"</ul>\n";}$Af=driver()->inheritsFrom($a);if($Af){echo"<h3>".'Inherits from'."</h3>\n";tables_links($Af);}if(support("indexes")&&driver()->supportsIndex($R)){echo"<div>\n","<h3 id='indexes'>".'Indexes'."</h3>\n";$v=indexes($a);if($v)adminer()->tableIndexesPrint($v,$R);if(driver()->supportsAlterIndex($R))echo'<p class="links hover"><a href="'.h(ME).'indexes='.url_escape($a).'">'.'Alter indexes'."</a>\n";echo"</div>\n";}if(!is_view($R)&&driver()->supportsAlterTable($R)){if(fk_support($R)){echo"<div>\n","<h3 id='foreign-keys'>".'Foreign keys'."</h3>\n";$je=foreign_keys($a);if($je){echo"<table>\n","<thead><tr><th>".'Source'."<th>".'Target'."<th>".'ON DELETE'."<th>".'ON UPDATE'."<td class='hover'><tbody>\n";foreach($je
+as$A=>$o){echo"<tr title='".h($A)."'>","<th><i>".implode("</i>, <i>",array_map('Adminer\h',$o["source"]))."</i>";$z=($o["db"]!=""?preg_replace('~db=[^&]*~',"db=".url_escape($o["db"]),ME):($o["ns"]!=""?preg_replace('~ns=[^&]*~',"ns=".url_escape($o["ns"]),ME):ME));echo"<td><a href='".h($z."table=".url_escape($o["table"]))."'>".($o["db"]!=""&&$o["db"]!=DB?"<b>".h($o["db"])."</b>.":"").($o["ns"]!=""&&$o["ns"]!=$_GET["ns"]?"<b>".h($o["ns"])."</b>.":"").h($o["table"])."</a>","(<i>".implode("</i>, <i>",array_map('Adminer\h',$o["target"]))."</i>)","<td>".h($o["on_delete"]),"<td>".h($o["on_update"]),'<td class="hover"><a href="'.h(ME.'foreign='.url_escape($a).'&name='.url_escape($A)).'">'.'Alter'.'</a>',"\n";}echo"</table>\n";}echo'<p class="links hover"><a href="'.h(ME).'foreign='.url_escape($a).'">'.'Create foreign key'."</a>\n","</div>\n";}if(support("check")){echo"<div>\n","<h3 id='checks'>".'Checks'."</h3>\n";$pb=driver()->checkConstraints($a);if($pb){echo"<table>\n";foreach($pb
+as$w=>$W)echo"<tr title='".h($w)."'>","<td><code class='jush-".JUSH."'>".shorten_utf8(preg_replace('~\s+~',' ',ltrim($W)),80,"</code>"),"<td class='hover'><a href='".h(ME.'check='.url_escape($a).'&name='.url_escape($w))."'>".'Alter'."</a>","\n";echo"</table>\n";}echo'<p class="links hover"><a href="'.h(ME).'check='.url_escape($a).'">'.'Create check'."</a>\n","</div>\n";}}if(support(is_view($R)?"view_trigger":"trigger")&&driver()->supportsAlterTable($R)){echo"<div>\n","<h3 id='triggers'>".'Triggers'."</h3>\n";$Jm=triggers($a);if($Jm){echo"<table>\n";foreach($Jm
+as$w=>$W){echo"<tr valign='top'><td>".h($W[0])."<td>".h($W[1])."<th>".h($w)."<td class='hover'><a href='".h(ME.'trigger='.url_escape($a).'&name='.url_escape($w))."'>".'Alter'."</a>";$mk=$W[2];if($mk){$ok=preg_replace('~ns=[^&]*~',"ns=".url_escape($mk["ns"]),ME).'function='.url_escape($mk["function"]).'&name='.url_escape($mk["name"]);echo", <a href='".h($ok)."' title='".h($mk["name"])."'>".'Alter function'."</a>";}echo"\n";}echo"</table>\n";}echo'<p class="links hover"><a href="'.h(ME).'trigger='.url_escape($a).'">'.'Create trigger'."</a>\n","</div>\n";}$cl=driver()->shadowTables($a);if($cl){echo"<h3 id='shadow-tables'>".'Shadow tables'."</h3>\n";tables_links($cl);}$_f=driver()->inheritedTables($a);if($_f){echo"<h3 id='partitions'>".'Inherited by'."</h3>\n";$Ri=driver()->partitionsInfo($a);if($Ri)echo"<p><code class='jush-".JUSH."'>BY ".h("$Ri[partition_by]($Ri[partition])")."</code>\n";tables_links($_f);}}elseif(isset($_GET["schema"])){page_header('Database schema',"",array(),h(DB.($_GET["ns"]?".$_GET[ns]":"")));function
+schema_column($Q,array$Tj,array&$e){if(!isset($e[$Q])){$e[$Q]=0;foreach((array)idx($Tj,$Q)as$A=>$Vj){if($A!=$Q)$e[$Q]=max($e[$Q],schema_column($A,$Tj,$e)+1);}}return$e[$Q];}function
+type_class($T){foreach(array('char'=>'text','date'=>'time|year','binary'=>'blob','enum'=>'set',)as$w=>$W){if(preg_match("~$w|$W~",$T))return" class='$w'";}}$Ul=array();$Wl=array();$Vl=array();$Qd=array();$ca=($_GET["schema"]?:$_COOKIE["adminer_schema-".str_replace(".","_",DB)]);preg_match_all('~([^:]+):([-0-9.]+)x([-0-9.]+)(_|$)~',$ca,$Hg,PREG_SET_ORDER);foreach($Hg
+as$r=>$_){$Ul[$_[1]]=array((float)$_[2],(float)$_[3]);$Wl[]="\n\t'".js_escape($_[1])."': [ $_[2], $_[3] ]";}$K=array();$Tj=array();$je=array();$xa=driver()->allFields();$We=array();$Xl=array();foreach(table_status('',true)as$Q=>$R){if(!is_view($R)){if(adminer()->tableName($R)!=""&&!$R["dependent"])$Xl[$Q]=$R;else$We[$Q]=true;}}foreach($Xl
+as$Q=>$R){$E=0;$K[$Q]["fields"]=array();foreach($xa[$Q]as$l){$E+=1.25;$Qd[$Q][$l["field"]]=$E;$K[$Q]["fields"][$l["field"]]=$l;}foreach(adminer()->foreignKeys($Q)as$W){if($W["db"]==""&&$W["ns"]==""&&!$We[$W["table"]]){$je[$Q][]=$W;$Tj[$W["table"]][$Q]=array();}}}$e=array();$Ae=array();$Kn=array();$Ge=array();foreach(array_keys($K)as$A)schema_column($A,$Tj,$e);arsort($e);foreach($e
+as$A=>$d){$ih=null;foreach((array)idx($je,$A)as$W){if($W["table"]!=$A&&$K[$W["table"]])$ih=($ih===null?$e[$W["table"]]:min($ih,$e[$W["table"]]));}$e[$A]=max($d,(int)$ih-1);}foreach($K
+as$A=>$Q){$d=$e[$A];$Ae[$d][]=$A;$mm=.75*strlen($A);foreach($Q["fields"]as$l)$mm=max($mm,.65*strlen($l["field"]));$Kn[$d]=max(idx($Kn,$d,0),ceil($mm)+1);}foreach($je
+as$A=>$vn){foreach($vn
+as$W){$Fe=$e[$A]+(idx($e,$W["table"],$e[$A])>$e[$A]?1:0);$Ge[$Fe]=idx($Ge,$Fe,0)+1;}}ksort($Ae);$Ue=0;$Jn=0;$Eb=0;$yj=null;$Ql=array();$Zl=array();foreach($Ae
+as$d=>$S){if($yj!==null){$Eb=round($Eb+$Kn[$yj]+1.7+idx($Ge,$d,0)*.1,1);$ti=array();foreach($S
+as$A){$Gl=0;$dc=0;$Ah=array_keys((array)idx($Tj,$A));foreach((array)idx($je,$A)as$W)$Ah[]=$W["table"];foreach($Ah
+as$uh){if($K[$uh]&&$e[$uh]<$d){$Gl+=$K[$uh]["pos"][0];$dc++;}}$ti[$A]=($dc?$Gl/$dc:$Ue);}asort($ti);$S=array_keys($ti);}$xm=0;foreach($S
+as$A){$E=1.25*count($K[$A]["fields"]);$K[$A]["pos"]=($Ul[$A]?:array($xm,$Eb));$Ql[$A]=$K[$A]["pos"][1];$Zl[$A]=$Kn[$d];$xm+=2.5+$E;$Ue=max($Ue,$K[$A]["pos"][0]+2.5+$E);$Jn=max($Jn,round($K[$A]["pos"][1]+$Kn[$d],1));if(!$Ul[$A])$Vl[]="\n\t'".js_escape($A)."': [ ".$K[$A]["pos"][0].", ".$K[$A]["pos"][1]." ]";}$yj=$d;}$pg=array();$Ua=array();foreach($je
+as$A=>$vn){foreach($vn
+as$W){$fm=idx($Ql,$W["table"],$Ql[$A]);$nl=$Ql[$A]+$Zl[$A];$jk=($fm-1>$nl);$ng=($jk?$nl+1:min($Ql[$A],$fm)-1);$Ta=idx($Ua,(string)$ng,0);$Ua[(string)$ng]=$Ta+1;$ng=round($jk?min($ng+$Ta*.1,$fm-1):$ng-$Ta*.1,1);while($pg[(string)$ng])$ng-=.0001;$K[$A]["references"][$W["table"]][(string)$ng]=array($W["source"],$W["target"]);$Tj[$W["table"]][$A][(string)$ng]=$W["target"];$pg[(string)$ng]=true;}}echo'<div id="schema" style="height: ',$Ue,'em; width: ',$Jn,'em;">
 <script',nonce(),'>
-const tablePos = {',implode(",",$bk)."\n",'};
-const em = qs(\'#schema\').offsetHeight / ',$yk,';
+const tablePos = {',implode(",",$Wl)."\n",'};
+const tablePosDefault = {',implode(",",$Vl)."\n",'};
+const em = qs(\'#schema\').offsetHeight / ',$Ue,';
 document.onmousemove = schemaMousemove;
 document.onmouseup = event => schemaMouseup(event, \'',js_escape(DB),'\');
 </script>
-';foreach($L
-as$C=>$R){echo"<div class='table'".on('mousedown','schemaMousedown')." style='top: ".$R["pos"][0]."em; left: ".$R["pos"][1]."em;'>",'<a href="'.h(ME).'table='.url_escape($C).'"><b>'.h($C)."</b></a>";foreach($R["fields"]as$m){$X='<span'.type_class($m["type"]).' title="'.h($m["type"].($m["length"]?"($m[length])":"").($m["null"]?" NULL":'')).'">'.h($m["field"]).'</span>';echo"<br>".($m["primary"]?"<i>$X</i>":$X);}foreach((array)$R["references"]as$ik=>$Ci){foreach($Ci
-as$xf=>$yi){$yf=$xf-idx($ak[$C],1);$s=0;foreach($yi[0]as$_j)echo"\n<div class='references' title='".h($ik)."' id='refs$xf-".($s++)."' style='left: $yf"."em; top: ".$rd[$C][$_j]."em; padding-top: .5em;'>"."<div style='border-top: 1px solid gray; width: ".(-$yf)."em;'></div></div>";}}foreach((array)$Ai[$C]as$ik=>$Ci){foreach($Ci
-as$xf=>$e){$yf=$xf-idx($ak[$C],1);$s=0;foreach($e
-as$hk)echo"\n<div class='references arrow' title='".h($ik)."' id='refd$xf-".($s++)."' style='left: $yf"."em; top: ".$rd[$C][$hk]."em;'>"."<div style='height: .5em; border-bottom: 1px solid gray; width: ".(-$yf)."em;'></div>"."</div>";}}echo"\n</div>\n";}foreach($L
-as$C=>$R){foreach((array)$R["references"]as$ik=>$Ci){if($L[$ik]){foreach($Ci
-as$xf=>$yi){$og=$yk;$Wf=-10;foreach($yi[0]as$x=>$_j){$Zh=$R["pos"][0]+$rd[$C][$_j];$ai=$L[$ik]["pos"][0]+$rd[$ik][$yi[1][$x]];$og=min($og,$Zh,$ai);$Wf=max($Wf,$Zh,$ai);}echo"<div class='references' id='refl$xf' style='left: $xf"."em; top: $og"."em; padding: .5em 0;'><div style='border-right: 1px solid gray; margin-top: 1px; height: ".($Wf-$og)."em;'></div></div>\n";}}}}echo'</div>
+';foreach($K
+as$A=>$Q){echo"<div class='table'".on('mousedown','schemaMousedown')." style='top: ".$Q["pos"][0]."em; left: ".$Q["pos"][1]."em; width: ".$Zl[$A]."em;'>",'<a href="'.h(ME).'table='.url_escape($A).'"><b>'.h($A)."</b></a>";foreach($Q["fields"]as$l){$W='<span'.type_class($l["type"]).' title="'.h($l["type"].($l["length"]?"($l[length])":"").($l["null"]?" NULL":'')).'">'.h($l["field"]).'</span>';echo"<br>".($l["primary"]?"<i>$W</i>":$W);}foreach((array)$Q["references"]as$gm=>$Vj){foreach($Vj
+as$ng=>$Qj){$og=$ng-$Q["pos"][1];$Dl=($og>0?"left: 100%; width: calc($og"."em - 100%)":"left: $og"."em");$Jn=($og>0?"100%":(-$og)."em");$r=0;foreach($Qj[0]as$ml)echo"\n<div class='references' title='".h($gm)."' id='refs$ng-".($r++)."' style='$Dl"."; top: ".$Qd[$A][$ml]."em; padding-top: .5em;'>"."<div style='border-top: 1px solid gray; width: $Jn;'></div></div>";}}foreach((array)$Tj[$A]as$gm=>$Vj){foreach($Vj
+as$ng=>$hm){$og=$ng-$Q["pos"][1];$r=0;foreach($hm
+as$em)echo"\n<div class='references arrow' title='".h($gm)."' id='refd$ng-".($r++)."' style='left: $og"."em; top: ".$Qd[$A][$em]."em;'>"."<div style='height: .5em; border-bottom: 1px solid gray; width: ".(-$og)."em;'></div>"."</div>";}}echo"\n</div>\n";}foreach($K
+as$A=>$Q){foreach((array)$Q["references"]as$gm=>$Vj){if($K[$gm]){foreach($Vj
+as$ng=>$Qj){$jh=$Ue;$Pg=-10;foreach($Qj[0]as$w=>$ml){$oj=$Q["pos"][0]+$Qd[$A][$ml];$pj=$K[$gm]["pos"][0]+$Qd[$gm][$Qj[1][$w]];$jh=min($jh,$oj,$pj);$Pg=max($Pg,$oj,$pj);}echo"<div class='references' id='refl$ng' style='left: $ng"."em; top: $jh"."em; padding: .5em 0;'><div style='border-right: 1px solid gray; margin-top: 1px; height: ".($Pg-$jh)."em;'></div></div>\n";}}}}echo'</div>
 <p class="links"><a href="',h(ME."schema=".url_escape($ca)),'" id="schema-link">Permanent link</a>
-';}elseif(isset($_GET["dump"])){$a=$_GET["dump"];if($_POST&&!$l){$k=array("auto_increment"=>'');foreach(array("type","routine","event","trigger")as$Sj){if(support($Sj))$k[$Sj."s"]='';}save_settings(array_intersect_key($_POST+$k,array_flip(array("output","format","db_style","table_style","data_style"))+$k),"adminer_export");$T=array_flip((array)$_POST["tables"])+array_flip((array)$_POST["data"]);$hd=dump_headers((count($T)==1?key($T):DB),(DB==""||$_GET["ns"]===""||count($T)>1));$df=preg_match('~sql~',$_POST["format"]);if($df){echo"-- Adminer ".VERSION." ".get_driver(DRIVER)." ".str_replace("\n"," ",connection()->server_info)." dump\n\n";if(JUSH=="sql"){echo"SET NAMES utf8;
+';}elseif(isset($_GET["dump"])){$a=$_GET["dump"];if($_POST&&!$k){$j=array("auto_increment"=>'');foreach(array("type","routine","event","trigger")as$Il){if(support($Il))$j[$Il."s"]='';}save_settings(array_intersect_key($_POST+$j,array_flip(array("output","format","db_style","schema_style","table_style","data_style"))+$j),"adminer_export");$wa=(DB==""||$_GET["ns"]==="");$S=array_flip((array)$_POST["tables"])+array_flip((array)$_POST["data"]);$Gd=dump_headers((count($S)==1?key($S):DB),($wa||count($S)>1));$Rf=preg_match('~sql~',$_POST["format"]);if($Rf){echo"-- Adminer ".VERSION." ".get_driver(DRIVER)." ".str_replace("\n"," ",connection()->server_info)." dump\n\n";if(JUSH=="sql"){echo"SET NAMES utf8;
 SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 ".($_POST["data_style"]?"SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 ":"")."
-";connection()->query("SET time_zone = '+00:00'");connection()->query("SET sql_mode = ''");}}$Nj=$_POST["db_style"];$i=array(DB);if(DB==""){$i=$_POST["databases"];if(is_string($i))$i=explode("\n",rtrim(str_replace("\r","",$i),"\n"));}foreach((array)$i
-as$j){adminer()->dumpDatabase($j);if(connection()->select_db($j)){if($df&&$Nj)echo
-use_sql($j,$Nj).";\n\n";foreach(($_GET["ns"]===""?(array)$_POST["schemas"]:(DB!=""||!support("scheme")?array(""):adminer()->schemas()))as$L){if($L!=""){if(DB==""&&information_schema(DB,$L))continue;set_schema($L);}$Kj=($_POST["table_style"]||$_POST["data_style"]?table_status('',true):array());$gd=array();$Yb=array();foreach($Kj
-as$C=>$S){if(DB==""||$_GET["ns"]===""||in_array($C,(array)$_POST["tables"]))$gd[$C]=$S;if(DB==""||$_GET["ns"]===""||in_array($C,(array)$_POST["data"]))$Yb[$C]=$S;}if($df){if($_POST["table_style"]=="DROP+CREATE"&&function_exists('Adminer\drop_sql'))echo
-drop_sql($gd);if($_POST["data_style"]=="TRUNCATE+INSERT"&&function_exists('Adminer\truncate_all_sql')){$Kk=array();foreach($Yb
-as$C=>$S){if(!is_view($S)&&!($_POST["table_style"]=="DROP+CREATE"&&isset($gd[$C])))$Kk[]=$C;}echo
-truncate_all_sql($Kk);}$yh="";if($_POST["types"]){foreach(types()as$t=>$U){$hc=type_definition($t);$Lg=($hc["kind"]=='d'?"DOMAIN":"TYPE");if($hc["definition"])$yh
-.=($Nj!='DROP+CREATE'?"DROP $Lg IF EXISTS ".idf_escape($U).";;\n":"")."CREATE $Lg ".idf_escape($U)." $hc[definition];\n\n";else$yh
-.="-- Could not export type $U\n\n";}}if($_POST["routines"]){foreach(routines()as$J){$C=$J["ROUTINE_NAME"];$Pi=$J["ROUTINE_TYPE"];$h=create_routine($Pi,array("name"=>$C)+routine($J["SPECIFIC_NAME"],$Pi));set_utf8mb4($h);$yh
-.=($Nj!='DROP+CREATE'?"DROP $Pi IF EXISTS ".idf_escape($C).";;\n":"")."$h;\n\n";}}if($_POST["events"]){foreach(get_rows("SHOW EVENTS",null,"-- ")as$J){$h=remove_definer(get_val("SHOW CREATE EVENT ".idf_escape($J["Name"]),3));set_utf8mb4($h);$yh
-.=($Nj!='DROP+CREATE'?"DROP EVENT IF EXISTS ".idf_escape($J["Name"]).";;\n":"")."$h;;\n\n";}}echo($yh&&JUSH=='sql'?"DELIMITER ;;\n\n$yh"."DELIMITER ;\n\n":$yh);}if($_POST["table_style"]||$_POST["data_style"]){$ul=array();foreach($Kj
-as$C=>$S){$R=array_key_exists($C,$gd);$Wb=array_key_exists($C,$Yb);if($R||$Wb){$vk=null;if($hd=="tar"){$vk=new
-TmpFile;ob_start(array($vk,'write'),1e5);}adminer()->dumpTable($C,($R?$_POST["table_style"]:""),(is_view($S)?2:0));if(is_view($S))$ul[]=$C;elseif($Wb){$n=fields($C);$M=array("*");$Jb=convert_fields($n,$n);if($Jb)$M[]=substr($Jb,2);adminer()->dumpData($C,$_POST["data_style"],"",$M);}if($df&&$_POST["triggers"]&&$R&&($Jk=trigger_sql($C)))echo"\nDELIMITER ;;\n$Jk\nDELIMITER ;\n";if($hd=="tar"){ob_end_flush();tar_file((DB!=""?"":"$j/")."$C.csv",$vk);}elseif($df)echo"\n";}}if($df&&$_POST["table_style"]&&function_exists('Adminer\foreign_keys_sql')){foreach($gd
-as$C=>$S){if(!is_view($S))echo
-foreign_keys_sql($C);}}if($df){foreach($ul
-as$tl)adminer()->dumpTable($tl,$_POST["table_style"],1);}if($hd=="tar")echo
-pack("x1024");}}}}adminer()->dumpFooter();exit;}page_header('Export',$l,($_GET["export"]!=""?array("table"=>$_GET["export"]):array()),h(DB));echo'
+";connection()->query("SET time_zone = '+00:00'");connection()->query("SET sql_mode = ''");}}$Dl=$_POST["db_style"];$h=array(DB);if(DB==""){$h=$_POST["databases"];if(is_string($h))$h=explode("\n",rtrim(str_replace("\r","",$h),"\n"));}foreach((array)$h
+as$i){adminer()->dumpDatabase($i);if(connection()->select_db($i)){if($Rf&&$Dl)echo
+use_sql($i,$Dl).";\n\n";foreach(($_GET["ns"]===""?(array)$_POST["schemas"]:(DB!=""||!support("scheme")?array(""):adminer()->schemas()))as$K){if($K!=""){if(DB==""&&information_schema(DB,$K))continue;set_schema($K);}if($Rf&&$_POST["schema_style"]&&function_exists('Adminer\use_schema_sql'))echo
+use_schema_sql($_GET["ns"],$_POST["schema_style"]).";\n\n";$_l=($_POST["table_style"]||$_POST["data_style"]?table_status('',true):array());$Fd=array();$qc=array();foreach($_l
+as$A=>$R){if($wa||in_array($A,(array)$_POST["tables"]))$Fd[$A]=$R;if($wa||in_array($A,(array)$_POST["data"]))$qc[$A]=$R;}if($Rf){if($_POST["table_style"]=="DROP+CREATE"&&function_exists('Adminer\drop_sql'))echo
+drop_sql($Fd);if($_POST["data_style"]=="TRUNCATE+INSERT"&&function_exists('Adminer\truncate_all_sql')){$Km=array();foreach($qc
+as$A=>$R){if(!is_view($R)&&!($_POST["table_style"]=="DROP+CREATE"&&isset($Fd[$A])))$Km[]=$A;}echo
+truncate_all_sql($Km);}$Fi="";if($_POST["types"]){foreach(types()as$s=>$T){$Ac=type_definition($s);$Rh=($Ac["kind"]=='d'?"DOMAIN":"TYPE");if($Ac["definition"])$Fi
+.=($Dl!='DROP+CREATE'?"DROP $Rh IF EXISTS ".table($T).";;\n":"")."CREATE $Rh ".table($T)." $Ac[definition];\n\n";else$Fi
+.="-- Could not export type $T\n\n";}}if($_POST["routines"]){foreach(routines()as$I){$A=$I["ROUTINE_NAME"];$mk=$I["ROUTINE_TYPE"];$ec=create_routine($mk,array("name"=>$A)+routine($I["SPECIFIC_NAME"],$mk));set_utf8mb4($ec);$Fi
+.=($Dl!='DROP+CREATE'?"DROP $mk IF EXISTS ".table($A).";;\n":"")."$ec;\n\n";}}if($_POST["events"]){foreach(get_rows("SHOW EVENTS",null,"-- ")as$I){$ec=remove_definer(get_val("SHOW CREATE EVENT ".idf_escape($I["Name"]),3));set_utf8mb4($ec);$Fi
+.=($Dl!='DROP+CREATE'?"DROP EVENT IF EXISTS ".idf_escape($I["Name"]).";;\n":"")."$ec;;\n\n";}}echo($Fi&&JUSH=='sql'?"DELIMITER ;;\n\n$Fi"."DELIMITER ;\n\n":$Fi);}if($_POST["table_style"]||$_POST["data_style"]){$_n=array();foreach($_l
+as$A=>$R){$Q=array_key_exists($A,$Fd);$oc=array_key_exists($A,$qc);if($Q||$oc){$um=null;if($Gd=="tar"){$um=new
+TmpFile;ob_start(array($um,'write'),1e5);}adminer()->dumpTable($A,($Q?$_POST["table_style"]:""),(is_view($R)?2:0));if(is_view($R))$_n[]=$A;elseif($oc){$m=fields($A);$L=array("*");$ac=convert_fields($m,$m);if($ac)$L[]=substr($ac,2);adminer()->dumpData($A,$_POST["data_style"],"",$L);}if($Rf&&$_POST["triggers"]&&$Q&&($Jm=trigger_sql($A)))echo"\nDELIMITER ;;\n$Jm\nDELIMITER ;\n";if($Gd=="tar"){ob_end_flush();tar_file((DB!=""?"":"$i/")."$A.csv",$um);}elseif($Rf)echo"\n";}}if($Rf&&$_POST["table_style"]&&function_exists('Adminer\foreign_keys_sql')){foreach($Fd
+as$A=>$R){if(!is_view($R))echo
+foreign_keys_sql($A);}}if($Rf){foreach($_n
+as$zn)adminer()->dumpTable($zn,$_POST["table_style"],1);}if($Gd=="tar")echo
+pack("x1024");}}}}adminer()->dumpFooter();exit;}page_header('Export',$k,($_GET["export"]!=""?array("table"=>$_GET["export"]):array()),h(DB));echo'
 <form action="" method="post">
 <table class="layout">
-';$bc=array('','USE','DROP+CREATE','CREATE');$ck=array('','DROP+CREATE','CREATE');$Xb=array('','TRUNCATE+INSERT','INSERT');if(JUSH=="sql")$Xb[]='INSERT+UPDATE';$J=get_settings("adminer_export");if(!$J)$J=array("output"=>"text","format"=>"sql","db_style"=>(DB!=""?"":"CREATE"),"table_style"=>"DROP+CREATE","data_style"=>"INSERT");echo"<tr><th>".'Output'."<td>".html_radios("output",adminer()->dumpOutput(),$J["output"])."\n","<tr><th>".'Format'."<td>".html_radios("format",adminer()->dumpFormat(),$J["format"])."\n",(JUSH=="sqlite"?"":"<tr><th>".'Database'."<td>".html_select('db_style',$bc,$J["db_style"]).(support("type")?checkbox("types",1,$J["types"],'User types'):"").(support("routine")?checkbox("routines",1,$J["routines"],'Routines'):"").(support("event")?checkbox("events",1,$J["events"],'Events'):"")),"<tr><th>".'Tables'."<td>".html_select('table_style',$ck,$J["table_style"]).checkbox("auto_increment",1,$J["auto_increment"],'Auto Increment').(support("trigger")?checkbox("triggers",1,$J["triggers"],'Triggers'):""),"<tr><th>".'Data'."<td>".html_select('data_style',$Xb,$J["data_style"]),'</table>
-<p><input type=\'submit\' value=\'Export\'>
+';$uc=array('','USE','DROP+CREATE','CREATE');$xk=(JUSH=="mssql"?array('','DROP+CREATE','CREATE'):$uc);$Yl=array('','DROP+CREATE','CREATE');$pc=array('','TRUNCATE+INSERT','INSERT');if(JUSH=="sql")$pc[]='INSERT+UPDATE';$I=get_settings("adminer_export");if(!$I)$I=array("output"=>"text","format"=>"sql","db_style"=>(DB!=""?"":"CREATE"),"schema_style"=>"","table_style"=>"DROP+CREATE","data_style"=>"INSERT");echo"<tr><th>".'Output'."<td>".html_radios("output",adminer()->dumpOutput(),$I["output"])."\n","<tr><th>".'Format'."<td>".html_radios("format",adminer()->dumpFormat(),$I["format"])."\n",(JUSH=="sqlite"?"":"<tr><th>".'Database'."<td>".html_select('db_style',$uc,$I["db_style"]).(support("type")?checkbox("types",1,$I["types"],'User types'):"").(support("routine")?checkbox("routines",1,$I["routines"],'Routines'):"").(support("event")?checkbox("events",1,$I["events"],'Events'):"")),(function_exists('Adminer\use_schema_sql')?"<tr><th>".'Schema'."<td>".html_select('schema_style',$xk,$I["schema_style"]):""),"<tr><th>".'Tables'."<td>".html_select('table_style',$Yl,$I["table_style"]).checkbox("auto_increment",1,$I["auto_increment"],'Auto Increment').(support("trigger")?checkbox("triggers",1,$I["triggers"],'Triggers'):""),"<tr><th>".'Data'."<td>".html_select('data_style',$pc,$I["data_style"]),'</table>
+';adminer()->dumpPrint();echo'<p><input type=\'submit\' value=\'Export\'>
 ',input_token(),'
 <table',on('click','dumpClick'),'>
-';$gi=array();if($_GET["ns"]===""){echo"<thead><tr><th style='text-align: left;'>","<label class='block'><input type='checkbox' id='check-schemas' checked class='jsonly' title='".'All'."'".on('click','formCheck','^schemas\[').">".'Schema'."</label>","<tbody>\n";foreach(adminer()->schemas()as$L){if(!information_schema(DB,$L))echo"<tr><td>".checkbox("schemas[]",$L,true,$L,"","block")."\n";}}elseif(DB!=""){$fb=($a!=""?"":" checked");echo"<thead><tr>","<th style='text-align: left;'><label class='block'><input type='checkbox' id='check-tables'$fb class='jsonly' title='".'All'."'".on('click','formCheck','^tables\[').">".'Table'."</label>","<th style='text-align: right;'><label class='block'>".'Data'."<input type='checkbox' id='check-data'$fb class='jsonly' title='".'All'."'".on('click','formCheck','^data\[')."></label>","<tbody>\n";$ul="";$ek=tables_list();foreach($ek
-as$C=>$U){$fi=preg_replace('~_.*~','',$C);$fb=($a==""||$a==(substr($a,-1)=="%"?"$fi%":$C));$ki="<tr><td>".checkbox("tables[]",$C,$fb,$C,"","block");if($U!==null&&!preg_match('~table~i',$U))$ul
-.="$ki\n";else
-echo"$ki<td align='right'><label class='block'><span id='Rows-".h($C)."'></span>".checkbox("data[]",$C,$fb)."</label>\n";$gi[$fi]++;}echo$ul;if($ek)echo
-script("ajaxSetHtml('".js_escape(ME)."script=db');");}else{$i=adminer()->databases();echo"<thead><tr><th style='text-align: left;'>","<label class='block'>".($i?"<input type='checkbox' id='check-databases'".($a==""?" checked":"")." class='jsonly' title='".'All'."'".on('click','formCheck','^databases\[').">":"").'Database'."</label>","<tbody>\n";if($i){foreach($i
-as$j){if(!information_schema($j)){$fi=preg_replace('~_.*~','',$j);echo"<tr><td>".checkbox("databases[]",$j,$a==""||$a=="$fi%",$j,"","block")."\n";$gi[$fi]++;}}}else
+';$wj=array();if($_GET["ns"]===""&&support("scheme")){echo"<thead><tr><th style='text-align: left;'>","<label class='block'><input type='checkbox' id='check-schemas' checked class='jsonly' title='".'All'."'".on('click','formCheck','^schemas\[').">".'Schema'."</label>","<tbody>\n";foreach(adminer()->schemas()as$K){if(!information_schema(DB,$K))echo"<tr><td>".checkbox("schemas[]",$K,true,$K,"","block")."\n";}}elseif(DB!=""){$rb=($a!=""?"":" checked");echo"<thead><tr>","<th style='text-align: left;'><label class='block'><input type='checkbox' id='check-tables'$rb class='jsonly' title='".'All'."'".on('click','formCheck','^tables\[').">".'Table'."</label>","<th style='text-align: right;'><label class='block'>".'Data'."<input type='checkbox' id='check-data'$rb class='jsonly' title='".'All'."'".on('click','formCheck','^data\[')."></label>","<tbody>\n";$_n="";$bm=tables_list();foreach($bm
+as$A=>$T){$vj=preg_replace('~_.*~','',$A);$rb=($a==""||$a==(substr($a,-1)=="%"?"$vj%":$A));$Bj="<tr><td>".checkbox("tables[]",$A,$rb,$A,"","block");if($T!==null&&!preg_match('~table~i',$T))$_n
+.="$Bj\n";else
+echo"$Bj<td align='right'><label class='block'><span id='Rows-".h($A)."'></span>".checkbox("data[]",$A,$rb)."</label>\n";$wj[$vj]++;}echo$_n;if($bm)echo
+script("ajaxSetHtml('".js_escape(ME)."script=db');");}else{$h=adminer()->databases();echo"<thead><tr><th style='text-align: left;'>","<label class='block'>".($h?"<input type='checkbox' id='check-databases'".($a==""?" checked":"")." class='jsonly' title='".'All'."'".on('click','formCheck','^databases\[').">":"").'Database'."</label>","<tbody>\n";if($h){foreach($h
+as$i){if(!information_schema($i)){$vj=preg_replace('~_.*~','',$i);echo"<tr><td>".checkbox("databases[]",$i,$a==""||$a=="$vj%",$i,"","block")."\n";$wj[$vj]++;}}}else
 echo"<tr><td><textarea name='databases' rows='10' cols='20'></textarea>";}echo'</table>
 </form>
-';$_d=true;foreach($gi
-as$x=>$X){if($x!=""&&$X>1){echo($_d?"<p>":" ")."<a href='".h(ME)."dump=".url_escape("$x%")."'>".h($x)."</a>";$_d=false;}}}elseif(isset($_GET["privileges"])){page_header('Privileges');echo'<p class="links"><a href="'.h(ME).'user=">'.'Create user'."</a>";$H=connection()->query("SELECT User, Host FROM mysql.".(DB==""?"user":"db WHERE ".q(DB)." LIKE Db")." ORDER BY Host, User");$Vd=$H;if(!$H)$H=connection()->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");echo"<form action=''><p>\n";hidden_fields_get();echo
-input_hidden("db",DB),($Vd?"":input_hidden("grant")),"<table class='odds'>\n","<thead><tr><th>".'Username'."<th>".'Server'."<td class='hover'><tbody>\n";while($J=$H->fetch_assoc())echo'<tr><td>'.h($J["User"]),"<td>".h($J["Host"]),'<td class="hover"><a href="'.h(ME.'user='.url_escape($J["User"]).'&host='.url_escape($J["Host"])).'">'.'Edit'."</a>\n";if(!$Vd||DB!="")echo"<tr><td><input name='user' autocapitalize='off'><td><input name='host' value='localhost' autocapitalize='off'><td><input type='submit' value='".'Edit'."'>\n";echo"</table>\n","</form>\n";}elseif(isset($_GET["sql"])){if(!$l&&$_POST["export"]){save_settings(array("output"=>$_POST["output"],"format"=>$_POST["format"]),"adminer_import");dump_headers("sql");if($_POST["format"]=="sql")echo"$_POST[query]\n";else{adminer()->dumpTable("","");adminer()->dumpData("","table",$_POST["query"]);adminer()->dumpFooter();}exit;}restart_session();$qe=&get_session("queries");$pe=&$qe[DB];if(!$l&&$_POST["clear"]){$pe=array();redirect(remove_from_uri("history"));}stop_session();$oa=get_settings("adminer_import");if($_POST&&$oa)save_settings($oa,"adminer_import");page_header((isset($_GET["import"])?'Import':'SQL command'),$l);$Ef=driver()->lineComment();if(!$l&&$_POST&&!(isset($_GET["import"])&&adminer()->importProcess())){$jc=driver()->delimiter;$q=false;if(!isset($_GET["import"]))$G=$_POST["query"];elseif($_POST["webfile"]){$Dj=adminer()->importServerPath();$q=@fopen((file_exists($Dj)?$Dj:"compress.zlib://$Dj.gz"),"rb");$G=($q?fread($q,1e6):false);}else$G=get_file("sql_file",true,$jc);if(is_string($G)){if(($dg=ini_bytes("memory_limit"))!="-1")ini_set("memory_limit",max($dg,strval(2*strlen($G)+memory_get_usage()+8e6)));if($G!=""&&strlen($G)<1e6){$qi=$G.(preg_match("~$jc\\s*\$~",$G)?"":$jc);if(!$pe||first(end($pe))!=$qi){restart_session();$pe[]=array($qi,time());set_session("queries",$qe);stop_session();}}$Aj="(?:\\s|/\\*[\s\S]*?\\*/|(?:$Ef)[^\n]*\n?|--\r?\n)";$Rg=0;$Oc=true;$Lb=false;$g=connect();if($g&&DB!=""){$g->select_db(DB);if($_GET["ns"]!="")set_schema($_GET["ns"],$g);}$tb=0;$Vc=array();$Fh='[\'"'.(JUSH=="sql"?'`':(JUSH=="sqlite"?'`[':(JUSH=="mssql"?'[':''))).']|/\*|'.$Ef.'|$'.(JUSH=="pgsql"?'|\$([a-zA-Z]\w*)?\$':'');$zk=microtime(true);while($G!=""){if(!$Rg&&preg_match("~^$Aj*+DELIMITER\\s+(\\S+)~i",$G,$B)){$jc=preg_quote($B[1]);$G=substr($G,strlen($B[0]));}elseif(!$Rg&&JUSH=='pgsql'&&preg_match("~^($Aj*+COPY\\s+)[^;]+\\s+FROM\\s+stdin;~i",$G,$B)){$jc="\n\\\\\\.\r?\n";$Lb=true;$Rg=strlen($B[0]);}else{preg_match("($jc\\s*|$Fh)",$G,$B,PREG_OFFSET_CAPTURE,$Rg);list($Ld,$F)=$B[0];if(!$Ld&&$q&&!feof($q))$G
-.=fread($q,1e5);else{if(!$Ld&&rtrim($G)=="")break;$Rg=$F+strlen($Ld);if($Ld&&!preg_match("(^$jc)",$Ld)){$Xa=driver()->hasCStyleEscapes()||(JUSH=="pgsql"&&($F>0&&strtolower($G[$F-1])=="e"));$Rh=($Ld=='/*'?'\*/':($Ld=='['?']':(preg_match("~^(?:$Ef)~",$Ld)?"\n":preg_quote($Ld).($Xa?'|\\\\.':''))));while(preg_match("($Rh|\$)s",$G,$B,PREG_OFFSET_CAPTURE,$Rg)){$Ui=$B[0][0];if(!$Ui&&$q&&!feof($q))$G
-.=fread($q,1e5);else{$Rg=$B[0][1]+strlen($Ui);if(!$Ui||$Ui[0]!="\\")break;}}}else{$Oc=false;$qi=substr($G,0,$F+($Lb?3:0));$tb++;$ki="<pre id='sql-$tb'><code class='jush-".JUSH."'>".adminer()->sqlCommandQuery($qi)."</code></pre>\n";if(JUSH=="sqlite"&&preg_match("~^$Aj*+(ATTACH|VACUUM\\b.*\\bINTO)\\b~is",$qi,$B)!==0){echo$ki,"<p class='error'>".sprintf('%s queries are not supported.',preg_match('~ATTACH~i',$B[1])?'ATTACH':'VACUUM INTO')."\n";$Vc[]=" <a href='#sql-$tb'>$tb</a>";if($_POST["error_stops"])break;}else{if(!$_POST["only_errors"]){echo$ki;ob_flush();flush();}$Jj=microtime(true);if(connection()->multi_query($qi)&&$g&&preg_match("~^$Aj*+USE\\b~i",$qi))$g->query($qi);do{$H=connection()->store_result();if(connection()->error){echo($_POST["only_errors"]?$ki:""),"<p class='error'>".'Error in query'.(connection()->errno?" (".connection()->errno.")":"").": ".error()."\n";$Vc[]=" <a href='#sql-$tb'>$tb</a>";if($_POST["error_stops"])break
-2;}else{$_=ME."sql=".url_escape(trim($qi));$ok=" <span class='time'>(".format_time($Jj).")</span>".(strlen($_)<1900?" <a href='".h($_)."'>".'Edit'."</a>":"");$qa=connection()->affected_rows;$xl=($_POST["only_errors"]?"":driver()->warnings());$yl="warnings-$tb";if($xl)$ok
-.=", <a href='#$yl' class='toggle'>".'Warnings'."</a>";$ed=null;$ph=null;$fd="explain-$tb";if(is_object($H)){$z=$_POST["limit"];$Jg=$z;$ph=print_select_result($H,$g,array(),$Jg);if(!$_POST["only_errors"]){echo"<form action='' method='post'>\n";$Jg=max($H->num_rows,$Jg);echo"<p class='sql-footer'>".($Jg?($z&&$Jg>$z?sprintf('%d / ',$z):"").lang_format(array('%d row','%d rows'),$Jg):""),$ok;if($g&&preg_match("~^($Aj|\\()*+SELECT\\b~i",$qi)&&($ed=explain($g,$qi)))echo", <a href='#$fd' class='toggle'>Explain</a>";$t="export-$tb";echo", <a href='#$t' class='toggle'>".'Export'."</a><span id='$t' class='hidden'>: ".html_select("output",adminer()->dumpOutput(),$oa["output"])." ".html_select("format",adminer()->dumpFormat(),$oa["format"]).input_hidden("query",$qi)."<input type='submit' name='export' value='".'Export'."'".($z?"":on('click','sqlExport')).">".input_token()."</span>\n"."</form>\n";}}else{if(preg_match("~^$Aj*+(CREATE|DROP|ALTER)$Aj++(DATABASE|SCHEMA)\\b~i",$qi)){restart_session();set_session("dbs",null);stop_session();}if(!$_POST["only_errors"])echo"<p class='message' title='".h(connection()->info)."'>".lang_format(array('Query executed OK, %d row affected.','Query executed OK, %d rows affected.'),$qa)."$ok\n";}echo($xl?"<div id='$yl' class='hidden'>\n$xl</div>\n":"");if($ed){echo"<div id='$fd' class='hidden explain'>\n";print_select_result($ed,$g,$ph);echo"</div>\n";}}$Jj=microtime(true);}while(connection()->next_result());}$G=substr($G,$Rg);$Rg=0;if($Lb){$jc=driver()->delimiter;$Lb=false;}}}}}if($Oc)echo"<p class='message'>".'No commands to execute.'."\n";else{$De=connection()->inTransaction();driver()->rollback();if($De)echo"<pre><code class='jush-".JUSH."'>ROLLBACK -- Adminer</code></pre>\n";if($_POST["only_errors"])echo"<p class='message'>".lang_format(array('%d query executed OK.','%d queries executed OK.'),$tb-count($Vc))," <span class='time'>(".format_time($zk).")</span>\n";elseif($Vc&&$tb>1)echo"<p class='error'>".'Error in query'.": ".implode("",$Vc)."\n";}}else
-echo"<p class='error'>".upload_error($G)."\n";}echo'
-<form action="" method="post" enctype="multipart/form-data" id="form"',(isset($_GET["import"])?"":on('submit','sqlSubmit',remove_from_uri("sql|limit|error_stops|only_errors|history"))),'>
-';$cd="<input type='submit' value='".'Execute'."' title='Ctrl+Enter'>";if(!isset($_GET["import"])){$qi=$_GET["sql"];if($_POST)$qi=$_POST["query"];elseif($_GET["history"]=="all")$qi=$pe;elseif($_GET["history"]!="")$qi=idx($pe[$_GET["history"]],0);echo"<p>";textarea("query",$qi,20);echo($_POST?"":script("qs('textarea').focus();")),"<p>";adminer()->sqlPrintAfter();echo"$cd\n",'Limit rows'.": <input type='number' name='limit' class='size' value='".h($_POST?$_POST["limit"]:$_GET["limit"])."'>\n";}else{$be=(extension_loaded("zlib")?"[.gz]":"");echo"<fieldset><legend>".'File upload'."</legend><div>","SQL$be: ".file_input(" name='sql_file[]' multiple","\n$cd"),"</div></fieldset>\n";$Ae=adminer()->importServerPath();if($Ae)echo"<fieldset><legend>".'From server'."</legend><div>",sprintf('Webserver file %s',"<code>".h($Ae)."$be</code>")," <input type='submit' name='webfile' value='".'Run file'."'>","</div></fieldset>\n";adminer()->importPrint();echo"<p>";}echo
-checkbox("error_stops",1,($_POST?$_POST["error_stops"]:isset($_GET["import"])||$_GET["error_stops"]),'Stop on error')."\n",checkbox("only_errors",1,($_POST?$_POST["only_errors"]:isset($_GET["import"])||$_GET["only_errors"]),'Show only errors')."\n",input_token();if(!isset($_GET["import"])&&$pe){print_fieldset("history",'History',$_GET["history"]!="");for($X=end($pe);$X;$X=prev($pe)){$x=key($pe);list($qi,$ok,$Kc)=$X;echo'<div><a href="'.h(ME."sql=&history=$x").'" class="hover">'.'Edit'."</a>"." <span class='time' title='".@date('Y-m-d',$ok)."'>".@date("H:i:s",$ok)."</span>"." <code class='jush-".JUSH."'>".shorten_utf8(preg_replace('~\s+~',' ',ltrim(preg_replace("~^(?:$Ef).*~m",'',$qi))),80,"</code>").($Kc?" <span class='time'>($Kc)</span>":"")."</div>\n";}echo"<input type='submit' name='clear' value='".'Clear'."'>\n","<a href='".h(ME."sql=&history=all")."'>".'Edit all'."</a>\n","</div></fieldset>\n";}echo'</form>
-';}elseif(isset($_GET["edit"])){$a=$_GET["edit"];$n=fields($a);$Z=(isset($_GET["select"])?($_POST["check"]&&count($_POST["check"])==1?where_check($_POST["check"][0],$n):""):where($_GET,$n));$Yk=(isset($_GET["select"])?$_POST["edit"]:$Z);foreach($n
-as$C=>$m){if((!$Yk&&!isset($m["privileges"]["insert"]))||adminer()->fieldName($m)=="")unset($n[$C]);}if($_POST&&!$l&&!isset($_GET["select"])){$A=$_POST["referer"];if($_POST["insert"])$A=($Yk?null:$_SERVER["REQUEST_URI"]);elseif(!preg_match('~^.+&select=.+$~',$A))$A=ME."select=".url_escape($a);$w=indexes($a);$Sk=unique_array($_GET["where"],$w);$ti="\nWHERE $Z";if(isset($_POST["delete"]))queries_redirect($A,'Item has been deleted.',driver()->delete($a,$ti,$Sk?0:1));else{$O=array();foreach($n
-as$C=>$m){$X=process_input($m);if($X!==false&&$X!==null)$O[idf_escape($C)]=$X;}if($Yk){if(!$O)redirect($A);queries_redirect($A,'Item has been updated.',driver()->update($a,$O,$ti,$Sk?0:1));if(is_ajax()){page_headers();page_messages($l);exit;}}else{$H=driver()->insert($a,$O);$wf=($H?last_id($H):0);queries_redirect($A,sprintf('Item%s has been inserted.',($wf?" $wf":"")),$H);}}}$J=null;if($Z){$M=array();foreach($n
-as$C=>$m){if(isset($m["privileges"]["select"])){$Aa=($_POST["clone"]&&$m["auto_increment"]?"''":convert_field($m));$M[]=($Aa?"$Aa AS ":"").idf_escape($C);}}$J=array();if(!support("table"))$M=array("*");if($M){$H=driver()->select($a,$M,array($Z),$M,array(),(isset($_GET["select"])?2:1));if(!$H)$l=error();else{$J=$H->fetch_assoc();if(!$J)$J=false;}if(isset($_GET["select"])&&(!$J||$H->fetch_assoc()))$J=null;}}if(!$n&&driver()->primary!=""){if(!$Z){$H=driver()->select($a,array("*"),array(),array("*"));$J=($H?$H->fetch_assoc():false);if(!$J)$J=array(driver()->primary=>"");}if($J){foreach($J
-as$x=>$X){if(!$Z)$J[$x]=null;$n[$x]=array("field"=>$x,"null"=>($x!=driver()->primary),"auto_increment"=>($x==driver()->primary));}}}if($_POST["save"]){$bi=array();foreach((array)$_POST["fields"]as$x=>$X)$bi[bracket_escape($x,true)]=$X;$J=$bi+($J?$J:array());}edit_form($a,$n,$J,$Yk,$l);}elseif(isset($_GET["create"])){$a=$_GET["create"];$Kh=driver()->partitionBy;$Oh=($Kh&&$a!=""?driver()->partitionsInfo($a):array());$_i=referencable_primary($a);$Jd=array();foreach($_i
-as$Yj=>$m)$Jd[str_replace("`","``",$Yj)."`".str_replace("`","``",$m["field"])]=$Yj;$sh=array();$S=array();if($a!=""){$sh=fields($a);$S=table_status1($a);if(count($S)<2)$l='No tables.';}$J=$_POST;$J["fields"]=(array)$J["fields"];if($J["auto_increment_col"])$J["fields"][$J["auto_increment_col"]]["auto_increment"]=true;if($_POST&&!$l)save_settings(array("comments"=>$_POST["comments"],"defaults"=>$_POST["defaults"]));if($_POST&&!process_fields($J["fields"])&&!$l){if($_POST["drop"])queries_redirect(substr(ME,0,-1),'Table has been dropped.',drop_tables(array($a)));else{$n=array();$ua=array();$dl=false;$Hd=array();$rh=reset($sh);$sa=" FIRST";foreach($J["fields"]as$x=>$m){$p=$Jd[$m["type"]];$Mk=($p!==null?$_i[$p]:$m);if($m["field"]!=""){if(!$m["generated"])$m["default"]=null;$pi=process_field($m,$Mk);$ua[]=array($m["orig"],$pi,$sa);if(!$rh||$pi!==process_field($rh,$rh)){$n[]=array($m["orig"],$pi,$sa);if($m["orig"]!=""||$sa)$dl=true;}if($p!==null)$Hd[idf_escape($m["field"])]=($a!=""&&JUSH!="sqlite"?"ADD":" ").format_foreign_key(array('table'=>$Jd[$m["type"]],'source'=>array($m["field"]),'target'=>array($Mk["field"]),'on_delete'=>$m["on_delete"],));$sa=" AFTER ".idf_escape($m["field"]);}elseif($m["orig"]!=""){$dl=true;$n[]=array($m["orig"]);}if($m["orig"]!=""){$rh=next($sh);if(!$rh)$sa="";}}$Mh=array();if(in_array($J["partition_by"],$Kh)){foreach($J
-as$x=>$X){if(preg_match('~^partition~',$x))$Mh[$x]=$X;}foreach($Mh["partition_names"]as$x=>$C){if($C==""){unset($Mh["partition_names"][$x]);unset($Mh["partition_values"][$x]);}}$Mh["partition_names"]=array_values($Mh["partition_names"]);$Mh["partition_values"]=array_values($Mh["partition_values"]);if($Mh==$Oh)$Mh=array();}elseif(preg_match("~partitioned~",$S["Create_options"]))$Mh=null;$fg='Table has been altered.';if($a==""){cookie("adminer_engine",$J["Engine"]);$fg='Table has been created.';}$C=trim($J["name"]);$A=ME.(support("table")?"table=":"select=").url_escape($C);$H=alter_table($a,$C,(JUSH=="sqlite"&&($dl||$Hd)?$ua:$n),$Hd,($J["Comment"]!=$S["Comment"]?$J["Comment"]:null),($J["Engine"]&&$J["Engine"]!=$S["Engine"]?$J["Engine"]:""),($J["Collation"]&&$J["Collation"]!=$S["Collation"]?$J["Collation"]:""),($J["Auto_increment"]!=""?number($J["Auto_increment"]):""),$Mh);if($H&&!Queries::$queries)redirect($A);queries_redirect($A,$fg,$H);}}page_header(($a!=""?'Alter table':'Create table'),$l,array("table"=>$a),h($a));if(!$_POST){$Ok=driver()->types();$J=array("Engine"=>$_COOKIE["adminer_engine"],"fields"=>array(array("field"=>"","type"=>(isset($Ok["int"])?"int":(isset($Ok["integer"])?"integer":"")),"on_update"=>"")),"partition_names"=>array(""),);if($a!=""){$J=$S;$J["name"]=$a;$J["fields"]=array();if(!$_GET["auto_increment"])$J["Auto_increment"]="";foreach($sh
-as$m){if($m["generated"])$m["default"]=ltrim($m["default"]);$m["generated"]=$m["generated"]?:(isset($m["default"])?"DEFAULT":"");$J["fields"][]=$m;}if($Kh){$J+=$Oh;$J["partition_names"][]="";$J["partition_values"][]="";}}}$qb=collations();if(is_array(reset($qb)))$qb=call_user_func_array('array_merge',array_values($qb));$Qc=driver()->engines();foreach($Qc
-as$Pc){if(!strcasecmp($Pc,$J["Engine"])){$J["Engine"]=$Pc;break;}}$Rf=max_input_vars(12,20);if($Rf){$oe=(count($J["fields"])>$Rf?"":" hidden");echo"<p".($oe?" id='max-fields' data-columns='$Rf'":"")." class='error$oe'>".max_input_vars_error()."\n";}echo'
+';$Zd=true;foreach($wj
+as$w=>$W){if($w!=""&&$W>1){echo($Zd?"<p>":" ")."<a href='".h(ME)."dump=".url_escape("$w%")."'>".h($w)."</a>";$Zd=false;}}}elseif(isset($_GET["privileges"])){page_header('Privileges');echo'<p class="links"><a href="'.h(ME).'user=">'.'Create user'."</a>";$G=connection()->query("SELECT User, Host FROM mysql.".(DB==""?"user":"db WHERE ".q(DB)." LIKE Db")." ORDER BY Host, User");$ze=$G;if(!$G)$G=connection()->query("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', 1) AS User, SUBSTRING_INDEX(CURRENT_USER, '@', -1) AS Host");echo"<form action=''><p>\n";hidden_fields_get();echo
+input_hidden("db",DB),($ze?"":input_hidden("grant")),"<table class='odds'>\n","<thead><tr><th>".'Username'."<th>".'Server'."<td class='hover'><tbody>\n";while($I=$G->fetch_assoc())echo'<tr><td>'.h($I["User"]),"<td>".h($I["Host"]),'<td class="hover"><a href="'.h(ME.'user='.url_escape($I["User"]).'&host='.url_escape($I["Host"])).'">'.'Edit'."</a>\n";if(!$ze||DB!="")echo"<tr><td><input name='user' autocapitalize='off'>","<td><input name='host' value='localhost' autocapitalize='off'>","<td class='hover'><input type='submit' value='".'Edit'."'>\n";echo"</table>\n","</form>\n";}elseif(isset($_GET["sql"])){if(!$k&&$_POST["export"]){save_settings(array("output"=>$_POST["output"],"format"=>$_POST["format"]),"adminer_import");dump_headers("sql");if($_POST["format"]=="sql")echo"$_POST[query]\n";else{adminer()->dumpTable("","");adminer()->dumpData("","table",$_POST["query"]);adminer()->dumpFooter();}exit;}if(!$k&&$_POST["val"]){$ra=0;$El=true;$jb=array();$uk=0;foreach($_POST["val"]as$J)$uk+=count($J);$Wa=$uk>1&&driver()->begin();foreach($_POST["val"]as$Ol=>$J){$Q=bracket_escape($Ol,true);$m=fields($Q);$Pl=indexes($Q);foreach($J
+as$t=>$I){parse_str(bracket_escape($t,true),$Z);$Um=array();foreach($Z["where"]as$w=>$W)$Um[bracket_escape($w,true)]=$W;if(!$m||$Z["null"]||array_diff_key($Um,$m)||!unique_array($Um,$Pl)){$El=false;break
+2;}$N=array();$L=array();foreach($I
+as$Zf=>$W){$w=bracket_escape($Zf,true);$l=idx($m,$w);if(!$l){$El=false;break
+3;}$N[idf_escape($w)]=(preg_match('~char|text~',$l["type"])||$W!=""?adminer()->processInput($l,$W):"NULL");$L[$Zf]=$w;}$Lj=where($Z,$m);if(!driver()->update($Q,$N," WHERE $Lj",0," ")){$El=false;break
+2;}$ra+=connection()->affected_rows;$e=array();foreach($L
+as$w)$e[]=idf_escape($w);$en=driver()->select($Q,$e,array($Lj),$e);$Gh=($en?$en->fetch_row():array());$Vf=0;foreach($L
+as$Zf=>$w){$l=$m[$w];$Cl=array('type'=>(preg_match('~binary~',$l["type"])?'blob':$l["type"]));$jb["val[$Ol][$t][$Zf]"]=select_value(idx($Gh,$Vf++),"",$Cl,null);}}}if($Wa&&$El)$El=driver()->commit();queries_redirect(null,lang_format(array('%d item has been affected.','%d items have been affected.'),$ra),$El);if($Wa&&!$El)driver()->rollback();page_headers();page_messages($k);foreach($jb
+as$A=>$W)echo"<div data-name='".h($A)."' hidden>$W</div>\n";exit;}restart_session();$af=&get_session("queries");$Ze=&$af[DB];if(!$k&&$_POST["clear"]){$Ze=array();redirect(remove_from_uri("history"));}stop_session();$pa=get_settings("adminer_import");if($_POST&&$pa)save_settings($pa,"adminer_import");page_header((isset($_GET["import"])?'Import':'SQL command'),$k);$xg=driver()->lineComment();if(!$k&&$_POST&&!(isset($_GET["import"])&&adminer()->importProcess())){$Cc=driver()->delimiter;$ne=false;if(!isset($_GET["import"]))$F=$_POST["query"];elseif($_POST["webfile"]){$rl=adminer()->importServerPath();$ne=@fopen((file_exists($rl)?$rl:"compress.zlib://$rl.gz"),"rb");$F=($ne?fread($ne,1e6):false);}else$F=get_file("sql_file",true,$Cc);if(is_string($F)){if(($Xg=ini_bytes("memory_limit"))!="-1")ini_set("memory_limit",max($Xg,strval(2*strlen($F)+memory_get_usage()+8e6)));if($F!=""&&strlen($F)<1e6){$Ij=$F.(preg_match("~$Cc\\s*\$~",$F)?"":$Cc);if(!$Ze||first(end($Ze))!=$Ij){restart_session();$Ze[]=array($Ij,time());set_session("queries",$af);stop_session();}}$ol="(?:\\s|\xEF\xBB\xBF|/\\*[\s\S]*?\\*/|(?:$xg)[^\n]*\n?|--\r?\n)";$Yh=0;$ld=true;$cc=false;$g=connect();if($g&&DB!=""){$g->select_db(DB);if($_GET["ns"]!="")set_schema($_GET["ns"],$g);}$Gb=0;$td=array();$Oi='[\'"'.(JUSH=="sql"?'`':(JUSH=="sqlite"?'`[':(JUSH=="mssql"?'[':''))).']|/\*|'.$xg.'|$'.(JUSH=="pgsql"?'|\$([a-zA-Z]\w*)?\$':'');$ym=microtime(true);while($F!=""){if(!$Yh&&preg_match("~^$ol*+DELIMITER\\s+(\\S+)~i",$F,$_)){$Cc=preg_quote($_[1]);$F=substr($F,strlen($_[0]));}elseif(!$Yh&&JUSH=='pgsql'&&preg_match("~^($ol*+COPY\\s+)[^;]+\\s+FROM\\s+stdin;~i",$F,$_)){$Cc="\n\\\\\\.\r?\n";$cc=true;$Yh=strlen($_[0]);}else{preg_match("($Cc\\s*|$Oi)",$F,$_,PREG_OFFSET_CAPTURE,$Yh);list($le,$E)=$_[0];if(!$le&&$ne&&!feof($ne))$F
+.=fread($ne,1e5);else{if(!$le&&rtrim($F)=="")break;$Yh=$E+strlen($le);if($le&&!preg_match("(^$Cc)",$le)){$gb=driver()->hasCStyleEscapes()||(JUSH=="pgsql"&&($E>0&&strtolower($F[$E-1])=="e"));$ej=($le=='/*'?'\*/':($le=='['?']':(preg_match("~^(?:$xg)~",$le)?"\n":preg_quote($le).($gb?'|\\\\.':''))));while(preg_match("($ej|\$)s",$F,$_,PREG_OFFSET_CAPTURE,$Yh)){$vk=$_[0][0];if(!$vk&&$ne&&!feof($ne))$F
+.=fread($ne,1e5);else{$Yh=$_[0][1]+strlen($vk);if(!$vk||$vk[0]!="\\")break;}}}else{$Ij=substr($F,0,$E+($cc?3:0));$F=substr($F,$Yh);$Yh=0;if($cc){$Cc=driver()->delimiter;$cc=false;}$zb="<code class='jush-".JUSH."'>".adminer()->sqlCommandQuery($Ij)."</code>";if(preg_match("~^$ol*+\$~",$Ij)&&!preg_match('~/\*M?!~',$Ij)){echo($_POST["only_errors"]?"":"<pre>$zb</pre>\n");continue;}$ld=false;$Gb++;$Bj="<pre id='sql-$Gb'>$zb</pre>\n";if(JUSH=="sqlite"&&preg_match("~^$ol*+(ATTACH|VACUUM\\b.*\\bINTO)\\b~is",$Ij,$_)!==0){echo$Bj,"<p class='error'>".sprintf('%s queries are not supported.',preg_match('~ATTACH~i',$_[1])?'ATTACH':'VACUUM INTO')."\n";$td[]=" <a href='#sql-$Gb'>$Gb</a>";if($_POST["error_stops"])break;}else{if(!$_POST["only_errors"]){echo$Bj;ob_flush();flush();}$xl=microtime(true);if(connection()->multi_query($Ij)&&$g&&preg_match("~^$ol*+USE\\b~i",$Ij))$g->query($Ij);do{$G=connection()->store_result();if(connection()->error){echo($_POST["only_errors"]?$Bj:""),"<p class='error'>".'Error in query'.(connection()->errno?" (".connection()->errno.")":"").": ".adminer()->error()."\n";$td[]=" <a href='#sql-$Gb'>$Gb</a>";if($_POST["error_stops"])break
+2;}else{$z=ME."sql=".url_escape(trim($Ij));$nm=" <span class='time'>(".format_time($xl).")</span>".(strlen($z)<1900?" <a href='".h($z)."'>".'Edit'."</a>":"");$ra=connection()->affected_rows;$Dn=($_POST["only_errors"]?"":driver()->warnings());$En="warnings-$Gb";if($Dn)$nm
+.=", <a href='#$En' class='toggle'>".'Warnings'."</a>";$Dd="";$Ed="explain-$Gb";if(is_object($G)){$y=$_POST["limit"];$Ph=$y;$ed=!$_POST["only_errors"];if($ed)echo"<form action='' method='post'>\n";$xi=print_select_result($G,$g,array(),$Ph,$ed);if(!$_POST["only_errors"]){$Ph=max($G->num_rows,$Ph);echo"<p class='sql-footer'>".($Ph?($y&&$Ph>$y?sprintf('%d / ',$y):"").lang_format(array('%d row','%d rows'),$Ph):""),$nm;if($g&&preg_match("~^($ol|\\()*+SELECT\\b~i",$Ij)&&($Dd=adminer()->explain($g,$Ij,$xi))!="")echo", <a href='#$Ed' class='toggle'>Explain</a>";if($ed)echo", <input type='submit' name='save' value='".'Save'."' class='jsonly' disabled"." title='".'Ctrl+click on a value to modify it.'."'".on('click','sqlSave','Saving…').">";$s="export-$Gb";echo", <a href='#$s' class='toggle'>".'Export'."</a><span id='$s' class='hidden'>: ".html_select("output",adminer()->dumpOutput(),$pa["output"])." ".html_select("format",adminer()->dumpFormat(),$pa["format"]).input_hidden("query",$Ij)."<input type='submit' name='export' value='".'Export'."'".($y?"":on('click','sqlExport')).">".input_token()."</span>\n"."</form>\n";}}else{if(preg_match("~^$ol*+(CREATE|DROP|ALTER)$ol++(DATABASE|SCHEMA)\\b~i",$Ij)){restart_session();set_session("dbs",null);stop_session();}if(!$_POST["only_errors"])echo"<p class='message' title='".h(connection()->info)."'>".lang_format(array('Query executed OK, %d row affected.','Query executed OK, %d rows affected.'),$ra)."$nm\n";}echo($Dn?"<div id='$En' class='hidden'>\n$Dn</div>\n":""),($Dd!=""?"<div id='$Ed' class='hidden explain'>\n$Dd</div>\n":"");}$xl=microtime(true);}while(connection()->next_result());}}}}}if($ld)echo"<p class='message'>".'No commands to execute.'."\n";else{$pf=connection()->inTransaction();driver()->rollback();if($pf)echo"<pre><code class='jush-".JUSH."'>ROLLBACK".(JUSH=="mssql"?" TRANSACTION":"")." -- Adminer</code></pre>\n";if($_POST["only_errors"])echo"<p class='message'>".lang_format(array('%d query executed OK.','%d queries executed OK.'),$Gb-count($td))," <span class='time'>(".format_time($ym).")</span>\n";elseif($td&&$Gb>1)echo"<p class='error'>".'Error in query'.": ".implode("",$td)."\n";}}else
+echo"<p class='error'>".upload_error($F)."\n";}echo'
+<form action="" method="post" enctype="multipart/form-data" id="form"';$fn="";if(!isset($_GET["import"]))echo
+on('submit','sqlSubmit',remove_from_uri("sql|limit|error_stops|only_errors|history"));else
+echo
+on_upload_progress($fn);echo'>
+';$Ad="<input type='submit' value='".'Execute'."' title='Ctrl+Enter'>";if(!isset($_GET["import"])){$Ij=$_GET["sql"];if($_POST)$Ij=$_POST["query"];elseif($_GET["history"]=="all")$Ij=$Ze;elseif($_GET["history"]!="")$Ij=idx($Ze[$_GET["history"]],0);echo"<p>";textarea("query",$Ij,20);echo($_POST?"":script("qs('textarea').focus();")),"<p>";adminer()->sqlPrintAfter();echo"$Ad\n",'Limit rows'.": <input type='number' name='limit' class='size' value='".h($_POST?$_POST["limit"]:$_GET["limit"])."'>\n";}else{$He=(extension_loaded("zlib")?"[.gz]":"");echo"<fieldset><legend>".'File upload'."</legend><div>",($fn?input_hidden(ini_get("session.upload_progress.name"),$fn):""),"SQL$He: ".file_input(" name='sql_file[]' multiple","\n$Ad"),($fn?" <progress class='jsonly hidden' max='1' value='0'></progress>":""),"</div></fieldset>\n";$mf=adminer()->importServerPath();if($mf)echo"<fieldset><legend>".'From server'."</legend><div>",sprintf('Webserver file %s',"<code>".h($mf)."$He</code>")," <input type='submit' name='webfile' value='".'Run file'."'>","</div></fieldset>\n";adminer()->importPrint();echo"<p>";}echo
+checkbox("error_stops",1,($_POST?$_POST["error_stops"]:isset($_GET["import"])||$_GET["error_stops"]),'Stop on error')."\n",checkbox("only_errors",1,($_POST?$_POST["only_errors"]:isset($_GET["import"])||$_GET["only_errors"]),'Show only errors')."\n",input_token();if(!isset($_GET["import"])&&$Ze){print_fieldset("history",'History',$_GET["history"]!="");for($W=end($Ze);$W;$W=prev($Ze)){$w=key($Ze);list($Ij,$nm,$hd)=$W;echo'<div><a href="'.h(ME."sql=&history=$w").'" class="hover">'.'Edit'."</a>"." <span class='time' title='".@date('Y-m-d',$nm)."'>".@date("H:i:s",$nm)."</span>"." <code class='jush-".JUSH."'>".shorten_utf8(preg_replace('~\s+~',' ',ltrim(preg_replace("~^(?:$xg).*~m",'',$Ij))),80,"</code>").($hd?" <span class='time'>($hd)</span>":"")."</div>\n";}echo"<input type='submit' name='clear' value='".'Clear'."'>\n","<a href='".h(ME."sql=&history=all")."'>".'Edit all'."</a>\n","</div></fieldset>\n";}echo'</form>
+';}elseif(isset($_GET["edit"])){$a=$_GET["edit"];$m=fields($a);$Z=(isset($_GET["select"])?($_POST["check"]&&count($_POST["check"])==1?where_check($_POST["check"][0],$m):""):where($_GET,$m));$cn=(isset($_GET["select"])?$_POST["edit"]:$Z);foreach($m
+as$A=>$l){if((!$cn&&!isset($l["privileges"]["insert"]))||adminer()->fieldName($l)=="")unset($m[$A]);}if($_POST&&!$k&&!isset($_GET["select"])){$Bg=relative_uri((string)$_POST["referer"]);if($_POST["insert"])$Bg=($cn?null:relative_uri());elseif(!preg_match('~^.+&select=.+$~',$Bg))$Bg=ME."select=".url_escape($a);$v=indexes($a);$Vm=unique_array($_GET["where"],$v);$Lj="\nWHERE $Z";if(isset($_POST["delete"]))queries_redirect($Bg,'Item has been deleted.',driver()->delete($a,$Lj,$Vm?0:1));else{$N=array();foreach($m
+as$A=>$l){$W=process_input($l);if($W!==false&&$W!==null)$N[idf_escape($A)]=$W;}if($cn){if(!$N)redirect($Bg);queries_redirect($Bg,'Item has been updated.',driver()->update($a,$N,$Lj,$Vm?0:1));if(is_ajax()){page_headers();page_messages($k);exit;}}else{$G=driver()->insert($a,$N);$mg=($G?last_id($G):0);queries_redirect($Bg,sprintf('Item%s has been inserted.',($mg?" $mg":"")),$G);}}}$I=null;$F="";$nm="";if($Z){$L=array();$Gk=array("*");foreach($m
+as$A=>$l){if(isset($l["privileges"]["select"])){$Fa=($_POST["clone"]&&$l["auto_increment"]?"''":convert_field($l));$d=($Fa?"$Fa AS ":"").idf_escape($A);$L[]=$d;if($Fa)$Gk[]=$d;}}$I=array();if(!support("table")){$L=array("*");$Gk=$L;}if($L){$xl=microtime(true);$G=driver()->select($a,$L,array($Z),$L,array(),(isset($_GET["select"])?2:1));$F=str_replace("SELECT ".implode(", ",$L),"SELECT ".implode(", ",$Gk),driver()->query);$nm=format_time($xl);if(!$G)$k=adminer()->error();else{$I=$G->fetch_assoc();if(!$I)$I=false;}if(isset($_GET["select"])&&(!$I||$G->fetch_assoc()))$I=null;}}if(!$m&&driver()->primary!=""){if(!$Z){$G=driver()->select($a,array("*"),array(),array("*"));$I=($G?$G->fetch_assoc():false);if(!$I)$I=array(driver()->primary=>"");}if($I){foreach($I
+as$w=>$W){if(!$Z)$I[$w]=null;$m[$w]=array("field"=>$w,"null"=>($w!=driver()->primary),"auto_increment"=>($w==driver()->primary));}}}if($_POST["save"]){$qj=array();foreach((array)$_POST["fields"]as$w=>$W)$qj[bracket_escape($w,true)]=$W;$I=$qj+($I?$I:array());}edit_form($a,$m,$I,$cn,$k,$F,$nm);}elseif(isset($_GET["create"])){function
+referencable_primary($Jk){$H=array();foreach(table_status('',true)as$Sl=>$Q){if($Sl!=$Jk&&!$Q["dependent"]&&fk_support($Q)){foreach(fields($Sl)as$l){if($l["primary"]){if($H[$Sl]){unset($H[$Sl]);break;}$H[$Sl]=$l;}}}}return$H;}$a=$_GET["create"];$Ti=driver()->partitionBy;$Xi=($Ti&&$a!=""?driver()->partitionsInfo($a):array());$Sj=referencable_primary($a);$je=array();foreach($Sj
+as$Sl=>$l)$je[str_replace("`","``",$Sl)."`".str_replace("`","``",$l["field"])]=$Sl;$_i=array();$R=array();$Mh=false;if($a!=""){$_i=fields($a);$R=table_status1($a);$Mh=(count($R)<2);}$za=($a==""||driver()->supportsAlterTable($R));$I=$_POST;$I["fields"]=(array)$I["fields"];if($I["auto_increment_col"])$I["fields"][$I["auto_increment_col"]]["auto_increment"]=true;if($_POST&&!$k)save_settings(array("comments"=>$_POST["comments"],"defaults"=>$_POST["defaults"]));if($_POST&&!process_fields($I["fields"])&&!$k){if($_POST["drop"])queries_redirect(substr(ME,0,-1),'Table has been dropped.',drop_tables(array($a)));else{$m=array();$xa=array();$jn=false;$he=array();$zi=reset($_i);$ta=" FIRST";foreach($I["fields"]as$l){$o=$je[$l["type"]];$Mm=($o!==null?$Sj[$o]:$l);if($l["field"]!=""){if(!$l["generated"])$l["default"]=null;$Gj=process_field($l,$Mm);$xa[]=array($l["orig"],$Gj,$ta);if(!$zi||$Gj!==process_field($zi,$zi)){$m[]=array($l["orig"],$Gj,$ta);if($l["orig"]!=""||$ta)$jn=true;}if($o!==null)$he[idf_escape($l["field"])]=($a!=""&&JUSH!="sqlite"?"ADD":" ").format_foreign_key(array('table'=>$je[$l["type"]],'source'=>array($l["field"]),'target'=>array($Mm["field"]),'on_delete'=>$l["on_delete"],),object_name("FOREIGN",trim($I["name"]),array($l["field"])));$ta=" AFTER ".idf_escape($l["field"]);}elseif($l["orig"]!=""){$jn=true;$m[]=array($l["orig"]);}if($l["orig"]!=""){$zi=next($_i);if(!$zi)$ta="";}}$Vi=array();if(in_array($I["partition_by"],$Ti)){foreach($I
+as$w=>$W){if(preg_match('~^partition~',$w))$Vi[$w]=$W;}foreach($Vi["partition_names"]as$w=>$A){if($A==""){unset($Vi["partition_names"][$w]);unset($Vi["partition_values"][$w]);}}$Vi["partition_names"]=array_values($Vi["partition_names"]);$Vi["partition_values"]=array_values($Vi["partition_values"]);if($Vi==$Xi)$Vi=array();}elseif(preg_match("~partitioned~",$R["Create_options"]))$Vi=null;$Zg='Table has been altered.';if($a==""){cookie("adminer_engine",$I["Engine"]);$Zg='Table has been created.';}$A=trim($I["name"]);$Bg=ME.(support("table")?"table=":"select=").url_escape($A);$G=alter_table($a,$A,(JUSH=="sqlite"&&($jn||$he)?$xa:$m),$he,($I["Comment"]!=$R["Comment"]?$I["Comment"]:null),($I["Engine"]&&$I["Engine"]!=$R["Engine"]?$I["Engine"]:""),($I["Collation"]&&$I["Collation"]!=$R["Collation"]?$I["Collation"]:""),($I["Auto_increment"]!=""?number($I["Auto_increment"]):""),$Vi);if($G&&!Queries::$queries&&$a!=""&&!$m&&!$he)redirect($Bg);queries_redirect($Bg,$Zg,$G);}}$yl=($a!=""?"alter":"create");page_header(($a!=""?'Alter table':'Create table'),$k,array("table"=>$a),h($a),$Mh,doc_link(array('sql'=>"$yl-table.html",'mariadb'=>($a!=""?"$yl-table":""),'pgsql'=>"sql-$yl"."table.html",'cockroach'=>"$yl-table",'mssql'=>"t-sql/statements/$yl-table-transact-sql",'sqlite'=>"lang_{$yl}table.html",'oracle'=>"sqlrf/".strtoupper($yl)."-TABLE.html",)));if(!$_POST){$Qm=driver()->types();$I=array("Engine"=>$_COOKIE["adminer_engine"],"fields"=>array(array("field"=>"","type"=>(isset($Qm["int"])?"int":(isset($Qm["integer"])?"integer":"")),"on_update"=>"")),"partition_names"=>array(""),);if($a!=""){$I=$R;$I["name"]=$a;$I["fields"]=array();if(!$_GET["auto_increment"])$I["Auto_increment"]="";foreach($_i
+as$l){if($l["generated"])$l["default"]=ltrim($l["default"]);$l["generated"]=$l["generated"]?:(isset($l["default"])?"DEFAULT":"");$I["fields"][]=$l;}if($Ti){$I+=$Xi;$I["partition_names"][]="";$I["partition_values"][]="";}}}$Cb=flat_collations();$od=driver()->engines();foreach($od
+as$nd){if(!strcasecmp($nd,$I["Engine"])){$I["Engine"]=$nd;break;}}$Kg=max_input_vars(12,20);if($Kg){$We=(count($I["fields"])>$Kg?"":" hidden");echo"<p".($We?" id='max-fields' data-columns='$Kg'":"")." class='error$We'>".max_input_vars_error()."\n";}echo'
 <form action="" method="post" id="form">
 <p>
-';if(support("columns")||$a==""){echo'Table name'.": <input name='name'".($a==""&&!$_POST?" autofocus":"")." data-maxlength='64' value='".h($J["name"])."' autocapitalize='off'>\n",($Qc?html_select("Engine",array(""=>"(".'engine'.")")+$Qc,$J["Engine"],on('change','helpClose').on_help_value())."\n":"");if($qb)echo"<datalist id='collations'>".optionlist($qb)."</datalist>\n",(preg_match("~sqlite|mssql~",JUSH)?"":"<input list='collations' name='Collation' value='".h($J["Collation"])."' placeholder='(".'collation'.")'>\n");echo"<input type='submit' value='".'Save'."'>\n";}if(support("columns")){echo"<div class='scrollable'>\n","<table id='edit-fields' class='nowrap'>\n";edit_fields($J["fields"],$qb,"TABLE",$Jd);echo"</table>\n",script("editFields();"),"</div>\n<p>\n",'Auto Increment'.": <input type='number' name='Auto_increment' class='size' value='".h($J["Auto_increment"])."'>\n",checkbox("defaults",1,($_POST?$_POST["defaults"]:get_setting("defaults")),'Default values',on('click','columnShowClick',5),"jsonly");$wb=($_POST?$_POST["comments"]:get_setting("comments"));if(support("comment")){echo
-checkbox("comments",1,$wb,'Comment',on('click','editingCommentsClick',true),"jsonly").' ';$c=" name='Comment' data-maxlength='".(min_version(5.5)?2048:60)."'".($wb?"":" class='hidden'");echo
-adminer()->commentInput('TABLE',$c,$J["Comment"]);}echo'<p>
+';if(support("columns")||$a==""){echo'Table name'.": <input name='name'".($a==""&&!$_POST?" autofocus":"")." data-maxlength='64' value='".h($I["name"])."' autocapitalize='off'>\n",(!$za?h($R["Engine"])."\n":($od?html_select("Engine",array(""=>"(".'engine'.")")+$od,$I["Engine"],on('change','helpClose').on_help_value())."\n":""));if($Cb)echo"<datalist id='collations'>".optionlist($Cb)."</datalist>\n",(preg_match("~sqlite|mssql~",JUSH)?"":"<input list='collations' name='Collation' value='".h($I["Collation"])."' placeholder='(".'collation'.")'>\n");echo"<input type='submit' value='".'Save'."'>\n";}if(support("columns")&&$za){echo"<div class='scrollable'>\n","<table id='edit-fields' class='nowrap'>\n";edit_fields($I["fields"],$Cb,"TABLE",$je);echo"</table>\n",script("editFields();"),"</div>\n<p>\n",'Auto Increment'.": <input type='number' name='Auto_increment' class='size' value='".h($I["Auto_increment"])."'>\n",checkbox("defaults",1,($_POST?$_POST["defaults"]:get_setting("defaults")),'Default values',on('click','columnShowClick',6),"jsonly");$Jb=($_POST?$_POST["comments"]:get_setting("comments"));if(support("comment")){echo
+checkbox("comments",1,$Jb,'Comment',on('click','editingCommentsClick',true),"jsonly").' ';$c=" name='Comment' data-maxlength='".(min_version(5.5)?2048:60)."'".($Jb?"":" class='hidden'");echo
+adminer()->commentInput('TABLE',$c,$I["Comment"]);}echo'<p>
 <input type=\'submit\' value=\'Save\'>
 ';}echo'
 ';if($a!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$a)),'>
-';if($Kh&&(JUSH=='sql'||$a=="")){$Lh=preg_match('~RANGE|LIST~',$J["partition_by"]);print_fieldset("partition",'Partition by',$J["partition_by"]);echo"<p>".html_select("partition_by",array_merge(array(""),$Kh),$J["partition_by"],on('change','partitionByChange').on_help_value('.','PARTITION BY $&'))."\n","(<input name='partition' value='".h($J["partition"])."'>)\n",'Partitions'.": <input type='number' name='partitions' class='size".($Lh||!$J["partition_by"]?" hidden":"")."' value='".h($J["partitions"])."'>\n","<table id='partition-table'".($Lh?"":" class='hidden'").">\n","<thead><tr><th>".'Partition name'."<th>".'Values'."<tbody>\n";foreach($J["partition_names"]as$x=>$X)echo'<tr>','<td><input name="partition_names[]" value="'.h($X).'" autocapitalize="off"'.($x==count($J["partition_names"])-1?on('input','partitionNameChange'):'').'>','<td><input name="partition_values[]" value="'.h(idx($J["partition_values"],$x)).'">';echo"</table>\n</div></fieldset>\n";}echo
+';if($Ti&&(JUSH=='sql'||$a=="")){$Ui=preg_match('~RANGE|LIST~',$I["partition_by"]);print_fieldset("partition",'Partition by',$I["partition_by"]);echo"<p>".html_select("partition_by",array_merge(array(""),$Ti),$I["partition_by"],on('change','partitionByChange').on_help_value('.','PARTITION BY $&'))."\n","(<input name='partition' value='".h($I["partition"])."'>)\n",'Partitions'.": <input type='number' name='partitions' class='size".($Ui||!$I["partition_by"]?" hidden":"")."' value='".h($I["partitions"])."'>\n","<table id='partition-table'".($Ui?"":" class='hidden'").">\n","<thead><tr><th>".'Partition name'."<th>".'Values'."<tbody>\n";foreach($I["partition_names"]as$w=>$W)echo'<tr>','<td><input name="partition_names[]" value="'.h($W).'" autocapitalize="off"'.($w==count($I["partition_names"])-1?on('input','partitionNameChange'):'').'>','<td><input name="partition_values[]" value="'.h(idx($I["partition_values"],$w)).'">';echo"</table>\n</div></fieldset>\n";}echo
 input_token(),'</form>
-';}elseif(isset($_GET["indexes"])){$a=$_GET["indexes"];$Je=array("PRIMARY","UNIQUE","INDEX");$S=table_status1($a,true);$Ge=driver()->indexAlgorithms($S);if(preg_match('~MyISAM|M?aria'.(min_version(5.6,'10.0.5')?'|InnoDB':'').'~i',$S["Engine"]))$Je[]="FULLTEXT";if(preg_match('~MyISAM|M?aria'.(min_version(5.7,'10.2.2')?'|InnoDB':'').'~i',$S["Engine"]))$Je[]="SPATIAL";if(min_version('',11.7)&&preg_match('~MyISAM|InnoDB~i',$S["Engine"]))$Je[]="VECTOR";$w=indexes($a);$n=fields($a);$ii=array();if(JUSH=="mongo"){$ii=$w["_id_"];unset($Je[0]);unset($w["_id_"]);}$J=$_POST;if($J)save_settings(array("index_options"=>$J["options"]));if($_POST&&!$l&&!$_POST["add"]&&!$_POST["drop_col"]){$b=array();foreach($J["indexes"]as$v){$C=$v["name"];if(in_array($v["type"],$Je)){$e=array();$Cf=array();$mc=array();$eh=array();$He=(support("partial_indexes")?$v["partial"]:"");$Fe=(in_array($v["algorithm"],$Ge)?$v["algorithm"]:"");$O=array();ksort($v["columns"]);foreach($v["columns"]as$x=>$d){if($d!=""){$y=idx($v["lengths"],$x);$kc=idx($v["descs"],$x);$dh=idx($v["opclasses"],$x);$O[]=($n[$d]?idf_escape($d):$d).($y?"(".(+$y).")":"").($dh!=""?" ".idf_escape($dh):"").($kc?" DESC":"");$e[]=$d;$Cf[]=($y?:null);$mc[]=$kc;$eh[]="$dh";}}$dd=$w[$C];if($dd){ksort($dd["columns"]);ksort($dd["lengths"]);ksort($dd["descs"]);if($v["type"]==$dd["type"]&&array_values($dd["columns"])===$e&&(!$dd["lengths"]||array_values($dd["lengths"])===$Cf)&&array_values($dd["descs"])===$mc&&(!$dd["opclasses"]||array_values($dd["opclasses"])===$eh)&&$dd["partial"]==$He&&(!$Ge||$dd["algorithm"]==$Fe)){unset($w[$C]);continue;}}if($e)$b[]=array($v["type"],$C,$O,$Fe,$He);}}foreach($w
-as$C=>$dd)$b[]=array($dd["type"],$C,"DROP");if(!$b)redirect(ME."table=".url_escape($a));queries_redirect(ME."table=".url_escape($a),'Indexes have been altered.',alter_indexes($a,$b));}page_header('Indexes',$l,array("table"=>$a),h($a));$td=array_keys($n);if($_POST["add"]){foreach($J["indexes"]as$x=>$v){if($v["columns"][count($v["columns"])]!="")$J["indexes"][$x]["columns"][]="";}$v=end($J["indexes"]);if($v["type"]||array_filter($v["columns"],'strlen'))$J["indexes"][]=array("columns"=>array(1=>""));}if(!$J){foreach($w
-as$x=>$v){$w[$x]["name"]=$x;$w[$x]["columns"][]="";}$w[]=array("columns"=>array(1=>""));$J["indexes"]=$w;}$Cf=(JUSH=="sql"||JUSH=="mssql");$eh=driver()->indexOpclasses();$sj=($_POST?$_POST["options"]:get_setting("index_options"));echo'
+';}elseif(isset($_GET["indexes"])){$a=$_GET["indexes"];$vf=array("PRIMARY","UNIQUE","INDEX");$R=table_status1($a,true);$sf=driver()->indexAlgorithms($R);if(preg_match('~MyISAM|M?aria'.(min_version(5.6,'10.0.5')?'|InnoDB':'').'~i',$R["Engine"]))$vf[]="FULLTEXT";if(preg_match('~MyISAM|M?aria'.(min_version(5.7,'10.2.2')?'|InnoDB':'').'~i',$R["Engine"]))$vf[]="SPATIAL";if(min_version('',11.7)&&preg_match('~MyISAM|InnoDB~i',$R["Engine"]))$vf[]="VECTOR";$v=indexes($a);$m=fields($a);$_j=array();if(JUSH=="mongo"){$_j=$v["_id_"];unset($vf[0]);unset($v["_id_"]);}$I=$_POST;if($I)save_settings(array("index_options"=>$I["options"]));if($_POST&&!$k&&!$_POST["add"]&&!$_POST["drop_col"]){$b=array();foreach($I["indexes"]as$u){$A=$u["name"];if(in_array($u["type"],$vf)){$e=array();$tg=array();$Fc=array();$mi=array();$tf=(support("partial_indexes")?$u["partial"]:"");$rf=(in_array($u["algorithm"],$sf)?$u["algorithm"]:"");$N=array();ksort($u["columns"]);foreach($u["columns"]as$w=>$d){if($d!=""){$x=idx($u["lengths"],$w);$Dc=idx($u["descs"],$w);$li=idx($u["opclasses"],$w);$N[]=($m[$d]?idf_escape($d):$d).($x?"(".(+$x).")":"").($li!=""?" ".idf_escape($li):"").($Dc?" DESC":"");$e[]=$d;$tg[]=($x?:null);$Fc[]=$Dc;$mi[]="$li";}}$Bd=$v[$A];if($Bd){ksort($Bd["columns"]);ksort($Bd["lengths"]);ksort($Bd["descs"]);if($u["type"]==$Bd["type"]&&array_values($Bd["columns"])===$e&&(!$Bd["lengths"]||array_values($Bd["lengths"])===$tg)&&array_values($Bd["descs"])===$Fc&&(!$Bd["opclasses"]||array_values($Bd["opclasses"])===$mi)&&$Bd["partial"]==$tf&&(!$sf||$Bd["algorithm"]==$rf)){unset($v[$A]);continue;}}if($e)$b[]=array($u["type"],$A,$N,$rf,$tf);}}foreach($v
+as$A=>$Bd)$b[]=array($Bd["type"],$A,"DROP");if(!$b)redirect(ME."table=".url_escape($a));queries_redirect(ME."table=".url_escape($a),'Indexes have been altered.',alter_indexes($a,$b));}page_header('Indexes',$k,array("table"=>$a),h($a),false,doc_link(array('sql'=>"create-index.html",'pgsql'=>"sql-createindex.html",'cockroach'=>"create-index",'mssql'=>"t-sql/statements/create-index-transact-sql",'sqlite'=>"lang_createindex.html",'oracle'=>"sqlrf/CREATE-INDEX.html",)));$Sd=array_keys($m);if($_POST["add"]){foreach($I["indexes"]as$w=>$u){if($u["columns"][count($u["columns"])]!="")$I["indexes"][$w]["columns"][]="";}$u=end($I["indexes"]);if($u["type"]||array_filter($u["columns"],'strlen'))$I["indexes"][]=array("columns"=>array(1=>""));}if(!$I){foreach($v
+as$w=>$u){$v[$w]["name"]=$w;$v[$w]["columns"][]="";}$v[]=array("columns"=>array(1=>""));$I["indexes"]=$v;}$tg=(JUSH=="sql"||JUSH=="mssql");$mi=driver()->indexOpclasses();$dl=($_POST?$_POST["options"]:get_setting("index_options"));$wh=array();foreach($vf
+as$T)$wh[$T]=str_replace("{table}",$a,adminer()->namePattern($T));echo'
 <form action="" method="post">
 <div class="scrollable">
 <table class="nowrap odds">
 <thead><tr>
 <th id="label-type">Index Type
-';$ze=" class='idxopts".($sj?"":" hidden")."'";if($Ge)echo"<th id='label-algorithm'$ze>".'Algorithm'.doc_link(array('sql'=>'create-index.html#create-index-storage-engine-index-types','mariadb'=>'storage-engine-index-types/','pgsql'=>'indexes-types.html',));echo'<th><input type="submit" hidden>','Columns'.($Cf?"<span$ze> (".'length'.")</span>":"");if($Cf||support("descidx"))echo
-checkbox("options",1,$sj,'Options',on('click','indexOptionsShow'),"jsonly")."\n";echo'<th id="label-name">Name
-';if(support("partial_indexes"))echo"<th id='label-condition'$ze>".'Condition';echo'<th><noscript>',icon("plus","add[0]","+",'Add next'),'</noscript>
+';$kf=" class='idxopts".($dl?"":" hidden")."'";if($sf)echo"<th id='label-algorithm'$kf>".'Algorithm'.doc_link(array('sql'=>'create-index.html#create-index-storage-engine-index-types','mariadb'=>'storage-engine-index-types/','pgsql'=>'indexes-types.html','cockroach'=>'create-index#parameters',));echo'<th><input type="submit" hidden>','Columns'.($tg?"<span$kf> (".'length'.")</span>":"");if($tg||support("descidx"))echo
+checkbox("options",1,$dl,'Options',on('click','indexOptionsShow'),"jsonly")."\n";echo'<th id="label-name">Name
+';if(support("partial_indexes"))echo"<th id='label-condition'$kf>".'Condition';echo'<td><noscript>',icon("plus","add[0]","+",'Add next'),'</noscript>
 <tbody>
-';if($ii){echo"<tr><td>PRIMARY<td>";foreach($ii["columns"]as$x=>$d)echo
-select_input(" disabled",array_combine($td,$td),$d),"<label><input disabled type='checkbox'>".'descending'."</label> ";echo"<td><td>\n";}$gf=1;foreach($J["indexes"]as$v){if(!$_POST["drop_col"]||$gf!=key($_POST["drop_col"])){echo"<tr><td>".html_select("indexes[$gf][type]",array(-1=>"")+$Je,$v["type"],($gf==count($J["indexes"])?on('change','indexesAddRow'):""),"label-type");if($Ge)echo"<td$ze>".html_select("indexes[$gf][algorithm]",array_merge(array(""),$Ge),$v['algorithm'],"","label-algorithm");echo"<td>";ksort($v["columns"]);$s=1;foreach($v["columns"]as$x=>$d){echo"<span>".select_input(" name='indexes[$gf][columns][$s]' title='".'Column'."'".on('change','indexesChangeColumn',(JUSH=="sql"?"":$_GET["indexes"]."_")),($n&&($d==""||$n[$d])?array_combine($td,$td):array()),$d)," <span$ze>",($Cf?"<input type='number' name='indexes[$gf][lengths][$s]' class='size' value='".h(idx($v["lengths"],$x))."' title='".'Length'."'>":"");if($eh){$dh=idx($v["opclasses"],$x);echo
-html_select("indexes[$gf][opclasses][$s]",array(""=>"(".'operator class'.")")+array_combine($eh,$eh)+($dh!=""?array($dh=>$dh):array()),$dh),doc_link(array('pgsql'=>'indexes-opclass.html'));}echo(support("descidx")?checkbox("indexes[$gf][descs][$s]",1,idx($v["descs"],$x),'descending'):""),"<br>","</span></span>";$s++;}echo"<td><input name='indexes[$gf][name]' value='".h($v["name"])."' autocapitalize='off' aria-labelledby='label-name'>\n";if(support("partial_indexes"))echo"<td$ze><input name='indexes[$gf][partial]' value='".h($v["partial"])."' autocapitalize='off' aria-labelledby='label-condition'>\n";echo"<td>".icon("cross","drop_col[$gf]","x",'Remove',on('click','editingRemoveRow','indexes$1[type]'));}$gf++;}echo'</table>
+';if($_j){echo"<tr><td>PRIMARY<td>";foreach($_j["columns"]as$w=>$d)echo
+select_input(" disabled",array_combine($Sd,$Sd),$d),"<label><input disabled type='checkbox'>".'descending'."</label> ";echo"<td><td>\n";}$Vf=1;foreach($I["indexes"]as$u){if(!$_POST["drop_col"]||$Vf!=key($_POST["drop_col"])){echo"<tr><td>".html_select("indexes[$Vf][type]",array(-1=>"")+$vf,$u["type"],on('change','indexesChangeType',$wh),"label-type");if($sf)echo"<td$kf>".html_select("indexes[$Vf][algorithm]",array_merge(array(""),$sf),$u['algorithm'],"","label-algorithm");echo"<td>";ksort($u["columns"]);$r=1;foreach($u["columns"]as$w=>$d){echo"<span>".select_input(" name='indexes[$Vf][columns][$r]' title='".'Column'."'".on('change','indexesChangeColumn',$wh),($m&&($d==""||$m[$d])?array_combine($Sd,$Sd):array()),$d)," <span$kf>",($tg?"<input type='number' name='indexes[$Vf][lengths][$r]' class='size' value='".h(idx($u["lengths"],$w))."' title='".'Length'."'>":"");if($mi){$li=idx($u["opclasses"],$w);echo
+html_select("indexes[$Vf][opclasses][$r]",array(""=>"(".'operator class'.")")+array_combine($mi,$mi)+($li!=""?array($li=>$li):array()),$li),doc_link(array('pgsql'=>'indexes-opclass.html'));}echo(support("descidx")?checkbox("indexes[$Vf][descs][$r]",1,idx($u["descs"],$w),'descending'):""),"<br>","</span></span>";$r++;}echo"<td><input name='indexes[$Vf][name]' value='".h($u["name"])."' autocapitalize='off' aria-labelledby='label-name'>\n";if(support("partial_indexes"))echo"<td$kf><input name='indexes[$Vf][partial]' value='".h($u["partial"])."' autocapitalize='off' aria-labelledby='label-condition'>\n";echo"<td>".icon("cross","drop_col[$Vf]","x",'Remove',on('click','editingRemoveRow','indexes$1[type]'));}$Vf++;}echo'</table>
 </div>
 <p>
 <input type=\'submit\' value=\'Save\'>
 ',input_token(),'</form>
-';}elseif(isset($_GET["database"])){$J=$_POST;if($_POST&&!$l&&!$_POST["add"]){$C=trim($J["name"]);if($_POST["drop"]){$_GET["db"]="";queries_redirect(remove_from_uri("db|database"),'Database has been dropped.',drop_databases(array(DB)));}elseif(DB!==$C){if(DB!=""){$_GET["db"]=$C;queries_redirect(preg_replace('~\bdb=[^&]*&~','',ME)."db=".url_escape($C),'Database has been renamed.',rename_database($C,(string)$J["collation"]));}else{$i=explode("\n",str_replace("\r","",$C));$Oj=true;$uf="";foreach($i
-as$j){if(count($i)==1||$j!=""){if(!create_database($j,(string)$J["collation"]))$Oj=false;$uf=$j;}}restart_session();set_session("dbs",null);queries_redirect(ME."db=".url_escape($uf),'Database has been created.',$Oj);}}else{if(!$J["collation"])redirect(substr(ME,0,-1));query_redirect("ALTER DATABASE ".idf_escape($C).(preg_match('~^[a-z0-9_]+$~i',$J["collation"])?" COLLATE $J[collation]":""),substr(ME,0,-1),'Database has been altered.');}}page_header(DB!=""?'Alter database':'Create database',$l,array(),h(DB));$qb=collations();$C=DB;if($_POST)$C=$J["name"];elseif(DB!="")$J["collation"]=db_collation(DB,$qb);elseif(JUSH=="sql"){foreach(get_vals("SHOW GRANTS")as$Vd){if(preg_match('~ ON (`(([^\\\\`]|``|\\\\.)*)%`\.\*)?~',$Vd,$B)&&$B[1]){$C=stripcslashes(idf_unescape("`$B[2]`"));break;}}}echo'
+';}elseif(isset($_GET["database"])){$I=$_POST;if($_POST&&!$k&&!$_POST["add"]){$A=trim($I["name"]);if($_POST["drop"]){$_GET["db"]="";queries_redirect(remove_from_uri("db|database"),'Database has been dropped.',drop_databases(array(DB)));}elseif($A!==DB){if(DB!=""){$_GET["db"]=$A;queries_redirect(preg_replace('~\bdb=[^&]*&~','',ME)."db=".url_escape($A),'Database has been renamed.',rename_database($A,(string)$I["collation"]));}else{$h=explode("\n",str_replace("\r","",$A));$El=true;$kg="";foreach($h
+as$i){if(count($h)==1||$i!=""){if(!create_database($i,(string)$I["collation"]))$El=false;$kg=$i;}}restart_session();set_session("dbs",null);queries_redirect(preg_replace('~&db=[^&]*~','',ME)."db=".url_escape($kg),'Database has been created.',$El);}}else{if(!$I["collation"])redirect(substr(ME,0,-1));query_redirect("ALTER DATABASE ".idf_escape($A).(preg_match('~^[a-z0-9_]+$~i',$I["collation"])?" COLLATE $I[collation]":""),substr(ME,0,-1),'Database has been altered.');}}$yl=(DB!=""?"alter":"create");page_header(DB!=""?'Alter database':'Create database',$k,array(),h(DB),false,doc_link(array('sql'=>"$yl-database.html",'mariadb'=>(DB!=""?"":"$yl-database"),'pgsql'=>"sql-$yl"."database.html",'cockroach'=>"$yl-database",'mssql'=>"t-sql/statements/$yl-database-transact-sql",'oracle'=>"sqlrf/".strtoupper($yl)."-USER.html",)));$Cb=collations();$A=DB;if($_POST)$A=$I["name"];elseif(DB!="")$I["collation"]=db_collation(DB,$Cb);elseif(JUSH=="sql"){foreach(get_vals("SHOW GRANTS")as$ze){if(preg_match('~ ON (`(([^\\\\`]|``|\\\\.)*)%`\.\*)?~',$ze,$_)&&$_[1]){$A=stripcslashes(idf_unescape("`$_[2]`"));break;}}}echo'
 <form action="" method="post">
 <p>
-',($_POST["add"]||strpos($C,"\n")?'<textarea autofocus name="name" rows="10" cols="40">'.h($C).'</textarea><br>':'<input name="name" autofocus value="'.h($C).'" data-maxlength="64" autocapitalize="off">')."\n",($qb?html_select("collation",array(""=>"(".'collation'.")")+$qb,$J["collation"]).doc_link(array('sql'=>"charset-charsets.html",'mariadb'=>"supported-character-sets-and-collations/",'mssql'=>"relational-databases/system-functions/sys-fn-helpcollations-transact-sql",)):"")."\n",'<input type=\'submit\' value=\'Save\'>
+',($_POST["add"]||strpos($A,"\n")?'<textarea autofocus name="name" rows="10" cols="40">'.h($A).'</textarea><br>':'<input name="name" autofocus value="'.h($A).'" data-maxlength="64" autocapitalize="off">')."\n",($Cb?html_select("collation",array(""=>"(".'collation'.")")+$Cb,$I["collation"]).doc_link(array('sql'=>"charset-charsets.html",'mariadb'=>"supported-character-sets-and-collations/",'mssql'=>"relational-databases/system-functions/sys-fn-helpcollations-transact-sql",)):"")."\n",'<input type=\'submit\' value=\'Save\'>
 ';if(DB!="")echo"<input type='submit' name='drop' value='".'Drop'."'".confirm(sprintf('Drop %s?',DB)).">\n";elseif(!$_POST["add"]&&$_GET["db"]=="")echo
 icon("plus","add[0]","+",'Add next')."\n";echo
 input_token(),'</form>
-';}elseif(isset($_GET["scheme"])){$J=$_POST;if($_POST&&!$l){$_=preg_replace('~ns=[^&]*&~','',ME)."ns=";if($_POST["drop"])query_redirect("DROP SCHEMA ".idf_escape($_GET["ns"]),$_,'Schema has been dropped.');else{$C=trim($J["name"]);$_
-.=url_escape($C);if($_GET["ns"]=="")query_redirect("CREATE SCHEMA ".idf_escape($C),$_,'Schema has been created.');elseif($_GET["ns"]!=$C)query_redirect("ALTER SCHEMA ".idf_escape($_GET["ns"])." RENAME TO ".idf_escape($C),$_,'Schema has been altered.');else
-redirect($_);}}page_header($_GET["ns"]!=""?'Alter schema':'Create schema',$l);if(!$J)$J["name"]=$_GET["ns"];echo'
+';}elseif(isset($_GET["scheme"])){$I=$_POST;if($_POST&&!$k){$z=preg_replace('~ns=[^&]*&~','',ME)."ns=";if($_POST["drop"])query_redirect("DROP SCHEMA ".idf_escape($_GET["ns"]),$z,'Schema has been dropped.');else{$A=trim($I["name"]);$z
+.=url_escape($A);if($_GET["ns"]=="")query_redirect("CREATE SCHEMA ".idf_escape($A),$z,'Schema has been created.');elseif($_GET["ns"]!=$A)query_redirect("ALTER SCHEMA ".idf_escape($_GET["ns"])." RENAME TO ".idf_escape($A),$z,'Schema has been altered.');else
+redirect($z);}}$yl=($_GET["ns"]!=""?"alter":"create");page_header($_GET["ns"]!=""?'Alter schema':'Create schema',$k,array(),"",false,doc_link(array('pgsql'=>"sql-$yl"."schema.html",'cockroach'=>"$yl-schema",'mssql'=>"t-sql/statements/create-schema-transact-sql",)));if(!$I)$I["name"]=$_GET["ns"];echo'
 <form action="" method="post">
-<p><input name="name" autofocus value="',h($J["name"]),'" autocapitalize="off">
+<p><input name="name" autofocus value="',h($I["name"]),'" autocapitalize="off">
 <input type=\'submit\' value=\'Save\'>
 ';if($_GET["ns"]!="")echo"<input type='submit' name='drop' value='".'Drop'."'".confirm(sprintf('Drop %s?',$_GET["ns"])).">\n";echo
 input_token(),'</form>
-';}elseif(isset($_GET["call"])){$ba=($_GET["name"]?:$_GET["call"]);page_header('Call'.": ".h($ba),$l);$Ri=(isset($_GET["callf"])?"FUNCTION":"PROCEDURE");$Pi=routine($_GET["call"],$Ri);$Be=array();$yh=array();foreach($Pi["fields"]as$s=>$m){if(substr($m["inout"],-3)=="OUT"&&JUSH=='sql')$yh[$s]="@".idf_escape($m["field"])." AS ".idf_escape($m["field"]);if(!$m["inout"]||substr($m["inout"],0,2)=="IN")$Be[]=$s;}if(!$l&&$_POST){$Ya=array();foreach($Pi["fields"]as$x=>$m){$X="";if(in_array($x,$Be)){$X=process_input($m);if($X===false)$X="''";if(isset($yh[$x]))connection()->query("SET @".idf_escape($m["field"])." = $X");}if(isset($yh[$x]))$Ya[]="@".idf_escape($m["field"]);elseif(in_array($x,$Be))$Ya[]=$X;}$G=(isset($_GET["callf"])?"SELECT ":"CALL ").(idx($Pi["returns"],"type")=="record"?"* FROM ":"").table($ba)."(".implode(", ",$Ya).")";$Jj=microtime(true);$H=connection()->multi_query($G);$qa=connection()->affected_rows;echo
-adminer()->selectQuery($G,$Jj,!$H);if(!$H)echo"<p class='error'>".error()."\n";else{$g=connect();if($g)$g->select_db(DB);do{$H=connection()->store_result();if(is_object($H))print_select_result($H,$g);else
-echo"<p class='message'>".lang_format(array('Routine has been called, %d row affected.','Routine has been called, %d rows affected.'),$qa)." <span class='time'>".@date("H:i:s")."</span>\n";}while(connection()->next_result());if($yh)print_select_result(connection()->query("SELECT ".implode(", ",$yh)));}}echo'
+';}elseif(isset($_GET["call"])){$ba=($_GET["name"]?:$_GET["call"]);$rk=(isset($_GET["callf"])?"FUNCTION":"PROCEDURE");$mk=routine($_GET["call"],$rk);page_header('Call'.": ".h($ba),$k,"#routines","",!$mk,(isset($_GET["callf"])?"":doc_link(array('sql'=>"call.html",'pgsql'=>"sql-call.html",'cockroach'=>"call",'mssql'=>"t-sql/language-elements/execute-transact-sql",))));$nf=array();$Fi=array();foreach($mk["fields"]as$r=>$l){if(substr($l["inout"],-3)=="OUT"&&JUSH=='sql')$Fi[$r]="@".idf_escape($l["field"])." AS ".idf_escape($l["field"]);if(!$l["inout"]||preg_match('~^(IN|OUTPUT)~',$l["inout"]))$nf[]=$r;}if(!$k&&$_POST){$hb=array();foreach($mk["fields"]as$w=>$l){$W="";if(in_array($w,$nf)){$W=process_input($l);if($W===false)$W="''";if(isset($Fi[$w]))connection()->query("SET @".idf_escape($l["field"])." = $W");}if(isset($Fi[$w]))$hb[]="@".idf_escape($l["field"]);elseif(in_array($w,$nf))$hb[]=$W;}$Da=implode(", ",$hb);$F=(isset($_GET["callf"])||JUSH!="mssql"?(isset($_GET["callf"])?"SELECT ":"CALL ").(idx($mk["returns"],"type")=="record"?"* FROM ":"").table($ba)."($Da)":"EXEC ".table($ba).($Da!=""?" $Da":""));$xl=microtime(true);$G=connection()->multi_query($F);$ra=connection()->affected_rows;echo
+adminer()->selectQuery($F,$xl,!$G);if(!$G)echo"<p class='error'>".adminer()->error()."\n";else{$g=connect();if($g)$g->select_db(DB);do{$G=connection()->store_result();if(is_object($G))print_select_result($G,$g);else
+echo"<p class='message'>".lang_format(array('Routine has been called, %d row affected.','Routine has been called, %d rows affected.'),$ra)." <span class='time'>".@date("H:i:s")."</span>\n";}while(connection()->next_result());if($Fi)print_select_result(connection()->query("SELECT ".implode(", ",$Fi)));}}echo'
 <form action="" method="post">
-';if($Be){echo"<table class='layout'>\n";foreach($Be
-as$x){$m=$Pi["fields"][$x];$C=$m["field"];echo"<tr><th>".adminer()->fieldName($m);$Y=idx($_POST["fields"],$C);if($Y!=""){if($m["type"]=="set")$Y=implode(",",$Y);}input($m,$Y,idx($_POST["function"],$C,""));echo"\n";}echo"</table>\n";}echo'<p>
+';if($nf){echo"<table class='layout'>\n";foreach($nf
+as$w){$l=$mk["fields"][$w];$A=$l["field"];echo"<tr><th>".adminer()->fieldName($l);$X=idx($_POST["fields"],$A);if($X!=""){if($l["type"]=="set")$X=implode(",",$X);}input($l,$X,idx($_POST["function"],$A,""));echo"\n";}echo"</table>\n";}echo'<p>
 <input type=\'submit\' value=\'Call\'>
 ',input_token(),'</form>
 
-',adminer()->commentValue($Ri,$Pi['comment']);}elseif(isset($_GET["foreign"])){$a=$_GET["foreign"];$C=$_GET["name"];$J=$_POST;if($_POST&&!$l&&!$_POST["add"]&&!$_POST["change"]&&!$_POST["change-js"]){if(!$_POST["drop"]){$J["source"]=array_filter($J["source"],'strlen');ksort($J["source"]);$hk=array();foreach($J["source"]as$x=>$X)$hk[$x]=$J["target"][$x];$J["target"]=$hk;}if(JUSH=="sqlite")$H=recreate_table($a,$a,array(),array(),array(" $C"=>($J["drop"]?"":" ".format_foreign_key($J))));else{$b="ALTER TABLE ".table($a);$H=($C==""||queries("$b DROP ".(JUSH=="sql"?"FOREIGN KEY ":"CONSTRAINT ").idf_escape($C)));if(!$J["drop"])$H=queries("$b ADD".format_foreign_key($J));}queries_redirect(ME."table=".url_escape($a),($J["drop"]?'Foreign key has been dropped.':($C!=""?'Foreign key has been altered.':'Foreign key has been created.')),$H);if(!$J["drop"])$l='Source and target columns must have the same data type, there must be an index on the target columns and referenced data must exist.';}page_header(($C!=""?'Alter foreign key':'Create foreign key'),$l,array("table"=>$a),h($C!=""?$C:$a));if($_POST){ksort($J["source"]);if($_POST["change"]||$_POST["change-js"])$J["target"]=array();else$J["source"][]="";}elseif($C!=""){$Jd=foreign_keys($a);$J=$Jd[$C];$J["source"][]="";}else{$J["table"]=$a;$J["source"]=array("");}echo'
+',adminer()->commentValue($rk,$mk['comment']);}elseif(isset($_GET["foreign"])){$a=$_GET["foreign"];$A=$_GET["name"];$I=$_POST;if($_POST&&!$k&&!$_POST["add"]&&!$_POST["change"]&&!$_POST["change-js"]){if(!$_POST["drop"]){$I["source"]=array_filter($I["source"],'strlen');ksort($I["source"]);$em=array();foreach($I["source"]as$w=>$W)$em[$w]=$I["target"][$w];$I["target"]=$em;}$Sb=object_name("FOREIGN",$a,$I["source"]);if(JUSH=="sqlite")$G=recreate_table($a,$a,array(),array(),array(" $A"=>($I["drop"]?"":" ".format_foreign_key($I,$Sb))));else{$b="ALTER TABLE ".table($a);$G=($A==""||queries("$b DROP ".(JUSH=="sql"?"FOREIGN KEY ":"CONSTRAINT ").idf_escape($A)));if(!$I["drop"])$G=queries("$b ADD".format_foreign_key($I,$Sb));}queries_redirect(ME."table=".url_escape($a),($I["drop"]?'Foreign key has been dropped.':($A!=""?'Foreign key has been altered.':'Foreign key has been created.')),$G);if(!$I["drop"])$k='Source and target columns must have the same data type, there must be an index on the target columns and the referenced data must exist.';}$Mh=false;if(!$_POST&&$A!=""){$je=foreign_keys($a);$I=idx($je,$A,array());$Mh=!$I;}page_header(($A!=""?'Alter foreign key':'Create foreign key'),$k,array("table"=>$a),h($A!=""?$A:$a),$Mh,doc_link(array('sql'=>"innodb-foreign-key-constraints.html",'mariadb'=>"foreign-keys/",'pgsql'=>"sql-createtable.html#SQL-CREATETABLE-PARMS-REFERENCES",'cockroach'=>"foreign-key",'mssql'=>"t-sql/statements/create-table-transact-sql",'oracle'=>"sqlrf/constraint.html",)));if($_POST){ksort($I["source"]);if($_POST["change"]||$_POST["change-js"])$I["target"]=array();else$I["source"][]="";}elseif($A!="")$I["source"][]="";else{$I["table"]=$a;$I["source"]=array("");}echo'
 <form action="" method="post">
-';$_j=array_keys(fields($a));if($J["db"]!="")connection()->select_db($J["db"]);if($J["ns"]!=""){$th=get_schema();set_schema($J["ns"]);}$zi=array_keys(array_filter(table_status('',true),'Adminer\fk_support'));$hk=array_keys(fields(in_array($J["table"],$zi)?$J["table"]:reset($zi)));$c=on('change','foreignChange');echo"<p><label>".'Target table'.": ".html_select("table",$zi,$J["table"],$c)."</label>\n";if(support("scheme")){$Wi=array_filter(adminer()->schemas(),function($L){return!information_schema(DB,$L);});echo"<label>".'Schema'.": ".html_select("ns",$Wi,$J["ns"]!=""?$J["ns"]:$_GET["ns"],$c)."</label>";if($J["ns"]!="")set_schema($th);}elseif(JUSH!="sqlite"){$cc=array();foreach(adminer()->databases()as$j){if(!information_schema($j))$cc[]=$j;}echo"<label>".'DB'.": ".html_select("db",$cc,$J["db"]!=""?$J["db"]:$_GET["db"],$c)."</label>";}echo
+';$ml=array_keys(fields($a));if($I["db"]!="")connection()->select_db($I["db"]);if($I["ns"]!=""){$Ai=get_schema();set_schema($I["ns"]);}$Rj=array_keys(array_filter(table_status('',true),function(array$R){return!$R["dependent"]&&fk_support($R);}));$em=array_keys(fields(in_array($I["table"],$Rj)?$I["table"]:reset($Rj)));$c=on('change','foreignChange');echo"<p><label>".'Target table'.": ".html_select("table",$Rj,$I["table"],$c)."</label>\n";if(support("scheme")){$yk=array_filter(adminer()->schemas(),function($K){return!information_schema(DB,$K);});echo"<label>".'Schema'.": ".html_select("ns",$yk,$I["ns"]!=""?$I["ns"]:$_GET["ns"],$c)."</label>";if($I["ns"]!="")set_schema($Ai);}elseif(JUSH!="sqlite"){$vc=array();foreach(adminer()->databases()as$i){if(!information_schema($i))$vc[]=$i;}echo"<label>".'DB'.": ".html_select("db",$vc,$I["db"]!=""?$I["db"]:$_GET["db"],$c)."</label>";}echo
 input_hidden("change-js"),'<noscript><p><input type=\'submit\' name=\'change\' value=\'Change\'></noscript>
 <table>
 <thead><tr><th id="label-source">Source<th id="label-target">Target<tbody>
-';$gf=0;foreach($J["source"]as$x=>$X){echo"<tr>","<td>".html_select("source[".(+$x)."]",array(-1=>"")+$_j,$X,($gf==count($J["source"])-1?on('change','foreignAddRow'):""),"label-source"),"<td>".html_select("target[".(+$x)."]",$hk,idx($J["target"],$x),"","label-target");$gf++;}echo'</table>
+';$Vf=0;foreach($I["source"]as$w=>$W){echo"<tr>","<td>".html_select("source[".(+$w)."]",array(-1=>"")+$ml,$W,($Vf==count($I["source"])-1?on('change','foreignAddRow'):""),"label-source"),"<td>".html_select("target[".(+$w)."]",$em,idx($I["target"],$w),"","label-target");$Vf++;}echo'</table>
 <p>
-<label>ON DELETE: ',html_select("on_delete",array(-1=>"")+explode("|",driver()->onActions),$J["on_delete"]),'</label>
-<label>ON UPDATE: ',html_select("on_update",array(-1=>"")+explode("|",driver()->onActions),$J["on_update"]),'</label>
-',(support("deferrable")?html_select("deferrable",array('NOT DEFERRABLE','DEFERRABLE','DEFERRABLE INITIALLY DEFERRED'),$J["deferrable"]).' ':''),doc_link(array('sql'=>"innodb-foreign-key-constraints.html",'mariadb'=>"foreign-keys/",'pgsql'=>"sql-createtable.html#SQL-CREATETABLE-PARMS-REFERENCES",'mssql'=>"t-sql/statements/create-table-transact-sql",'oracle'=>"SQLRF01111",)),'<p>
+<label>ON DELETE: ',html_select("on_delete",array(-1=>"")+explode("|",driver()->onActions),$I["on_delete"]),'</label>
+<label>ON UPDATE: ',html_select("on_update",array(-1=>"")+explode("|",driver()->onActions),$I["on_update"]),'</label>
+',(support("deferrable")?html_select("deferrable",array('NOT DEFERRABLE','DEFERRABLE','DEFERRABLE INITIALLY DEFERRED'),$I["deferrable"]):''),'<p>
 <input type=\'submit\' value=\'Save\'>
 <noscript><p><input type=\'submit\' name=\'add\' value=\'Add column\'></noscript>
-';if($C!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$C)),'>
+';if($A!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$A)),'>
 ';echo
 input_token(),'</form>
-';}elseif(isset($_GET["view"])){$a=$_GET["view"];$J=$_POST;$uh="VIEW";if(JUSH=="pgsql"&&$a!=""){$P=table_status1($a);$uh=strtoupper($P["Engine"]);}if($_POST&&!$l){$C=trim($J["name"]);$Aa=" AS\n$J[select]";$A=ME."table=".url_escape($C);$fg='View has been altered.';$U=($_POST["materialized"]?"MATERIALIZED VIEW":"VIEW");if(!$_POST["drop"]&&$a==$C&&JUSH!="sqlite"&&$U=="VIEW"&&$uh=="VIEW")query_redirect((JUSH=="mssql"?"ALTER":"CREATE OR REPLACE")." VIEW ".table($C).$Aa,$A,$fg);else{$jk="adminer_".uniqid();drop_create("DROP $uh ".table($a),"CREATE $U ".table($C).$Aa,"DROP $U ".table($C),"CREATE $U ".table($jk).$Aa,"DROP $U ".table($jk),($_POST["drop"]?substr(ME,0,-1):$A),'View has been dropped.',$fg,'View has been created.',$a,$C);}}if(!$_POST&&$a!=""){$J=view($a);$J["name"]=$a;$J["materialized"]=($uh!="VIEW");if(!$l)$l=error();}page_header(($a!=""?'Alter view':'Create view'),$l,array("table"=>$a),h($a));echo'
+';}elseif(isset($_GET["view"])){$a=$_GET["view"];$I=$_POST;$Bi="VIEW";if(JUSH=="pgsql"&&$a!=""){$O=table_status1($a);$Bi=strtoupper($O["Engine"]);}if($_POST&&!$k){$A=trim($I["name"]);$Fa=" AS\n$I[select]";$Bg=ME."table=".url_escape($A);$Zg='View has been altered.';$T=($_POST["materialized"]?"MATERIALIZED VIEW":"VIEW");if(!$_POST["drop"]&&$a==$A&&JUSH!="sqlite"&&$T=="VIEW"&&$Bi=="VIEW")query_redirect((JUSH=="mssql"?"ALTER":"CREATE OR REPLACE")." VIEW ".table($A).$Fa,$Bg,$Zg);else{$im="adminer_".uniqid();drop_create("DROP $Bi ".table($a),"CREATE $T ".table($A).$Fa,"DROP $T ".table($A),"CREATE $T ".table($im).$Fa,"DROP $T ".table($im),($_POST["drop"]?substr(ME,0,-1):$Bg),'View has been dropped.',$Zg,'View has been created.',$a,$A);}}$Mh=false;if(!$_POST&&$a!=""){$I=view($a);$Mh=!$I["select"];$I["name"]=$a;$I["materialized"]=($Bi!="VIEW");if(!$k)$k=adminer()->error();}page_header(($a!=""?'Alter view':'Create view'),$k,array("table"=>$a),h($a),$Mh,doc_link(array('sql'=>"create-view.html",'pgsql'=>"sql-createview.html",'cockroach'=>"create-view",'mssql'=>"t-sql/statements/create-view-transact-sql",'sqlite'=>"lang_createview.html",'oracle'=>"sqlrf/CREATE-VIEW.html",)));echo'
 <form action="" method="post">
-<p>Name: <input name="name" value="',h($J["name"]),'" data-maxlength="64" autocapitalize="off">
-',(support("materializedview")?" ".checkbox("materialized",1,$J["materialized"],'Materialized view'):""),'<p>';textarea("select",$J["select"]);echo'<p>
+<p>Name: <input name="name" value="',h($I["name"]),'" data-maxlength="64" autocapitalize="off">
+',(support("materializedview")?" ".checkbox("materialized",1,$I["materialized"],'Materialized view'):""),'<p>';textarea("select",$I["select"]);echo'<p>
 <input type=\'submit\' value=\'Save\'>
 ';if($a!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$a)),'>
 ';echo
 input_token(),'</form>
-';}elseif(isset($_GET["event"])){$aa=$_GET["event"];$We=array("YEAR","QUARTER","MONTH","DAY","HOUR","MINUTE","WEEK","SECOND","YEAR_MONTH","DAY_HOUR","DAY_MINUTE","DAY_SECOND","HOUR_MINUTE","HOUR_SECOND","MINUTE_SECOND");$Kj=array("ENABLED"=>"ENABLE","DISABLED"=>"DISABLE","SLAVESIDE_DISABLED"=>"DISABLE ON SLAVE");$J=$_POST;if($_POST&&!$l){if($_POST["drop"])query_redirect("DROP EVENT ".idf_escape($aa),substr(ME,0,-1),'Event has been dropped.');elseif(in_array($J["INTERVAL_FIELD"],$We)&&isset($Kj[$J["STATUS"]])){$Vi="\nON SCHEDULE ".($J["INTERVAL_VALUE"]?"EVERY ".q($J["INTERVAL_VALUE"])." $J[INTERVAL_FIELD]".($J["STARTS"]?" STARTS ".q($J["STARTS"]):"").($J["ENDS"]?" ENDS ".q($J["ENDS"]):""):"AT ".q($J["STARTS"]))." ON COMPLETION".($J["ON_COMPLETION"]?"":" NOT")." PRESERVE";queries_redirect(substr(ME,0,-1),($aa!=""?'Event has been altered.':'Event has been created.'),queries(($aa!=""?"ALTER EVENT ".idf_escape($aa).$Vi.($aa!=$J["EVENT_NAME"]?"\nRENAME TO ".idf_escape($J["EVENT_NAME"]):""):"CREATE EVENT ".idf_escape($J["EVENT_NAME"]).$Vi)."\n".$Kj[$J["STATUS"]]." COMMENT ".q($J["EVENT_COMMENT"]).rtrim(" DO\n$J[EVENT_DEFINITION]",";").";"));}}page_header(($aa!=""?'Alter event'.": ".h($aa):'Create event'),$l);if(!$J&&$aa!=""){$K=get_rows("SELECT * FROM information_schema.EVENTS WHERE EVENT_SCHEMA = ".q(DB)." AND EVENT_NAME = ".q($aa));$J=reset($K);}echo'
+';}elseif(isset($_GET["event"])){$aa=$_GET["event"];$If=array("YEAR","QUARTER","MONTH","DAY","HOUR","MINUTE","WEEK","SECOND","YEAR_MONTH","DAY_HOUR","DAY_MINUTE","DAY_SECOND","HOUR_MINUTE","HOUR_SECOND","MINUTE_SECOND");$_l=array("ENABLED"=>"ENABLE","DISABLED"=>"DISABLE","SLAVESIDE_DISABLED"=>"DISABLE ON SLAVE");$I=$_POST;if($_POST&&!$k){if($_POST["drop"])query_redirect("DROP EVENT ".idf_escape($aa),substr(ME,0,-1),'Event has been dropped.');elseif(in_array($I["INTERVAL_FIELD"],$If)&&isset($_l[$I["STATUS"]])){$wk="\nON SCHEDULE ".($I["INTERVAL_VALUE"]?"EVERY ".q($I["INTERVAL_VALUE"])." $I[INTERVAL_FIELD]".($I["STARTS"]?" STARTS ".q($I["STARTS"]):"").($I["ENDS"]?" ENDS ".q($I["ENDS"]):""):"AT ".q($I["STARTS"]))." ON COMPLETION".($I["ON_COMPLETION"]?"":" NOT")." PRESERVE";queries_redirect(substr(ME,0,-1),($aa!=""?'Event has been altered.':'Event has been created.'),queries(($aa!=""?"ALTER EVENT ".idf_escape($aa).$wk.($aa!=$I["EVENT_NAME"]?"\nRENAME TO ".idf_escape($I["EVENT_NAME"]):""):"CREATE EVENT ".idf_escape($I["EVENT_NAME"]).$wk)."\n".$_l[$I["STATUS"]]." COMMENT ".q($I["EVENT_COMMENT"]).rtrim(" DO\n$I[EVENT_DEFINITION]",";").";"));}}$Mh=false;if(!$I&&$aa!=""){$J=get_rows("SELECT * FROM information_schema.EVENTS WHERE EVENT_SCHEMA = ".q(DB)." AND EVENT_NAME = ".q($aa));$Mh=!$J;$I=reset($J);}page_header(($aa!=""?'Alter event'.": ".h($aa):'Create event'),$k,"#events","",$Mh,doc_link(array('sql'=>"create-event.html")));echo'
 <form action="" method="post">
 <table class="layout">
-<tr><th>Name<td><input name="EVENT_NAME" value="',h($J["EVENT_NAME"]),'" data-maxlength="64" autocapitalize="off">
-<tr><th title="datetime">Start<td><input name="STARTS" value="',h("$J[EXECUTE_AT]$J[STARTS]"),'">
-<tr><th title="datetime">End<td><input name="ENDS" value="',h($J["ENDS"]),'">
+<tr><th>Name<td><input name="EVENT_NAME" value="',h($I["EVENT_NAME"]),'" data-maxlength="64" autocapitalize="off">
+<tr><th title="datetime">Start<td><input name="STARTS" value="',h("$I[EXECUTE_AT]$I[STARTS]"),'">
+<tr><th title="datetime">End<td><input name="ENDS" value="',h($I["ENDS"]),'">
 <tr><th>Every
-<td><input type="number" name="INTERVAL_VALUE" value="',h($J["INTERVAL_VALUE"]),'" class="size"> ',html_select("INTERVAL_FIELD",$We,$J["INTERVAL_FIELD"]),'<tr><th>Status<td>',html_select("STATUS",$Kj,$J["STATUS"]),'<tr><th>Comment<td><input name="EVENT_COMMENT" value="',h($J["EVENT_COMMENT"]),'" data-maxlength="64">
-<tr><th><td>',checkbox("ON_COMPLETION","PRESERVE",$J["ON_COMPLETION"]=="PRESERVE",'On completion preserve'),'</table>
-<p>';textarea("EVENT_DEFINITION",$J["EVENT_DEFINITION"]);echo'<p>
+<td><input type="number" name="INTERVAL_VALUE" value="',h($I["INTERVAL_VALUE"]),'" class="size"> ',html_select("INTERVAL_FIELD",$If,$I["INTERVAL_FIELD"]),'<tr><th>Status<td>',html_select("STATUS",$_l,$I["STATUS"]),'<tr><th>Comment<td><input name="EVENT_COMMENT" value="',h($I["EVENT_COMMENT"]),'" data-maxlength="64">
+<tr><th><td>',checkbox("ON_COMPLETION","PRESERVE",$I["ON_COMPLETION"]=="PRESERVE",'On completion preserve'),'</table>
+<p>';textarea("EVENT_DEFINITION",$I["EVENT_DEFINITION"]);echo'<p>
 <input type=\'submit\' value=\'Save\'>
 ';if($aa!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$aa)),'>
 ';echo
 input_token(),'</form>
-';}elseif(isset($_GET["procedure"])){$ba=($_GET["name"]?:$_GET["procedure"]);$Pi=(isset($_GET["function"])?"FUNCTION":"PROCEDURE");$J=$_POST;$J["fields"]=(array)$J["fields"];if($_POST&&!process_fields($J["fields"])&&!$l){foreach($J["fields"]as$x=>$m){if($m["field"]=="")unset($J["fields"][$x]);}$Vg=routine_id($ba,routine($_GET["procedure"],$Pi));$_g=routine_id($J["name"],$J);$h=create_routine($Pi,$J);$A=substr(ME,0,-1);$fg='Routine has been altered.';if(!$_POST["drop"]&&$Vg==$_g&&connection()->flavor!="mysql")query_redirect(substr_replace($h,' OR REPLACE',6,0),$A,$fg);else{$jk="adminer_".uniqid();drop_create("DROP $Pi $Vg",$h,"DROP $Pi $_g",create_routine($Pi,array("name"=>$jk)+$J),"DROP $Pi ".routine_id($jk,$J),$A,'Routine has been dropped.',$fg,'Routine has been created.',$ba,$J["name"]);}}page_header(($ba!=""?(isset($_GET["function"])?'Alter function':'Alter procedure').": ".h($ba):(isset($_GET["function"])?'Create function':'Create procedure')),$l);if(!$_POST){if($ba=="")$J["language"]="sql";else{$J=routine($_GET["procedure"],$Pi);$J["name"]=$ba;}}$qb=get_vals("SHOW CHARACTER SET");sort($qb);$Qi=routine_languages();echo($qb?"<datalist id='collations'>".optionlist($qb)."</datalist>":""),'
+';}elseif(isset($_GET["procedure"])){$ba=($_GET["name"]?:$_GET["procedure"]);$mk=(isset($_GET["function"])?"FUNCTION":"PROCEDURE");$I=$_POST;$I["fields"]=(array)$I["fields"];if($_POST&&!process_fields($I["fields"])&&!$k){foreach($I["fields"]as$w=>$l){if($l["field"]=="")unset($I["fields"][$w]);}$ei=routine($_GET["procedure"],$mk);$ci=($ei?routine_id($ba,$ei):"");$Dh=routine_id($I["name"],$I);$ec=create_routine($mk,$I);$Bg=substr(ME,0,-1);$Zg='Routine has been altered.';if(!$_POST["drop"]&&$ci==$Dh&&connection()->flavor!="mysql")queries_redirect($Bg,$Zg,queries(substr_replace($ec,(JUSH=="mssql"?' OR ALTER':' OR REPLACE'),6,0)));else{$im="adminer_".uniqid();drop_create("DROP $mk $ci",$ec,"DROP $mk $Dh",create_routine($mk,array("name"=>$im)+$I),"DROP $mk ".routine_id($im,$I),$Bg,'Routine has been dropped.',$Zg,'Routine has been created.',$ba,$I["name"]);}}$Mh=false;if(!$_POST&&$ba!=""){$I=routine($_GET["procedure"],$mk);$Mh=!$I;$I["name"]=$ba;}$pk=strtolower($mk);page_header(($ba!=""?(isset($_GET["function"])?'Alter function':'Alter procedure').": ".h($ba):(isset($_GET["function"])?'Create function':'Create procedure')),$k,"#routines","",$Mh,doc_link(array('sql'=>"create-procedure.html",'mariadb'=>"create-$pk/",'pgsql'=>"sql-create$pk.html",'cockroach'=>"create-$pk",'mssql'=>"t-sql/statements/create-$pk-transact-sql",)));if(!$_POST&&$ba=="")$I["language"]="sql";$Cb=(JUSH=="sql"?flat_collations():array());$nk=routine_languages();echo($Cb?"<datalist id='collations'>".optionlist($Cb)."</datalist>":""),'
 <form action="" method="post" id="form">
-<p>Name: <input name="name" value="',h($J["name"]),'" data-maxlength="64" autocapitalize="off">
-',($Qi?"<label>".'Language'.": ".html_select("language",$Qi,$J["language"])."</label>\n":""),'<input type=\'submit\' value=\'Save\'>
+<p>Name: <input name="name" value="',h($I["name"]),'" data-maxlength="64" autocapitalize="off">
+',($nk?"<label>".'Language'.": ".html_select("language",array_keys($nk),$I["language"],on('change','routineLanguage',$nk))."</label>\n":""),'<input type=\'submit\' value=\'Save\'>
 <div class="scrollable">
 <table id="edit-fields" class="nowrap">
-';edit_fields($J["fields"],$qb,$Pi);if(isset($_GET["function"])){echo"<tr><td>".'Return type';edit_type("returns",(array)$J["returns"],$qb,array(),(JUSH=="pgsql"?array("void","trigger"):array()));}echo'</table>
+';edit_fields($I["fields"],$Cb,$mk);if(isset($_GET["function"])){echo"<tr><td>".'Return type';edit_type("returns",(array)$I["returns"],$Cb,array(),(JUSH=="pgsql"?array("void","trigger"):array()));}echo'</table>
 ',script("editFields();"),'</div>
-<p>';textarea("definition",$J["definition"],20);echo'<p>
+<p>';textarea("definition",$I["definition"],20,80,($nk[$I["language"]]?:JUSH));echo'<p>
 <input type=\'submit\' value=\'Save\'>
 ';if($ba!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$ba)),'>
-';echo
+';$qk=routine_options($mk);if($qk){$ri=false;foreach($qk
+as$w=>$Y){$j=($Y?reset($Y):"");$I["options"][$w]=idx($I["options"],$w,$j);if($I["options"][$w]!=$j)$ri=true;}print_fieldset("options",'Options',$ri);echo"<table class='layout'>\n";foreach($qk
+as$w=>$Y){$gg="label-option-$w";$qm=str_replace("_"," ",$w);$L=array();foreach($Y
+as$X)$L[$X]=(strpos($X,"$qm ")===0?substr($X,strlen($qm)+1):$X);echo"<tr><th id='$gg'>$qm<td>".($L?html_select("options[$w]",$L,$I["options"][$w],"",$gg):"<input name='options[$w]' value='".h($I["options"][$w])."' aria-labelledby='$gg' autocapitalize='off'>")."\n";}echo"</table>\n</div></fieldset>\n";}echo
 input_token(),'</form>
-';}elseif(isset($_GET["sequence"])){$da=$_GET["sequence"];$J=$_POST;if($_POST&&!$l){$_=substr(ME,0,-1);$C=trim($J["name"]);if($_POST["drop"])query_redirect("DROP SEQUENCE ".idf_escape($da),$_,'Sequence has been dropped.');elseif($da=="")query_redirect("CREATE SEQUENCE ".idf_escape($C),$_,'Sequence has been created.');elseif($da!=$C)query_redirect("ALTER SEQUENCE ".idf_escape($da)." RENAME TO ".idf_escape($C),$_,'Sequence has been altered.');else
-redirect($_);}page_header($da!=""?'Alter sequence'.": ".h($da):'Create sequence',$l);if(!$J)$J["name"]=$da;echo'
+';}elseif(isset($_GET["sequence"])){$da=$_GET["sequence"];$I=$_POST;if($_POST&&!$k){$z=substr(ME,0,-1);$A=trim($I["name"]);if($_POST["drop"])query_redirect("DROP SEQUENCE ".idf_escape($da),$z,'Sequence has been dropped.');elseif($da=="")query_redirect("CREATE SEQUENCE ".idf_escape($A),$z,'Sequence has been created.');elseif($da!=$A)query_redirect("ALTER SEQUENCE ".idf_escape($da)." RENAME TO ".idf_escape($A),$z,'Sequence has been altered.');else
+redirect($z);}$Mh=(!$_POST&&$da!=""&&!get_val("SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace = ".driver()->nsOid." AND relname = ".q($da)));page_header(($da!=""?'Alter sequence'.": ".h($da):'Create sequence'),$k,"#sequences","",$Mh,doc_link(array('pgsql'=>"sql-createsequence.html",'cockroach'=>"create-sequence",)));if(!$I)$I["name"]=$da;echo'
 <form action="" method="post">
-<p><input name="name" value="',h($J["name"]),'" autocapitalize="off">
+<p><input name="name" value="',h($I["name"]),'" autocapitalize="off">
 <input type=\'submit\' value=\'Save\'>
 ';if($da!="")echo"<input type='submit' name='drop' value='".'Drop'."'".confirm(sprintf('Drop %s?',$da)).">\n";echo
 input_token(),'</form>
 ';}elseif(isset($_GET["type"])){function
-enum_values($hc){$Y="'(?:[^']|'')*'";if(!preg_match('~^AS\s+ENUM\s*\(\s*('.$Y.'(?:\s*,\s*'.$Y.')*)\s*\)$~i',$hc,$B))return
-null;preg_match_all('~'.$Y.'~',$B[1],$Of);return$Of[0];}function
-add_enum_values($U,$Tg,$yg){$Yg=enum_values($Tg);$Dg=enum_values($yg);if($Yg===null||$Dg===null)return
-null;$I=array();$s=0;foreach($Dg
-as$Y){if($Y===idx($Yg,$s))$s++;else$I[]="ALTER TYPE ".idf_escape($U)." ADD VALUE $Y".($s<count($Yg)?" BEFORE ".$Yg[$s]:"");}return($s==count($Yg)?$I:null);}$ea=$_GET["type"];$J=$_POST;$U=($ea!=""?type_definition(+array_search($ea,types(true))):array());$Lg=($U["kind"]=='d'?"DOMAIN":"TYPE");if($_POST&&!$l){$_=substr(ME,0,-1);$C=trim($J["name"]);$Aa=trim($J["as"]);$Bg=(preg_match('~^AS\s+(?!ENUM\b|RANGE\b|\()~i',$Aa)?"DOMAIN":"TYPE");$fg='Type has been altered.';$b=(!$_POST["drop"]&&$ea!=""&&$Bg==$Lg?($Aa==$U["definition"]?array():add_enum_values($ea,$U["definition"],$Aa)):null);if($b!==null){if($ea!=$C)$b[]="ALTER $Lg ".idf_escape($ea)." RENAME TO ".idf_escape($C);if(!$b)redirect($_);$md=false;foreach($b
-as$G){if(!queries($G)){$md=true;break;}}queries_redirect($_,$fg,!$md);}else
-drop_create("DROP $Lg ".idf_escape($ea),"CREATE $Bg ".idf_escape($C)." $Aa","","","",$_,'Type has been dropped.',$fg,'Type has been created.',$ea,$C);}page_header($ea!=""?'Alter type'.": ".h($ea):'Create type',$l);if(!$J){$J["name"]=$ea;$J["as"]=($ea!=""?$U["definition"]:"AS ");}echo'
+enum_values($Ac){$X="'(?:[^']|'')*'";if(!preg_match('~^AS\s+ENUM\s*\(\s*('.$X.'(?:\s*,\s*'.$X.')*)\s*\)$~i',$Ac,$_))return
+null;preg_match_all('~'.$X.'~',$_[1],$Hg);return$Hg[0];}function
+add_enum_values($T,$ai,$Bh){$gi=enum_values($ai);$Ih=enum_values($Bh);if($gi===null||$Ih===null)return
+null;$H=array();$r=0;foreach($Ih
+as$X){if($X===idx($gi,$r))$r++;else$H[]="ALTER TYPE ".idf_escape($T)." ADD VALUE $X".($r<count($gi)?" BEFORE ".$gi[$r]:"");}return($r==count($gi)?$H:null);}$ea=$_GET["type"];$I=$_POST;$Nm=($ea!=""?array_search($ea,types(true)):0);$T=($Nm?type_definition(+$Nm):array());$Rh=($T["kind"]=='d'?"DOMAIN":"TYPE");if($_POST&&!$k){$z=substr(ME,0,-1);$A=trim($I["name"]);$Fa=trim(str_replace("\r","",$I["as"]));$Fh=(preg_match('~^AS\s+(?!ENUM\b|RANGE\b|\()~i',$Fa)?"DOMAIN":"TYPE");$Zg='Type has been altered.';$b=(!$_POST["drop"]&&$ea!=""&&$Fh==$Rh?($Fa==$T["definition"]?array():add_enum_values($ea,$T["definition"],$Fa)):null);if($b!==null){if($ea!=$A)$b[]="ALTER $Rh ".idf_escape($ea)." RENAME TO ".idf_escape($A);if(!$b)redirect($z);$Ld=false;foreach($b
+as$F){if(!queries($F)){$Ld=true;break;}}queries_redirect($z,$Zg,!$Ld);}else
+drop_create("DROP $Rh ".idf_escape($ea),"CREATE $Fh ".idf_escape($A)." $Fa","","","",$z,'Type has been dropped.',$Zg,'Type has been created.',$ea,$A);}page_header(($ea!=""?'Alter type'.": ".h($ea):'Create type'),$k,"#user-types","",($Nm===false),doc_link(array('pgsql'=>"sql-createtype.html",'cockroach'=>"create-type",)));if(!$I){$I["name"]=$ea;$I["as"]=($ea!=""?$T["definition"]:"AS ");}echo'
 <form action="" method="post">
 <p>
-','Name'.": <input name='name' value='".h($J['name'])."' autocapitalize='off'>\n",doc_link(array('pgsql'=>"sql-createtype.html",),"?");textarea("as",$J["as"]);echo"<p><input type='submit' value='".'Save'."'>\n";if($ea!="")echo"<input type='submit' name='drop' value='".'Drop'."'".confirm(sprintf('Drop %s?',$ea)).">\n";echo
+','Name'.": <input name='name' value='".h($I['name'])."' autocapitalize='off'>\n";textarea("as",$I["as"]);echo"<p><input type='submit' value='".'Save'."'>\n";if($ea!="")echo"<input type='submit' name='drop' value='".'Drop'."'".confirm(sprintf('Drop %s?',$ea)).">\n";echo
 input_token(),'</form>
-';}elseif(isset($_GET["check"])){$a=$_GET["check"];$C=$_GET["name"];$J=$_POST;if($J&&!$l){if(JUSH=="sqlite")$H=recreate_table($a,$a,array(),array(),array(),"",array(),"$C",($J["drop"]?"":$J["clause"]));else{$H=($C==""||queries("ALTER TABLE ".table($a)." DROP CONSTRAINT ".idf_escape($C)));if(!$J["drop"])$H=queries("ALTER TABLE ".table($a)." ADD".($J["name"]!=""?" CONSTRAINT ".idf_escape($J["name"]):"")." CHECK ($J[clause])");}queries_redirect(ME."table=".url_escape($a),($J["drop"]?'Check has been dropped.':($C!=""?'Check has been altered.':'Check has been created.')),$H);}page_header(($C!=""?'Alter check':'Create check'),$l,array("table"=>$a),h($C!=""?$C:$a));if(!$J){$gb=driver()->checkConstraints($a);$J=array("name"=>$C,"clause"=>$gb[$C]);}echo'
+';}elseif(isset($_GET["check"])){$a=$_GET["check"];$A="$_GET[name]";$I=$_POST;if($I&&!$k){$Bg=ME."table=".url_escape($a);$ch='Check has been dropped.';$ah='Check has been altered.';$bh='Check has been created.';if(JUSH=="sqlite")queries_redirect($Bg,($I["drop"]?$ch:($A!=""?$ah:$bh)),recreate_table($a,$a,array(),array(),array(),"",array(),"$A",($I["drop"]?"":$I["clause"])));else{$b="ALTER TABLE ".table($a);$ob=" CHECK ($I[clause])";$im="adminer_".uniqid();drop_create("$b DROP CONSTRAINT ".idf_escape($A),"$b ADD".($I["name"]!=""?" CONSTRAINT ".idf_escape($I["name"]):"").$ob,"$b DROP CONSTRAINT ".idf_escape($I["name"]),"$b ADD CONSTRAINT ".idf_escape($im).$ob,"$b DROP CONSTRAINT ".idf_escape($im),$Bg,$ch,$ah,$bh,$A,$I["name"]);}}$Mh=false;if(!$I){$sb=driver()->checkConstraints($a);$Mh=($A!=""&&!$sb[$A]);$I=array("name"=>($A!=""?$A:object_name("CHECK",$a,array())),"clause"=>$sb[$A]);}page_header(($A!=""?'Alter check':'Create check'),$k,array("table"=>$a),h($A!=""?$A:$a),$Mh,doc_link(array('sql'=>"create-table-check-constraints.html",'mariadb'=>"constraint/",'pgsql'=>"ddl-constraints.html#DDL-CONSTRAINTS-CHECK-CONSTRAINTS",'cockroach'=>"check",'mssql'=>"relational-databases/tables/create-check-constraints",'sqlite'=>"lang_createtable.html#check_constraints",)));echo'
 <form action="" method="post">
-<p>';if(JUSH!="sqlite")echo'Name'.': <input name="name" value="'.h($J["name"]).'" data-maxlength="64" autocapitalize="off"> ';echo
-doc_link(array('sql'=>"create-table-check-constraints.html",'mariadb'=>"constraint/",'pgsql'=>"ddl-constraints.html#DDL-CONSTRAINTS-CHECK-CONSTRAINTS",'mssql'=>"relational-databases/tables/create-check-constraints",'sqlite'=>"lang_createtable.html#check_constraints",),"?"),'<p>';textarea("clause",$J["clause"]);echo'<p><input type=\'submit\' value=\'Save\'>
-';if($C!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$C)),'>
+';if(JUSH!="sqlite")echo'<p>'.'Name'.': <input name="name" value="'.h($I["name"]).'" data-maxlength="64" autocapitalize="off">';echo'<p>';textarea("clause",$I["clause"]);echo'<p><input type=\'submit\' value=\'Save\'>
+';if($A!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$A)),'>
 ';echo
 input_token(),'</form>
-';}elseif(isset($_GET["trigger"])){$a=$_GET["trigger"];$C="$_GET[name]";$Ik=trigger_options();$J=(array)trigger($C,$a)+array("Trigger"=>$a."_bi");if($_POST){if(!$l&&in_array($_POST["Timing"],$Ik["Timing"])&&in_array($_POST["Event"],$Ik["Event"])&&in_array($_POST["Type"],$Ik["Type"])){$Zg=" ON ".table($a);$Bc="DROP TRIGGER ".idf_escape($C).(JUSH=="pgsql"?$Zg:"");$A=ME."table=".url_escape($a);if($_POST["drop"])query_redirect($Bc,$A,'Trigger has been dropped.');else{if($C!="")queries($Bc);queries_redirect($A,($C!=""?'Trigger has been altered.':'Trigger has been created.'),queries(create_trigger($Zg,$_POST)));if($C!="")queries(create_trigger($Zg,$J+array("Type"=>reset($Ik["Type"]))));}}$J=$_POST;}page_header(($C!=""?'Alter trigger':'Create trigger'),$l,array("table"=>$a),h($C!=""?$C:$a));$Gk=on('change','triggerChange',"^".preg_quote($a,"/")."_[ba][iud]$",$a);echo'
+';}elseif(isset($_GET["trigger"])){$a=$_GET["trigger"];$A="$_GET[name]";$Im=trigger_options();$I=trigger($A,$a);$Mh=($A!=""&&!$I);$vh=str_replace("{table}",$a,adminer()->namePattern("TRIGGER"));$I+=array("Trigger"=>strtr($vh,array("{timing}"=>"b","{event}"=>"i","{columns}"=>"","{type}"=>"row")));if($_POST){if(!$k&&in_array($_POST["Timing"],$Im["Timing"])&&in_array($_POST["Event"],$Im["Event"])&&in_array($_POST["Type"],$Im["Type"])){$hi=" ON ".table($a);$Xc="DROP TRIGGER ".idf_escape($A).(JUSH=="pgsql"?$hi:"");$Bg=ME."table=".url_escape($a);if($_POST["drop"])query_redirect($Xc,$Bg,'Trigger has been dropped.');else{if($A!="")queries($Xc);queries_redirect($Bg,($A!=""?'Trigger has been altered.':'Trigger has been created.'),queries(create_trigger($hi,$_POST)));if($A!="")queries(create_trigger($hi,$I+array("Type"=>reset($Im["Type"]))));}}$I=$_POST;}page_header(($A!=""?'Alter trigger':'Create trigger'),$k,array("table"=>$a),h($A!=""?$A:$a),$Mh,doc_link(array('sql'=>"create-trigger.html",'pgsql'=>"sql-createtrigger.html",'cockroach'=>"create-trigger",'mssql'=>"t-sql/statements/create-trigger-transact-sql",'sqlite'=>"lang_createtrigger.html",'oracle'=>"lnpls/CREATE-TRIGGER-statement.html",)));$yh=strtr(preg_quote($vh),array('\{timing\}'=>'[abi]','\{event\}'=>'[iud]*','\{columns\}'=>'.*','\{type\}'=>'(row|statement)'));$Gm=on('change','triggerChange',"^$yh$",$vh);$Uh=on('input','triggerChange',"^$yh$",$vh);echo'
 <form action="" method="post" id="form">
 <table class="layout">
 <tr><th>Time
-<td>',html_select("Timing",$Ik["Timing"],$J["Timing"],$Gk),'<tr><th>Event<td>',html_select("Event",$Ik["Event"],$J["Event"],$Gk),(in_array("UPDATE OF",$Ik["Event"])?" <input name='Of' value='".h($J["Of"])."' class='hidden'>":""),'<tr><th>Type<td>',html_select("Type",$Ik["Type"],$J["Type"]),'</table>
-<p>Name: <input name="Trigger" value="',h($J["Trigger"]),'" data-maxlength="64" autocapitalize="off">
-',script("fire(qs('#form')['Timing'], 'change');"),'<p>';textarea("Statement",$J["Statement"]);echo'<p>
+<td>',html_select("Timing",$Im["Timing"],$I["Timing"],$Gm),'<tr><th>Event<td>',html_select("Event",$Im["Event"],$I["Event"],$Gm),(in_array("UPDATE OF",$Im["Event"])?" <input name='Of' value='".h($I["Of"])."' class='hidden'$Uh>":""),'<tr><th>Type<td>',html_select("Type",$Im["Type"],$I["Type"],$Gm),'<tr><th>Name<td><input name="Trigger" value="',h($I["Trigger"]),'" data-maxlength="64" autocapitalize="off">
+</table>
+',script("fire(qs('#form')['Timing'], 'change');"),'<p>';textarea("Statement",$I["Statement"]);echo'<p>
 <input type=\'submit\' value=\'Save\'>
-';if($C!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$C)),'>
+';if($A!="")echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',$A)),'>
 ';echo
 input_token(),'</form>
-';}elseif(isset($_GET["user"])){$fa=$_GET["user"];$ni=array(""=>array("All privileges"=>""));foreach(get_rows("SHOW PRIVILEGES")as$J){foreach(explode(",",($J["Privilege"]=="Grant option"?"":$J["Context"]))as$Hb)$ni[$Hb=="File access on server"?"Server Admin":$Hb][$J["Privilege"]]=$J["Comment"];}unset($ni["Server Admin"]["Usage"]);foreach($ni["Tables"]as$x=>$X)unset($ni["Databases"][$x]);$zg=array();if($_POST){foreach($_POST["objects"]as$x=>$X)$zg[$X]=(array)$zg[$X]+idx($_POST["grants"],$x,array());}$Wd=array();if(isset($_GET["host"])&&($H=connection()->query("SHOW GRANTS FOR ".q($fa)."@".q($_GET["host"])))){while($J=$H->fetch_row()){if(preg_match('~GRANT (.*) ON (.*) TO ~',$J[0],$B)&&preg_match_all('~ *([^(,]*[^ ,(])( *\([^)]+\))?~',$B[1],$Of,PREG_SET_ORDER)){foreach($Of
-as$X){if($X[1]!="USAGE")$Wd["$B[2]$X[2]"][$X[1]]=true;if(preg_match('~ WITH GRANT OPTION~',$J[0]))$Wd["$B[2]$X[2]"]["GRANT OPTION"]=true;}}}}if($_POST&&!$l){$Xg=(isset($_GET["host"])?q($fa)."@".q($_GET["host"]):"''");if($_POST["drop"])query_redirect("DROP USER $Xg",ME."privileges=",'User has been dropped.');else{$Cg=q($_POST["user"])."@".q($_POST["host"]);$Ph=$_POST["pass"];$Ob=false;$H=true;if($Xg!=$Cg){$Ob=queries("CREATE USER $Cg IDENTIFIED BY ".($_POST["hashed"]?"PASSWORD ":"").q($Ph));$H=$Ob;}elseif($Ph!="")$H=queries("SET PASSWORD FOR $Cg = ".(min_version(8,99)||$_POST["hashed"]?q($Ph):"PASSWORD(".q($Ph).")"));if($H){$Mi=array();foreach($zg
-as$Lg=>$Vd){if(isset($_GET["grant"]))$Vd=array_filter($Vd);$Vd=array_keys($Vd);if(isset($_GET["grant"]))$Mi=array_diff(array_keys(array_filter($zg[$Lg],'strlen')),$Vd);elseif($Xg==$Cg){$Ug=array_keys((array)$Wd[$Lg]);$Mi=array_diff($Ug,$Vd);$Vd=array_diff($Vd,$Ug);unset($Wd[$Lg]);}if(preg_match('~^(.+)\s*(\(.*\))?$~U',$Lg,$B)&&(!grant("REVOKE",$Mi,$B[2]," ON $B[1] FROM $Cg")||!grant("GRANT",$Vd,$B[2]," ON $B[1] TO $Cg"))){$H=false;break;}}}if($H&&isset($_GET["host"])){if($Xg!=$Cg)queries("DROP USER $Xg");elseif(!isset($_GET["grant"])){foreach($Wd
-as$Lg=>$Mi){if(preg_match('~^(.+)(\(.*\))?$~U',$Lg,$B))grant("REVOKE",array_keys($Mi),$B[2]," ON $B[1] FROM $Cg");}}}if($H&&!Queries::$queries)redirect(ME."privileges=");queries_redirect(ME."privileges=",(isset($_GET["host"])?'User has been altered.':'User has been created.'),$H);if($Ob)connection()->query("DROP USER $Cg");}}page_header((isset($_GET["host"])?'Username'.": ".h("$fa@$_GET[host]"):'Create user'),$l,array("privileges"=>array('','Privileges')));$J=$_POST;if($J)$Wd=$zg;else{$J=$_GET+array("host"=>get_val("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', -1)"));$Wd[(DB==""||$Wd?"":idf_escape(addcslashes(DB,"%_\\"))).".*"]=array();}echo'<form action="" method="post">
+';}elseif(isset($_GET["user"])){function
+grant($ze,array$Ej,$e,$hi){if(!$Ej)return
+true;if($Ej==array("ALL PRIVILEGES","GRANT OPTION"))return($ze=="GRANT"?queries("$ze ALL PRIVILEGES$hi WITH GRANT OPTION"):queries("$ze ALL PRIVILEGES$hi")&&queries("$ze GRANT OPTION$hi"));return
+queries("$ze ".preg_replace('~(GRANT OPTION)\([^)]*\)~','\1',implode("$e, ",$Ej).$e).$hi);}$fa=$_GET["user"];$Ej=array(""=>array("All privileges"=>""));foreach(get_rows("SHOW PRIVILEGES")as$I){foreach(explode(",",($I["Privilege"]=="Grant option"?"":$I["Context"]))as$Xb)$Ej[$Xb=="File access on server"?"Server Admin":$Xb][$I["Privilege"]]=$I["Comment"];}unset($Ej["Server Admin"]["Usage"]);foreach($Ej["Tables"]as$w=>$W)unset($Ej["Databases"][$w]);$Ch=array();if($_POST){foreach($_POST["objects"]as$w=>$W)$Ch[$W]=(array)$Ch[$W]+idx($_POST["grants"],$w,array());}$_e=array();$G=(isset($_GET["host"])?connection()->query("SHOW GRANTS FOR ".q($fa)."@".q($_GET["host"])):null);$Mh=(isset($_GET["host"])&&!$G);if($G){while($I=$G->fetch_row()){if(preg_match('~GRANT (.*) ON (.*) TO ~',$I[0],$_)&&preg_match_all('~ *([^(,]*[^ ,(])( *\([^)]+\))?~',$_[1],$Hg,PREG_SET_ORDER)){foreach($Hg
+as$W){if($W[1]!="USAGE")$_e["$_[2]$W[2]"][$W[1]]=true;if(preg_match('~ WITH GRANT OPTION~',$I[0]))$_e["$_[2]$W[2]"]["GRANT OPTION"]=true;}}}}if($_POST&&!$k){$fi=(isset($_GET["host"])?q($fa)."@".q($_GET["host"]):"''");if($_POST["drop"])query_redirect("DROP USER $fi",ME."privileges=",'User has been dropped.');else{$Hh=q($_POST["user"])."@".q($_POST["host"]);$Zi=$_POST["pass"];$gc=false;$G=true;if($fi!=$Hh){$gc=queries("CREATE USER $Hh IDENTIFIED BY ".($_POST["hashed"]?"PASSWORD ":"").q($Zi));$G=$gc;}elseif($Zi!="")$G=queries("SET PASSWORD FOR $Hh = ".(min_version(8,99)||$_POST["hashed"]?q($Zi):"PASSWORD(".q($Zi).")"));if($G){$ik=array();foreach($Ch
+as$Rh=>$ze){if(isset($_GET["grant"]))$ze=array_filter($ze);$ze=array_keys($ze);if(isset($_GET["grant"]))$ik=array_diff(array_keys(array_filter($Ch[$Rh],'strlen')),$ze);elseif($fi==$Hh){$bi=array_keys((array)$_e[$Rh]);$ik=array_diff($bi,$ze);$ze=array_diff($ze,$bi);unset($_e[$Rh]);}if(preg_match('~^(.+)\s*(\(.*\))?$~U',$Rh,$_)&&(!grant("REVOKE",$ik,$_[2]," ON $_[1] FROM $Hh")||!grant("GRANT",$ze,$_[2]," ON $_[1] TO $Hh"))){$G=false;break;}}}if($G&&isset($_GET["host"])){if($fi!=$Hh)queries("DROP USER $fi");elseif(!isset($_GET["grant"])){foreach($_e
+as$Rh=>$ik){if(preg_match('~^(.+)(\(.*\))?$~U',$Rh,$_))grant("REVOKE",array_keys($ik),$_[2]," ON $_[1] FROM $Hh");}}}if($G&&!Queries::$queries)redirect(ME."privileges=");queries_redirect(ME."privileges=",(isset($_GET["host"])?'User has been altered.':'User has been created.'),$G);if($gc)connection()->query("DROP USER $Hh");}}page_header((isset($_GET["host"])?'Username'.": ".h("$fa@$_GET[host]"):'Create user'),$k,array("privileges"=>array('','Privileges')),"",$Mh,doc_link(array('sql'=>"grant.html",'mariadb'=>"grant")));$I=$_POST;if($I)$_e=$Ch;else{$I=$_GET+array("host"=>get_val("SELECT SUBSTRING_INDEX(CURRENT_USER, '@', -1)"));$_e[(DB==""||$_e?"":idf_escape(addcslashes(DB,"%_\\"))).".*"]=array();}echo'<form action="" method="post">
 <table class="layout">
-<tr><th>Server<td><input name="host" data-maxlength="60" value="',h($J["host"]),'" autocapitalize="off">
-<tr><th>Username<td><input name="user" data-maxlength="80" value="',h($J["user"]),'" autocapitalize="off">
-<tr><th>Password<td><input name="pass" id="pass" value="',h($J["pass"]),'" autocomplete="new-password">
-',($J["hashed"]?"":script("typePassword(qs('#pass'));")),(min_version(8,99)?"":checkbox("hashed",1,$J["hashed"],'Hashed',on('click','hashedClick'))),'</table>
+<tr><th>Server<td><input name="host" data-maxlength="60" value="',h($I["host"]),'" autocapitalize="off">
+<tr><th>Username<td><input name="user" data-maxlength="80" value="',h($I["user"]),'" autocapitalize="off">
+<tr><th>Password<td><input name="pass" id="pass" value="',h($I["pass"]),'" autocomplete="new-password">
+',($I["hashed"]?"":script("typePassword(qs('#pass'));")),(min_version(8,99)?"":checkbox("hashed",1,$I["hashed"],'Hashed',on('click','hashedClick'))),'</table>
 
-',"<table class='odds'>\n","<thead><tr><th colspan='2'>".'Privileges'.doc_link(array('sql'=>"grant.html#priv_level"));$s=0;foreach($Wd
-as$Lg=>$Vd){echo'<th>'.($Lg!="*.*"?"<input name='objects[$s]' value='".h($Lg)."' size='10' autocapitalize='off'>":input_hidden("objects[$s]","*.*")."*.*");$s++;}echo"<tbody>\n";foreach(array(""=>"","Server Admin"=>'Server',"Databases"=>'Database',"Tables"=>'Table',"Procedures"=>'Routine',)as$Hb=>$kc){foreach((array)$ni[$Hb]as$mi=>$ub){echo"<tr><td".($kc?">$kc<td":" colspan='2'").' lang="en" title="'.h($ub).'">'.h($mi);$s=0;foreach($Wd
-as$Lg=>$Vd){$C="'grants[$s][".h(strtoupper($mi))."]'";$Y=$Vd[strtoupper($mi)];if($Hb=="Server Admin"&&$Lg!=(isset($Wd["*.*"])?"*.*":".*"))echo"<td>";elseif(isset($_GET["grant"]))echo"<td><select name=$C><option><option value='1'".($Y?" selected":"").">".'Grant'."<option value='0'".($Y=="0"?" selected":"").">".'Revoke'."</select>";else
-echo"<td align='center'><label class='block'>","<input type='checkbox' name=$C value='1'".($Y?" checked":"").($mi=="All privileges"?" id='grants-$s-all'":($mi=="Grant option"?"":on('click','grantsClick',"grants-$s-all"))).">","</label>";$s++;}}}echo"</table>\n",'<p>
+',"<table class='odds'>\n","<thead><tr><th colspan='2'>".'Privileges';$r=0;foreach($_e
+as$Rh=>$ze){echo'<th>'.($Rh!="*.*"?"<input name='objects[$r]' value='".h($Rh)."' size='10' autocapitalize='off'>":input_hidden("objects[$r]","*.*")."*.*");$r++;}echo"<tbody>\n";foreach(array(""=>"","Server Admin"=>'Server',"Databases"=>'Database',"Tables"=>'Table',"Procedures"=>'Routine',)as$Xb=>$Dc){foreach((array)$Ej[$Xb]as$Dj=>$Hb){echo"<tr><td".($Dc?">$Dc<td":" colspan='2'").' lang="en" title="'.h($Hb).'">'.h($Dj);$r=0;foreach($_e
+as$Rh=>$ze){$A="'grants[$r][".h(strtoupper($Dj))."]'";$X=$ze[strtoupper($Dj)];if($Xb=="Server Admin"&&$Rh!=(isset($_e["*.*"])?"*.*":".*"))echo"<td>";elseif(isset($_GET["grant"]))echo"<td><select name=$A><option><option value='1'".($X?" selected":"").">".'Grant'."<option value='0'".($X=="0"?" selected":"").">".'Revoke'."</select>";else
+echo"<td align='center'><label class='block'>","<input type='checkbox' name=$A value='1'".($X?" checked":"").($Dj=="All privileges"?" id='grants-$r-all'":($Dj=="Grant option"?"":on('click','grantsClick',"grants-$r-all"))).">","</label>";$r++;}}}echo"</table>\n",'<p>
 <input type=\'submit\' value=\'Save\'>
 ';if(isset($_GET["host"]))echo'<input type=\'submit\' name=\'drop\' value=\'Drop\'',confirm(sprintf('Drop %s?',"$fa@$_GET[host]")),'>
 ';echo
 input_token(),'</form>
-';}elseif(isset($_GET["processlist"])){if(support("kill")){if($_POST&&!$l){$of=0;foreach((array)$_POST["kill"]as$X){if(adminer()->killProcess($X))$of++;}queries_redirect(ME."processlist=",lang_format(array('%d process has been killed.','%d processes have been killed.'),$of),$of||!$_POST["kill"]);}}page_header('Process list',$l);echo'
+';}elseif(isset($_GET["processlist"])){if(support("kill")){if($_POST&&!$k){$dg=0;foreach((array)$_POST["kill"]as$W){if(adminer()->killProcess($W))$dg++;}queries_redirect(ME."processlist=",lang_format(array('%d process has been killed.','%d processes have been killed.'),$dg),$dg||!$_POST["kill"]);}}page_header('Process list',$k);echo'
 <form action="" method="post">
 <div class="scrollable">
 <table class="nowrap checkable odds"',on('click','tableClick').on('dblclick','tableClick'),'>
-';$s=-1;foreach(adminer()->processList()as$s=>$J){if(!$s){echo"<thead><tr lang='en'>".(support("kill")?"<td class='hover'>":"");foreach($J
-as$x=>$X)echo"<th>$x".doc_link(array('sql'=>"show-processlist.html#processlist_".strtolower($x),'pgsql'=>"monitoring-stats.html#PG-STAT-ACTIVITY-VIEW",'oracle'=>"REFRN30223",));echo"<tbody>\n";}echo"<tr>".(support("kill")?"<td class='hover'>".checkbox("kill[]",$J[JUSH=="sql"?"Id":"pid"],0):"");foreach($J
-as$x=>$X)echo"<td>".($X!=""&&((JUSH=="sql"&&$x=="Info"&&preg_match("~Query|Killed~",$J["Command"]))||(JUSH=="pgsql"&&$x=="query")||(JUSH=="oracle"&&$x=="sql_text"))?"<code class='jush-".JUSH."' data-full='".h($X)."'>".shorten_utf8($X,100,"</code>").' <a href="'.h(ME.($J["db"]!=""?"db=".url_escape($J["db"])."&":"")."sql=".url_escape($X)).'">'.'Clone'.'</a>'.' '.copy_icon():h($X));echo"\n";}echo'</table>
+';$r=-1;foreach(adminer()->processList()as$r=>$I){if(!$r){echo"<thead><tr lang='en'>".(support("kill")?"<td class='hover'>":"");foreach($I
+as$w=>$W)echo"<th>$w".doc_link(array('sql'=>"show-processlist.html#processlist_".strtolower($w),'pgsql'=>"monitoring-stats.html#PG-STAT-ACTIVITY-VIEW",'oracle'=>"refrn/V-SESSION.html",));echo"<tbody>\n";}echo"<tr>".(support("kill")?"<td class='hover'>".checkbox("kill[]",$I[JUSH=="sql"?"Id":"pid"],0):"");foreach($I
+as$w=>$W)echo"<td>".($W!=""&&((JUSH=="sql"&&$w=="Info"&&preg_match("~Query|Killed~",$I["Command"]))||(JUSH=="pgsql"&&$w=="query")||(JUSH=="oracle"&&$w=="sql_text"))?"<code class='jush-".JUSH."' data-full='".h($W)."'>".shorten_utf8($W,100,"</code>").' <a href="'.h(($I["db"]!=""?preg_replace('~&db=[^&]*~','',ME)."db=".url_escape($I["db"])."&":ME)."sql=".url_escape($W)).'">'.'Clone'.'</a>'.' '.copy_icon():h($W));echo"\n";}echo'</table>
 </div>
 <p>
-',script("copyCode(qsl('table'));");if(support("kill"))echo($s+1)."/".sprintf('%d in total',max_connections()),"<p><input type='submit' value='".'Kill'."'>\n";echo
+',script("copyCode(qsl('table'));");if(support("kill"))echo
+format_number($r+1)."/".sprintf('%d in total',max_connections()),"<p><input type='submit' value='".'Kill'."'>\n";echo
 input_token(),'</form>
-',script("tableCheck();");}elseif(isset($_GET["select"])){$a=$_GET["select"];$S=table_status1($a);$w=indexes($a);$n=fields($a);$Jd=column_foreign_keys($a);$Sg=$S["Oid"];$pa=get_settings("adminer_import");$Ni=array();$e=array();$aj=array();$mh=array();$nk=null;foreach($n
-as$x=>$m){$C=adminer()->fieldName($m);$wg=html_entity_decode(strip_tags($C),ENT_QUOTES);if(isset($m["privileges"]["select"])&&$C!=""){$e[$x]=$wg;if(is_shortable($m))$nk=adminer()->selectLengthProcess();}if(isset($m["privileges"]["where"])&&$C!="")$aj[$x]=$wg;if(isset($m["privileges"]["order"])&&$C!="")$mh[$x]=$wg;$Ni+=$m["privileges"];}list($M,$Xd)=adminer()->selectColumnsProcess($e,$w);$M=array_unique($M);$Xd=array_unique($Xd);$bf=count($Xd)<count($M);$Z=adminer()->selectSearchProcess($n,$w);$lh=adminer()->selectOrderProcess($n,$w);$z=adminer()->selectLimitProcess();if($_GET["val"]&&is_ajax()){header("Content-Type: text/plain; charset=utf-8");foreach($_GET["val"]as$Tk=>$J){$Aa=convert_field($n[key($J)]);$M=array($Aa?:idf_escape(key($J)));$Z[]=where_check(bracket_escape($Tk,true),$n);$I=driver()->select($a,$M,$Z,$M);if($I)echo
-first($I->fetch_row());}exit;}$ii=$Vk=array();foreach($w
-as$v){if($v["type"]=="PRIMARY"){$ii=array_flip($v["columns"]);$Vk=($M?$ii:array());foreach($Vk
-as$x=>$X){if(in_array(idf_escape($x),$M))unset($Vk[$x]);}break;}}if($Sg&&!$ii){$ii=$Vk=array($Sg=>0);$w[]=array("type"=>"PRIMARY","columns"=>array($Sg));}if($_POST&&!$l){$_l=$Z;if(!$_POST["all"]&&is_array($_POST["check"])){$gb=array();foreach($_POST["check"]as$cb)$gb[]=where_check($cb,$n);$_l[]="((".implode(") OR (",$gb)."))";}$Bl=$_l;$_l=($_l?"\nWHERE ".implode(" AND ",$_l):"");if($_POST["export"]){save_settings(array("output"=>$_POST["output"],"format"=>$_POST["format"]),"adminer_import");dump_headers($a);adminer()->dumpTable($a,"");$cj=($M?:array("*"));$Jb=convert_fields($e,$n,$M);if($Jb)$cj[]=substr($Jb,2);$G="";if(is_array($_POST["check"])&&!$ii){$Od=implode(", ",$cj)."\nFROM ".table($a);$Zd=($Xd&&$bf?"\nGROUP BY ".implode(", ",$Xd):"").($lh?"\nORDER BY ".implode(", ",$lh):"");$Rk=array();foreach($_POST["check"]as$X)$Rk[]="(SELECT".limit($Od,"\nWHERE ".($Z?implode(" AND ",$Z)." AND ":"").where_check($X,$n).$Zd,1).")";$G=implode(" UNION ALL ",$Rk);}adminer()->dumpData($a,"table",$G,$cj,$Bl,($bf?$Xd:array()),$lh);adminer()->dumpFooter();exit;}if(!adminer()->selectEmailProcess($Z,$Jd)){if($_POST["save"]||$_POST["delete"]){$H=true;$qa=0;$O=array();if(!$_POST["delete"]){foreach($n
-as$C=>$X){$u=bracket_escape($C);if(isset($_POST["fields"][$u])||$_FILES["fields-$u"]){$X=process_input($n[$C]);if($X!==null&&($_POST["clone"]||$X!==false))$O[idf_escape($C)]=($X!==false?$X:idf_escape($C));}}}if($_POST["delete"]||$O){$G=($_POST["clone"]?"INTO ".table($a)." (".implode(", ",array_keys($O)).")\nSELECT ".implode(", ",$O)."\nFROM ".table($a):"");if($_POST["all"]||($ii&&is_array($_POST["check"]))||$bf){$H=($_POST["delete"]?driver()->delete($a,$_l):($_POST["clone"]?queries("INSERT $G$_l".driver()->insertReturning($a)):driver()->update($a,$O,$_l)));$qa=connection()->affected_rows;if(is_object($H))$qa+=$H->num_rows;}else{foreach((array)$_POST["check"]as$X){$zl="\nWHERE ".($Z?implode(" AND ",$Z)." AND ":"").where_check($X,$n);$H=($_POST["delete"]?driver()->delete($a,$zl,1):($_POST["clone"]?queries("INSERT".limit1($a,$G,$zl)):driver()->update($a,$O,$zl,1)));if(!$H)break;$qa+=connection()->affected_rows;}}}$fg=lang_format(array('%d item has been affected.','%d items have been affected.'),$qa);if($_POST["clone"]&&$H&&$qa==1){$wf=last_id($H);if($wf)$fg=sprintf('Item%s has been inserted.'," $wf");}queries_redirect(remove_from_uri($_POST["all"]&&$_POST["delete"]?"page|next":""),$fg,$H);if(!$_POST["delete"]){$bi=(array)$_POST["fields"];edit_form($a,array_intersect_key($n,$bi),$bi,!$_POST["clone"],$l);page_footer();exit;}}elseif(!$_POST["import"]){$H=true;$qa=0;foreach((array)$_POST["val"]as$Tk=>$J){$O=array();foreach($J
-as$x=>$X){$x=bracket_escape($x,true);$O[idf_escape($x)]=(preg_match('~char|text~',$n[$x]["type"])||$X!=""?adminer()->processInput($n[$x],$X):"NULL");}$H=driver()->update($a,$O," WHERE ".($Z?implode(" AND ",$Z)." AND ":"").where_check(bracket_escape($Tk,true),$n),($bf||$ii?0:1)," ");if(!$H)break;$qa+=connection()->affected_rows;}queries_redirect(remove_from_uri(),lang_format(array('%d item has been affected.','%d items have been affected.'),$qa),$H);}elseif(!is_string($ud=get_file("csv_file",true)))$l=upload_error($ud);elseif(!preg_match('~~u',$ud))$l='File must be in UTF-8 encoding.';else{save_settings(array("output"=>$pa["output"],"format"=>$_POST["separator"]),"adminer_import");$rb=array_keys($n);$gj=($_POST["separator"]=="csv"?",":($_POST["separator"]=="tsv"?"\t":";"));$Sb=parse_csv($ud,$gj);$qa=count($Sb);driver()->begin();$K=array();foreach($Sb
-as$x=>$pl){if(!$x&&!array_diff($pl,$rb)){$rb=$pl;$qa--;}else{$O=array();foreach($pl
-as$s=>$nb)$O[idf_escape($rb[$s])]=($nb==""&&$n[$rb[$s]]["null"]?"NULL":q(csv_value($nb)));$K[]=$O;}}$H=(!$K||driver()->insertUpdate($a,$K,$ii));if($H)driver()->commit();queries_redirect(remove_from_uri("page|next"),lang_format(array('%d row has been imported.','%d rows have been imported.'),$qa),$H);driver()->rollback();}}}$Yj=adminer()->tableName($S);if(is_ajax()){page_headers();ob_start();}else
-page_header('Select'.": $Yj",$l);$O=null;if(isset($Ni["insert"])||!support("table")){$O="";foreach((array)$_GET["where"]as$X){$Y=$X["val"];if(is_array($Y))$Y=(count($Y)==1&&preg_match('~^val-(.*)~s',reset($Y),$B)?$B[1]:"");if($X["col"]!=""&&$Y!=""&&($X["op"]=="="||(!$X["op"]&&(is_array($X["val"])||!preg_match('~[_%]~',$Y)))))$O
-.="&set[".url_escape(bracket_escape($X["col"]))."]=".url_escape($Y);}}adminer()->selectLinks($S,$O);if(!$e&&support("table"))echo"<p class='error'>".'Unable to select the table'.($n?".":": ".error())."\n";else{echo"<form action='' id='form'>\n","<div hidden>";hidden_fields_get();echo(DB!=""?input_hidden("db",DB).(isset($_GET["ns"])?input_hidden("ns",$_GET["ns"]):""):""),input_hidden("select",$a),"</div>\n";adminer()->selectColumnsPrint($M,$e);adminer()->selectSearchPrint($Z,$aj,$w);adminer()->selectOrderPrint($lh,$mh,$w);adminer()->selectLimitPrint($z);if($nk!==null)adminer()->selectLengthPrint($nk);adminer()->selectActionPrint($w);echo"</form>\n";foreach((array)$_GET["where"]as$X){if($X["op"]=="SQL"&&!in_array($_SERVER["HTTP_SEC_FETCH_SITE"],array("","same-origin"))){echo"<p class='error'>".'Invalid CSRF token. Send the form again.'.' '.'If you did not send this request from Adminer then close this page.'."\n";page_footer();exit;}}$D=$_GET["page"];$Md=null;if($D=="last"){$Md=get_val(count_rows($a,$Z,$bf,$Xd));$D=floor(max(0,intval($Md)-1)/$z);}$bj=$M;$Yd=$Xd;if(!$bj){$bj[]="*";$Jb=convert_fields($e,$n,$M);if($Jb)$bj[]=substr($Jb,2);}foreach($M
-as$x=>$X){$m=$n[idf_unescape($X)];if($m&&($Aa=convert_field($m)))$bj[$x]="$Aa AS $X";}if(JUSH=="pgsql"||JUSH=="mssql"){foreach((array)$_GET["columns"]as$x=>$X){if(isset($bj[$x])&&$X["fun"])$bj[$x].=" AS ".idf_escape(apply_sql_function($X["fun"],($X["col"]!=""?$X["col"]:"*")));}}if(!$bf&&$Vk){foreach($Vk
-as$x=>$X){$bj[]=idf_escape($x);if($Yd)$Yd[]=idf_escape($x);}}$H=driver()->select($a,$bj,$Z,$Yd,$lh,$z,$D,true);if(!is_object($H))echo"<p class='error'>".(error()?:'Unknown error.')."\n";else{if(JUSH=="mssql"&&$D)$H->seek($z*$D);$Nc=array();$K=array();while($J=$H->fetch_assoc()){if($D&&JUSH=="oracle")unset($J["RNUM"]);$K[]=$J;}$he=($z&&(support("cursor")?$_GET["next"]!="":count($K)>=$z));if(is_ajax()&&$he)header("X-Next-Page: ".pagination_href($D+1));if($_GET["modify"]&&$K){$Xf=max_input_vars(count($K[0])+1,20);echo($Xf&&count($K)>$Xf?"<p class='error'>".max_input_vars_error()."\n":"");}echo"<form action='' method='post' enctype='multipart/form-data'>\n";if($_GET["page"]!="last"&&$z&&$Xd&&$bf&&JUSH=="sql")$Md=get_val(" SELECT FOUND_ROWS()");if(!$K)echo"<p class='message'>".'No rows.'."\n";else{$Ka=adminer()->backwardKeys($a,$Yj);echo"<div class='scrollable'>","<table id='table' class='nowrap checkable odds'".on('click','tableClick').on('dblclick','tableClick').on('keydown','editingKeydown').">\n","<thead><tr>".(!$Xd&&$M?"":"<td class='hover check'><input type='checkbox' id='all-page' class='jsonly' title='".'All rows on this page'."'".on('click','formCheck','^check').">");$xg=array();$Sd=array();reset($M);$wi=1;foreach($K[0]as$x=>$X){if(!isset($Vk[$x])){$X=idx($_GET["columns"],key($M))?:array();$m=$n[$M?($X?$X["col"]:current($M)):$x];$C=($m?adminer()->fieldName($m,$wi):($X["fun"]?"*":h($x)));if($C!=""){$wi++;$xg[$x]=$C;$d=idf_escape($x);$te=remove_from_uri('(order|desc)[^=]*|page|next').'&order[0]='.url_escape($x);$kc="&desc[0]=1";$xj=preg_replace('~ DESC( NULLS LAST)?$~','',$lh[0]);$zj=($xj==$d||$xj==$x);echo"<th id='th[".h(bracket_escape($x))."]'".($zj?" aria-sort='".($xj==$lh[0]?"ascending":"descending")."'":"").">";$Rd=apply_sql_function($X["fun"],$C);$yj=isset($m["privileges"]["order"])||$Rd!=$C;echo($yj?"<a href='".h($te.($zj&&$xj==$lh[0]?$kc:''))."'>$Rd</a>":$Rd);$eg=($yj?"<a href='".h($te.$kc)."' title='".'descending'."' class='text'> ↓</a>":'');if(!$X["fun"]&&isset($m["privileges"]["where"]))$eg
-.="<a href='#fieldset-search' title='".'Search'."' class='text jsonly'".on('click','selectSearch',$x)."> =</a>";echo($eg?"<span class='column'>$eg</span>":"");}$Sd[$x]=$X["fun"];next($M);}}$Cf=array();if($_GET["modify"]){foreach($K
-as$J){foreach($J
-as$x=>$X)$Cf[$x]=max($Cf[$x],min(40,strlen(utf8_decode($X))));}}echo($Ka?"<th>".'Relations':"")."<tbody>\n";if(is_ajax())ob_end_clean();foreach(adminer()->rowDescriptions($K,$Jd)as$vg=>$J){$Sk=unique_array($K[$vg],$w);if(!$Sk){$Sk=array();reset($M);foreach($K[$vg]as$x=>$X){if(!preg_match('~^(COUNT|AVG|GROUP_CONCAT|MAX|MIN|SUM)\(~',current($M)))$Sk[$x]=$X;next($M);}}$Tk="";foreach($Sk
-as$x=>$X){$m=(array)$n[$x];$af=is_blob($m);if((JUSH=="sql"||JUSH=="pgsql")&&($af||preg_match('~char|text|enum|set~',$m["type"]))&&strlen($X)>64){$x=(strpos($x,'(')?$x:idf_escape($x));$x="MD5(".($af||JUSH!='sql'||preg_match("~^utf8~",$m["collation"])?$x:"CONVERT($x USING ".charset(connection()).")").")";$X=md5($af?(string)driver()->value($X,$m):$X);}$Tk
-.="&".($X!==null?"where[".url_escape(bracket_escape($x))."]=".url_escape($X===false?"f":$X):"null[]=".url_escape($x));}echo"<tr>".(!$Xd&&$M?"":"<td class='hover check'>".($bf||information_schema(DB)?"":"<a href='".h(ME."edit=".url_escape($a).$Tk)."' class='edit'>".'edit'."</a> ").checkbox("check[]",substr($Tk,1),in_array(substr($Tk,1),(array)$_POST["check"])));reset($M);foreach($J
-as$x=>$X){if(isset($xg[$x])){$d=current($M);$m=(array)$n[$x];if($X!=""&&(!isset($Nc[$x])||$Nc[$x]!=""))$Nc[$x]=(is_mail($X)?$xg[$x]:"");$_="";if(is_blob($m)&&$X!="")$_=ME.'download='.url_escape($a).'&field='.url_escape($x).$Tk;if(!$_&&$X!==null){foreach((array)$Jd[$x]as$p){if(count($Jd[$x])==1||end($p["source"])==$x){$_="";foreach($p["source"]as$s=>$_j)$_
-.=where_link($s,$p["target"][$s],$K[$vg][$_j]);$_=($p["db"]!=""?preg_replace('~([?&]db=)[^&]+~','\1'.url_escape($p["db"]),ME):ME).'select='.url_escape($p["table"]).$_;if($p["ns"])$_=preg_replace('~([?&]ns=)[^&]+~','\1'.url_escape($p["ns"]),$_);if(count($p["source"])==1)break;}}}if($d=="COUNT(*)"){$_=ME."select=".url_escape($a);$s=0;foreach((array)$_GET["where"]as$W){if(!array_key_exists($W["col"],$Sk))$_
-.=where_link($s++,$W["col"],$W["val"],$W["op"]);}foreach($Sk
-as$kf=>$W)$_
-.=where_link($s++,$kf,$W);}$ue=select_value($X,$_,$m,$nk);$u=bracket_escape($Tk);$t=h("val[$u][".bracket_escape($x)."]");$di=idx(idx($_POST["val"],$u),bracket_escape($x));$Yk=idx($m["privileges"],"update");$Jc=!is_array($J[$x])&&!is_blob($m)&&is_utf8($X)&&$K[$vg][$x]==$X&&!$Sd[$x]&&!$m["generated"]&&$Yk;$U=(preg_match('~^(AVG|MIN|MAX)\((.+)\)~',$d,$B)?$n[idf_unescape($B[2])]["type"]:$m["type"]);$lk=preg_match('~text|json|lob~',$U);$cf=preg_match(number_type(),$U)||preg_match('~^(CHAR_LENGTH|ROUND|FLOOR|CEIL|TIME_TO_SEC|COUNT|SUM)\(~',$d);echo"<td id='$t'".($cf&&($X===null||is_numeric(strip_tags($ue))||$U=="money")?" class='number'":"");if(($_GET["modify"]&&$Jc&&$X!==null)||$di!==null){$ce=h($di!==null?$di:$X);echo">".($lk?"<textarea name='$t' cols='30' rows='".(substr_count($X,"\n")+1)."'>$ce</textarea>":"<input name='$t' value='$ce' size='$Cf[$x]'>");}else{$Kf=strpos($ue,"<i>…</i>");echo($Yk?" data-text='".($Kf?2:($lk?1:0))."'".($Jc?"":" data-warning='".'Use edit link to modify this value.'."'"):"").">$ue";}}next($M);}if($Ka)echo"<td>";adminer()->backwardKeysPrint($Ka,$K[$vg]);echo"</tr>\n";}if(is_ajax())exit;echo"</table>\n","</div>\n";}if(!is_ajax()){if($K||$D||$he){$bd=true;if($_GET["page"]!="last"){if(!$z||(count($K)<$z&&($K||!$D)))$Md=($D?$D*$z:0)+count($K);elseif(JUSH!="sql"||!$bf){$Md=($bf?false:found_rows($S,$Z));if(intval($Md)<max(1e4,2*($D+1)*$z))$Md=first(slow_query(count_rows($a,$Z,$bf,$Xd)));elseif(JUSH=='sql'||JUSH=='pgsql')$bd=false;}}if(!support("cursor"))$he=(($Md===false?count($K)+1:$Md-$D*$z)>$z);$Ch=($z&&($he||$D));if($Ch)echo($he?'<p><a href="'.h(pagination_href($D+1)).'" class="loadmore"'.on('click','selectLoadMore','Loading…').'>'.'Load more data'.'</a>':''),"\n";echo"<div class='footer'><div>\n";if($Ch){$Vf=($Md===false?$D+($K?(count($K)>=$z?2:1):0):floor(($Md-1)/$z));echo"<fieldset><legend>".'Page'."</legend>";if(!support("cursor")){echo
-pagination(0,$D).($D>5?" …":"");for($s=max(1,$D-4);$s<min($Vf,$D+5);$s++)echo
-pagination($s,$D);if($Vf>0)echo($D+5<$Vf?" …":""),($bd&&$Md!==false?pagination($Vf,$D):" <a href='".h(remove_from_uri("page")."&page=last")."' title='~$Vf'>".'last'."</a>");}else
+',script("tableCheck();");}elseif($_GET["select"]!=""){$a=$_GET["select"];$R=table_status1($a);$v=indexes($a);$m=fields($a);$je=column_foreign_keys($a);$Zh=$R["Oid"];$kk=array();$e=array();$Bk=array();$ui=array();$lm=null;foreach($m
+as$w=>$l){$A=adminer()->fieldName($l);$xh=html_entity_decode(strip_tags($A),ENT_QUOTES);if(isset($l["privileges"]["select"])&&$A!=""){$e[$w]=$xh;if(is_shortable($l))$lm=adminer()->selectLengthProcess();}if(isset($l["privileges"]["where"])&&$A!="")$Bk[$w]=$xh;if(isset($l["privileges"]["order"])&&$A!="")$ui[$w]=$xh;$kk+=$l["privileges"];}list($L,$q)=adminer()->selectColumnsProcess($e,$v);$L=array_unique($L);$q=array_unique($q);$Pf=count($q)<count($L);$Z=adminer()->selectSearchProcess($m,$v,$R);$ti=adminer()->selectOrderProcess($m,$v);$y=adminer()->selectLimitProcess();if($_GET["val"]&&is_ajax()){header("Content-Type: text/plain; charset=utf-8");foreach($_GET["val"]as$Wm=>$I){$Fa=convert_field($m[key($I)]);$L=array($Fa?:idf_escape(key($I)));$Z[]=where_check(bracket_escape($Wm,true),$m);$H=driver()->select($a,$L,$Z,$L);if($H)echo
+first($H->fetch_row());}exit;}$_j=$Zm=array();foreach($v
+as$u){if($u["type"]=="PRIMARY"){$_j=array_flip($u["columns"]);$Zm=($L?$_j:array());foreach($Zm
+as$w=>$W){if(in_array(idf_escape($w),$L))unset($Zm[$w]);}break;}}if($Zh&&!$_j){$_j=$Zm=array($Zh=>0);$v[]=array("type"=>"PRIMARY","columns"=>array($Zh));}if($_POST&&!$k){$Gn=$Z;if(!$_POST["all"]&&is_array($_POST["check"])){$sb=array();foreach($_POST["check"]as$ob)$sb[]=where_check($ob,$m);$Gn[]="((".implode(") OR (",$sb)."))";}$In=$Gn;$Gn=($Gn?"\nWHERE ".implode(" AND ",$Gn):"");if($_POST["export"]){save_settings(array("output"=>$_POST["output"],"format"=>$_POST["format"]),"adminer_import");dump_headers($a);adminer()->dumpTable($a,"");$Fk=($L?:array("*"));$ac=convert_fields($e,$m,$L);if($ac)$Fk[]=substr($ac,2);$F="";if(is_array($_POST["check"])&&!$_j){$qe=implode(", ",$Fk)."\nFROM ".table($a);$Ce=($q&&$Pf?"\nGROUP BY ".implode(", ",$q):"").($ti?"\nORDER BY ".implode(", ",$ti):"");$Tm=array();foreach($_POST["check"]as$W)$Tm[]="(SELECT".limit($qe,"\nWHERE ".($Z?implode(" AND ",$Z)." AND ":"").where_check($W,$m).$Ce,1).")";$F=implode(" UNION ALL ",$Tm);}adminer()->dumpData($a,"table",$F,$Fk,$In,($Pf?$q:array()),$ti);adminer()->dumpFooter();exit;}if(!adminer()->selectEmailProcess($Z,$je)){if($_POST["save"]||$_POST["delete"]){$G=true;$ra=0;$Wa=false;$N=array();if(!$_POST["delete"]){foreach($m
+as$A=>$W){$t=bracket_escape($A);if(isset($_POST["fields"][$t])||$_FILES["fields-$t"]){$W=process_input($m[$A]);if($W!==null&&($_POST["clone"]||$W!==false))$N[idf_escape($A)]=($W!==false?$W:idf_escape($A));}}}if($_POST["delete"]||$N){$F=($_POST["clone"]?"INTO ".table($a)." (".implode(", ",array_keys($N)).")\nSELECT ".implode(", ",$N)."\nFROM ".table($a):"");if($_POST["all"]||($_j&&is_array($_POST["check"]))||$Pf){$G=($_POST["delete"]?driver()->delete($a,$Gn):($_POST["clone"]?queries("INSERT $F$Gn".driver()->insertReturning($a)):driver()->update($a,$N,$Gn)));$ra=connection()->affected_rows;if(is_object($G))$ra+=$G->num_rows;}else{$Wa=count((array)$_POST["check"])>1&&driver()->begin();foreach((array)$_POST["check"]as$W){$Fn="\nWHERE ".($Z?implode(" AND ",$Z)." AND ":"").where_check($W,$m);$G=($_POST["delete"]?driver()->delete($a,$Fn,1):($_POST["clone"]?queries("INSERT".limit1($a,$F,$Fn)):driver()->update($a,$N,$Fn,1)));if(!$G)break;$ra+=connection()->affected_rows;}if($Wa&&$G&&!driver()->commit())$G=false;}}$Zg=lang_format(array('%d item has been affected.','%d items have been affected.'),$ra);if($_POST["clone"]&&$G&&$ra==1){$mg=last_id($G);if($mg)$Zg=sprintf('Item%s has been inserted.'," $mg");}queries_redirect(remove_from_uri($_POST["all"]&&$_POST["delete"]?"page|next":""),$Zg,$G);if($Wa)driver()->rollback();if(!$_POST["delete"]){$qj=(array)$_POST["fields"];edit_form($a,array_intersect_key($m,$qj),$qj,!$_POST["clone"],$k);page_footer();exit;}}elseif(!$_POST["import"]){$G=true;$ra=0;$Wa=count((array)$_POST["val"])>1&&driver()->begin();foreach((array)$_POST["val"]as$Wm=>$I){$N=array();foreach($I
+as$w=>$W){$w=bracket_escape($w,true);$N[idf_escape($w)]=(preg_match('~char|text~',$m[$w]["type"])||$W!=""?adminer()->processInput($m[$w],$W):"NULL");}$G=driver()->update($a,$N," WHERE ".($Z?implode(" AND ",$Z)." AND ":"").where_check(bracket_escape($Wm,true),$m),($Pf||$_j?0:1)," ");if(!$G)break;$ra+=connection()->affected_rows;}if($Wa)$G=$G&&driver()->commit();queries_redirect(remove_from_uri(),lang_format(array('%d item has been affected.','%d items have been affected.'),$ra),$G);if($Wa)driver()->rollback();}else{save_settings(array("format"=>$_POST["separator"]),"adminer_import");$Td=get_file("csv_file",true);if(!is_string($Td))$k=upload_error($Td);elseif(!preg_match('~~u',$Td))$k='File must be in UTF-8 encoding.';else{$Db=array_keys($m);$Lk=($_POST["separator"]=="csv"?",":($_POST["separator"]=="tsv"?"\t":";"));$kc=parse_csv($Td,$Lk);$ra=count($kc);driver()->begin();$J=array();foreach($kc
+as$w=>$Y){if(!$w&&!array_diff($Y,$Db)){$Db=$Y;$ra--;}else{$N=array();foreach($Y
+as$r=>$_b)$N[idf_escape($Db[$r])]=($_b==""&&$m[$Db[$r]]["null"]?"NULL":q(csv_value($_b)));$J[]=$N;}}$G=(!$J||driver()->insertUpdate($a,$J,$_j));if($G)driver()->commit();queries_redirect(remove_from_uri("page|next"),lang_format(array('%d row has been imported.','%d rows have been imported.'),$ra),$G);driver()->rollback();}}}}$Sl=adminer()->tableName($R);if(is_ajax()){page_headers();ob_start();}else
+page_header('Select'.": $Sl",$k,array(),"",(!$m&&support("table")),($m?doc_link(array(JUSH=>driver()->tableHelp($a,is_view($R)))):""));$N=null;if(isset($kk["insert"])||!support("table")){$N="";foreach((array)$_GET["where"]as$W){$X=$W["val"];if(is_array($X))$X=(count($X)==1&&preg_match('~^val-(.*)~s',reset($X),$_)?$_[1]:"");if($W["col"]!=""&&$X!=""&&($W["op"]=="="||(!$W["op"]&&(is_array($W["val"])||!preg_match('~[_%]~',$X)))))$N
+.="&set[".url_escape(bracket_escape($W["col"]))."]=".url_escape($X);}}adminer()->selectLinks($R,$N);if(!$e&&support("table"))echo"<p class='error'>".'Unable to select the table.'."\n";else{echo"<form action='' id='form'>\n","<div hidden>";hidden_fields_get();echo(DB!=""?input_hidden("db",DB).(isset($_GET["ns"])?input_hidden("ns",$_GET["ns"]):""):""),input_hidden("select",$a),"</div>\n";adminer()->selectColumnsPrint($L,$e);adminer()->selectSearchPrint($Z,$Bk,$v,$R);adminer()->selectOrderPrint($ti,$ui,$v);adminer()->selectLimitPrint($y);if($lm!==null)adminer()->selectLengthPrint($lm);adminer()->selectActionPrint($v);echo"</form>\n";foreach((array)$_GET["where"]as$W){if($W["op"]=="SQL"&&!in_array($_SERVER["HTTP_SEC_FETCH_SITE"],array("","same-origin"))){echo"<p class='error'>".'Invalid CSRF token. Submit the form again.'.' '.'If you did not send this request from Adminer, close this page.'."\n";page_footer();exit;}}$C=$_GET["page"];$me=null;if($C=="last"){$me=get_val(count_rows($a,$Z,$Pf,$q));$C=floor(max(0,intval($me)-1)/$y);}$Ek=$L;$Be=$q;if(!$Ek){$Ek[]="*";$ac=convert_fields($e,$m,$L);if($ac)$Ek[]=substr($ac,2);}foreach($L
+as$w=>$W){$l=$m[idf_unescape($W)];if($l&&($Fa=convert_field($l)))$Ek[$w]="$Fa AS $W";}if(JUSH=="pgsql"||JUSH=="mssql"){foreach((array)$_GET["columns"]as$w=>$W){if(isset($Ek[$w])&&$W["fun"])$Ek[$w].=" AS ".idf_escape(apply_sql_function($W["fun"],($W["col"]!=""?$W["col"]:"*")));}}if(!$Pf&&$Zm){foreach($Zm
+as$w=>$W){$Ek[]=idf_escape($w);if($Be)$Be[]=idf_escape($w);}}$G=driver()->select($a,$Ek,$Z,$Be,$ti,$y,$C,true);if(!is_object($G))echo"<p class='error'>".(adminer()->error()?:'Unknown error.')."\n";else{if(JUSH=="mssql"&&$C)$G->seek($y*$C);$kd=array();$J=array();while($I=$G->fetch_assoc()){if($C&&JUSH=="oracle")unset($I["RNUM"]);$J[]=$I;}$Ne=($y&&(support("cursor")?$_GET["next"]!="":count($J)>=$y));if(is_ajax()&&$Ne)header("X-Next-Page: ".pagination_href($C+1));if($_GET["modify"]&&$J){$Qg=max_input_vars(count($J[0])+1,20);echo($Qg&&count($J)>$Qg?"<p class='error'>".max_input_vars_error()."\n":"");}echo"<form action='' method='post' enctype='multipart/form-data'".on_upload_progress($fn).">\n";if($_GET["page"]!="last"&&$y&&$q&&$Pf&&JUSH=="sql")$me=get_val(" SELECT FOUND_ROWS()");if(!$J)echo"<p class='message'>".'No rows.'."\n";else{$Sa=adminer()->backwardKeys($a,$Sl);$gk=array();reset($L);foreach($J[0]as$w=>$W){if(!isset($Zm[$w])){$W=idx($_GET["columns"],key($L))?:array();$gk[$w]=array("fun"=>$W["fun"],"col"=>($L?$W["col"]:$w));next($L);}}echo"<div class='scrollable'>","<table id='table' class='nowrap checkable odds'".on('click','tableClick').on('dblclick','tableClick').on('keydown','editingKeydown').">\n","<thead><tr>".(!$q&&$L?"":"<td class='hover check sticky'><input type='checkbox' id='all-page' class='jsonly' title='".'All rows on this page'."'".on('click','formCheck','^check').">");$zh=array();$Oj=1;foreach($gk
+as$w=>$W){$l=$m[$W["col"]];$A=($l?adminer()->fieldName($l,$Oj):($W["fun"]?"*":h($w)));if($A!=""){$Oj++;$zh[$w]=$A;$d=idf_escape($w);$df=remove_from_uri('(order|desc)[^=]*|page|next').'&order[0]='.url_escape($w);$Dc="&desc[0]=1";$jl=preg_replace('~ DESC( NULLS LAST)?$~','',$ti[0]);$ll=($jl==$d||$jl==$w);echo"<th id='th[".h(bracket_escape($w))."]'".($ll?" aria-sort='".($jl==$ti[0]?"ascending":"descending")."'":"").">";$ve=apply_sql_function(h($W["fun"]),$A);$kl=isset($l["privileges"]["order"])||$W["fun"];echo($kl?"<a href='".h($df.($ll&&$jl==$ti[0]?$Dc:''))."'>$ve</a>":$ve);$Yg=($kl?"<a href='".h($df.$Dc)."' title='".'descending'."' class='text'> ↓</a>":'');if(!$W["fun"]&&isset($l["privileges"]["where"]))$Yg
+.="<a href='#fieldset-search' title='".'Search'."' class='text jsonly'".on('click','selectSearch',$w)."> =</a>";echo($Yg?"<span class='column'>$Yg</span>":"");}}$tg=array();if($_GET["modify"]){foreach($J
+as$I){foreach($I
+as$w=>$W)$tg[$w]=max($tg[$w],min(40,utf8_length((string)$W)));}}$Ye=array();$Xe=array();foreach((array)$_GET["where"]as$W){$W+=array("col"=>"","op"=>"","val"=>"");$_b=$W["col"];$Ak=$W["val"];if(!is_array($Ak)&&($Ak!=""||preg_match('~NULL$~',$W["op"]))&&(!$W["op"]||in_array($W["op"],adminer()->operators($R)))){$vg=strtr(preg_quote($Ak),array("%"=>".*?","_"=>"."));$fj=array("LIKE %%"=>$vg,"ILIKE %%"=>$vg,"REGEXP"=>$Ak)+(JUSH=="pgsql"?array("~"=>$Ak,"~*"=>$Ak):array())+($_b!=""?array():array("="=>'^'.preg_quote($Ak).'\z',"IN"=>'^(?:'.implode("|",array_map('preg_quote',array_map('trim',explode(",",$Ak)))).')\z',"LIKE"=>"^$vg\\z","ILIKE"=>"^$vg\\z","FIND_IN_SET"=>'(?<=^|,)'.preg_quote($Ak).'(?=,|\z)',));foreach(($_b!=""?array($_b=>$m[$_b]):$m)as$A=>$l){if($_b!=""||is_searchable($l,$W)){$ki=$W["op"]?:(!preg_match('~'.text_type().'~',$l["type"])?"IN":(preg_match('~%~',$Ak)?"LIKE":"LIKE %%"));if(isset($fj[$ki])){$vb=preg_match('~^ILIKE|\*$~',$ki)||($ki!="~"&&preg_match('~^(sql|mssql|sqlite)$~',JUSH));$Ye[$A][]="(?".($vb?"i":"").":$fj[$ki])";}elseif($ki=="IS NULL"&&$_b=="")$Xe[$A]=true;}}}}echo($Sa?"<th>".'Relations':"")."<tbody>\n";if(is_ajax())ob_end_clean();foreach(adminer()->rowDescriptions($J,$je)as$th=>$I){$Vm=unique_array($J[$th],$v);if(!$Vm){$Vm=array();foreach($J[$th]as$w=>$W){if(!in_array(idx(idx($gk,$w,array()),"fun"),driver()->grouping))$Vm[$w]=$W;}}$Wm="";$r=0;foreach($Vm
+as$w=>$W){$fk=idx($gk,$w,array());$ve=idx($fk,"fun","");$_b=($ve?$fk["col"]:$w);$l=(array)$m[$_b];$Of=is_blob($l);if(!$ve&&strlen($W)>64&&driver()->md5(idf_escape($_b),$l)){$ve="md5";$W=md5($Of?(string)driver()->value($W,$l):$W);}if($ve){$Wm
+.="&fun[$r]=".url_escape($ve)."&col[$r]=".url_escape($_b).($W!==null?"&val[$r]=".url_escape($W===false?"f":$W):"");$r++;}else$Wm
+.="&".($W!==null?"where[".url_escape(bracket_escape($_b))."]=".url_escape($W===false?"f":$W):"null[]=".url_escape($_b));}echo"<tr>".(!$q&&$L?"":"<td class='hover check sticky'>".($Pf||information_schema(DB)?"":"<a href='".h(ME."edit=".url_escape($a).$Wm)."' class='edit'>".'edit'."</a> ").checkbox("check[]",substr($Wm,1),in_array(substr($Wm,1),(array)$_POST["check"])));foreach($I
+as$w=>$W){if(isset($zh[$w])){$ve=$gk[$w]["fun"];$_b=$gk[$w]["col"];$l=(array)$m[$w];if($W!=""&&(!isset($kd[$w])||$kd[$w]!=""))$kd[$w]=(is_mail($W)?$zh[$w]:"");$z="";if(is_blob($l)&&$W!="")$z=ME.'download='.url_escape($a).'&field='.url_escape($w).$Wm;if(!$z&&$W!==null){foreach((array)$je[$w]as$o){if(count($je[$w])==1||end($o["source"])==$w){$z="";foreach($o["source"]as$r=>$ml)$z
+.=where_link($r,$o["target"][$r],$J[$th][$ml]);$z=($o["db"]!=""?preg_replace('~([?&]db=)[^&]+~','\1'.url_escape($o["db"]),ME):ME).'select='.url_escape($o["table"]).$z;if($o["ns"])$z=preg_replace('~([?&]ns=)[^&]+~','\1'.url_escape($o["ns"]),$z);if(count($o["source"])==1)break;}}}if($ve=="count"&&$_b==""){$z=ME."select=".url_escape($a);$r=0;foreach((array)$_GET["where"]as$V){if(!array_key_exists($V["col"],$Vm))$z
+.=where_link($r++,$V["col"],$V["val"],$V["op"]);}foreach($Vm
+as$Yf=>$V){if(idx(idx($gk,$Yf,array()),"fun")){$z="";break;}$z
+.=where_link($r++,$Yf,$V);}}$ef=select_value($W,$z,$l,$lm,($ve?array():idx($Ye,$w,array())));if($W===null&&!$ve&&isset($Xe[$w]))$ef="<mark>$ef</mark>";$t=bracket_escape($Wm);$s=h("val[$t][".bracket_escape($w)."]");$sj=idx(idx($_POST["val"],$t),bracket_escape($w));$cn=idx($l["privileges"],"update")&&!is_identity_always($l);$gd=!is_array($I[$w])&&!is_blob($l)&&is_utf8($W)&&$J[$th][$w]==$W&&!$ve&&!$l["generated"]&&$cn;$T=($ve=="min"||$ve=="max"?$m[$_b]["type"]:$l["type"]);$km=preg_match('~text|json|lob~',$T);$Qf=preg_match(number_type(),$T)||preg_match('~^(avg|ceil|char_length|count|count distinct|floor|len|length|round|sum|time_to_sec)$~',$ve);echo"<td id='$s'".($Qf&&($W===null||is_numeric(strip_tags($ef))||$T=="money")?" class='number'":"");if(($_GET["modify"]&&$gd&&$W!==null)||$sj!==null){$Ie=h($sj!==null?$sj:$W);echo">".($km?"<textarea name='$s' cols='30' rows='".(substr_count($W,"\n")+1)."'>$Ie</textarea>":"<input name='$s' value='$Ie' size='$tg[$w]'>");}else{$Dg=strpos($ef,"<i>…</i>");echo($cn?" data-text='".($Dg?2:($km?1:0))."'".($gd?"":" data-warning='".'Use the edit link to modify this value.'."'"):"").">$ef";}}}if($Sa)echo"<td>";adminer()->backwardKeysPrint($Sa,$J[$th]);echo"</tr>\n";}if(is_ajax())exit;echo"</table>\n","</div>\n";}if(!is_ajax()){$qa=get_settings("adminer_import");if($J||$C||$Ne){$_d=true;if($_GET["page"]!="last"){if(!$y||(count($J)<$y&&($J||!$C)))$me=($C?$C*$y:0)+count($J);elseif(JUSH!="sql"||!$Pf){$me=($Pf?null:found_rows($R,$Z));$_d=!driver()->hasEstimatedRows();if($me===null||(!$_d&&$me<max(1e4,2*($C+1)*$y))){$me=first(slow_query(count_rows($a,$Z,$Pf,$q)));$_d=true;}}}if(!support("cursor"))$Ne=(($me===false?count($J)+1:$me-$C*$y)>$y);$Ki=($y&&($Ne||$C));if($Ki)echo($Ne?'<p><a href="'.h(pagination_href($C+1)).'" class="loadmore"'.on('click','selectLoadMore','Loading…').'>'.'Load more data'.'</a>':''),"\n";echo"<div class='footer'><div>\n";if($Ki){$Og=($me===false?$C+($J?(count($J)>=$y?2:1):0):floor(($me-1)/$y));echo"<fieldset><legend>".'Page'."</legend>";if(!support("cursor")){echo
+pagination(0,$C).($C>5?" …":"");for($r=max(1,$C-4);$r<min($Og,$C+5);$r++)echo
+pagination($r,$C);if($Og>0)echo($C+5<$Og?" …":""),($_d&&$me!==false?pagination($Og,$C):" <a href='".h(remove_from_uri("page")."&page=last")."' title='~$Og'>".'last'."</a>");}else
 echo
-pagination(0,$D).($D>1?" …":""),($D?pagination($D,$D):""),($he?pagination($D+1,$D)." …":"");echo"</fieldset>\n";}echo"<fieldset>","<legend>".'Whole result'."</legend>";$sc=($bd?"":"~ ").$Md;$rf=($Md!==false?($bd?"":"~ ").lang_format(array('%d row','%d rows'),$Md):"");echo
-checkbox("all",1,0,$rf,on('click','countRows',$sc))."\n","</fieldset>\n";if(adminer()->selectCommandPrint())echo'<fieldset',($_GET["modify"]?'':" title='".'Ctrl+click on a value to modify it.'."'"),'>
+pagination(0,$C).($C>1?" …":""),($C?pagination($C,$C):""),($Ne?pagination($C+1,$C)." …":"");echo"</fieldset>\n";}echo"<fieldset>","<legend>".'Whole result'."</legend>";$Lc=($_d?"":"~ ").$me;$gg=($me!==false?($_d?"":"~ ").lang_format(array('%d row','%d rows'),$me):"");echo
+checkbox("all",1,0,$gg,on('click','countRows',$Lc))."\n","</fieldset>\n";if(adminer()->selectCommandPrint())echo'<fieldset',($_GET["modify"]?'':" title='".'Ctrl+click on a value to modify it.'."'"),'>
 <legend><a href=\'',h($_GET["modify"]?remove_from_uri("modify"):relative_uri()."&modify=1"),'\'>Modify</a></legend><div>
-<input type=\'submit\' id=\'save\' value=\'Save\'',($_GET["modify"]?'':" class='jsonly' disabled"),'>
+<input type=\'submit\' id=\'save\' value=\'Save\'',($_GET["modify"]||$_POST["val"]?'':" class='jsonly' disabled"),'>
 </div></fieldset>
 
 <fieldset><legend>Selected <span id="selected"></span></legend><div>
@@ -2664,18 +2964,23 @@ checkbox("all",1,0,$rf,on('click','countRows',$sc))."\n","</fieldset>\n";if(admi
 <input type=\'submit\' name=\'clone\' value=\'Clone\'>
 <input type=\'submit\' name=\'delete\' value=\'Delete\'',confirm(),'>
 </div></fieldset>
-';$Kd=adminer()->dumpFormat();foreach((array)$_GET["columns"]as$d){if($d["fun"]){unset($Kd['sql']);break;}}if($Kd){print_fieldset("export",'Export'." <span id='selected2'></span>");$zh=adminer()->dumpOutput();echo($zh?html_select("output",$zh,$pa["output"])." ":""),html_select("format",$Kd,$pa["format"])," <input type='submit' name='export' value='".'Export'."'>\n","</div></fieldset>\n";}adminer()->selectEmailPrint(array_filter($Nc,'strlen'),$e);echo"</div></div>\n";}if(adminer()->selectImportPrint())echo"<p>","<a href='#import' class='toggle'>".'Import'."</a>","<span id='import'".($_POST["import"]?"":" class='hidden'").">: ",file_input(" name='csv_file'"," ".html_select("separator",array("csv"=>"CSV,","csv;"=>"CSV;","tsv"=>"TSV"),$pa["format"])." <input type='submit' name='import' value='".'Import'."'>"),"</span>";echo
-input_token(),"</form>\n",(!$Xd&&$M?"":script("tableCheck();"));}}}if(is_ajax()){ob_end_clean();exit;}}elseif(isset($_GET["variables"])){$P=isset($_GET["status"]);page_header($P?'Status':'Variables');$ql=($P?adminer()->showStatus():adminer()->showVariables());if(!$ql)echo"<p class='message'>".'No rows.'."\n";else{echo"<table>\n";foreach($ql
-as$J){echo"<tr>";$x=array_shift($J);echo"<th><code class='jush-".JUSH.($P?"status":"set")."'>".h($x)."</code>";foreach($J
-as$X)echo"<td>".nl_br(h($X));}echo"</table>\n";}}elseif(isset($_GET["script"])){header("Content-Type: application/json; charset=utf-8");if($_GET["script"]=="db"){$Rj=array("Data_length"=>0,"Index_length"=>0,"Data_free"=>0);foreach(table_status()as$C=>$S){json_row("Comment-$C",h($S["Comment"]));if(!is_view($S)||preg_match('~materialized~i',$S["Engine"])){foreach(array("Engine","Collation")as$x)json_row("$x-$C",h($S[$x]));foreach(array_keys($Rj+array("Auto_increment"=>0,"Rows"=>0))as$x){if(array_key_exists($x,$S))json_row("$x-$C",format_status($S,$x));if($S[$x]!=""&&isset($Rj[$x]))$Rj[$x]+=($S["Engine"]!="InnoDB"||$x!="Data_free"?$S[$x]:0);}}}if(function_exists('Adminer\db_status'))$Rj=db_status();foreach($Rj
-as$x=>$X)json_row("sum-$x",format_number($X));json_row("");}elseif($_GET["script"]=="kill")connection()->query("KILL ".number($_POST["kill"]));else{foreach(count_tables(adminer()->databases(false))as$j=>$X){json_row("tables-$j",$X);json_row("size-$j",db_size($j));}json_row("");}exit;}else{$fk=array_merge((array)$_POST["tables"],(array)$_POST["views"]);if($fk&&!$l&&!$_POST["search"]){$H=true;$fg="";if(JUSH=="sql"&&$_POST["tables"]&&count($_POST["tables"])>1&&($_POST["drop"]||$_POST["truncate"]||$_POST["copy"]))queries("SET foreign_key_checks = 0");if($_POST["truncate"]){if($_POST["tables"])$H=truncate_tables($_POST["tables"]);$fg='Tables have been truncated.';}elseif($_POST["move"]){$H=move_tables((array)$_POST["tables"],(array)$_POST["views"],$_POST["target"]);$fg='Tables have been moved.';}elseif($_POST["copy"]){$H=copy_tables((array)$_POST["tables"],(array)$_POST["views"],$_POST["target"]);$fg='Tables have been copied.';}elseif($_POST["drop"]){if($_POST["views"])$H=drop_views($_POST["views"]);if($H&&$_POST["tables"])$H=drop_tables($_POST["tables"]);$fg='Tables have been dropped.';}elseif(JUSH=="sqlite"&&$_POST["check"]){foreach((array)$_POST["tables"]as$R){foreach(get_rows("PRAGMA integrity_check(".q($R).")")as$J)$fg
-.="<b>".h($R)."</b>: ".h($J["integrity_check"])."<br>";}}elseif(JUSH!="sql"){$H=(JUSH=="sqlite"?queries("VACUUM"):apply_queries("VACUUM".($_POST["optimize"]?" ANALYZE":""),(array)$_POST["tables"]));$fg='Tables have been optimized.';}elseif(!$_POST["tables"])$fg='No tables.';elseif($H=queries(($_POST["optimize"]?"OPTIMIZE":($_POST["check"]?"CHECK":($_POST["repair"]?"REPAIR":"ANALYZE")))." TABLE ".implode(", ",array_map('Adminer\idf_escape',$_POST["tables"])))){while($J=$H->fetch_assoc())$fg
-.="<b>".h($J["Table"])."</b>: ".h($J["Msg_text"])."<br>";}queries_redirect($_SERVER["REQUEST_URI"],$fg,$H);}page_header(($_GET["ns"]==""?'Database'.": ".h(DB):'Schema'.": ".h($_GET["ns"])),$l,true);if(adminer()->homepage()){if($_GET["ns"]!==""){$lh=$_GET["order"];$Pd=($lh||support("fast_status"));echo"<div>\n","<h3 id='tables-views'>".'Tables and views'."</h3>\n";$ek=($Pd?table_status():tables_list());if(!$ek)echo"<p class='message'>".'No tables.'."\n";else{echo"<form action='' method='post'>\n";if(support("table")){echo"<fieldset><legend>".'Search data in tables'." <span id='selected2'></span></legend><div>",html_select("op",adminer()->operators(),idx($_POST,"op",JUSH=="elastic"?"should":"LIKE %%"))," <input type='search' name='query' value='".h($_POST["query"])."'".on('keydown','submitKeydown','search').">"," <input type='submit' name='search' value='".'Search'."'>\n","</div></fieldset>\n";if(!$l&&$_POST["search"]&&$_POST["query"]!=""){$_GET["where"][0]["op"]=$_POST["op"];search_tables();}}echo"<div class='scrollable'>\n","<table class='nowrap checkable odds'".on('click','tableClick').on('dblclick','tableClick').">\n",'<thead><tr class="wrap">','<td class="hover"><input id="check-all" type="checkbox" class="jsonly" title="'.'All'.'"'.on('click','formCheck','^(tables|views)\[').'>','<th'.(!$lh&&JUSH!='sqlite'?" aria-sort='ascending'":'').'><a href="'.h(substr(ME,0,-1)).'">'.'Table'.'</a>';$e=array("Engine"=>array('Engine'.doc_link(array('sql'=>'storage-engines.html'))));if(collations())$e["Collation"]=array('Collation'.doc_link(array('sql'=>'charset-charsets.html','mariadb'=>'supported-character-sets-and-collations/')));if(function_exists('Adminer\alter_table'))$e["Data_length"]=array('Data Length'.doc_link(array('sql'=>'show-table-status.html','pgsql'=>'functions-admin.html#FUNCTIONS-ADMIN-DBOBJECT','oracle'=>'REFRN20286')),"create",'Alter table',);if(support("indexes"))$e["Index_length"]=array('Index Length'.doc_link(array('sql'=>'show-table-status.html','pgsql'=>'functions-admin.html#FUNCTIONS-ADMIN-DBOBJECT')),"indexes",'Alter indexes',);$e["Data_free"]=array('Data Free'.doc_link(array('sql'=>'show-table-status.html')),"edit",'New item');if(function_exists('Adminer\alter_table'))$e["Auto_increment"]=array('Auto Increment'.doc_link(array('sql'=>'example-auto-increment.html','mariadb'=>'auto_increment/')),"auto_increment=1&create",'Alter table',);$e["Rows"]=array('Rows'.doc_link(array('sql'=>'show-table-status.html','pgsql'=>'catalog-pg-class.html#CATALOG-PG-CLASS','oracle'=>'REFRN20286')),"select",'Select data',);if(support("comment"))$e["Comment"]=array('Comment'.doc_link(array('sql'=>'show-table-status.html','pgsql'=>'functions-info.html#FUNCTIONS-INFO-COMMENT-TABLE')));$Ba=array('Engine','Collation','Comment');foreach($e
-as$x=>$d)echo"<th".($lh==$x?" aria-sort='".(in_array($x,$Ba)?"ascending":"descending")."'":"")."><a href='".h(ME)."order=$x'>$d[0]</a>";echo"<tbody>\n";if($lh){uasort($ek,function($ia,$Ha)use($lh,$Ba){$I=($ia[$lh]<$Ha[$lh]?-1:($ia[$lh]>$Ha[$lh]?1:0));return(in_array($lh,$Ba)?$I:-$I);});}$T=0;$Rj=array("Data_length"=>0,"Index_length"=>0,"Data_free"=>0);foreach($ek
-as$C=>$P){$tl=($Pd?is_view($P):$P!==null&&!preg_match('~table|sequence~i',$P));$P=($Pd?$P:array('Engine'=>$P));$t=h("Table-".$C);echo'<tr><td class="hover">'.checkbox(($tl?"views[]":"tables[]"),$C,in_array("$C",$fk,true),"","","",$t),'<th>'.(support("table")||support("indexes")?"<a href='".h(ME)."table=".url_escape($C)."' title='".'Show structure'."' id='$t'>".h($C).'</a>':h($C));if($tl&&!preg_match('~materialized~i',$P['Engine'])){$rk='View';echo'<td colspan="'.(count($e)-(support("comment")?2:1)).'">'.(support("view")?"<a href='".h(ME)."view=".url_escape($C)."' title='".'Alter view'."'>$rk</a>":$rk),"<td align='right'><a href='".h(ME)."select=".url_escape($C)."' title='".'Select data'."'>?</a>";if(support("comment"))echo'<td>'.h($P['Comment']);}else{if($Pd){foreach(array_keys($Rj)as$x)$Rj[$x]+=($P["Engine"]!="InnoDB"||$x!="Data_free"?idx($P,$x):0);}foreach($e
-as$x=>$d){$t=" id='$x-".h($C)."'";echo($d[1]?"<td align='right'><a href='".h(ME."$d[1]=").url_escape($C)."'$t title='$d[2]'>".format_status($P,$x)."</a>":"<td$t>".h(idx($P,$x,'?')));}$T++;}echo"\n";}echo"<tr><td class='hover'><th>".sprintf('%d in total',count($ek)),"<td>".h(JUSH=="sql"?get_val("SELECT @@default_storage_engine"):""),(collations()?"<td>".h(db_collation(DB,collations())):'');if($Pd&&function_exists('Adminer\db_status'))$Rj=db_status();foreach($Rj
-as$x=>$Qj)echo($e[$x]?"<td align='right' id='sum-$x'>".($Pd?format_number($Qj):""):"");echo"\n","</table>\n",($Pd?'':script("ajaxSetHtml('".js_escape(ME)."script=db');")),"</div>\n";if(!information_schema(DB)){$ml="<input type='submit' value='".'Vacuum'."'".on_help("VACUUM")."> ";$hh="<input type='submit' name='optimize' value='".'Optimize'."'".on_help(JUSH=="sql"?"OPTIMIZE TABLE":"VACUUM ANALYZE")."> ";$ki=(JUSH=="sqlite"?$ml."<input type='submit' name='check' value='".'Check'."'".on_help("PRAGMA integrity_check")."> ":(JUSH=="pgsql"?$ml.$hh:(JUSH=="sql"?"<input type='submit' value='".'Analyze'."'".on_help("ANALYZE TABLE")."> ".$hh."<input type='submit' name='check' value='".'Check'."'".on_help("CHECK TABLE")."> "."<input type='submit' name='repair' value='".'Repair'."'".on_help("REPAIR TABLE")."> ":""))).(function_exists('Adminer\truncate_tables')?"<input type='submit' name='truncate' value='".'Truncate'."'".confirm().on_help(JUSH=="sqlite"?"DELETE":"TRUNCATE".(JUSH=="pgsql"?"":" TABLE"))."> ":"").(function_exists('Adminer\drop_tables')?"<input type='submit' name='drop' value='".'Drop'."'".confirm().on_help("DROP TABLE").">":"");echo($ki?"<div class='footer'><div>\n<fieldset><legend>".'Selected'." <span id='selected'></span></legend><div>$ki\n</div></fieldset>\n":"");$i=(support("scheme")?adminer()->schemas():adminer()->databases());if(count($i)!=1&&function_exists('Adminer\move_tables')){echo"<fieldset><legend>".'Move to other database'." <span id='selected3'></span></legend><div>";$j=(isset($_POST["target"])?$_POST["target"]:(support("scheme")?$_GET["ns"]:DB));echo($i?html_select("target",$i,$j):'<input name="target" value="'.h($j).'" autocapitalize="off">'),"</label> <input type='submit' name='move' value='".'Move'."'>",(support("copy")?" <input type='submit' name='copy' value='".'Copy'."'> ".checkbox("overwrite",1,$_POST["overwrite"],'overwrite'):""),"</div></fieldset>\n";}echo"<input type='hidden' name='all' value=''".on('click','countTables',$T).">\n",input_token(),"</div></div>\n";}echo"</form>\n",script("tableCheck();");}echo(function_exists('Adminer\alter_table')?"<p class='links hover'><a href='".h(ME)."create='>".'Create table'."</a>\n":''),(support("view")?"<a href='".h(ME)."view='>".'Create view'."</a>\n":""),"</div>\n";if(support("routine")){echo"<div>\n","<h3 id='routines'>".'Routines'."</h3>\n";$Si=routines();if($Si){echo"<table class='odds'>\n",'<thead><tr><th>'.'Name'.'<td>'.'Type'.'<td>'.'Return type'."<td class='hover'><tbody>\n";foreach($Si
-as$J){$C=($J["SPECIFIC_NAME"]==$J["ROUTINE_NAME"]?"":"&name=".url_escape($J["ROUTINE_NAME"]));echo'<tr>','<th><a href="'.h(ME.($J["ROUTINE_TYPE"]!="PROCEDURE"?'callf=':'call=').url_escape($J["SPECIFIC_NAME"]).$C).'">'.h($J["ROUTINE_NAME"]).'</a>','<td>'.h($J["ROUTINE_TYPE"]),'<td>'.h($J["DTD_IDENTIFIER"]),'<td class="hover"><a href="'.h(ME.($J["ROUTINE_TYPE"]!="PROCEDURE"?'function=':'procedure=').url_escape($J["SPECIFIC_NAME"]).$C).'">'.'Alter'."</a>";}echo"</table>\n";}echo'<p class="links hover">'.(support("procedure")?'<a href="'.h(ME).'procedure=">'.'Create procedure'.'</a>':'').'<a href="'.h(ME).'function=">'.'Create function'."</a>\n","</div>\n";}if(support("sequence")){echo"<div>\n","<h3 id='sequences'>".'Sequences'."</h3>\n";$kj=get_vals("SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace = ".driver()->nsOid." ORDER BY relname");if($kj){echo"<table class='odds'>\n","<thead><tr><th>".'Name'."<tbody>\n";foreach($kj
-as$X)echo"<tr><th><a href='".h(ME)."sequence=".url_escape($X)."'>".h($X)."</a>\n";echo"</table>\n";}echo"<p class='links hover'><a href='".h(ME)."sequence='>".'Create sequence'."</a>\n","</div>\n";}if(support("type")){echo"<div>\n","<h3 id='user-types'>".'User types'."</h3>\n";$jl=types();if($jl){echo"<table class='odds'>\n","<thead><tr><th>".'Name'."<tbody>\n";foreach($jl
-as$X)echo"<tr><th><a href='".h(ME)."type=".url_escape($X)."'>".h($X)."</a>\n";echo"</table>\n";}echo"<p class='links hover'><a href='".h(ME)."type='>".'Create type'."</a>\n","</div>\n";}if(support("event")){echo"<div>\n","<h3 id='events'>".'Events'."</h3>\n";$K=get_rows("SHOW EVENTS");if($K){echo"<table>\n","<thead><tr><th>".'Name'."<td>".'Schedule'."<td>".'Start'."<td>".'End'."<td><tbody>\n";foreach($K
-as$J)echo"<tr>","<th>".h($J["Name"]),"<td>".($J["Execute at"]?'At given time'."<td>".h($J["Execute at"]):'Every'." ".h($J["Interval value"])." ".h($J["Interval field"])."<td>".h($J["Starts"])),"<td>".h($J["Ends"]),'<td><a href="'.h(ME).'event='.url_escape($J["Name"]).'">'.'Alter'.'</a>';echo"</table>\n";$Zc=get_val("SELECT @@event_scheduler");if($Zc&&$Zc!="ON")echo"<p class='error'><code class='jush-sqlset'>event_scheduler</code>: ".h($Zc)."\n";}echo'<p class="links hover"><a href="'.h(ME).'event=">'.'Create event'."</a>\n","</div>\n";}}}}page_footer();
+';$ke=adminer()->dumpFormat();foreach((array)$_GET["columns"]as$d){if($d["fun"]){unset($ke['sql']);break;}}if($ke){print_fieldset("export",'Export'." <span id='selected2'></span>");$Gi=adminer()->dumpOutput();echo($Gi?html_select("output",$Gi,$qa["output"])." ":""),html_select("format",$ke,$qa["format"])," <input type='submit' name='export' value='".'Export'."'>\n","</div></fieldset>\n";}adminer()->selectEmailPrint(array_filter($kd,'strlen'),$e);echo"</div></div>\n";}if(adminer()->selectImportPrint())echo"<p>","<a href='#import' class='toggle'>".'Import'."</a>","<span id='import'".($_POST["import"]?"":" class='hidden'").">: ",($fn?input_hidden(ini_get("session.upload_progress.name"),$fn):""),file_input(" name='csv_file'"," ".html_select("separator",array("csv"=>"CSV,","csv;"=>"CSV;","tsv"=>"TSV"),$qa["format"])." <input type='submit' name='import' value='".'Import'."'>".($fn?" <progress class='jsonly hidden' max='1' value='0'></progress>":"")),"</span>";echo
+input_token(),"</form>\n",(!$q&&$L?"":script("tableCheck();"));}}}if(is_ajax()){ob_end_clean();exit;}}elseif(isset($_GET["variables"])){$O=isset($_GET["status"]);page_header($O?'Status':'Variables');$wn=($O?adminer()->showStatus():adminer()->showVariables());if(!$wn)echo"<p class='message'>".'No rows.'."\n";else{echo"<table>\n";foreach($wn
+as$I){echo"<tr>";$w=array_shift($I);echo"<th><code class='jush-".JUSH.($O?"status":"set")."'>".h($w)."</code>";foreach($I
+as$W)echo"<td>".nl_br(h($W));}echo"</table>\n";}}elseif(isset($_GET["script"])){header("Content-Type: application/json; charset=utf-8");if($_GET["script"]=="db"){$Hl=array("Data_length"=>0,"Index_length"=>0,"Data_free"=>0);foreach(table_status()as$A=>$R){json_row("Comment-$A",h($R["Comment"]).($R["Error"]?" <span class='error'>".h($R["Error"])."</span>":""));if(!is_view($R)||preg_match('~materialized~i',$R["Engine"])){foreach(array("Engine","Collation")as$w)json_row("$w-$A",h($R[$w]));foreach(array_keys($Hl+array("Auto_increment"=>0,"Rows"=>0))as$w){if(array_key_exists($w,$R))json_row("$w-$A",format_status($R,$w));if($R[$w]!=""&&isset($Hl[$w]))$Hl[$w]+=($R["Engine"]!="InnoDB"||$w!="Data_free"?$R[$w]:0);}}}if(function_exists('Adminer\db_status'))$Hl=db_status();foreach($Hl
+as$w=>$W)json_row("sum-$w",format_number($W));json_row("");}elseif($_GET["script"]=="kill"){if(!$k)connection()->query("KILL ".number($_POST["kill"]));}else{foreach(count_tables(adminer()->databases(false))as$i=>$W){json_row("tables-$i",format_number($W));json_row("size-$i",db_size($i));}json_row("");}exit;}else{if(!isset($_GET["select"])&&support("single_table")){$S=tables_list();if($S)redirect(ME.(support("table")?"table=":"select=").url_escape(key($S)));}$Vg=ME.(isset($_GET["select"])?"select=&":"");$cm=array_merge((array)$_POST["tables"],(array)$_POST["views"]);if($cm&&!$k&&!$_POST["search"]){$G=true;$Zg="";if(JUSH=="sql"&&$_POST["tables"]&&count($_POST["tables"])>1&&($_POST["drop"]||$_POST["truncate"]||$_POST["copy"]))queries("SET foreign_key_checks = 0");if($_POST["truncate"]){if($_POST["tables"])$G=truncate_tables($_POST["tables"]);$Zg='Tables have been truncated.';}elseif($_POST["move"]){$G=move_tables((array)$_POST["tables"],(array)$_POST["views"],$_POST["target"]);$Zg='Tables have been moved.';}elseif($_POST["copy"]){$G=copy_tables((array)$_POST["tables"],(array)$_POST["views"],$_POST["target"]);$Zg='Tables have been copied.';}elseif($_POST["drop"]){if($_POST["views"])$G=drop_views($_POST["views"]);if($G&&$_POST["tables"])$G=drop_tables($_POST["tables"]);$Zg='Tables have been dropped.';}elseif(JUSH=="sqlite"&&$_POST["check"]){foreach((array)$_POST["tables"]as$Q){foreach(get_rows("PRAGMA integrity_check(".q($Q).")")as$I)$Zg
+.="<b>".h($Q)."</b>: ".h($I["integrity_check"])."<br>";}}elseif(JUSH=="mssql"&&$_POST["check"]){foreach((array)$_POST["tables"]as$Q){foreach(get_rows("DBCC CHECKTABLE (".q(table($Q)).") WITH TABLERESULTS")as$I)$Zg
+.="<b>".h($Q)."</b>: ".h($I["MessageText"])."<br>";}}elseif(JUSH!="sql"){$G=(JUSH=="sqlite"?queries("VACUUM"):apply_queries("VACUUM".($_POST["optimize"]?" ANALYZE":""),(array)$_POST["tables"]));$Zg='Tables have been optimized.';}elseif(!$_POST["tables"])$Zg='No tables.';elseif($G=queries(($_POST["optimize"]?"OPTIMIZE":($_POST["check"]?"CHECK":($_POST["repair"]?"REPAIR":"ANALYZE")))." TABLE ".implode(", ",array_map('Adminer\idf_escape',$_POST["tables"])))){while($I=$G->fetch_assoc())$Zg
+.="<b>".h($I["Table"])."</b>: ".h($I["Msg_text"])."<br>";}queries_redirect(relative_uri(),$Zg,$G);}page_header(($_GET["ns"]==""?'Database'.": ".h(DB):'Schema'.": ".h($_GET["ns"])),$k,true);if(adminer()->homepage()){if($_GET["ns"]!==""){$ti=$_GET["order"];$se=($ti||support("fast_status"));echo"<div>\n","<h3 id='tables-views'>".'Tables and views'."</h3>\n";$bm=($se?table_status():tables_list());if(!$bm)echo"<p class='message'>".'No tables.'."\n";else{echo"<form action='' method='post'>\n";if(support("table")){echo"<fieldset><legend>".'Search data in tables'." <span id='selected2'></span></legend><div>",html_select("op",adminer()->operators(),idx($_POST,"op",JUSH=="elastic"?"should":"LIKE %%"))," <input type='search' name='query' value='".h($_POST["query"])."'".on('keydown','submitKeydown','search').">"," <input type='submit' name='search' value='".'Search'."'>\n","</div></fieldset>\n";if(!$k&&$_POST["search"]&&$_POST["query"]!=""){$_GET["where"][0]["op"]=$_POST["op"];search_tables();}}echo"<div class='scrollable'>\n","<table class='nowrap checkable odds'".on('click','tableClick').on('dblclick','tableClick').">\n",'<thead><tr>','<td class="hover"><input id="check-all" type="checkbox" class="jsonly" title="'.'All'.'"'.on('click','formCheck','^(tables|views)\[').'>','<th class="sticky"'.(!$ti&&JUSH!='sqlite'?" aria-sort='ascending'":'').'><a href="'.h(substr($Vg,0,-1)).'">'.'Table'.'</a>';$e=array("Engine"=>array('Engine'.doc_link(array('sql'=>'storage-engines.html'))));if(collations())$e["Collation"]=array('Collation'.doc_link(array('sql'=>'charset-charsets.html','mariadb'=>'supported-character-sets-and-collations/')));if(function_exists('Adminer\alter_table'))$e["Data_length"]=array('Data Length'.doc_link(array('sql'=>'show-table-status.html','pgsql'=>'functions-admin.html#FUNCTIONS-ADMIN-DBOBJECT','oracle'=>'refrn/ALL_TABLES.html')),"create",'Alter table',);if(support("indexes"))$e["Index_length"]=array('Index Length'.doc_link(array('sql'=>'show-table-status.html','pgsql'=>'functions-admin.html#FUNCTIONS-ADMIN-DBOBJECT')),"indexes",'Alter indexes',);$e["Data_free"]=array('Data Free'.doc_link(array('sql'=>'show-table-status.html')),"edit",'New item');if(function_exists('Adminer\alter_table'))$e["Auto_increment"]=array('Auto Increment'.doc_link(array('sql'=>'example-auto-increment.html','mariadb'=>'auto_increment/')),"auto_increment=1&create",'Alter table',);$e["Rows"]=array('Rows'.doc_link(array('sql'=>'show-table-status.html','pgsql'=>'catalog-pg-class.html#CATALOG-PG-CLASS','oracle'=>'refrn/ALL_TABLES.html')),"select",'Select data',);if(support("comment"))$e["Comment"]=array('Comment'.doc_link(array('sql'=>'show-table-status.html','pgsql'=>'functions-info.html#FUNCTIONS-INFO-COMMENT-TABLE','cockroach'=>'comment-on')),);$Ga=array('Engine','Collation','Comment');foreach($e
+as$w=>$d)echo"<th".($ti==$w?" aria-sort='".(in_array($w,$Ga)?"ascending":"descending")."'":"")."><a href='".h($Vg)."order=$w'>$d[0]</a>";echo"<tbody>\n";if($ti){uasort($bm,function($ha,$Pa)use($ti,$Ga){$H=($ha[$ti]<$Pa[$ti]?-1:($ha[$ti]>$Pa[$ti]?1:0));return(in_array($ti,$Ga)?$H:-$H);});}$S=0;$Hl=array("Data_length"=>0,"Index_length"=>0,"Data_free"=>0);foreach($bm
+as$A=>$O){$zn=($se?is_view($O):$O!==null&&!preg_match('~table|sequence~i',$O));$O=($se?$O:array('Engine'=>$O));$s=h("Table-".$A);echo'<tr><td class="hover">'.checkbox(($zn?"views[]":"tables[]"),$A,in_array("$A",$cm,true),"","","",$s),'<th class="sticky">'.(support("table")||support("indexes")?"<a href='".h(ME)."table=".url_escape($A)."' title='".'Show structure'."' id='$s'>".h($A).'</a>':h($A));if($zn&&!preg_match('~materialized~i',$O['Engine'])){$qm='View';echo'<td colspan="'.(count($e)-(support("comment")?2:1)).'">'.(support("view")?"<a href='".h(ME)."view=".url_escape($A)."' title='".'Alter view'."'>$qm</a>":$qm),"<td align='right'><a href='".h(ME)."select=".url_escape($A)."' title='".'Select data'."'>?</a>";if(support("comment"))echo'<td>'.h($O['Comment']);}else{if($se){foreach(array_keys($Hl)as$w)$Hl[$w]+=($O["Engine"]!="InnoDB"||$w!="Data_free"?idx($O,$w):0);}foreach($e
+as$w=>$d){$s=" id='$w-".h($A)."'";echo($d[1]?"<td align='right'><a href='".h(ME."$d[1]=").url_escape($A)."'$s title='$d[2]'>".format_status($O,$w)."</a>":"<td$s>".h(idx($O,$w,'?')).($w=="Comment"&&$O["Error"]?" <span class='error'>".h($O["Error"])."</span>":""));}$S++;}echo"\n";}echo"<tr><td class='hover'><th class='sticky'>".sprintf('%d in total',count($bm)),"<td>".h(JUSH=="sql"?get_val("SELECT @@default_storage_engine"):""),(collations()?"<td>".h(db_collation(DB,collations())):'');if($se&&function_exists('Adminer\db_status'))$Hl=db_status();foreach($Hl
+as$w=>$Gl)echo($e[$w]?"<td align='right' id='sum-$w'>".($se?format_number($Gl):""):"");echo"\n","</table>\n",($se?'':script("ajaxSetHtml('".js_escape(ME)."script=db');")),"</div>\n";if(!information_schema(DB)){$sn="<input type='submit' value='".'Vacuum'."'".on_help("VACUUM")."> ";$pi="<input type='submit' name='optimize' value='".'Optimize'."'".on_help(JUSH=="sql"?"OPTIMIZE TABLE":"VACUUM ANALYZE")."> ";$Bj=(JUSH=="sqlite"?$sn."<input type='submit' name='check' value='".'Check'."'".on_help("PRAGMA integrity_check")."> ":(JUSH=="pgsql"?$sn.$pi:(JUSH=="mssql"?"<input type='submit' name='check' value='".'Check'."'".on_help("DBCC CHECKTABLE")."> ":(JUSH=="sql"?"<input type='submit' value='".'Analyze'."'".on_help("ANALYZE TABLE")."> ".$pi."<input type='submit' name='check' value='".'Check'."'".on_help("CHECK TABLE")."> "."<input type='submit' name='repair' value='".'Repair'."'".on_help("REPAIR TABLE")."> ":"")))).(function_exists('Adminer\truncate_tables')?"<input type='submit' name='truncate' value='".'Truncate'."'".confirm().on_help(JUSH=="sqlite"?"DELETE":"TRUNCATE".(JUSH=="pgsql"?"":" TABLE"))."> ":"").(function_exists('Adminer\drop_tables')?"<input type='submit' name='drop' value='".'Drop'."'".confirm().on_help("DROP TABLE").">":"");echo($Bj?"<div class='footer'><div>\n<fieldset><legend>".'Selected'." <span id='selected'></span></legend><div>$Bj\n</div></fieldset>\n":"");$h=(support("scheme")?adminer()->schemas():adminer()->databases());if(count($h)!=1&&function_exists('Adminer\move_tables')){echo"<fieldset><legend>".'Move to another database'." <span id='selected3'></span></legend><div>";$i=(isset($_POST["target"])?$_POST["target"]:(support("scheme")?$_GET["ns"]:DB));echo($h?html_select("target",$h,$i):'<input name="target" value="'.h($i).'" autocapitalize="off">'),"</label> <input type='submit' name='move' value='".'Move'."'>",(support("copy")?" <input type='submit' name='copy' value='".'Copy'."'> ".checkbox("overwrite",1,$_POST["overwrite"],'overwrite'):""),"</div></fieldset>\n";}echo"<input type='hidden' name='all' value=''".on('click','countTables',$S).">\n",input_token(),"</div></div>\n";}echo"</form>\n",script("tableCheck();");}echo(function_exists('Adminer\alter_table')?"<p class='links hover'><a href='".h(ME)."create='>".'Create table'."</a>\n":''),(support("view")?"<a href='".h(ME)."view='>".'Create view'."</a>\n":""),"</div>\n";if(support("routine")){echo"<div>\n","<h3 id='routines'>".'Routines'."</h3>\n";$sk=routines();if($sk){echo"<table class='odds'>\n",'<thead><tr><th>'.'Name'.'<th>'.'Type'.'<th>'.'Return type'."<td class='hover'><tbody>\n";foreach($sk
+as$I){$A=($I["SPECIFIC_NAME"]==$I["ROUTINE_NAME"]?"":"&name=".url_escape($I["ROUTINE_NAME"]));echo'<tr>','<th><a href="'.h(ME.($I["ROUTINE_TYPE"]!="PROCEDURE"?'callf=':'call=').url_escape($I["SPECIFIC_NAME"]).$A).'" title="'.'Call'.'">'.h($I["ROUTINE_NAME"]).'</a>','<td>'.h($I["ROUTINE_TYPE"]),'<td>'.h($I["DTD_IDENTIFIER"]),'<td class="hover"><a href="'.h(ME.($I["ROUTINE_TYPE"]!="PROCEDURE"?'function=':'procedure=').url_escape($I["SPECIFIC_NAME"]).$A).'">'.'Alter'."</a>";}echo"</table>\n";}echo'<p class="links hover">'.(support("procedure")?'<a href="'.h(ME).'procedure=">'.'Create procedure'.'</a>':'').'<a href="'.h(ME).'function=">'.'Create function'."</a>\n","</div>\n";}if(support("sequence")){echo"<div>\n","<h3 id='sequences'>".'Sequences'."</h3>\n";$Pk=get_vals("SELECT relname FROM pg_class WHERE relkind = 'S' AND relnamespace = ".driver()->nsOid." ORDER BY relname");if($Pk){echo"<table class='odds'>\n","<thead><tr><th>".'Name'."<tbody>\n";foreach($Pk
+as$W)echo"<tr><th><a href='".h(ME)."sequence=".url_escape($W)."'>".h($W)."</a>\n";echo"</table>\n";}echo"<p class='links hover'><a href='".h(ME)."sequence='>".'Create sequence'."</a>\n","</div>\n";}if(support("type")){echo"<div>\n","<h3 id='user-types'>".'User types'."</h3>\n";$pn=types();if($pn){echo"<table class='odds'>\n","<thead><tr><th>".'Name'."<tbody>\n";foreach($pn
+as$W)echo"<tr><th><a href='".h(ME)."type=".url_escape($W)."'>".h($W)."</a>\n";echo"</table>\n";}echo"<p class='links hover'><a href='".h(ME)."type='>".'Create type'."</a>\n","</div>\n";}if(support("event")){echo"<div>\n","<h3 id='events'>".'Events'."</h3>\n";$J=get_rows("SHOW EVENTS");if($J){echo"<table>\n","<thead><tr><th>".'Name'."<th>".'Schedule'."<th>".'Start'."<th>".'End'."<td class='hover'><tbody>\n";foreach($J
+as$I)echo"<tr>","<th>".h($I["Name"]),"<td>".($I["Execute at"]?'At given time'."<td>".h($I["Execute at"]):'Every'." ".h($I["Interval value"])." ".h($I["Interval field"])."<td>".h($I["Starts"])),"<td>".h($I["Ends"]),'<td class="hover"><a href="'.h(ME).'event='.url_escape($I["Name"]).'">'.'Alter'.'</a>';echo"</table>\n";$xd=get_val("SELECT @@event_scheduler");if($xd&&$xd!="ON")echo"<p class='error'><code class='jush-sqlset'>event_scheduler</code>: ".h($xd)."\n";}echo'<p class="links hover"><a href="'.h(ME).'event=">'.'Create event'."</a>\n","</div>\n";}}elseif(support("extension")){$Id=get_rows("SELECT e.extname, e.extversion, n.nspname, obj_description(e.oid, 'pg_extension') AS comment
+FROM pg_extension e
+JOIN pg_namespace n ON n.oid = e.extnamespace
+ORDER BY e.extname");if($Id){echo"<div>\n","<h3 id='extensions'>".'Extensions'."</h3>\n","<table class='odds'>\n","<thead><tr><th>".'Name'."<th>".'Version'."<th>".'Schema'."<th>".'Comment'."<tbody>\n";foreach($Id
+as$I)echo"<tr><th><code class='jush-pgsqlext'>".h($I["extname"])."</code>","<td>".h($I["extversion"]),"<td><a href='".h(substr(ME,0,-1).url_escape($I["nspname"]))."'>".h($I["nspname"])."</a>","<td>".h($I["comment"]),"\n";echo"</table>\n","</div>\n";}}}}page_footer();
