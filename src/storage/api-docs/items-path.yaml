@@ -17,6 +17,30 @@ get:
       description: Show entries associated with this ItemId
       type: integer
     - in: query
+      name: CompletionStatusId
+      description: Show entries associated with this CompletionStatusId
+      type: integer
+    - in: query
+      name: TranscriptionStatusId
+      description: Show entries associated with this TranscriptionStatusId
+      type: integer
+    - in: query
+      name: TaggingStatusId
+      description: Show entries associated with this TaggingStatusId
+      type: integer
+    - in: query
+      name: LocationStatusId
+      description: Show entries associated with this LocationStatusId
+      type: integer
+    - in: query
+      name: DescriptionStatusId
+      description: Show entries associated with this DescriptionStatusId
+      type: integer
+    - in: query
+      name: AutomaticEnrichmentStatusId
+      description: Show entries associated with this AutomaticEnrichmentStatusId
+      type: integer
+    - in: query
       name: separator
       description: If set determines that the query (StoryId, ItemId) is a multiple query string and separated by this separator
       schema:
