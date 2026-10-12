@@ -13,6 +13,7 @@ class ProjectController extends ResponseController
     {
         $queryColumns = [
             'Name' => 'Name',
+            'Url' => 'Url',
         ];
 
         $initialSortColumn = 'ProjectId';
