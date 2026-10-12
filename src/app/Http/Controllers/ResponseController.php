@@ -112,7 +112,7 @@ class ResponseController extends Controller
 
                 if ($isBoolean) {
                     $values = array_map(
-                        fn ($value) => $this->parseBooleanFilter(
+                        fn($value) => $this->parseBooleanFilter(
                             $queryName,
                             $value,
                         ),
