@@ -62,6 +62,20 @@ class ProjectTest extends TestCase
             ->assertJson($awaitedData);
     }
 
+    public function testGetAllProjectsByUrl(): void
+    {
+        $queryParams = '?Url=' . ProjectDataSeeder::$data[1]['Url'];
+        $awaitedSuccess = ['success' => true];
+        $awaitedData = ['data' => [ProjectDataSeeder::$data[1]]];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJson($awaitedData);
+    }
+
     public function testGetASingleProject(): void
     {
         $queryParams = '/' . ProjectDataSeeder::$data[1]['ProjectId'];
