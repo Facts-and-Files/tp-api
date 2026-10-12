@@ -35,6 +35,19 @@ class StoryTest extends TestCase
             ->assertJsonCount(3, 'data');
     }
 
+    public function test_get_only_non_public_stories(): void
+    {
+        $queryParams = '?Public=false';
+        $awaitedSuccess = ['success' => true];
+
+        $response = $this->get(self::$endpoint . $queryParams);
+
+        $response
+            ->assertOk()
+            ->assertJson($awaitedSuccess)
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.StoryId', 3);
+    }
     public function test_get_a_non_existent_story_returns_404(): void
     {
         $queryParams = '/999999999999';
