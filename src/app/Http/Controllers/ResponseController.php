@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ResponseController extends Controller
 {
@@ -86,24 +87,55 @@ class ResponseController extends Controller
 
         $sep = $queries['separator'] ?? false;
 
-        // Normalize to Builder
+        // Normalize to Eloquent Builder.
         $query = $modelOrBuilder instanceof Model
             ? $modelOrBuilder->newQuery()
             : $modelOrBuilder;
 
+        $casts = $query->getModel()->getCasts();
+
         foreach ($queries as $queryName => $queryValue) {
-            if (array_key_exists($queryName, $queryColumns)) {
-                if ($sep) {
-                    $queryValueArray = array_map('trim', explode($sep, $queryValue));
-                    $query->whereIn($queryColumns[$queryName], $queryValueArray);
-                    continue;
+            if (!array_key_exists($queryName, $queryColumns)) {
+                continue;
+            }
+
+            $column = $queryColumns[$queryName];
+
+            $isBoolean = in_array(
+                $casts[$column] ?? null,
+                ['boolean', 'bool'],
+                true,
+            );
+
+            if ($sep) {
+                $values = array_map('trim', explode($sep, $queryValue));
+
+                if ($isBoolean) {
+                    $values = array_map(
+                        fn ($value) => $this->parseBooleanFilter(
+                            $queryName,
+                            $value,
+                        ),
+                        $values,
+                    );
                 }
 
-                if ($broadMatch === false) {
-                    $query->where($queryColumns[$queryName], $queryValue);
-                } else {
-                    $query->where($queryColumns[$queryName], 'LIKE', '%' . $queryValue . '%');
-                }
+                $query->whereIn($column, $values);
+                continue;
+            }
+
+            if ($isBoolean) {
+                $query->where(
+                    $column,
+                    $this->parseBooleanFilter($queryName, $queryValue),
+                );
+                continue;
+            }
+
+            if ($broadMatch === false) {
+                $query->where($column, $queryValue);
+            } else {
+                $query->where($column, 'LIKE', '%' . $queryValue . '%');
             }
         }
 
@@ -111,9 +143,37 @@ class ResponseController extends Controller
 
         $query = $this->filterDataByDateTime($query, $queries);
 
-        $query = $this->filterDataByQueries($query, $queries, $initialSortColumn);
+        $query = $this->filterDataByQueries(
+            $query,
+            $queries,
+            $initialSortColumn,
+        );
 
         return $query->get();
+    }
+
+    protected function parseBooleanFilter(
+        string $parameter,
+        mixed $value,
+    ): int {
+        $boolean = is_scalar($value)
+            ? filter_var(
+                $value,
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            )
+            : null;
+
+        if (
+            $boolean === null
+            || (is_string($value) && trim($value) === '')
+        ) {
+            throw ValidationException::withMessages([
+                $parameter => ['The filter must be a valid boolean value.'],
+            ]);
+        }
+
+        return (int) $boolean;
     }
 
     protected function filterDataByDateTime(Builder $query, array $queries): Builder

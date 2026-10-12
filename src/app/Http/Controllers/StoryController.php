@@ -20,6 +20,7 @@ class StoryController extends ResponseController
             'ProjectId' => 'ProjectId',
             'DatasetId' => 'DatasetId',
             'StoryId' => 'StoryId',
+            'Public' => 'Public',
         ];
 
         $initialSortColumn = 'StoryId';
