@@ -33,6 +33,11 @@ get:
       schema:
         type: string
     - in: query
+      name: Public
+      description: Show only public entries
+      schema:
+        type: boolean
+    - in: query
       name: separator
       description: If set determines that the query (f.i. DatasetId, RecordId, StoryId) is a multiple query string and separated by this separator
       schema:
