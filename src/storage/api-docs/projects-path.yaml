@@ -17,6 +17,10 @@ get:
       name: Name
       description: Show entries associated with this Name
       type: string
+    - in: query
+      name: Url
+      description: Show entries associated with this Url
+      type: string
   responses:
     200:
       description: Ok
