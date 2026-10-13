@@ -216,29 +216,31 @@ class ResponseController extends Controller
         array $queries,
         string $initialSortColumn,
     ): Builder {
-        $limit = $queries['limit'] ?? 100;
-        $page = $queries['page'] ?? 1;
+        $limit = max(1, (int) ($queries['limit'] ?? 100));
+        $page = max(1, (int) ($queries['page'] ?? 1));
         $orderBy = $queries['orderBy'] ?? $initialSortColumn;
         $orderBy = $orderBy === 'id' ? $initialSortColumn : $orderBy;
         $orderDir = $queries['orderDir'] ?? 'asc';
+
         $offset = $limit * ($page - 1);
-        $count = $query->count();
+        $count = (int) $query->count();
+        $hasEntries = $offset < $count;
 
         $this->meta = [
-            'limit' => (int) $limit,
-            'currentPage' => (int) $page,
-            'lastPage' => ceil($count / $limit),
-            'fromEntry' => ($page - 1) * $limit + 1,
-            'toEntry' => min($page * $limit, $count),
+            'limit' => $limit,
+            'currentPage' => $page,
+            'lastPage' => (int) ceil($count / $limit),
+            'fromEntry' => $hasEntries ? $offset + 1 : 0,
+            'toEntry' => $hasEntries
+                ? min($offset + $limit, $count)
+                : 0,
             'totalEntries' => $count,
         ];
 
-        $filtered = $query
+        return $query
             ->limit($limit)
             ->offset($offset)
             ->orderBy($orderBy, $orderDir);
-
-        return $filtered;
     }
 
     protected function filterDataByFieldlist(
