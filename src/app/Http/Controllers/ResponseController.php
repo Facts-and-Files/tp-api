@@ -255,18 +255,23 @@ class ResponseController extends Controller
             return $data;
         }
 
-        $fieldlist = explode(',', $queries['fieldlist']);
-        $fieldlist = array_map('trim', $fieldlist);
-        $fieldlist[] = $queries['orderBy'] ?? $initialSortColumn;
-        $fieldlist = array_merge($defaults, $fieldlist);
-        $fieldlist = array_unique($fieldlist);
-        $dataArray = $data->toArray()[0] ?? $data->toArray();
-        $fieldsToRemove = array_filter(array_keys($dataArray), function ($field) use ($fieldlist) {
-            return !in_array($field, $fieldlist);
-        });
+        $fieldlist = array_map(
+            'trim',
+            explode(',', $queries['fieldlist']),
+        );
 
-        $data->each(function ($data) use ($fieldsToRemove) {
-            $data->makeHidden($fieldsToRemove);
+        $orderBy = $queries['orderBy'] ?? $initialSortColumn;
+        $orderBy = $orderBy === 'id'
+            ? $initialSortColumn
+            : $orderBy;
+
+        $fieldlist = array_values(array_unique(array_filter(
+            array_merge($defaults, $fieldlist, [$orderBy]),
+            static fn (string $field): bool => $field !== '',
+        )));
+
+        $data->each(function (Model $model) use ($fieldlist): void {
+            $model->setVisible($fieldlist);
         });
 
         return $data;
