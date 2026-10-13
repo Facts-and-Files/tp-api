@@ -267,7 +267,7 @@ class ResponseController extends Controller
 
         $fieldlist = array_values(array_unique(array_filter(
             array_merge($defaults, $fieldlist, [$orderBy]),
-            static fn (string $field): bool => $field !== '',
+            static fn(string $field): bool => $field !== '',
         )));
 
         $data->each(function (Model $model) use ($fieldlist): void {
