@@ -23,7 +23,7 @@ jobs:
           echo "local_path=$LOCAL_PATH" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up WireGuard Connection
         uses: niklaskeerl/easy-wireguard-action@v2
@@ -64,12 +64,12 @@ jobs:
             tar -xf ${{ env.deployfile }}
             chcon -t httpd_user_rw_content_t -R ${{ env.remote_folder}}.${{ env.now }}
             cd ${{ env.remote_folder}}.${{ env.now }}
-            php83 composer.phar install --optimize-autoloader --no-dev
-            php83 artisan optimize:clear
-            php83 artisan config:cache
-            php83 artisan route:cache
-            php83 artisan view:cache
-            php83 artisan migrate --force --no-interaction
+            php composer.phar install --optimize-autoloader --no-dev
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan migrate --force --no-interaction
             cd ${{ env.remote_path }}
             unlink ${{ env.remote_folder }}
             ln -s ${{ env.remote_folder }}.${{ env.now }} ${{ env.remote_folder }}
